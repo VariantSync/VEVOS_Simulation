@@ -12,7 +12,7 @@
 
     <properties>
         <!-- Adjust your java version here -->
-        <java.version>15</java.version>
+        <java.version>16</java.version>
 		<!-- Adjust the path to the class that contains the main-method, that is to be executed, here -->
 		<path.to.main>${project.groupId}.Main</path.to.main>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -73,14 +73,12 @@
         </plugins>
     </build>
 
-	<!-- IN CASE YOU NEED ANY LOCAL LIBS
     <repositories>
         <repository>
             <id>local-maven-repo</id>
             <url>file:///${project.basedir}/local-maven-repo</url>
         </repository>
     </repositories>
-	-->
 
     <dependencies>
         <dependency>
@@ -88,6 +86,18 @@
             <artifactId>junit-jupiter</artifactId>
             <version>${junit.jupiter.version}</version>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>de.ovgu</groupId>
+            <artifactId>featureide.lib.fm</artifactId>
+            <version>3.7.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.sat4j</groupId>
+            <artifactId>core</artifactId>
+            <version>2.3.5</version>
         </dependency>
     </dependencies>
 </project>
