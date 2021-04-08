@@ -5,16 +5,16 @@
     <modelVersion>4.0.0</modelVersion>
 
 	<!-- Adjust group id for anonymous projects -->
-    <groupId>de.hub.mse</groupId>
+    <groupId>de.variantsync.subjects</groupId>
 	<!-- Adjust the project name -->
-    <artifactId>MyProject</artifactId>
+    <artifactId>SPLVariantEvolution</artifactId>
     <version>0.0.1</version>
 
     <properties>
         <!-- Adjust your java version here -->
         <java.version>15</java.version>
 		<!-- Adjust the path to the class that contains the main-method, that is to be executed, here -->
-		<path.to.main>${groupId}.MyMainClass</path.to.main>
+		<path.to.main>${groupId}.Main</path.to.main>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
@@ -68,7 +68,6 @@
             </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.2</version>
             </plugin>
         </plugins>
     </build>
@@ -88,6 +87,11 @@
             <artifactId>junit-jupiter</artifactId>
             <version>${junit.jupiter.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jgit</groupId>
+            <artifactId>org.eclipse.jgit</artifactId>
+            <version>3.5.0.201409260305-r</version>
         </dependency>
     </dependencies>
 </project>
