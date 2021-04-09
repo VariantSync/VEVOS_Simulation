@@ -51,30 +51,39 @@ public class VariabilityRepoBuilder {
                 LOGGER.exception("Was not able to checkout commit: ", e);
                 throw e;
             }
-
-            // Check whether the processed Linux commit resulted in an error
-            String splCommit;
-            try {
-                splCommit = TextIO.readLastLine(currentCommitFile);
-                LOGGER.debug("Processed SPL commit " + splCommit);
-                if (errorFile.exists()) {
-                    for (var errorCommit : TextIO.readLinesAsArray(errorFile)) {
-                        if (errorCommit.equals(splCommit)) {
-                            errorCommits.add(splCommit);
+            if (currentCommitFile.exists()) {
+                // Check whether the processed Linux commit resulted in an error
+                String splCommit;
+                try {
+                    splCommit = TextIO.readLastLine(currentCommitFile);
+                    LOGGER.debug("Processed SPL commit " + splCommit);
+                    if (errorFile.exists()) {
+                        boolean hadError = false;
+                        for (var errorCommit : TextIO.readLinesAsArray(errorFile)) {
+                            if (errorCommit.equals(splCommit)) {
+                                hadError = true;
+                                break;
+                            }
+                        }
+                        if(hadError) {
+                            errorCommits.add(commit.getName());
                             LOGGER.debug("The extraction of variability for SPL commit " + splCommit + " had resulted in an error.");
                         } else {
-                            successCommits.add(splCommit);
+                            successCommits.add(commit.getName());
                             LOGGER.debug("The extraction of variability for SPL commit " + splCommit + " had been successful");
                         }
+                    } else {
+                        successCommits.add(commit.getName());
+                        LOGGER.debug("The extraction of variability for SPL commit " + splCommit + " had been successful");
                     }
+                } catch (IOException e) {
+                    LOGGER.exception("Was not able to retrieve information about processed commits: ", e);
+                    throw e;
                 }
-            } catch (IOException e) {
-                LOGGER.exception("Was not able to retrieve information about processed commits: ", e);
-                throw e;
+                // Map commit to Linux revision
+                eCommitToSPLCommit.put(commit.getName(), splCommit);
+                splCommitToECommit.put(splCommit, commit.getName());
             }
-            // Map commit to Linux revision
-            eCommitToSPLCommit.put(commit.getName(), splCommit);
-            splCommitToECommit.put(splCommit, commit.getName());
         }
         return new VariabilityRepo(eCommitToSPLCommit, getLogicalParentsMap(splCommitToECommit), successCommits, errorCommits);
     }

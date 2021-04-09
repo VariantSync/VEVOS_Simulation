@@ -23,4 +23,9 @@ public class GitUtil {
             throw e;
         }
     }
+    public static void cloneRepo(File targetDir, String uri) throws GitAPIException {
+        LOGGER.info("Cloning " + uri + " into " + targetDir);
+        Git.cloneRepository().setURI(uri).setCloneAllBranches(true).setDirectory(targetDir).call();
+        LOGGER.info("Cloning complete.");
+    }
 }

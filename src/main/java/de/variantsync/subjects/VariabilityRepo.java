@@ -16,7 +16,7 @@ public class VariabilityRepo {
     private final Set<String> errorCommits;
     private final Set<String> successCommits;
 
-    VariabilityRepo(Map<String, String> commitToSPLCommit, Map<String, String[]> childParentMap, Set<String> errorCommits, Set<String> successCommits) {
+    VariabilityRepo(Map<String, String> commitToSPLCommit, Map<String, String[]> childParentMap, Set<String> successCommits, Set<String> errorCommits) {
         this.commitToSPLCommit = commitToSPLCommit;
         this.childParentMap = childParentMap;
         this.errorCommits = errorCommits;
