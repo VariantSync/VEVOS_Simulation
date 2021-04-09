@@ -21,8 +21,14 @@ public class SimpleConsoleLogger {
         return new SimpleConsoleLogger(name);
     }
 
+    public void debug(String message) {
+        if (logLevel.ordinal() >= DEBUG.ordinal()) {
+            System.out.println(format(message, DEBUG));
+        }
+    }
+
     public void info(String message) {
-        if (logLevel == INFO) {
+        if (logLevel.ordinal() >= INFO.ordinal()) {
             System.out.println(format(message, INFO));
         }
     }
@@ -32,19 +38,21 @@ public class SimpleConsoleLogger {
     }
 
     public void status(String message) {
-        if (logLevel == INFO || logLevel == STATUS) {
+        if (logLevel.ordinal() >= STATUS.ordinal()) {
             System.out.println(format(message, STATUS));
         }
     }
 
     public void warning(String message) {
-        if (logLevel == INFO || logLevel == STATUS || logLevel == WARNING) {
+        if (logLevel.ordinal() >= WARNING.ordinal()) {
             System.out.println(format(message, WARNING));
         }
     }
 
     public void error(String message) {
-        System.err.println(format(message, INFO));
+        if (logLevel.ordinal() >= ERROR.ordinal()) {
+            System.err.println(format(message, ERROR));
+        }
     }
 
     public <T> void error(Collection<T> collection) {
@@ -52,7 +60,9 @@ public class SimpleConsoleLogger {
     }
 
     public void exception(String message, Exception e) {
-        System.err.println(format(message + "\n" + e.getMessage(), INFO));
+        if (logLevel.ordinal() >= ERROR.ordinal()) {
+            System.err.println(format(message + "\n" + e.getMessage(), ERROR));
+        }
     }
 
     public static void setLogLevel(LogLevel level) {
