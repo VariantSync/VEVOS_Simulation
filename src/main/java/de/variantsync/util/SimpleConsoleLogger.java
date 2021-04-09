@@ -23,13 +23,13 @@ public class SimpleConsoleLogger {
     }
 
     public void debug(String message) {
-        if (logLevel.ordinal() >= DEBUG.ordinal()) {
+        if (logLevel.ordinal() <= DEBUG.ordinal()) {
             System.out.println(format(message, DEBUG));
         }
     }
 
     public void info(String message) {
-        if (logLevel.ordinal() >= INFO.ordinal()) {
+        if (logLevel.ordinal() <= INFO.ordinal()) {
             System.out.println(format(message, INFO));
         }
     }
@@ -39,19 +39,19 @@ public class SimpleConsoleLogger {
     }
 
     public void status(String message) {
-        if (logLevel.ordinal() >= STATUS.ordinal()) {
+        if (logLevel.ordinal() <= STATUS.ordinal()) {
             System.out.println(format(message, STATUS));
         }
     }
 
     public void warning(String message) {
-        if (logLevel.ordinal() >= WARNING.ordinal()) {
+        if (logLevel.ordinal() <= WARNING.ordinal()) {
             System.out.println(format(message, WARNING));
         }
     }
 
     public void error(String message) {
-        if (logLevel.ordinal() >= ERROR.ordinal()) {
+        if (logLevel.ordinal() <= ERROR.ordinal()) {
             System.err.println(format(message, ERROR));
         }
     }
@@ -61,7 +61,7 @@ public class SimpleConsoleLogger {
     }
 
     public void exception(String message, Exception e) {
-        if (logLevel.ordinal() >= ERROR.ordinal()) {
+        if (logLevel.ordinal() <= ERROR.ordinal()) {
             System.err.println(format(message + "\n" + e.getMessage(), ERROR));
         }
     }
@@ -98,7 +98,8 @@ public class SimpleConsoleLogger {
                 if (callerClassName==null) {
                     callerClassName = ste.getClassName();
                 } else if (!callerClassName.equals(ste.getClassName())) {
-                    return ste.getClassName();
+                    String[] name = ste.getClassName().split("\\.");
+                    return name[name.length-1];
                 }
             }
         }
