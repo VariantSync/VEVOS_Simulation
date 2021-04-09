@@ -14,8 +14,7 @@ public class VariabilityRepoTest {
 
     @Test
     public void successCommitsAreLoaded() throws GitAPIException, IOException {
-        VariabilityRepoBuilder repoBuilder = new VariabilityRepoBuilder(simpleVariabilityRepoDir, simpleHistoryRepoDir);
-        VariabilityRepo repo = repoBuilder.build();
+        VariabilityRepo repo = VariabilityRepoBuilder.build(simpleVariabilityRepoDir, simpleHistoryRepoDir);
 
         String[] expectedSuccessCommits = new String[]{
                 "674d9d7f78f92a3cea19392b853d3f39e6482959",
@@ -34,8 +33,7 @@ public class VariabilityRepoTest {
 
     @Test
     public void errorCommitsAreLoaded() throws GitAPIException, IOException {
-        VariabilityRepoBuilder repoBuilder = new VariabilityRepoBuilder(simpleVariabilityRepoDir, simpleHistoryRepoDir);
-        VariabilityRepo repo = repoBuilder.build();
+        VariabilityRepo repo = VariabilityRepoBuilder.build(simpleVariabilityRepoDir, simpleHistoryRepoDir);
 
         String[] expectedErrorCommits = new String[]{
                 "1915b9aa580c6e3a332146b3a579f015db627377",
@@ -52,8 +50,7 @@ public class VariabilityRepoTest {
 
     @Test
     public void logicalParentsAreLoaded() throws GitAPIException, IOException {
-        VariabilityRepoBuilder repoBuilder = new VariabilityRepoBuilder(simpleVariabilityRepoDir, simpleHistoryRepoDir);
-        VariabilityRepo repo = repoBuilder.build();
+        VariabilityRepo repo = VariabilityRepoBuilder.build(simpleVariabilityRepoDir, simpleHistoryRepoDir);
 
         assert repo.getParents("ebbe5041a6d15964251aee37b1b2ea81946f790b") == null;
         assert repo.getParents("674d9d7f78f92a3cea19392b853d3f39e6482959").length == 0;
@@ -65,8 +62,7 @@ public class VariabilityRepoTest {
 
     @Test
     public void correctCommitsWithOneParentFiltered() throws GitAPIException, IOException {
-        VariabilityRepoBuilder repoBuilder = new VariabilityRepoBuilder(simpleVariabilityRepoDir, simpleHistoryRepoDir);
-        VariabilityRepo repo = repoBuilder.build();
+        VariabilityRepo repo = VariabilityRepoBuilder.build(simpleVariabilityRepoDir, simpleHistoryRepoDir);
 
         String[] expectedSuccessCommits = new String[]{
                 "d398531661b986467c2f15e7ef3b1429f0d4ad54",
@@ -83,8 +79,7 @@ public class VariabilityRepoTest {
 
     @Test
     public void splCommitsMapped() throws GitAPIException, IOException {
-        VariabilityRepoBuilder repoBuilder = new VariabilityRepoBuilder(simpleVariabilityRepoDir, simpleHistoryRepoDir);
-        VariabilityRepo repo = repoBuilder.build();
+        VariabilityRepo repo = VariabilityRepoBuilder.build(simpleVariabilityRepoDir, simpleHistoryRepoDir);
 
         String[] variabilityCommits = new String[]{
                 "674d9d7f78f92a3cea19392b853d3f39e6482959",

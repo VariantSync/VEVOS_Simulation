@@ -2,6 +2,7 @@ package de.variantsync;
 
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import de.variantsync.sat.SAT;
+import de.variantsync.subjects.VariabilityRepo;
 import org.prop4j.*;
 
 public class Main {

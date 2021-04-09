@@ -1,22 +1,21 @@
 package de.variantsync.subjects;
 
 import de.variantsync.util.SimpleConsoleLogger;
+
 import java.lang.String;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class VariabilityRepo {
+public record VariabilityRepo(Map<String, String> commitToSPLCommit,
+                              Map<String, String[]> childParentMap,
+                              Set<String> successCommits,
+                              Set<String> errorCommits) {
     private static final SimpleConsoleLogger LOGGER = SimpleConsoleLogger.get();
-    private final Map<String, String> commitToSPLCommit;
-    private final Map<String, String[]> childParentMap;
-    private final Set<String> errorCommits;
-    private final Set<String> successCommits;
 
-    VariabilityRepo(Map<String, String> commitToSPLCommit, Map<String, String[]> childParentMap, Set<String> successCommits, Set<String> errorCommits) {
+    public VariabilityRepo(Map<String, String> commitToSPLCommit, Map<String, String[]> childParentMap, Set<String> successCommits, Set<String> errorCommits) {
         this.commitToSPLCommit = commitToSPLCommit;
         this.childParentMap = childParentMap;
         this.errorCommits = errorCommits;

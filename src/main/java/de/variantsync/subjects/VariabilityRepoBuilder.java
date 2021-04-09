@@ -15,15 +15,8 @@ import static de.variantsync.subjects.Constants.*;
 
 public class VariabilityRepoBuilder {
     private static final SimpleConsoleLogger LOGGER = SimpleConsoleLogger.get();
-    private final File extractionRepoDir;
-    private final File splRepoDir;
 
-    public VariabilityRepoBuilder(File extractionRepoDir, File splRepoDir) {
-        this.extractionRepoDir = extractionRepoDir;
-        this.splRepoDir = splRepoDir;
-    }
-
-    public VariabilityRepo build() throws IOException, GitAPIException {
+    public static VariabilityRepo build(File extractionRepoDir, File splRepoDir) throws IOException, GitAPIException {
         LOGGER.status("Building VariabilityRepo instance for " + extractionRepoDir);
         File currentCommitFile = new File(extractionRepoDir, CURRENT_COMMIT_FILE);
         File errorFile = new File(extractionRepoDir, ERROR_FILE);
@@ -85,10 +78,10 @@ public class VariabilityRepoBuilder {
                 splCommitToECommit.put(splCommit, commit.getName());
             }
         }
-        return new VariabilityRepo(eCommitToSPLCommit, getLogicalParentsMap(splCommitToECommit), successCommits, errorCommits);
+        return new VariabilityRepo(eCommitToSPLCommit, getLogicalParentsMap(splCommitToECommit, splRepoDir), successCommits, errorCommits);
     }
 
-    private Map<String, String[]> getLogicalParentsMap(Map<String, String> splCommitToECommit) throws IOException, GitAPIException {
+    private static Map<String, String[]> getLogicalParentsMap(Map<String, String> splCommitToECommit, File splRepoDir) throws IOException, GitAPIException {
         LOGGER.debug("Creating logical parents map.");
         Git git = GitUtil.loadGitRepo(splRepoDir);
 
