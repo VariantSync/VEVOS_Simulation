@@ -63,15 +63,16 @@ public class VariabilityRepoTest {
     public void correctCommitsWithOneParentFiltered() throws GitAPIException, IOException {
         VariabilityRepo repo = VariabilityRepo.load(simpleVariabilityRepoDir, simpleHistoryRepoDir);
 
-        String[] expectedSuccessCommits = new String[]{
-                "d398531661b986467c2f15e7ef3b1429f0d4ad54",
-                "6e0a4e66c09be9850d5dc5537ac9980c369fb392",
+        VariabilityRepo.CommitPair[] expectedCommitPairs = new VariabilityRepo.CommitPair[]{
+                new VariabilityRepo.CommitPair("d398531661b986467c2f15e7ef3b1429f0d4ad54","674d9d7f78f92a3cea19392b853d3f39e6482959"),
+                new VariabilityRepo.CommitPair("6e0a4e66c09be9850d5dc5537ac9980c369fb392", "907d04e53eb1dc242cc05c3137c7a794c9639172")
         };
 
-        for (var commit : expectedSuccessCommits) {
-            assert repo.getCommitsForEvolutionStudy().contains(commit);
+        Set<VariabilityRepo.CommitPair> pairs = repo.getCommitPairsForEvolutionStudy();
+        for (var commitPair : expectedCommitPairs) {
+            assert pairs.contains(commitPair);
         }
-        assert repo.getCommitsForEvolutionStudy().size() == expectedSuccessCommits.length;
+        assert repo.getCommitPairsForEvolutionStudy().size() == expectedCommitPairs.length;
     }
 
     @Test

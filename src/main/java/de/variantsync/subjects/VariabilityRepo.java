@@ -132,22 +132,22 @@ public class VariabilityRepo {
     }
 
     /**
-     * Return the set of commits for which the following holds:
+     * Return the set of commit pairs (childCommit, parentCommit) for which the following holds:
      * <ul>
      *     <li>
-     *         The commit contains successfully extracted variability information, i.e., feature model and code variability
+     *         childCommit processed its corresponding SPL commit successfully, i.e., feature model and code variability was extracted
      *     </li>
      *     <li>
-     *         The SPL commit, which was processed by this commit, has exactly one parent commit (it is no merge commit)
+     *         The SPL commit, which was processed by childCommit, has exactly one parent commit in the SPL history (it is no merge commit)
      *     </li>
      *     <li>
-     *         The parent of the SPL commit was also processed successfully and its data stored in the VariabilityRepo
+     *         The parent of the SPL commit was also processed successfully and is represented by parentCommit
      *     </li>
      * </ul>
      *
-     * @return Set of commits that can be used in a variability evolution study
+     * @return Set of commit pairs that can be used in a variability evolution study
      */
-    public Set<String> getCommitsForEvolutionStudy() {
+    public Set<CommitPair> getCommitPairsForEvolutionStudy() {
         return successCommits.stream()
                 // We only consider commits that did not process a merge
                 .filter(normalCommits::contains)
@@ -156,6 +156,7 @@ public class VariabilityRepo {
                     String[] parents = childParentMap.get(c);
                     return parents.length == 1 && successCommits.contains(parents[0]);
                 })
+                .map((c) -> new CommitPair(c, childParentMap.get(c)[0]))
                 .collect(Collectors.toSet());
     }
 
@@ -182,6 +183,8 @@ public class VariabilityRepo {
     public Set<String> getSuccessCommits() {
         return new HashSet<>(successCommits);
     }
+
+    public static record CommitPair(String child, String parent) {}
 
     private static void considerSPLHistory(Map<String, String> splCommitToECommit, File splRepoDir, VariabilityRepo repo) throws IOException, GitAPIException {
         LOGGER.debug("Considering SPL history");
