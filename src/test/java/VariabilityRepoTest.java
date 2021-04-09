@@ -1,5 +1,4 @@
 import de.variantsync.subjects.VariabilityRepo;
-import de.variantsync.subjects.VariabilityRepoBuilder;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.Test;
 
@@ -14,7 +13,7 @@ public class VariabilityRepoTest {
 
     @Test
     public void successCommitsAreLoaded() throws GitAPIException, IOException {
-        VariabilityRepo repo = VariabilityRepoBuilder.build(simpleVariabilityRepoDir, simpleHistoryRepoDir);
+        VariabilityRepo repo = VariabilityRepo.load(simpleVariabilityRepoDir, simpleHistoryRepoDir);
 
         String[] expectedSuccessCommits = new String[]{
                 "674d9d7f78f92a3cea19392b853d3f39e6482959",
@@ -33,7 +32,7 @@ public class VariabilityRepoTest {
 
     @Test
     public void errorCommitsAreLoaded() throws GitAPIException, IOException {
-        VariabilityRepo repo = VariabilityRepoBuilder.build(simpleVariabilityRepoDir, simpleHistoryRepoDir);
+        VariabilityRepo repo = VariabilityRepo.load(simpleVariabilityRepoDir, simpleHistoryRepoDir);
 
         String[] expectedErrorCommits = new String[]{
                 "1915b9aa580c6e3a332146b3a579f015db627377",
@@ -50,19 +49,19 @@ public class VariabilityRepoTest {
 
     @Test
     public void logicalParentsAreLoaded() throws GitAPIException, IOException {
-        VariabilityRepo repo = VariabilityRepoBuilder.build(simpleVariabilityRepoDir, simpleHistoryRepoDir);
+        VariabilityRepo repo = VariabilityRepo.load(simpleVariabilityRepoDir, simpleHistoryRepoDir);
 
-        assert repo.getParents("ebbe5041a6d15964251aee37b1b2ea81946f790b") == null;
-        assert repo.getParents("674d9d7f78f92a3cea19392b853d3f39e6482959").length == 0;
-        assert repo.getParents("d398531661b986467c2f15e7ef3b1429f0d4ad54").length == 1;
-        assert repo.getParents("d398531661b986467c2f15e7ef3b1429f0d4ad54")[0].equals("674d9d7f78f92a3cea19392b853d3f39e6482959");
-        assert repo.getParents("6e0a4e66c09be9850d5dc5537ac9980c369fb392").length == 1;
-        assert repo.getParents("6e0a4e66c09be9850d5dc5537ac9980c369fb392")[0].equals("907d04e53eb1dc242cc05c3137c7a794c9639172");
+        assert repo.getExtractionParents("ebbe5041a6d15964251aee37b1b2ea81946f790b") == null;
+        assert repo.getExtractionParents("674d9d7f78f92a3cea19392b853d3f39e6482959").length == 0;
+        assert repo.getExtractionParents("d398531661b986467c2f15e7ef3b1429f0d4ad54").length == 1;
+        assert repo.getExtractionParents("d398531661b986467c2f15e7ef3b1429f0d4ad54")[0].equals("674d9d7f78f92a3cea19392b853d3f39e6482959");
+        assert repo.getExtractionParents("6e0a4e66c09be9850d5dc5537ac9980c369fb392").length == 1;
+        assert repo.getExtractionParents("6e0a4e66c09be9850d5dc5537ac9980c369fb392")[0].equals("907d04e53eb1dc242cc05c3137c7a794c9639172");
     }
 
     @Test
     public void correctCommitsWithOneParentFiltered() throws GitAPIException, IOException {
-        VariabilityRepo repo = VariabilityRepoBuilder.build(simpleVariabilityRepoDir, simpleHistoryRepoDir);
+        VariabilityRepo repo = VariabilityRepo.load(simpleVariabilityRepoDir, simpleHistoryRepoDir);
 
         String[] expectedSuccessCommits = new String[]{
                 "d398531661b986467c2f15e7ef3b1429f0d4ad54",
@@ -72,14 +71,14 @@ public class VariabilityRepoTest {
         };
 
         for (var commit : expectedSuccessCommits) {
-            assert repo.getSuccessCommitsWithOneParent().contains(commit);
+            assert repo.getCommitsForEvolutionStudy().contains(commit);
         }
-        assert repo.getSuccessCommitsWithOneParent().size() == expectedSuccessCommits.length;
+        assert repo.getCommitsForEvolutionStudy().size() == expectedSuccessCommits.length;
     }
 
     @Test
     public void splCommitsMapped() throws GitAPIException, IOException {
-        VariabilityRepo repo = VariabilityRepoBuilder.build(simpleVariabilityRepoDir, simpleHistoryRepoDir);
+        VariabilityRepo repo = VariabilityRepo.load(simpleVariabilityRepoDir, simpleHistoryRepoDir);
 
         String[] variabilityCommits = new String[]{
                 "674d9d7f78f92a3cea19392b853d3f39e6482959",
