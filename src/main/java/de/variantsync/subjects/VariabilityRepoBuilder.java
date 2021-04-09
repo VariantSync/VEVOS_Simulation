@@ -24,10 +24,12 @@ public class VariabilityRepoBuilder {
     }
 
     public VariabilityRepo build() throws IOException, GitAPIException {
+        LOGGER.status("Building VariabilityRepo instance for " + extractionRepoDir);
         File currentCommitFile = new File(extractionRepoDir, CURRENT_COMMIT_FILE);
         File errorFile = new File(extractionRepoDir, ERROR_FILE);
         Iterable<RevCommit> commitIterable;
 
+        LOGGER.debug("Loading commits of " + extractionRepoDir);
         Git git = GitUtil.loadGitRepo(extractionRepoDir);
         try {
             commitIterable = git.log().all().call();
@@ -43,6 +45,7 @@ public class VariabilityRepoBuilder {
         for (var commit : commitIterable) {
             // Check out the commit
             try {
+                LOGGER.debug("Checkout of commit " + commit.getName() + " in " + extractionRepoDir);
                 git.checkout().setName(commit.getName()).call();
             } catch (GitAPIException e) {
                 LOGGER.exception("Was not able to checkout commit: ", e);
@@ -53,13 +56,15 @@ public class VariabilityRepoBuilder {
             String splCommit;
             try {
                 splCommit = TextIO.readLastLine(currentCommitFile);
-
+                LOGGER.debug("Processed SPL commit " + splCommit);
                 if (errorFile.exists()) {
                     for (var errorCommit : TextIO.readLinesAsArray(errorFile)) {
                         if (errorCommit.equals(splCommit)) {
                             errorCommits.add(splCommit);
+                            LOGGER.debug("The extraction of variability for SPL commit " + splCommit + " had resulted in an error.");
                         } else {
                             successCommits.add(splCommit);
+                            LOGGER.debug("The extraction of variability for SPL commit " + splCommit + " had been successful");
                         }
                     }
                 }
@@ -71,16 +76,19 @@ public class VariabilityRepoBuilder {
             eCommitToSPLCommit.put(commit.getName(), splCommit);
             splCommitToECommit.put(splCommit, commit.getName());
         }
-        return new VariabilityRepo(eCommitToSPLCommit, getLogicalParentsMap(splCommitToECommit, splRepoDir), successCommits, errorCommits);
+        return new VariabilityRepo(eCommitToSPLCommit, getLogicalParentsMap(splCommitToECommit), successCommits, errorCommits);
     }
 
-    private Map<String, String[]> getLogicalParentsMap(Map<String, String> splCommitToECommit, File splDir) throws IOException, GitAPIException {
-        Git git = GitUtil.loadGitRepo(splDir);
+    private Map<String, String[]> getLogicalParentsMap(Map<String, String> splCommitToECommit) throws IOException, GitAPIException {
+        LOGGER.debug("Creating logical parents map.");
+        Git git = GitUtil.loadGitRepo(splRepoDir);
 
         // Create a map of commits to their logical parents
         Map<String, String[]> commitToLogicalParentsMap = new HashMap<>();
         Set<String> processedSPLCommits = splCommitToECommit.keySet();
         try {
+            LOGGER.debug("Loading spl commits in " + splRepoDir);
+            LOGGER.debug("Retrieving logical parents");
             for (var commit : git.log().all().call()) {
                 if (processedSPLCommits.contains(commit.getName())) {
                     commitToLogicalParentsMap.put(splCommitToECommit.get(commit.getName()),
@@ -97,6 +105,7 @@ public class VariabilityRepoBuilder {
 
                 }
             }
+            LOGGER.debug("All logical parents retrieved.");
             return commitToLogicalParentsMap;
         } catch (GitAPIException e) {
             LOGGER.exception("Was not able to retrieve commits of SPL repo: ", e);

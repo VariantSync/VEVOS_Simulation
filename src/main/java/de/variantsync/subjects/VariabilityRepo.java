@@ -21,6 +21,7 @@ public class VariabilityRepo {
         this.childParentMap = childParentMap;
         this.errorCommits = errorCommits;
         this.successCommits = successCommits;
+        LOGGER.status("Variability repository initialized");
     }
 
     public String[] getParents(String commit) {
