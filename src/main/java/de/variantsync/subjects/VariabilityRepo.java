@@ -24,7 +24,6 @@ import static de.variantsync.subjects.Constants.ERROR_FILE;
  * stored. Each instance holds the information about which SPL commits were processed in which commit of the VariabilityRepo,
  * and whether the extraction of variability was successful for that commit.
  * </p>
- *
  */
 public class VariabilityRepo {
     private static final SimpleConsoleLogger LOGGER = SimpleConsoleLogger.get();
@@ -32,6 +31,8 @@ public class VariabilityRepo {
     private Map<String, String[]> childParentMap;
     private Set<String> successCommits;
     private Set<String> errorCommits;
+    // Commits that did not process a merge in the SPL history, but a normal commit
+    private Set<String> normalCommits;
 
     private VariabilityRepo() {
         LOGGER.status("Variability repository initialized");
@@ -39,10 +40,11 @@ public class VariabilityRepo {
 
     /**
      * Load a repository by considering the commits in its history and the commits of the SPL that was processed.
+     *
      * @param variabilityRepoDir The directory with the repository holding the variability data which was extracted from the processed SPL
-     * @param splRepoDir The directory with the repository of the processed SPL
+     * @param splRepoDir         The directory with the repository of the processed SPL
      * @return A VariabilityRepo that holds meta data about the variability extraction
-     * @throws IOException If the provided files do not exist or cannot be accessed.
+     * @throws IOException     If the provided files do not exist or cannot be accessed.
      * @throws GitAPIException If git cannot load the repositories' history correctly
      */
     public static VariabilityRepo load(File variabilityRepoDir, File splRepoDir) throws IOException, GitAPIException {
@@ -87,7 +89,7 @@ public class VariabilityRepo {
                                 break;
                             }
                         }
-                        if(hadError) {
+                        if (hadError) {
                             errorCommits.add(commit.getName());
                             LOGGER.debug("The extraction of variability for SPL commit " + splCommit + " had resulted in an error.");
                         } else {
@@ -110,7 +112,7 @@ public class VariabilityRepo {
         VariabilityRepo repo = new VariabilityRepo();
         repo.successCommits = successCommits;
         repo.errorCommits = errorCommits;
-        repo.childParentMap = getLogicalParentsMap(splCommitToECommit, splRepoDir);
+        considerSPLHistory(splCommitToECommit, splRepoDir, repo);
         repo.commitToSPLCommit = eCommitToSPLCommit;
         return repo;
     }
@@ -119,7 +121,7 @@ public class VariabilityRepo {
      * Each commit in the variability repo was responsible for processing one commit from the SPL repo. This method
      * returns the commits from the variability repo that processed the parent commits in the SPL repo of the SPL commit
      * that was processed by the provided commit.
-     *
+     * <p>
      * Note that these are NOT the parents of the commit in the variability repository.
      *
      * @param commit A commit from the variability repo
@@ -142,17 +144,24 @@ public class VariabilityRepo {
      *         The parent of the SPL commit was also processed successfully and its data stored in the VariabilityRepo
      *     </li>
      * </ul>
+     *
      * @return Set of commits that can be used in a variability evolution study
      */
     public Set<String> getCommitsForEvolutionStudy() {
-        return successCommits.stream().filter((c) -> {
-            String[] parents = childParentMap.get(c);
-            return parents.length == 1 && successCommits.contains(parents[0]);
-        }).collect(Collectors.toSet());
+        return successCommits.stream()
+                // We only consider commits that did not process a merge
+                .filter(normalCommits::contains)
+                // We only consider commits that processed an SPL commit whose parent was also processed
+                .filter((c) -> {
+                    String[] parents = childParentMap.get(c);
+                    return parents.length == 1 && successCommits.contains(parents[0]);
+                })
+                .collect(Collectors.toSet());
     }
 
     /**
      * Get the SPL commit that was processed by the given commit from the variability repo
+     *
      * @param commit A commit from this variability repo
      * @return The id of the SPL commit that was processed
      */
@@ -161,7 +170,6 @@ public class VariabilityRepo {
     }
 
     /**
-     *
      * @return The set of commits for which the variability extraction was not successful
      */
     public Set<String> getErrorCommits() {
@@ -169,26 +177,26 @@ public class VariabilityRepo {
     }
 
     /**
-     *
      * @return The set of commits for which the variability extraction was successful
      */
     public Set<String> getSuccessCommits() {
         return new HashSet<>(successCommits);
     }
 
-    private static Map<String, String[]> getLogicalParentsMap(Map<String, String> splCommitToECommit, File splRepoDir) throws IOException, GitAPIException {
-        LOGGER.debug("Creating logical parents map.");
+    private static void considerSPLHistory(Map<String, String> splCommitToECommit, File splRepoDir, VariabilityRepo repo) throws IOException, GitAPIException {
+        LOGGER.debug("Considering SPL history");
         Git git = GitUtil.loadGitRepo(splRepoDir);
 
         // Create a map of commits to their logical parents
-        Map<String, String[]> commitToLogicalParentsMap = new HashMap<>();
+        repo.childParentMap = new HashMap<>();
         Set<String> processedSPLCommits = splCommitToECommit.keySet();
+        repo.normalCommits = new HashSet<>();
         try {
             LOGGER.debug("Loading spl commits in " + splRepoDir);
             LOGGER.debug("Retrieving logical parents");
             for (var commit : git.log().all().call()) {
                 if (processedSPLCommits.contains(commit.getName())) {
-                    commitToLogicalParentsMap.put(splCommitToECommit.get(commit.getName()),
+                    repo.childParentMap.put(splCommitToECommit.get(commit.getName()),
                             // Process each parent commit in the SPL repo
                             Arrays.stream(commit.getParents())
                                     // Get the parent's id
@@ -200,10 +208,12 @@ public class VariabilityRepo {
                                     // Collect the ids of all commits that processed a parent of the spl commit
                                     .toArray(String[]::new));
 
+                    if (commit.getParents().length == 1) {
+                        repo.normalCommits.add(splCommitToECommit.get(commit.getName()));
+                    }
                 }
             }
             LOGGER.debug("All logical parents retrieved.");
-            return commitToLogicalParentsMap;
         } catch (GitAPIException e) {
             LOGGER.exception("Was not able to retrieve commits of SPL repo: ", e);
             throw e;

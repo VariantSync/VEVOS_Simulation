@@ -1,6 +1,7 @@
 package de.variantsync.util;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 
 import static de.variantsync.util.LogLevel.*;
@@ -89,7 +90,7 @@ public class SimpleConsoleLogger {
 
 
     private String format(String message, LogLevel level) {
-        return String.format("[%s]  [%s]  [%s]  [%s]  %s", LocalDateTime.now(), level, Thread.currentThread().getId(), name, message);
+        return String.format("[%s] [%s] [%s] [%s] %s", LocalDateTime.now().format(DateTimeFormatter.ISO_TIME), level, Thread.currentThread().getName(), name, message);
     }
 
 }

@@ -65,8 +65,6 @@ public class VariabilityRepoTest {
 
         String[] expectedSuccessCommits = new String[]{
                 "d398531661b986467c2f15e7ef3b1429f0d4ad54",
-                "ca3644a751d12f6893a170deaf3acfd6be0fd7e2",
-                "907d04e53eb1dc242cc05c3137c7a794c9639172",
                 "6e0a4e66c09be9850d5dc5537ac9980c369fb392",
         };
 
