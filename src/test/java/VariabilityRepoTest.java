@@ -2,7 +2,6 @@ import de.variantsync.subjects.CommitPair;
 import de.variantsync.subjects.VarCommit;
 import de.variantsync.subjects.VariabilityRepo;
 import de.variantsync.util.Logger;
-import de.variantsync.util.SimpleConsoleLogger;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +15,7 @@ public class VariabilityRepoTest {
     private static final File simpleVariabilityRepoDir = Paths.get("src", "test", "resources", "test-repos", "simple-variability").toFile();
 
     static {
-        Logger.init(SimpleConsoleLogger.class);
+        Logger.initConsoleLogger();
     }
 
     @Test

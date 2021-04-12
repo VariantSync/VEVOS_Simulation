@@ -8,27 +8,42 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import static de.variantsync.util.LogLevel.*;
 import static de.variantsync.util.LogLevel.ERROR;
 
-public abstract class Logger {
+
+public class Logger {
     protected static LogLevel logLevel = INFO;
     private static Logger INSTANCE;
-    protected Map<LogLevel, OutputStream> streamMap;
+    private final Map<LogLevel, OutputStream> streamMap;
 
-    // TODO: Handle differently once it is required
-    public static void init(Class<? extends Logger> loggerClass) {
-        if (INSTANCE != null) {
-            throw new IllegalStateException("Logger must only be initialized once.");
+    private Logger(Map<LogLevel, OutputStream> streamMap) {
+        this.streamMap = streamMap;
+    }
+
+    public static void init(Map<LogLevel, OutputStream> streamMap) {
+        if (Logger.INSTANCE != null) {
+            throw new RuntimeException("Logger already initialized.");
         }
-        try {
-            Logger.INSTANCE = loggerClass.getDeclaredConstructor().newInstance();
-        } catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException e) {
-            System.err.println("Was not able to instantiate logger!");
-            throw new IllegalArgumentException(e);
+        for (LogLevel level : LogLevel.values()) {
+            if (!streamMap.containsKey(level)) {
+                throw new IllegalArgumentException("No Output stream for " + logLevel + " defined.");
+            }
         }
+        Logger.INSTANCE = new Logger(streamMap);
+    }
+
+    public static void initConsoleLogger() {
+        Map<LogLevel, OutputStream> streamMap = new HashMap<>();
+        streamMap.put(LogLevel.INFO, System.out);
+        streamMap.put(LogLevel.DEBUG, System.out);
+        streamMap.put(LogLevel.STATUS, System.out);
+        streamMap.put(LogLevel.WARNING, System.out);
+        streamMap.put(LogLevel.ERROR, System.err);
+        init(streamMap);
     }
 
     public static void debug(String message) {

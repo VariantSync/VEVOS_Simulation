@@ -1,12 +1,11 @@
 package de.variantsync.subjects;
 
 import de.variantsync.util.Logger;
-import de.variantsync.util.SimpleConsoleLogger;
 
 public class Main {
 
     static {
-        Logger.init(SimpleConsoleLogger.class);
+        Logger.initConsoleLogger();
     }
 
     public static void main(String... args) {
