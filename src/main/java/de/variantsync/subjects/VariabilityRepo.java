@@ -128,11 +128,11 @@ public class VariabilityRepo {
      * <p>
      * Note that these are NOT the parents of the commit in the variability repository.
      *
-     * @param commitId A commit from the variability repo
+     * @param varCommit A commit from the variability repo
      * @return Commits that processed the parent commits in the SPL history
      */
-    public VarCommit[] getEvolutionParents(String commitId) {
-        return commitToEvolutionParents.get(new VarCommit(commitId));
+    public VarCommit[] getEvolutionParents(VarCommit varCommit) {
+        return commitToEvolutionParents.get(varCommit);
     }
 
     /**
@@ -167,11 +167,11 @@ public class VariabilityRepo {
     /**
      * Get the SPL commit that was processed by the given commit from the variability repo
      *
-     * @param commitId A commit from this variability repo
+     * @param varCommit A commit from this variability repo
      * @return The id of the SPL commit that was processed
      */
-    public SPLCommit getSPLCommit(String commitId) {
-        return commitToSPLCommit.get(new VarCommit(commitId));
+    public SPLCommit getSPLCommit(VarCommit varCommit) {
+        return commitToSPLCommit.get(varCommit);
     }
 
     /**
