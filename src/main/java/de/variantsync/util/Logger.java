@@ -18,6 +18,7 @@ public abstract class Logger {
     private static Logger INSTANCE;
     protected Map<LogLevel, OutputStream> streamMap;
 
+    // TODO: Handle differently once it is required
     public static void init(Class<? extends Logger> loggerClass) {
         if (INSTANCE != null) {
             throw new IllegalStateException("Logger must only be initialized once.");
