@@ -1,4 +1,6 @@
 import de.variantsync.subjects.VariabilityRepo;
+import de.variantsync.util.Logger;
+import de.variantsync.util.SimpleConsoleLogger;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.Test;
 
@@ -10,6 +12,9 @@ import java.util.Set;
 public class VariabilityRepoTest {
     private static final File simpleHistoryRepoDir = Paths.get("src", "test", "resources", "test-repos", "simple-history").toFile();
     private static final File simpleVariabilityRepoDir = Paths.get("src", "test", "resources", "test-repos", "simple-variability").toFile();
+    {
+        Logger.init(SimpleConsoleLogger.class);
+    }
 
     @Test
     public void successCommitsAreLoaded() throws GitAPIException, IOException {

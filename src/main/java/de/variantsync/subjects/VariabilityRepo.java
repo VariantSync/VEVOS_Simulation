@@ -2,6 +2,7 @@ package de.variantsync.subjects;
 
 import de.variantsync.io.TextIO;
 import de.variantsync.util.GitUtil;
+import de.variantsync.util.Logger;
 import de.variantsync.util.SimpleConsoleLogger;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -26,7 +27,6 @@ import static de.variantsync.subjects.Constants.ERROR_FILE;
  * </p>
  */
 public class VariabilityRepo {
-    private static final SimpleConsoleLogger LOGGER = SimpleConsoleLogger.get();
     private Map<String, String> commitToSPLCommit;
     private Map<String, String[]> childParentMap;
     private Set<String> successCommits;
@@ -35,7 +35,7 @@ public class VariabilityRepo {
     private Set<String> normalCommits;
 
     private VariabilityRepo() {
-        LOGGER.status("Variability repository initialized");
+        Logger.status("Variability repository initialized");
     }
 
     /**
@@ -48,17 +48,17 @@ public class VariabilityRepo {
      * @throws GitAPIException If git cannot load the repositories' history correctly
      */
     public static VariabilityRepo load(File variabilityRepoDir, File splRepoDir) throws IOException, GitAPIException {
-        LOGGER.status("Building VariabilityRepo instance for " + variabilityRepoDir);
+        Logger.status("Building VariabilityRepo instance for " + variabilityRepoDir);
         File currentCommitFile = new File(variabilityRepoDir, CURRENT_COMMIT_FILE);
         File errorFile = new File(variabilityRepoDir, ERROR_FILE);
         Iterable<RevCommit> commitIterable;
 
-        LOGGER.debug("Loading commits of " + variabilityRepoDir);
+        Logger.debug("Loading commits of " + variabilityRepoDir);
         Git git = GitUtil.loadGitRepo(variabilityRepoDir);
         try {
             commitIterable = git.log().all().call();
         } catch (GitAPIException e) {
-            LOGGER.exception("Was not able to load git log: ", e);
+            Logger.exception("Was not able to load git log: ", e);
             throw e;
         }
 
@@ -69,10 +69,10 @@ public class VariabilityRepo {
         for (var commit : commitIterable) {
             // Check out the commit
             try {
-                LOGGER.debug("Checkout of commit " + commit.getName() + " in " + variabilityRepoDir);
+                Logger.debug("Checkout of commit " + commit.getName() + " in " + variabilityRepoDir);
                 git.checkout().setName(commit.getName()).call();
             } catch (GitAPIException e) {
-                LOGGER.exception("Was not able to checkout commit: ", e);
+                Logger.exception("Was not able to checkout commit: ", e);
                 throw e;
             }
             if (currentCommitFile.exists()) {
@@ -80,7 +80,7 @@ public class VariabilityRepo {
                 String splCommit;
                 try {
                     splCommit = TextIO.readLastLine(currentCommitFile);
-                    LOGGER.debug("Processed SPL commit " + splCommit);
+                    Logger.debug("Processed SPL commit " + splCommit);
                     if (errorFile.exists()) {
                         boolean hadError = false;
                         for (var errorCommit : TextIO.readLinesAsArray(errorFile)) {
@@ -91,17 +91,17 @@ public class VariabilityRepo {
                         }
                         if (hadError) {
                             errorCommits.add(commit.getName());
-                            LOGGER.debug("The extraction of variability for SPL commit " + splCommit + " had resulted in an error.");
+                            Logger.debug("The extraction of variability for SPL commit " + splCommit + " had resulted in an error.");
                         } else {
                             successCommits.add(commit.getName());
-                            LOGGER.debug("The extraction of variability for SPL commit " + splCommit + " had been successful");
+                            Logger.debug("The extraction of variability for SPL commit " + splCommit + " had been successful");
                         }
                     } else {
                         successCommits.add(commit.getName());
-                        LOGGER.debug("The extraction of variability for SPL commit " + splCommit + " had been successful");
+                        Logger.debug("The extraction of variability for SPL commit " + splCommit + " had been successful");
                     }
                 } catch (IOException e) {
-                    LOGGER.exception("Was not able to retrieve information about processed commits: ", e);
+                    Logger.exception("Was not able to retrieve information about processed commits: ", e);
                     throw e;
                 }
                 // Map commit to Linux revision
@@ -187,7 +187,7 @@ public class VariabilityRepo {
     public static record CommitPair(String child, String parent) {}
 
     private static void considerSPLHistory(Map<String, String> splCommitToECommit, File splRepoDir, VariabilityRepo repo) throws IOException, GitAPIException {
-        LOGGER.debug("Considering SPL history");
+        Logger.debug("Considering SPL history");
         Git git = GitUtil.loadGitRepo(splRepoDir);
 
         // Create a map of commits to their logical parents
@@ -195,8 +195,8 @@ public class VariabilityRepo {
         Set<String> processedSPLCommits = splCommitToECommit.keySet();
         repo.normalCommits = new HashSet<>();
         try {
-            LOGGER.debug("Loading spl commits in " + splRepoDir);
-            LOGGER.debug("Retrieving logical parents");
+            Logger.debug("Loading spl commits in " + splRepoDir);
+            Logger.debug("Retrieving logical parents");
             for (var commit : git.log().all().call()) {
                 if (processedSPLCommits.contains(commit.getName())) {
                     repo.childParentMap.put(splCommitToECommit.get(commit.getName()),
@@ -216,9 +216,9 @@ public class VariabilityRepo {
                     }
                 }
             }
-            LOGGER.debug("All logical parents retrieved.");
+            Logger.debug("All logical parents retrieved.");
         } catch (GitAPIException e) {
-            LOGGER.exception("Was not able to retrieve commits of SPL repo: ", e);
+            Logger.exception("Was not able to retrieve commits of SPL repo: ", e);
             throw e;
         }
     }
