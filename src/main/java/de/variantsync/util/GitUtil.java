@@ -8,6 +8,7 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import java.io.File;
 import java.io.IOException;
 
+// TODO: Exchange with https://spgit.informatik.uni-ulm.de/research-projects/variantsync/theses/soeren-viegener-bachelor/-/blob/master/tool/src/main/java/load/GitLoader.java if more functionality is required
 public class GitUtil {
 
     public static Git loadGitRepo(File repoDir) throws IOException {
@@ -22,9 +23,5 @@ public class GitUtil {
             throw e;
         }
     }
-    public static void cloneRepo(File targetDir, String uri) throws GitAPIException {
-        Logger.info("Cloning " + uri + " into " + targetDir);
-        Git.cloneRepository().setURI(uri).setCloneAllBranches(true).setDirectory(targetDir).call();
-        Logger.info("Cloning complete.");
-    }
+
 }

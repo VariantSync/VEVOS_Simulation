@@ -154,11 +154,11 @@ public class VariabilityRepo {
                 // We only consider commits that did not process a merge
                 .filter(nonMergeCommits::contains)
                 // We only consider commits that processed an SPL commit whose parent was also processed
-                .filter((c) -> {
+                .filter(c -> {
                     VarCommit[] parents = evolutionHistory.get(c);
                     return parents.length == 1 && successCommits.contains(parents[0]);
                 })
-                .map((c) -> new CommitPair(c, evolutionHistory.get(c)[0]))
+                .map(c -> new CommitPair(c, evolutionHistory.get(c)[0]))
                 .collect(Collectors.toSet());
     }
 
