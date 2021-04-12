@@ -59,12 +59,12 @@ public class VariabilityRepoTest {
     public void logicalParentsAreLoaded() throws GitAPIException, IOException {
         VariabilityRepo repo = VariabilityRepo.load(simpleVariabilityRepoDir, simpleHistoryRepoDir);
 
-        assert repo.getExtractionParents("ebbe5041a6d15964251aee37b1b2ea81946f790b") == null;
-        assert repo.getExtractionParents("674d9d7f78f92a3cea19392b853d3f39e6482959").length == 0;
-        assert repo.getExtractionParents("d398531661b986467c2f15e7ef3b1429f0d4ad54").length == 1;
-        assert repo.getExtractionParents("d398531661b986467c2f15e7ef3b1429f0d4ad54")[0].id().equals("674d9d7f78f92a3cea19392b853d3f39e6482959");
-        assert repo.getExtractionParents("6e0a4e66c09be9850d5dc5537ac9980c369fb392").length == 1;
-        assert repo.getExtractionParents("6e0a4e66c09be9850d5dc5537ac9980c369fb392")[0].id().equals("907d04e53eb1dc242cc05c3137c7a794c9639172");
+        assert repo.getEvolutionParents("ebbe5041a6d15964251aee37b1b2ea81946f790b") == null;
+        assert repo.getEvolutionParents("674d9d7f78f92a3cea19392b853d3f39e6482959").length == 0;
+        assert repo.getEvolutionParents("d398531661b986467c2f15e7ef3b1429f0d4ad54").length == 1;
+        assert repo.getEvolutionParents("d398531661b986467c2f15e7ef3b1429f0d4ad54")[0].id().equals("674d9d7f78f92a3cea19392b853d3f39e6482959");
+        assert repo.getEvolutionParents("6e0a4e66c09be9850d5dc5537ac9980c369fb392").length == 1;
+        assert repo.getEvolutionParents("6e0a4e66c09be9850d5dc5537ac9980c369fb392")[0].id().equals("907d04e53eb1dc242cc05c3137c7a794c9639172");
     }
 
     @Test

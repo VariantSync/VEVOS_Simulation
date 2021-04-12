@@ -27,7 +27,9 @@ import static de.variantsync.subjects.Constants.ERROR_FILE;
  */
 public class VariabilityRepo {
     private Map<VarCommit, SPLCommit> commitToSPLCommit;
-    private Map<VarCommit, VarCommit[]> evolutionHistory;
+    // Maps a VarCommit that processed the SPLCommit s to other VarCommits that processed the SPLCommits p_1 to p_n, where
+    // p_1 to p_n are the parent commits of s in the history of the SPL repo
+    private Map<VarCommit, VarCommit[]> commitToEvolutionParents;
     private Set<VarCommit> successCommits;
     private Set<VarCommit> errorCommits;
     // Commits that did not process a merge in the SPL history. The set of nonMergeCommits is a subset of the union of
@@ -127,10 +129,10 @@ public class VariabilityRepo {
      * Note that these are NOT the parents of the commit in the variability repository.
      *
      * @param commitId A commit from the variability repo
-     * @return Array of commits that processed the parent commits in the SPL history
+     * @return Commits that processed the parent commits in the SPL history
      */
-    public VarCommit[] getExtractionParents(String commitId) {
-        return evolutionHistory.get(new VarCommit(commitId));
+    public VarCommit[] getEvolutionParents(String commitId) {
+        return commitToEvolutionParents.get(new VarCommit(commitId));
     }
 
     /**
@@ -155,10 +157,10 @@ public class VariabilityRepo {
                 .filter(nonMergeCommits::contains)
                 // We only consider commits that processed an SPL commit whose parent was also processed
                 .filter(c -> {
-                    VarCommit[] parents = evolutionHistory.get(c);
+                    VarCommit[] parents = commitToEvolutionParents.get(c);
                     return parents.length == 1 && successCommits.contains(parents[0]);
                 })
-                .map(c -> new CommitPair(c, evolutionHistory.get(c)[0]))
+                .map(c -> new CommitPair(c, commitToEvolutionParents.get(c)[0]))
                 .collect(Collectors.toSet());
     }
 
@@ -192,7 +194,7 @@ public class VariabilityRepo {
         Git git = GitUtil.loadGitRepo(splRepoDir);
 
         // Create a map of commits to their logical parents
-        repo.evolutionHistory = new HashMap<>();
+        repo.commitToEvolutionParents = new HashMap<>();
         Set<SPLCommit> processedSPLCommits = splCommitToVarCommit.keySet();
         repo.nonMergeCommits = new HashSet<>();
         try {
@@ -200,7 +202,7 @@ public class VariabilityRepo {
             Logger.debug("Retrieving logical parents");
             for (var revCommit : git.log().all().call()) {
                 if (processedSPLCommits.contains(new SPLCommit(revCommit.getName()))) {
-                    repo.evolutionHistory.put(splCommitToVarCommit.get(new SPLCommit(revCommit.getName())),
+                    repo.commitToEvolutionParents.put(splCommitToVarCommit.get(new SPLCommit(revCommit.getName())),
                             // Process each parent commit in the SPL repo
                             Arrays.stream(revCommit.getParents())
                                     // Get the parent's SPLCommit representation
