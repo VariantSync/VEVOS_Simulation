@@ -3,7 +3,6 @@ package de.variantsync.subjects;
 import de.variantsync.io.TextIO;
 import de.variantsync.util.GitUtil;
 import de.variantsync.util.Logger;
-import de.variantsync.util.SimpleConsoleLogger;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -27,12 +26,13 @@ import static de.variantsync.subjects.Constants.ERROR_FILE;
  * </p>
  */
 public class VariabilityRepo {
-    private Map<String, String> commitToSPLCommit;
-    private Map<String, String[]> childParentMap;
-    private Set<String> successCommits;
-    private Set<String> errorCommits;
-    // Commits that did not process a merge in the SPL history, but a normal commit
-    private Set<String> normalCommits;
+    private Map<VarCommit, SPLCommit> commitToSPLCommit;
+    private Map<VarCommit, VarCommit[]> evolutionHistory;
+    private Set<VarCommit> successCommits;
+    private Set<VarCommit> errorCommits;
+    // Commits that did not process a merge in the SPL history. The set of nonMergeCommits is a subset of the union of
+    // successCommits and errorCommits
+    private Set<VarCommit> nonMergeCommits;
 
     private VariabilityRepo() {
         Logger.status("Variability repository initialized");
@@ -62,58 +62,60 @@ public class VariabilityRepo {
             throw e;
         }
 
-        Map<String, String> eCommitToSPLCommit = new HashMap<>();
-        Map<String, String> splCommitToECommit = new HashMap<>();
-        Set<String> successCommits = new HashSet<>();
-        Set<String> errorCommits = new HashSet<>();
-        for (var commit : commitIterable) {
+        Map<VarCommit, SPLCommit> varCommitToSPLCommit = new HashMap<>();
+        Map<SPLCommit, VarCommit> splCommitToVarCommit = new HashMap<>();
+        Set<VarCommit> successCommits = new HashSet<>();
+        Set<VarCommit> errorCommits = new HashSet<>();
+        for (var revCommit : commitIterable) {
+            VarCommit varCommit = new VarCommit(revCommit.getName());
             // Check out the commit
             try {
-                Logger.debug("Checkout of commit " + commit.getName() + " in " + variabilityRepoDir);
-                git.checkout().setName(commit.getName()).call();
+                Logger.debug("Checkout of commit " + revCommit.getName() + " in " + variabilityRepoDir);
+                git.checkout().setName(revCommit.getName()).call();
             } catch (GitAPIException e) {
                 Logger.exception("Was not able to checkout commit: ", e);
                 throw e;
             }
             if (currentCommitFile.exists()) {
                 // Check whether the processed Linux commit resulted in an error
-                String splCommit;
+                String splCommitId;
                 try {
-                    splCommit = TextIO.readLastLine(currentCommitFile);
-                    Logger.debug("Processed SPL commit " + splCommit);
+                    splCommitId = TextIO.readLastLine(currentCommitFile);
+                    Logger.debug("Processed SPL commit " + splCommitId);
                     if (errorFile.exists()) {
                         boolean hadError = false;
                         for (var errorCommit : TextIO.readLinesAsArray(errorFile)) {
-                            if (errorCommit.equals(splCommit)) {
+                            if (errorCommit.equals(splCommitId)) {
                                 hadError = true;
                                 break;
                             }
                         }
                         if (hadError) {
-                            errorCommits.add(commit.getName());
-                            Logger.debug("The extraction of variability for SPL commit " + splCommit + " had resulted in an error.");
+                            errorCommits.add(varCommit);
+                            Logger.debug("The extraction of variability for SPL commit " + splCommitId + " had resulted in an error.");
                         } else {
-                            successCommits.add(commit.getName());
-                            Logger.debug("The extraction of variability for SPL commit " + splCommit + " had been successful");
+                            successCommits.add(varCommit);
+                            Logger.debug("The extraction of variability for SPL commit " + splCommitId + " had been successful");
                         }
                     } else {
-                        successCommits.add(commit.getName());
-                        Logger.debug("The extraction of variability for SPL commit " + splCommit + " had been successful");
+                        successCommits.add(varCommit);
+                        Logger.debug("The extraction of variability for SPL commit " + splCommitId + " had been successful");
                     }
                 } catch (IOException e) {
                     Logger.exception("Was not able to retrieve information about processed commits: ", e);
                     throw e;
                 }
+                SPLCommit splCommit = new SPLCommit(splCommitId);
                 // Map commit to Linux revision
-                eCommitToSPLCommit.put(commit.getName(), splCommit);
-                splCommitToECommit.put(splCommit, commit.getName());
+                varCommitToSPLCommit.put(varCommit, splCommit);
+                splCommitToVarCommit.put(splCommit, varCommit);
             }
         }
         VariabilityRepo repo = new VariabilityRepo();
         repo.successCommits = successCommits;
         repo.errorCommits = errorCommits;
-        considerSPLHistory(splCommitToECommit, splRepoDir, repo);
-        repo.commitToSPLCommit = eCommitToSPLCommit;
+        mapCommitsAccordingToSPLHistory(splCommitToVarCommit, splRepoDir, repo);
+        repo.commitToSPLCommit = varCommitToSPLCommit;
         return repo;
     }
 
@@ -124,11 +126,11 @@ public class VariabilityRepo {
      * <p>
      * Note that these are NOT the parents of the commit in the variability repository.
      *
-     * @param commit A commit from the variability repo
+     * @param commitId A commit from the variability repo
      * @return Array of commits that processed the parent commits in the SPL history
      */
-    public String[] getExtractionParents(String commit) {
-        return childParentMap.get(commit);
+    public VarCommit[] getExtractionParents(String commitId) {
+        return evolutionHistory.get(new VarCommit(commitId));
     }
 
     /**
@@ -150,69 +152,68 @@ public class VariabilityRepo {
     public Set<CommitPair> getCommitPairsForEvolutionStudy() {
         return successCommits.stream()
                 // We only consider commits that did not process a merge
-                .filter(normalCommits::contains)
+                .filter(nonMergeCommits::contains)
                 // We only consider commits that processed an SPL commit whose parent was also processed
                 .filter((c) -> {
-                    String[] parents = childParentMap.get(c);
+                    VarCommit[] parents = evolutionHistory.get(c);
                     return parents.length == 1 && successCommits.contains(parents[0]);
                 })
-                .map((c) -> new CommitPair(c, childParentMap.get(c)[0]))
+                .map((c) -> new CommitPair(c, evolutionHistory.get(c)[0]))
                 .collect(Collectors.toSet());
     }
 
     /**
      * Get the SPL commit that was processed by the given commit from the variability repo
      *
-     * @param commit A commit from this variability repo
+     * @param commitId A commit from this variability repo
      * @return The id of the SPL commit that was processed
      */
-    public String getSPLCommit(String commit) {
-        return commitToSPLCommit.get(commit);
+    public SPLCommit getSPLCommit(String commitId) {
+        return commitToSPLCommit.get(new VarCommit(commitId));
     }
 
     /**
      * @return The set of commits for which the variability extraction was not successful
      */
-    public Set<String> getErrorCommits() {
+    public Set<VarCommit> getErrorCommits() {
         return new HashSet<>(errorCommits);
     }
 
     /**
      * @return The set of commits for which the variability extraction was successful
      */
-    public Set<String> getSuccessCommits() {
+    public Set<VarCommit> getSuccessCommits() {
         return new HashSet<>(successCommits);
     }
 
-    public static record CommitPair(String child, String parent) {}
 
-    private static void considerSPLHistory(Map<String, String> splCommitToECommit, File splRepoDir, VariabilityRepo repo) throws IOException, GitAPIException {
+    private static void mapCommitsAccordingToSPLHistory(Map<SPLCommit, VarCommit> splCommitToVarCommit, File splRepoDir, VariabilityRepo repo) throws IOException, GitAPIException {
         Logger.debug("Considering SPL history");
         Git git = GitUtil.loadGitRepo(splRepoDir);
 
         // Create a map of commits to their logical parents
-        repo.childParentMap = new HashMap<>();
-        Set<String> processedSPLCommits = splCommitToECommit.keySet();
-        repo.normalCommits = new HashSet<>();
+        repo.evolutionHistory = new HashMap<>();
+        Set<SPLCommit> processedSPLCommits = splCommitToVarCommit.keySet();
+        repo.nonMergeCommits = new HashSet<>();
         try {
             Logger.debug("Loading spl commits in " + splRepoDir);
             Logger.debug("Retrieving logical parents");
-            for (var commit : git.log().all().call()) {
-                if (processedSPLCommits.contains(commit.getName())) {
-                    repo.childParentMap.put(splCommitToECommit.get(commit.getName()),
+            for (var revCommit : git.log().all().call()) {
+                if (processedSPLCommits.contains(new SPLCommit(revCommit.getName()))) {
+                    repo.evolutionHistory.put(splCommitToVarCommit.get(new SPLCommit(revCommit.getName())),
                             // Process each parent commit in the SPL repo
-                            Arrays.stream(commit.getParents())
-                                    // Get the parent's id
-                                    .map(RevCommit::getName)
+                            Arrays.stream(revCommit.getParents())
+                                    // Get the parent's SPLCommit representation
+                                    .map(c -> new SPLCommit(c.getName()))
                                     // Only consider parent commits that were processed
                                     .filter(processedSPLCommits::contains)
                                     // Map the parent in the SPL repo to the commit that processed the parent
-                                    .map(splCommitToECommit::get)
+                                    .map(splCommitToVarCommit::get)
                                     // Collect the ids of all commits that processed a parent of the spl commit
-                                    .toArray(String[]::new));
+                                    .toArray(VarCommit[]::new));
 
-                    if (commit.getParents().length == 1) {
-                        repo.normalCommits.add(splCommitToECommit.get(commit.getName()));
+                    if (revCommit.getParents().length == 1) {
+                        repo.nonMergeCommits.add(splCommitToVarCommit.get(new SPLCommit(revCommit.getName())));
                     }
                 }
             }
