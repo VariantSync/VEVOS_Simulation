@@ -8,24 +8,39 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.prop4j.*;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Properties;
 
 public class Main {
-    // Directory to which https://gitlab.informatik.hu-berlin.de/mse/LinuxVariabilityData was cloned to
-    private final static File variabilityRepoDir = new File("/home/alex/data/evolution-debug");
-    // Directory to which https://github.com/torvalds/linux was cloned to
-    private final static File splRepoDir = new File("/home/alex/dev/linux-analysis/linux");
+    private static final File PROPERTIES_FILE = new File("src/main/resources/user.properties");
+    private static final String VARIABILITY_REPO = "variability_repo";
+    private static final String SPL_REPO = "spl_repo";
 
     public static void main(String[] args) {
         Logger.initConsoleLogger();
-        System.out.println("Hi Paul");
+        Logger.status("Hi Paul");
 
         // Test imports
         IFeatureModel m;
 
         final Node formula = new And(new Literal("A"), new Literal("A", false));
-        System.out.println("SAT(" + formula + ") = " + SAT.isSatisfiable(formula));
+        Logger.info("SAT(" + formula + ") = " + SAT.isSatisfiable(formula));
+
+        // Debug variability repo
+        Properties properties = new Properties();
+        try(FileInputStream inputStream = new FileInputStream(PROPERTIES_FILE)) {
+            properties.load(inputStream);
+        } catch (IOException e) {
+            Logger.exception("Failed to open properties file: ", e);
+            return;
+        }
+        // Directory to which https://gitlab.informatik.hu-berlin.de/mse/LinuxVariabilityData was cloned to
+        final File variabilityRepoDir = new File(properties.getProperty(VARIABILITY_REPO));
+        // Directory to which https://github.com/torvalds/linux was cloned to
+        final File splRepoDir = new File(properties.getProperty(SPL_REPO));
 
         Logger.info("variabilityRepoDir: " + variabilityRepoDir);
         Logger.info("splRepoDir: " + splRepoDir);
@@ -43,7 +58,7 @@ public class Main {
                 Logger.info("");
             }
         } catch (IOException | GitAPIException e) {
-            e.printStackTrace();
+            Logger.exception("Failed to load variability or spl repo:", e);
         }
     }
 }
