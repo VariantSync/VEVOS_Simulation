@@ -2,6 +2,7 @@ package de.variantsync;
 
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import de.variantsync.sat.SAT;
+import de.variantsync.subjects.CommitPair;
 import de.variantsync.subjects.VariabilityRepo;
 import de.variantsync.util.Logger;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -9,10 +10,9 @@ import org.prop4j.*;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.Properties;
+import java.util.Set;
 
 public class Main {
     private static final File PROPERTIES_FILE = new File("src/main/resources/user.properties");
@@ -45,13 +45,13 @@ public class Main {
         Logger.info("variabilityRepoDir: " + variabilityRepoDir);
         Logger.info("splRepoDir: " + splRepoDir);
         try {
-            var variabilityRepo = VariabilityRepo.load(variabilityRepoDir, splRepoDir);
-            var commitPairs = variabilityRepo.getCommitPairsForEvolutionStudy();
+            VariabilityRepo variabilityRepo = VariabilityRepo.load(variabilityRepoDir, splRepoDir);
+            Set<CommitPair> commitPairs = variabilityRepo.getCommitPairsForEvolutionStudy();
             Logger.info("The repo contains " + variabilityRepo.getSuccessCommits().size() + " commits for which the variability extraction succeeded.");
             Logger.info("The repo contains " + variabilityRepo.getErrorCommits().size() + " commits for which the variability extraction failed.");
             Logger.info("The repo contains " + variabilityRepo.getNonMergeCommits().size() + " commits that processed an SPLCommit which was not a merge.");
             Logger.info("The repo contains " + commitPairs.size() + " usable pairs.");
-            for (var pair : commitPairs) {
+            for (CommitPair pair : commitPairs) {
                 Logger.info("<<CHILD> " + pair.child().id() + "> -- <<PARENT> " + pair.parent().id() + ">");
                 Logger.info("<<CHILD> " + pair.child().id() + "> -- <<SPL_COMMIT> " + variabilityRepo.getSPLCommit(pair.child()).id() + ">");
                 Logger.info("<<PARENT> " + pair.parent().id() + "> -- <<SPL_COMMIT> " + variabilityRepo.getSPLCommit(pair.parent()).id() + ">");
