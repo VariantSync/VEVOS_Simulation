@@ -188,6 +188,12 @@ public class VariabilityRepo {
         return new HashSet<>(successCommits);
     }
 
+    /**
+     * @return The set of commits that did not process an SPLCommit that was a merge.
+     */
+    public Set<VarCommit> getNonMergeCommits() {
+        return nonMergeCommits;
+    }
 
     private static void mapCommitsAccordingToSPLHistory(Map<SPLCommit, VarCommit> splCommitToVarCommit, File splRepoDir, VariabilityRepo repo) throws IOException, GitAPIException {
         Logger.debug("Considering SPL history");
