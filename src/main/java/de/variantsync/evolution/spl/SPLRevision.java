@@ -2,9 +2,10 @@ package de.variantsync.evolution.spl;
 
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import de.ovgu.featureide.fm.core.configuration.Configuration;
-import de.variantsync.evolution.CommitHash;
 import de.variantsync.evolution.variant.VariantRevision;
 import de.variantsync.evolution.variant.VariantsRevision;
+import de.variantsync.subjects.SPLCommit;
+import de.variantsync.subjects.VariabilityCommit;
 import de.variantsync.util.Functional;
 import de.variantsync.util.NotImplementedException;
 
@@ -13,12 +14,12 @@ import java.util.Optional;
 
 public class SPLRevision {
     private final IFeatureModel featureModel;
-    private final CommitHash splCommit; // e.g. commit hash in linux history
-    private final CommitHash datasetCommit; // commit hash in the history of our variability repository
+    private final SPLCommit splCommit; // e.g. commit hash in linux history
+    private final VariabilityCommit datasetCommit; // commit hash in the history of our variability repository
     // + variability
     private SPLRevision successor = null; // make lazy because expensive
 
-    public SPLRevision(IFeatureModel featureModel, CommitHash splCommit, CommitHash datasetCommit) {
+    public SPLRevision(IFeatureModel featureModel, SPLCommit splCommit, VariabilityCommit datasetCommit) {
         this.featureModel = featureModel;
         this.splCommit = splCommit;
         this.datasetCommit = datasetCommit;

@@ -53,8 +53,8 @@ public class Main {
             Logger.info("The repo contains " + commitPairs.size() + " usable pairs.");
             for (CommitPair pair : commitPairs) {
                 Logger.info("<<CHILD> " + pair.child().id() + "> -- <<PARENT> " + pair.parent().id() + ">");
-                Logger.info("<<CHILD> " + pair.child().id() + "> -- <<SPL_COMMIT> " + variabilityRepo.getSPLCommit(pair.child()).id() + ">");
-                Logger.info("<<PARENT> " + pair.parent().id() + "> -- <<SPL_COMMIT> " + variabilityRepo.getSPLCommit(pair.parent()).id() + ">");
+                Logger.info("<<CHILD> " + pair.child().id() + "> -- <<SPL_COMMIT> " + pair.child().splCommit().id() + ">");
+                Logger.info("<<PARENT> " + pair.parent().id() + "> -- <<SPL_COMMIT> " + pair.parent().splCommit().id() + ">");
                 Logger.info("");
             }
         } catch (IOException | GitAPIException e) {
