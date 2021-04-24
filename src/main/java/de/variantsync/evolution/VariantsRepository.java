@@ -14,7 +14,7 @@ import java.util.Optional;
 public class VariantsRepository implements IVariantsRepository {
     private Map<String, Branch> branchesByName;
     private final Path localPath;
-    public Optional<VariantsRevision> currentRevision;
+    public Optional<VariantsRevision> revision0;
 
     public VariantsRepository(
             Path localPath,
@@ -25,7 +25,7 @@ public class VariantsRepository implements IVariantsRepository {
         parseRepoMetadata();
 
         final ListHeadTailView<VariantsRevisionBlueprint> history = filterExistingRevisions(new ListHeadTailView<>(blueprintHistory));
-        currentRevision = history.safehead().map(blueprint -> new VariantsRevision(splRepo, this, blueprint, history.tail()));
+        revision0 = history.safehead().map(blueprint -> new VariantsRevision(splRepo, this, blueprint, history.tail()));
     }
 
     private void parseRepoMetadata() {
@@ -46,17 +46,28 @@ public class VariantsRepository implements IVariantsRepository {
         return history;
     }
 
-    public Optional<VariantsRevision> getCurrentRevision() {
-        return currentRevision;
+    public Lazy<Optional<VariantsRevision>> generateNext() {
+        return Functional.match(
+                revision0,
+                VariantsRevision::evolve,
+                () -> Lazy.of(Optional::empty)
+        );
     }
 
-    public Lazy<Optional<VariantsRevision>> generateAll() {
-        return generateAll(Lazy.pure(currentRevision));
+    public Lazy<Unit> generateAll() {
+        // We know that the result of generate is Optional.empty so we don't have to return that.
+        return generateAll(Lazy.pure(revision0)).map(l -> Unit.Instance());
     }
 
-    public static Lazy<Optional<VariantsRevision>> generateAll(Lazy<Optional<VariantsRevision>> genNext) {
+    /**
+     * This is a special fold to generate all revision starting from the given one.
+     * The returned lazy will generate all VariantsRevisions once run.
+     * @param firstRevision The revision that denotes the start of the history to generate.
+     * @return A lazy that will generate all VariantsRevisions once run.
+     */
+    private static Lazy<Optional<VariantsRevision>> generateAll(Lazy<Optional<VariantsRevision>> firstRevision) {
         // Generate the given revision and then ...
-        return genNext.bind(
+        return firstRevision.bind(
                 // ... we may have a next revision to generate mr.
                 Functional.match(
                         // If we have, a revision r (i.e., mr is not empty), we recursively generate the remaining history.
