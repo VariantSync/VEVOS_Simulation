@@ -19,7 +19,7 @@ public class Functional {
         return join(ma.map(f));
     }
 
-    public static <A, B> B match(Optional<? extends A> ma, Function<A, ? extends B> just, Supplier<? extends B> nothing) {
+    public static <A, B> B match(Optional<A> ma, Function<A, B> just, Supplier<? extends B> nothing) {
         final Optional<B> x = ma.map(just);
         return x.orElseGet(nothing);
     }
@@ -27,7 +27,7 @@ public class Functional {
     /**
      * Curried version of the above.
      */
-    public static <A, B> Function<Optional<? extends A>, B> match(Function<A, ? extends B> just, Supplier<? extends B> nothing) {
+    public static <A, B> Function<Optional<A>, B> match(Function<A, B> just, Supplier<? extends B> nothing) {
         return ma -> match(ma, just, nothing);
     }
 
