@@ -46,6 +46,11 @@ public class VariantsRepository implements IVariantsRepository {
         return history;
     }
 
+    @Override
+    public Optional<VariantsRevision> getStartRevision() {
+        return revision0;
+    }
+
     public Lazy<Optional<VariantsRevision>> generateNext() {
         return Functional.match(
                 revision0,
