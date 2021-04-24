@@ -232,31 +232,37 @@ public class VariabilityRepo implements IVariabilityRepository {
 
     @Override
     public VariabilityHistory getCommitSequencesForEvolutionStudy() {
+        // TODO for Alex: This is the updated interface for getCommitPairsForEvolutionStudy.
         throw new NotImplementedException();
     }
 
     @Override
     public Path getFeatureModelFile() {
+        // TODO for Alex
         throw new NotImplementedException();
     }
 
     @Override
     public Path getVariabilityFile() {
+        // TODO for Alex
         throw new NotImplementedException();
     }
 
     @Override
     public VariabilityCommit checkoutCommit(VariabilityCommit variabilityCommit) {
+        // TODO: Implement Issue #12 here.
         throw new NotImplementedException();
     }
 
     @Override
     public void checkoutBranch(Branch branch) {
+        // TODO: Implement Issue #12 here.
         throw new NotImplementedException();
     }
 
     @Override
     public VariabilityCommit getCurrentCommit() {
+        // TODO: Implement Issue #12 here.
         throw new NotImplementedException();
     }
 

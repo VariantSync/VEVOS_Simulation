@@ -92,21 +92,25 @@ public class VariantsRepository implements IVariantsRepository {
 
     @Override
     public VariantsCommit checkoutCommit(VariantsCommit variantsCommit) {
+        // TODO: Implement Issue #12 here.
         throw new NotImplementedException();
     }
 
     @Override
     public void checkoutBranch(Branch branch) {
+        // TODO: Implement Issue #12 here.
         throw new NotImplementedException();
     }
 
     @Override
     public VariantsCommit getCurrentCommit() {
+        // TODO: Implement Issue #12 here.
         throw new NotImplementedException();
     }
 
     @Override
     public VariantsCommit commit(String message) {
+        // TODO: Implement Issue #12 here.
         throw new NotImplementedException();
     }
 }
