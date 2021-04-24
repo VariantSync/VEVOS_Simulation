@@ -77,7 +77,7 @@ public class Lazy<A> {
      * @param f A lazy computation to chain to this one.
      * @return Returns a new lazy computation composed of this and the given lazy.
      */
-    public <B> Lazy<B> bind(Function<? super A, Lazy<? extends B>> f) {
+    public <B> Lazy<B> bind(Function<A, Lazy<B>> f) {
         // This is the inlined version of `join(map(f))` for performance reasons.
         return new Lazy<>(() -> f.apply(run()).run()); // == join(map(f))
     }
