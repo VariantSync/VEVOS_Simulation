@@ -3,8 +3,7 @@ package de.variantsync.util;
 import java.util.List;
 import java.util.Optional;
 
-public class ListHeadTailView<T> {
-    private final List<T> list;
+public class ListHeadTailView<T> extends ListDecorator<T> {
     private final int index;
 
     public ListHeadTailView(List<T> list) {
@@ -12,23 +11,27 @@ public class ListHeadTailView<T> {
     }
 
     private ListHeadTailView(List<T> list, int index) {
-        this.list = list;
+        super(list);
         this.index = index;
     }
 
-    public Optional<T> head() {
+    public T head() {
+        return get(index);
+    }
+
+    public Optional<T> safehead() {
         if (empty()) {
             return Optional.empty();
         }
 
-        return Optional.of(list.get(index));
+        return Optional.of(head());
     }
 
     public boolean empty() {
-        return index >= list.size();
+        return index >= size();
     }
 
     public ListHeadTailView<T> tail() {
-        return new ListHeadTailView<>(list, index + 1);
+        return new ListHeadTailView<>(wrappee, index + 1);
     }
 }
