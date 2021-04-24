@@ -3,7 +3,7 @@ import de.variantsync.repository.Commit;
 import de.variantsync.subjects.CommitPair;
 import de.variantsync.subjects.VariabilityCommit;
 import de.variantsync.subjects.VariabilityRepo;
-import de.variantsync.util.Functional;
+import de.variantsync.util.GenericArray;
 import de.variantsync.util.Logger;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.Test;
@@ -73,7 +73,7 @@ public class VariabilityRepoTest {
     public void correctCommitsWithOneParentFiltered() throws GitAPIException, IOException {
         VariabilityRepo repo = VariabilityRepo.load(simpleVariabilityRepoDir, simpleHistoryRepoDir);
 
-        final Pair<String,String>[] expectedCommitPairs = Functional.createArray(
+        final Pair<String,String>[] expectedCommitPairs = GenericArray.create(
                 new Pair<>("d398531661b986467c2f15e7ef3b1429f0d4ad54", "674d9d7f78f92a3cea19392b853d3f39e6482959"),
                 new Pair<>("6e0a4e66c09be9850d5dc5537ac9980c369fb392", "907d04e53eb1dc242cc05c3137c7a794c9639172")
         );
