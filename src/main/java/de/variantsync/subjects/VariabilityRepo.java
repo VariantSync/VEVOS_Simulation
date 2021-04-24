@@ -1,8 +1,10 @@
 package de.variantsync.subjects;
 
 import de.variantsync.io.TextIO;
+import de.variantsync.repository.Branch;
 import de.variantsync.repository.Commit;
 import de.variantsync.repository.IVariabilityRepository;
+import de.variantsync.repository.VariabilityHistory;
 import de.variantsync.util.GitUtil;
 import de.variantsync.util.Logger;
 import de.variantsync.util.NotImplementedException;
@@ -14,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.String;
 
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -39,8 +42,11 @@ public class VariabilityRepo implements IVariabilityRepository {
     // successCommits and errorCommits
     private Set<VariabilityCommit> nonMergeCommits;
 
-    private VariabilityRepo() {
-        Logger.status("Variability repository initialized");
+    private final Path path;
+
+    private VariabilityRepo(Path path) {
+        this.path = path;
+        Logger.status("Variability repository initialized from " + path);
     }
 
     /**
@@ -67,6 +73,7 @@ public class VariabilityRepo implements IVariabilityRepository {
             throw e;
         }
 
+        VariabilityRepo repo = new VariabilityRepo(variabilityRepoDir.toPath());
         Map<SPLCommit, VariabilityCommit> splCommitToVarCommit = new HashMap<>();
         Map<String, VariabilityCommit> allCommits = new HashMap<>();
         Set<VariabilityCommit> successCommits = new HashSet<>();
@@ -91,7 +98,7 @@ public class VariabilityRepo implements IVariabilityRepository {
 
                 Logger.debug("Processed SPL commit " + splCommitId);
                 SPLCommit splCommit = new SPLCommit(splCommitId);
-                VariabilityCommit varCommit = new VariabilityCommit(revCommit.getName(), splCommit);
+                VariabilityCommit varCommit = new VariabilityCommit(repo, revCommit.getName(), splCommit);
                 allCommits.put(varCommit.id(), varCommit);
                 // Check whether the processed Linux commit resulted in an error
                 if (errorFile.exists()) {
@@ -125,7 +132,6 @@ public class VariabilityRepo implements IVariabilityRepository {
                 splCommitToVarCommit.put(splCommit, varCommit);
             }
         }
-        VariabilityRepo repo = new VariabilityRepo();
         repo.successCommits = successCommits;
         repo.errorCommits = errorCommits;
         repo.allCommits = allCommits;
@@ -225,7 +231,37 @@ public class VariabilityRepo implements IVariabilityRepository {
     }
 
     @Override
-    public List<List<Commit<IVariabilityRepository>>> getCommitSequencesForEvolutionStudy() {
+    public VariabilityHistory getCommitSequencesForEvolutionStudy() {
         throw new NotImplementedException();
+    }
+
+    @Override
+    public Path getFeatureModelFile() {
+        throw new NotImplementedException();
+    }
+
+    @Override
+    public Path getVariabilityFile() {
+        throw new NotImplementedException();
+    }
+
+    @Override
+    public VariabilityCommit checkoutCommit(VariabilityCommit variabilityCommit) {
+        throw new NotImplementedException();
+    }
+
+    @Override
+    public void checkoutBranch(Branch branch) {
+        throw new NotImplementedException();
+    }
+
+    @Override
+    public VariabilityCommit getCurrentCommit() {
+        throw new NotImplementedException();
+    }
+
+    @Override
+    public Path getPath() {
+        return path;
     }
 }

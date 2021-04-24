@@ -1,4 +1,8 @@
 package de.variantsync.repository;
 
-public interface IVariantsRepository extends IRepository {
+import de.variantsync.evolution.VariantsCommit;
+
+public interface IVariantsRepository extends IRepository<VariantsCommit> {
+    VariantsCommit commit(String message);
+    Branch getBranchByName(String name);
 }

@@ -1,7 +1,12 @@
 package de.variantsync.repository;
 
-import java.util.List;
+import de.variantsync.subjects.VariabilityCommit;
 
-public interface IVariabilityRepository extends IRepository {
-    List<List<Commit<IVariabilityRepository>>> getCommitSequencesForEvolutionStudy();
+import java.nio.file.Path;
+
+public interface IVariabilityRepository extends IRepository<VariabilityCommit> {
+    VariabilityHistory getCommitSequencesForEvolutionStudy();
+
+    Path getFeatureModelFile();
+    Path getVariabilityFile();
 }

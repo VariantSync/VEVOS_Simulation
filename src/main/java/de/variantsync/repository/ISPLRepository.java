@@ -1,3 +1,5 @@
 package de.variantsync.repository;
 
-public interface ISPLRepository extends IRepository {}
+import de.variantsync.subjects.SPLCommit;
+
+public interface ISPLRepository extends IRepository<SPLCommit> {}
