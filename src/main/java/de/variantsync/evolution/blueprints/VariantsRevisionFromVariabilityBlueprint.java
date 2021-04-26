@@ -68,8 +68,8 @@ public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBl
                 traces.generateVariant(variant, splRepo, variantsRepo);
                 // Commit the generated variant with the corresponding spl commit has as message.
                 final String commitMessage = splCommit.id() + " || " + splCommit.message() + " || " + variant.name();
-                VariantCommit variantCommit = variantsRepo.commit(commitMessage);
-                commits.put(branch, variantCommit);
+                final Optional<VariantCommit> variantCommit = variantsRepo.commit(commitMessage);
+                variantCommit.ifPresent(commit -> commits.put(branch, commit));
             }
 
             return new VariantsRevision.Branches(commits);

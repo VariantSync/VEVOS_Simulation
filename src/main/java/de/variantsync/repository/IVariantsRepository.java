@@ -6,7 +6,7 @@ import de.variantsync.evolution.VariantsRevision;
 import java.util.Optional;
 
 public interface IVariantsRepository extends IRepository<VariantCommit> {
-    VariantCommit commit(String message);
+    Optional<VariantCommit> commit(String message);
     Branch getBranchByName(String name);
 
     Optional<VariantsRevision> getStartRevision();

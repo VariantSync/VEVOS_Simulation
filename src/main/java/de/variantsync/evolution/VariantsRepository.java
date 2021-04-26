@@ -101,7 +101,7 @@ public class VariantsRepository implements IVariantsRepository {
     }
 
     @Override
-    public VariantCommit commit(String message) {
+    public Optional<VariantCommit> commit(String message) {
         // TODO: Implement Issue #12 here.
         throw new NotImplementedException();
     }

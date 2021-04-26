@@ -7,8 +7,6 @@ import de.variantsync.util.functional.Lazy;
 public abstract class VariantsRevisionBlueprint {
     private Lazy<Sample> sample = null;
 
-    protected abstract Lazy<Sample> computeSample();
-
     public Lazy<Sample> getSample() {
         if (sample == null) {
             sample = computeSample();
@@ -16,6 +14,8 @@ public abstract class VariantsRevisionBlueprint {
 
         return sample;
     }
+
+    protected abstract Lazy<Sample> computeSample();
 
     public abstract Lazy<VariantsRevision.Branches> generateArtefactsFor(VariantsRevision revision);
 }

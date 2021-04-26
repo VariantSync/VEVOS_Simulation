@@ -10,6 +10,7 @@ import de.variantsync.util.functional.Lazy;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class VariantsRevisionFromErrorBlueprint extends VariantsRevisionBlueprint {
     public final String COMMIT_MESSAGE = "SUB_HISTORY_END";
@@ -41,8 +42,12 @@ public class VariantsRevisionFromErrorBlueprint extends VariantsRevisionBlueprin
                 variantsRepo.checkoutBranch(branch);
                 // TODO: We cannot commit no changes. So we have to change something. What could that be?
                 //       A simple text file might really be all we need here. Either an empty file or a file with the hashes of the associated commits.
-                VariantCommit variantCommit = variantsRepo.commit(COMMIT_MESSAGE);
-                commits.put(branch, variantCommit);
+                final Optional<VariantCommit> variantCommit = variantsRepo.commit(COMMIT_MESSAGE);
+                if (variantCommit.isPresent()) {
+                    commits.put(branch, variantCommit.get());
+                } else {
+                    throw new RuntimeException("Failed to add error commit.");
+                }
             }
 
             return new VariantsRevision.Branches(commits);
