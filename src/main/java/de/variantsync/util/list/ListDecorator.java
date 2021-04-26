@@ -15,6 +15,16 @@ public class ListDecorator<T> implements List<T> {
         this.wrappee = list;
     }
 
+    /**
+     * @return The list wrapped in this decorator.
+     */
+    public List<T> unwrap() {
+        if (wrappee instanceof ListDecorator<T>) {
+            return ((ListDecorator<T>) wrappee).unwrap();
+        }
+        return wrappee;
+    }
+
     @Override
     public int size() {
         return wrappee.size();

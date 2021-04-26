@@ -58,7 +58,7 @@ public class VariantsRepository implements IVariantsRepository {
     }
 
     public Lazy<Unit> generateAll() {
-        // We know that the result of generate is Optional.empty so we don't have to return that.
+        // We know that the result of generateAll is Lazy.of(Optional::empty) so we don't have to return that.
         return generateAll(Lazy.pure(revision0)).map(l -> Unit.Instance());
     }
 
