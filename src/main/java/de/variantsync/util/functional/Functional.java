@@ -15,8 +15,9 @@ public class Functional {
 
     /// Optional
 
+    @Deprecated
     public static <A, B> Optional<B> bind(Optional<A> ma, Function<A, Optional<B>> f) {
-        return join(ma.map(f));
+        return ma.flatMap(f);
     }
 
     public static <A, B> B match(Optional<A> ma, Function<A, B> just, Supplier<? extends B> nothing) {
@@ -29,9 +30,5 @@ public class Functional {
      */
     public static <A, B> Function<Optional<A>, B> match(Function<A, B> just, Supplier<? extends B> nothing) {
         return ma -> match(ma, just, nothing);
-    }
-
-    public static <A> Optional<A> join(Optional<Optional<A>> mma) {
-        return mma.orElseGet(Optional::empty);
     }
 }
