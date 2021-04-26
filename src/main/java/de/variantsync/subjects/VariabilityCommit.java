@@ -3,7 +3,7 @@ package de.variantsync.subjects;
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import de.variantsync.repository.Commit;
 import de.variantsync.repository.IVariabilityRepository;
-import de.variantsync.util.Lazy;
+import de.variantsync.util.functional.Lazy;
 
 import java.nio.file.Path;
 

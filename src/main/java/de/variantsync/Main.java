@@ -8,10 +8,9 @@ import de.variantsync.repository.VariabilityHistory;
 import de.variantsync.sat.SAT;
 import de.variantsync.subjects.CommitPair;
 import de.variantsync.subjects.VariabilityRepo;
-import de.variantsync.util.Functional;
-import de.variantsync.util.Lazy;
+import de.variantsync.util.functional.Lazy;
 import de.variantsync.util.Logger;
-import de.variantsync.util.Unit;
+import de.variantsync.util.functional.Unit;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.prop4j.*;
 

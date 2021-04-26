@@ -6,7 +6,7 @@ import de.variantsync.feature.Sample;
 import de.variantsync.feature.Variant;
 import de.variantsync.repository.Branch;
 import de.variantsync.repository.IVariantsRepository;
-import de.variantsync.util.Lazy;
+import de.variantsync.util.functional.Lazy;
 
 import java.util.HashMap;
 import java.util.Map;

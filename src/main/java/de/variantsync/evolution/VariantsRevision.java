@@ -4,7 +4,7 @@ import de.variantsync.evolution.blueprints.VariantsRevisionBlueprint;
 import de.variantsync.repository.Branch;
 import de.variantsync.repository.ISPLRepository;
 import de.variantsync.repository.IVariantsRepository;
-import de.variantsync.util.Lazy;
+import de.variantsync.util.functional.Lazy;
 import de.variantsync.util.ListHeadTailView;
 
 import java.util.Map;

@@ -2,7 +2,7 @@ package de.variantsync.evolution.blueprints;
 
 import de.variantsync.evolution.VariantsRevision;
 import de.variantsync.feature.Sample;
-import de.variantsync.util.Lazy;
+import de.variantsync.util.functional.Lazy;
 
 public abstract class VariantsRevisionBlueprint {
     private Lazy<Sample> sample = null;

@@ -5,6 +5,8 @@ import de.variantsync.repository.Branch;
 import de.variantsync.repository.ISPLRepository;
 import de.variantsync.repository.IVariantsRepository;
 import de.variantsync.util.*;
+import de.variantsync.util.functional.*;
+import de.variantsync.util.list.NonEmptyList;
 
 import java.nio.file.Path;
 import java.util.HashMap;

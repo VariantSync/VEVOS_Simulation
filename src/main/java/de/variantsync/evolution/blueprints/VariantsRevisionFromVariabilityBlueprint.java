@@ -1,7 +1,6 @@
 package de.variantsync.evolution.blueprints;
 
 import de.variantsync.evolution.VariantsCommit;
-import de.variantsync.evolution.VariantsRepository;
 import de.variantsync.evolution.VariantsRevision;
 import de.variantsync.feature.Sample;
 import de.variantsync.feature.Variant;
@@ -11,7 +10,7 @@ import de.variantsync.repository.IVariantsRepository;
 import de.variantsync.subjects.FeatureTraces;
 import de.variantsync.subjects.SPLCommit;
 import de.variantsync.subjects.VariabilityCommit;
-import de.variantsync.util.Lazy;
+import de.variantsync.util.functional.Lazy;
 
 import java.util.HashMap;
 import java.util.Map;
