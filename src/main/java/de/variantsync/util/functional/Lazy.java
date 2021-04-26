@@ -20,17 +20,18 @@ import java.util.function.Supplier;
  *
  * @param <A> The return type of this lazy computation.
  */
-public class Lazy<A> {
+public class Lazy<A> implements Functor<Lazy, A> {
     private final Supplier<? extends A> get;
     private A val = null;
 
     private Lazy(A val) {
-        assert val != null;
+        Objects.requireNonNull(val);
         this.val = val;
         this.get = null;
     }
 
     private Lazy(Supplier<? extends A> get) {
+        Objects.requireNonNull(get);
         this.get = get;
     }
 
