@@ -1,4 +1,4 @@
-package de.variantsync.util;
+package de.variantsync.util.list;
 
 import java.util.Collection;
 import java.util.Iterator;

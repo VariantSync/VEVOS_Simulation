@@ -1,5 +1,7 @@
 package de.variantsync.util;
 
+import de.variantsync.util.list.ListDecorator;
+
 import java.util.List;
 import java.util.Optional;
 
