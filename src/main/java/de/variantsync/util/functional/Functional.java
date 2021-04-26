@@ -15,11 +15,6 @@ public class Functional {
 
     /// Optional
 
-    @Deprecated
-    public static <A, B> Optional<B> bind(Optional<A> ma, Function<A, Optional<B>> f) {
-        return ma.flatMap(f);
-    }
-
     public static <A, B> B match(Optional<A> ma, Function<A, B> just, Supplier<? extends B> nothing) {
         final Optional<B> x = ma.map(just);
         return x.orElseGet(nothing);
