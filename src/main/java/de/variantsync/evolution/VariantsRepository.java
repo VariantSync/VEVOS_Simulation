@@ -54,11 +54,7 @@ public class VariantsRepository implements IVariantsRepository {
     }
 
     public Lazy<Optional<VariantsRevision>> generateNext() {
-        return Functional.match(
-                revision0,
-                VariantsRevision::evolve,
-                () -> Lazy.of(Optional::empty)
-        );
+        return MonadTransformer.bind(Lazy.pure(revision0), VariantsRevision::evolve);
     }
 
     public Lazy<Unit> generateAll() {
@@ -73,13 +69,7 @@ public class VariantsRepository implements IVariantsRepository {
      * @return A lazy that will generate all VariantsRevisions once run.
      */
     private static Lazy<Optional<VariantsRevision>> generateAll(Lazy<Optional<VariantsRevision>> firstRevision) {
-        // Generate the given revision and then ...
-        return firstRevision.bind(
-                // ... we may have a next revision to generate mr.
-                Functional.match(
-                        // If we have, a revision r (i.e., mr is not empty), we recursively generate the remaining history.
-                        /*    Just */ r  -> generateAll(r.evolve()),
-                        /* Nothing */ () -> Lazy.of(Optional::empty)));
+        return MonadTransformer.bind(firstRevision, r  -> generateAll(r.evolve()));
     }
 
     @Override
