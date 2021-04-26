@@ -1,6 +1,6 @@
 package de.variantsync.evolution.blueprints;
 
-import de.variantsync.evolution.VariantsCommit;
+import de.variantsync.evolution.VariantCommit;
 import de.variantsync.evolution.VariantsRevision;
 import de.variantsync.feature.Sample;
 import de.variantsync.feature.Variant;
@@ -34,14 +34,15 @@ public class VariantsRevisionFromErrorBlueprint extends VariantsRevisionBlueprin
     public Lazy<VariantsRevision.Branches> generateArtefactsFor(VariantsRevision revision) {
         return getSample().map(sample -> {
             final IVariantsRepository variantsRepo = revision.getVariantsRepo();
-            final Map<Branch, VariantsCommit> commits = new HashMap<>(sample.size());
+            final Map<Branch, VariantCommit> commits = new HashMap<>(sample.size());
 
             for (Variant variant : sample.variants()) {
                 final Branch branch = variantsRepo.getBranchByName(variant.name());
                 variantsRepo.checkoutBranch(branch);
                 // TODO: We cannot commit no changes. So we have to change something. What could that be?
-                VariantsCommit variantsCommit = variantsRepo.commit(COMMIT_MESSAGE);
-                commits.put(branch, variantsCommit);
+                //       A simple text file might really be all we need here. Either an empty file or a file with the hashes of the associated commits.
+                VariantCommit variantCommit = variantsRepo.commit(COMMIT_MESSAGE);
+                commits.put(branch, variantCommit);
             }
 
             return new VariantsRevision.Branches(commits);

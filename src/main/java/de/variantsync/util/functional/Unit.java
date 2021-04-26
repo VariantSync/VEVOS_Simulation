@@ -18,6 +18,11 @@ public class Unit {
     }
 
     @Override
+    public int hashCode() {
+        return 1; // all instances are the same
+    }
+
+    @Override
     public String toString() {
         return "()";
     }

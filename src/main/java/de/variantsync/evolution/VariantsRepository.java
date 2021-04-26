@@ -83,7 +83,7 @@ public class VariantsRepository implements IVariantsRepository {
     }
 
     @Override
-    public VariantsCommit checkoutCommit(VariantsCommit variantsCommit) {
+    public VariantCommit checkoutCommit(VariantCommit variantCommit) {
         // TODO: Implement Issue #12 here.
         throw new NotImplementedException();
     }
@@ -95,13 +95,13 @@ public class VariantsRepository implements IVariantsRepository {
     }
 
     @Override
-    public VariantsCommit getCurrentCommit() {
+    public VariantCommit getCurrentCommit() {
         // TODO: Implement Issue #12 here.
         throw new NotImplementedException();
     }
 
     @Override
-    public VariantsCommit commit(String message) {
+    public VariantCommit commit(String message) {
         // TODO: Implement Issue #12 here.
         throw new NotImplementedException();
     }

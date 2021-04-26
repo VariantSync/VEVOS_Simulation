@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public class VariantsRevision {
-    public static record Branches(Map<Branch, VariantsCommit> commitOf) {}
+    public static record Branches(Map<Branch, VariantCommit> commitOf) {}
 
     private final ISPLRepository splRepo;
     private final IVariantsRepository variantsRepo;

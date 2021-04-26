@@ -59,6 +59,7 @@ public class VariabilityRepo implements IVariabilityRepository {
      * @throws GitAPIException If git cannot load the repositories' history correctly
      */
     public static VariabilityRepo load(File variabilityRepoDir, File splRepoDir) throws IOException, GitAPIException {
+        // TODO: Implement Issue #13 here.
         Logger.status("Building VariabilityRepo instance for " + variabilityRepoDir);
         File currentCommitFile = new File(variabilityRepoDir, CURRENT_COMMIT_FILE);
         File errorFile = new File(variabilityRepoDir, ERROR_FILE);
@@ -194,6 +195,7 @@ public class VariabilityRepo implements IVariabilityRepository {
     }
 
     private static void mapCommitsAccordingToSPLHistory(Map<SPLCommit, VariabilityCommit> splCommitToVarCommit, File splRepoDir, VariabilityRepo repo) throws IOException, GitAPIException {
+        // TODO: Implement Issue #13 here.
         Logger.debug("Considering SPL history");
         Git git = GitUtil.loadGitRepo(splRepoDir);
 

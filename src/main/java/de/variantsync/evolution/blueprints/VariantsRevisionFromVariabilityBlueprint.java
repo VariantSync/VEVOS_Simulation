@@ -1,6 +1,6 @@
 package de.variantsync.evolution.blueprints;
 
-import de.variantsync.evolution.VariantsCommit;
+import de.variantsync.evolution.VariantCommit;
 import de.variantsync.evolution.VariantsRevision;
 import de.variantsync.feature.Sample;
 import de.variantsync.feature.Variant;
@@ -59,7 +59,7 @@ public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBl
             final ISPLRepository splRepo = revision.getSPLRepo();
             final IVariantsRepository variantsRepo = revision.getVariantsRepo();
 
-            final Map<Branch, VariantsCommit> commits = new HashMap<>(sample.size());
+            final Map<Branch, VariantCommit> commits = new HashMap<>(sample.size());
             for (Variant variant : sample.variants()) {
                 final Branch branch = variantsRepo.getBranchByName(variant.name());
                 variantsRepo.checkoutBranch(branch);
@@ -67,8 +67,9 @@ public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBl
                 // Generate the code
                 traces.generateVariant(variant, splRepo, variantsRepo);
                 // Commit the generated variant with the corresponding spl commit has as message.
-                VariantsCommit variantsCommit = variantsRepo.commit(splCommit.id());
-                commits.put(branch, variantsCommit);
+                final String commitMessage = splCommit.id() + " || " + splCommit.message() + " || " + variant.name();
+                VariantCommit variantCommit = variantsRepo.commit(commitMessage);
+                commits.put(branch, variantCommit);
             }
 
             return new VariantsRevision.Branches(commits);
