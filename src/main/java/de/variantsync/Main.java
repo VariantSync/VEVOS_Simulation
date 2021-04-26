@@ -8,8 +8,10 @@ import de.variantsync.repository.VariabilityHistory;
 import de.variantsync.sat.SAT;
 import de.variantsync.subjects.CommitPair;
 import de.variantsync.subjects.VariabilityRepo;
+import de.variantsync.util.functional.Functional;
 import de.variantsync.util.functional.Lazy;
 import de.variantsync.util.Logger;
+import de.variantsync.util.functional.MonadTransformer;
 import de.variantsync.util.functional.Unit;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.prop4j.*;
@@ -84,21 +86,36 @@ public class Main {
                     history.toBlueprints());
 
             // Let's generate revisions for all variability commits here ...
-            Lazy<Unit> genAll = variantsRepo.generateAll(); // The returned lazy holds the computation that will run everything.
-            genAll.run(); // execute everything
+            final Optional<VariantsRevision> firstRevisionToGenerate = variantsRepo.getStartRevision();
 
-            // But we can also generate just a few steps if we like ...
-            Optional<VariantsRevision> revision0 = variantsRepo.getStartRevision();
-            Optional<VariantsRevision> revision1 = variantsRepo.generateNext().run();
-            Optional<VariantsRevision> revision2 = variantsRepo.generateNext().run();
+            // First possible way is to just run all revisions at once.
+            {
+                // This lazy holds the computation that will run everything.
+                final Lazy<Unit> genAll = Functional.match(
+                        firstRevisionToGenerate,
+                        VariantsRevision::evolveAll, // If there is a first revision to generate, then generate all subsequent revision.
+                        () -> Lazy.pure(Unit.Instance())); // If there was nothing to generate, return an empty computation.
+                // Now run the generation process.
+                // Only from this point on, we will see the program interact with the file system and git.
+                genAll.run();
+            }
 
-            // Or we can chain the above to do it in one step
-            final Function<Optional<VariantsRevision>, Lazy<Optional<VariantsRevision>>> evolver = l -> variantsRepo.generateNext();
-            Lazy<Optional<VariantsRevision>> generateTheNext3Revisions = variantsRepo
-                    .generateNext()
-                    .bind(evolver)
-                    .bind(evolver);
-            generateTheNext3Revisions.run();
+            // Alternatively, we can also generate just a few steps if we like.
+            {
+                // First, let's build the necessary computations.
+                final Lazy<Optional<VariantsRevision>> revision0 = Lazy.pure(variantsRepo.getStartRevision());
+                final Lazy<Optional<VariantsRevision>> genRevision0 = MonadTransformer.bind(revision0, VariantsRevision::evolve);
+                final Lazy<Optional<VariantsRevision>> genRevision1 = MonadTransformer.bind(genRevision0, VariantsRevision::evolve);
+                final Lazy<Optional<VariantsRevision>> genRevision2 = MonadTransformer.bind(genRevision1, VariantsRevision::evolve);
+
+                // Second, run them! Only from this point on, we will see the program interact with the file system and git.
+                genRevision0.run(); // This would generate revision0.
+                genRevision1.run(); // This would generate revision0 and then revision1.
+                // This would generate revision0 and then revision1 and then revision2.
+                // This returns a handle for revision3 which is not yet generated.
+                Optional<VariantsRevision> revision3 = genRevision2.run();
+                // Because Lazy caches intermediate results, revision0 and revision1 have only be generated exactly once.
+            }
         }
     }
 }

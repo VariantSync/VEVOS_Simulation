@@ -11,6 +11,11 @@ public interface IRepository<C extends Commit<? extends IRepository<C>>> {
      */
     C checkoutCommit(C c);
 
+    /**
+     * Check out the given branch (`git checkout <branchname>`).
+     * Afterwards, the contents of the given branch will be on disk.
+     * @param branch The branch to check out.
+     */
     void checkoutBranch(Branch branch);
 
     /**

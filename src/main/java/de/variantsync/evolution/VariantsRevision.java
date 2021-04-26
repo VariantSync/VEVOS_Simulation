@@ -6,6 +6,8 @@ import de.variantsync.repository.ISPLRepository;
 import de.variantsync.repository.IVariantsRepository;
 import de.variantsync.util.functional.Lazy;
 import de.variantsync.util.ListHeadTailView;
+import de.variantsync.util.functional.MonadTransformer;
+import de.variantsync.util.functional.Unit;
 
 import java.util.Map;
 import java.util.Optional;
@@ -47,6 +49,25 @@ public class VariantsRevision {
      */
     public Lazy<Optional<VariantsRevision>> evolve() {
         return evolve;
+    }
+
+    /**
+     * Runs evolve and repeats that for all subsequent VariantsRevisions.
+     * @return A lazy computation holding the entire generation process.
+     */
+    public Lazy<Unit> evolveAll() {
+        // We know that the result of evolveAll is Lazy.of(Optional::empty) so we don't have to return that.
+        return evolveAll(MonadTransformer.pure(this)).map(l -> Unit.Instance());
+    }
+
+    /**
+     * This is a special fold to generate all revision starting from the given one.
+     * The returned lazy will generate all VariantsRevisions once run.
+     * @param firstRevision The revision that denotes the start of the history to generate.
+     * @return A lazy that will generate all VariantsRevisions once run.
+     */
+    private static Lazy<Optional<VariantsRevision>> evolveAll(Lazy<Optional<VariantsRevision>> firstRevision) {
+        return MonadTransformer.bind(firstRevision, r  -> evolveAll(r.evolve()));
     }
 
     public ISPLRepository getSPLRepo() {

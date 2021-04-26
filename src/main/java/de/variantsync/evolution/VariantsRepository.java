@@ -13,6 +13,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Default implementation for IVariantsRepository.
+ * Given a history of VariantsRevisionBlueprints, this class will generate a git repository with variants from
+ * the original ISPLRepository.
+ */
 public class VariantsRepository implements IVariantsRepository {
     private Map<String, Branch> branchesByName;
     private final Path localPath;
@@ -51,25 +56,6 @@ public class VariantsRepository implements IVariantsRepository {
     @Override
     public Optional<VariantsRevision> getStartRevision() {
         return revision0;
-    }
-
-    public Lazy<Optional<VariantsRevision>> generateNext() {
-        return MonadTransformer.bind(Lazy.pure(revision0), VariantsRevision::evolve);
-    }
-
-    public Lazy<Unit> generateAll() {
-        // We know that the result of generateAll is Lazy.of(Optional::empty) so we don't have to return that.
-        return generateAll(Lazy.pure(revision0)).map(l -> Unit.Instance());
-    }
-
-    /**
-     * This is a special fold to generate all revision starting from the given one.
-     * The returned lazy will generate all VariantsRevisions once run.
-     * @param firstRevision The revision that denotes the start of the history to generate.
-     * @return A lazy that will generate all VariantsRevisions once run.
-     */
-    private static Lazy<Optional<VariantsRevision>> generateAll(Lazy<Optional<VariantsRevision>> firstRevision) {
-        return MonadTransformer.bind(firstRevision, r  -> generateAll(r.evolve()));
     }
 
     @Override
