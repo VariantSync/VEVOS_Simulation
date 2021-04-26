@@ -1,4 +1,4 @@
-package de.variantsync.util;
+package de.variantsync.util.functional;
 
 import java.util.List;
 import java.util.Optional;

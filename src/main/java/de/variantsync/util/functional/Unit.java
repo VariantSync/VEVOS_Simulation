@@ -1,4 +1,4 @@
-package de.variantsync.util;
+package de.variantsync.util.functional;
 
 /**
  * Unit represents a type that has exactly one value (Instance()).

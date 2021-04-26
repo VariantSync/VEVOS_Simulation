@@ -1,7 +1,8 @@
-package de.variantsync.util;
+package de.variantsync.util.functional;
 
 import de.ovgu.featureide.fm.core.analysis.cnf.generator.configuration.util.Pair;
 
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
