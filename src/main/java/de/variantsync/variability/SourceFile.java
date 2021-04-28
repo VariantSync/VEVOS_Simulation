@@ -1,4 +1,4 @@
-package de.variantsync.subjects;
+package de.variantsync.variability;
 
 
 import java.util.ArrayList;

@@ -1,9 +1,13 @@
-import de.variantsync.subjects.CommitPair;
-import de.variantsync.subjects.VarCommit;
-import de.variantsync.subjects.VariabilityRepo;
+import de.ovgu.featureide.fm.core.analysis.cnf.generator.configuration.util.Pair;
+import de.variantsync.repository.Commit;
+import de.variantsync.variability.CommitPair;
+import de.variantsync.variability.VariabilityCommit;
+import de.variantsync.variability.VariabilityRepo;
+import de.variantsync.util.GenericArray;
 import de.variantsync.util.Logger;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,75 +22,76 @@ public class VariabilityRepoTest {
         Logger.initConsoleLogger();
     }
 
-    @Test
-    public void successCommitsAreLoaded() throws GitAPIException, IOException {
-        VariabilityRepo repo = VariabilityRepo.load(simpleVariabilityRepoDir, simpleHistoryRepoDir);
+    private VariabilityRepo repo;
 
-        VarCommit[] expectedSuccessCommits = new VarCommit[]{
-                new VarCommit("674d9d7f78f92a3cea19392b853d3f39e6482959"),
-                new VarCommit("d398531661b986467c2f15e7ef3b1429f0d4ad54"),
-                new VarCommit("ca3644a751d12f6893a170deaf3acfd6be0fd7e2"),
-                new VarCommit("907d04e53eb1dc242cc05c3137c7a794c9639172"),
-                new VarCommit("6e0a4e66c09be9850d5dc5537ac9980c369fb392"),
+    @Before
+    public void initializeRepo() throws GitAPIException, IOException {
+        repo = VariabilityRepo.load(simpleVariabilityRepoDir, simpleHistoryRepoDir);
+    }
+
+    @Test
+    public void successCommitsAreLoaded() {
+        final String[] expectedSuccessCommits = new String[] {
+                "674d9d7f78f92a3cea19392b853d3f39e6482959",
+                "d398531661b986467c2f15e7ef3b1429f0d4ad54",
+                "ca3644a751d12f6893a170deaf3acfd6be0fd7e2",
+                "907d04e53eb1dc242cc05c3137c7a794c9639172",
+                "6e0a4e66c09be9850d5dc5537ac9980c369fb392",
         };
 
-        Set<VarCommit> successCommits = repo.getSuccessCommits();
+        Set<VariabilityCommit> successCommits = repo.getSuccessCommits();
         for (var expectedCommit : expectedSuccessCommits) {
-            assert successCommits.contains(expectedCommit);
+            assert Commit.contains(successCommits, expectedCommit);
         }
         assert successCommits.size() == expectedSuccessCommits.length;
     }
 
     @Test
-    public void errorCommitsAreLoaded() throws GitAPIException, IOException {
-        VariabilityRepo repo = VariabilityRepo.load(simpleVariabilityRepoDir, simpleHistoryRepoDir);
-
-        VarCommit[] expectedErrorCommits = new VarCommit[]{
-                new VarCommit("1915b9aa580c6e3a332146b3a579f015db627377"),
-                new VarCommit("7cc1135c70cb6ce92bc3d41a7fbff984b2c0e3ea"),
-                new VarCommit("bd020e4f40e2726f138c901f6fa44a106a55a56d"),
+    public void errorCommitsAreLoaded() {
+        final String[] expectedErrorCommits = new String[]{
+                "1915b9aa580c6e3a332146b3a579f015db627377",
+                "7cc1135c70cb6ce92bc3d41a7fbff984b2c0e3ea",
+                "bd020e4f40e2726f138c901f6fa44a106a55a56d",
         };
 
-        Set<VarCommit> errorCommits = repo.getErrorCommits();
+        Set<VariabilityCommit> errorCommits = repo.getErrorCommits();
         for (var expectedCommit : expectedErrorCommits) {
-            assert errorCommits.contains(expectedCommit);
+            assert Commit.contains(errorCommits, expectedCommit);
         }
         assert errorCommits.size() == expectedErrorCommits.length;
     }
 
     @Test
-    public void logicalParentsAreLoaded() throws GitAPIException, IOException {
-        VariabilityRepo repo = VariabilityRepo.load(simpleVariabilityRepoDir, simpleHistoryRepoDir);
-
-        assert repo.getEvolutionParents(new VarCommit("ebbe5041a6d15964251aee37b1b2ea81946f790b")) == null;
-        assert repo.getEvolutionParents(new VarCommit("674d9d7f78f92a3cea19392b853d3f39e6482959")).length == 0;
-        assert repo.getEvolutionParents(new VarCommit("d398531661b986467c2f15e7ef3b1429f0d4ad54")).length == 1;
-        assert repo.getEvolutionParents(new VarCommit("d398531661b986467c2f15e7ef3b1429f0d4ad54"))[0].id().equals("674d9d7f78f92a3cea19392b853d3f39e6482959");
-        assert repo.getEvolutionParents(new VarCommit("6e0a4e66c09be9850d5dc5537ac9980c369fb392")).length == 1;
-        assert repo.getEvolutionParents(new VarCommit("6e0a4e66c09be9850d5dc5537ac9980c369fb392"))[0].id().equals("907d04e53eb1dc242cc05c3137c7a794c9639172");
+    public void initialCommitDiscarded() {
+        assert repo.getVariabilityCommit("ebbe5041a6d15964251aee37b1b2ea81946f790b") == null;
     }
 
     @Test
-    public void correctCommitsWithOneParentFiltered() throws GitAPIException, IOException {
-        VariabilityRepo repo = VariabilityRepo.load(simpleVariabilityRepoDir, simpleHistoryRepoDir);
+    public void logicalParentsAreLoaded() {
+        assert repo.getVariabilityCommit("674d9d7f78f92a3cea19392b853d3f39e6482959").getEvolutionParents().length == 0;
+        assert repo.getVariabilityCommit("d398531661b986467c2f15e7ef3b1429f0d4ad54").getEvolutionParents().length == 1;
+        assert repo.getVariabilityCommit("d398531661b986467c2f15e7ef3b1429f0d4ad54").getEvolutionParents()[0].id().equals("674d9d7f78f92a3cea19392b853d3f39e6482959");
+        assert repo.getVariabilityCommit("6e0a4e66c09be9850d5dc5537ac9980c369fb392").getEvolutionParents().length == 1;
+        assert repo.getVariabilityCommit("6e0a4e66c09be9850d5dc5537ac9980c369fb392").getEvolutionParents()[0].id().equals("907d04e53eb1dc242cc05c3137c7a794c9639172");
+    }
 
-        CommitPair[] expectedCommitPairs = new CommitPair[]{
-                new CommitPair(new VarCommit("d398531661b986467c2f15e7ef3b1429f0d4ad54"), new VarCommit("674d9d7f78f92a3cea19392b853d3f39e6482959")),
-                new CommitPair(new VarCommit("6e0a4e66c09be9850d5dc5537ac9980c369fb392"), new VarCommit("907d04e53eb1dc242cc05c3137c7a794c9639172"))
-        };
+    @Test
+    public void correctCommitsWithOneParentFiltered() {
+        final Pair<String,String>[] expectedCommitPairs = GenericArray.create(
+                new Pair<>("d398531661b986467c2f15e7ef3b1429f0d4ad54", "674d9d7f78f92a3cea19392b853d3f39e6482959"),
+                new Pair<>("6e0a4e66c09be9850d5dc5537ac9980c369fb392", "907d04e53eb1dc242cc05c3137c7a794c9639172")
+        );
 
         Set<CommitPair> pairs = repo.getCommitPairsForEvolutionStudy();
         for (var commitPair : expectedCommitPairs) {
-            assert pairs.contains(commitPair);
+            assert pairs.stream().anyMatch(p -> p.child().id().equals(commitPair.getKey()) && p.parent().id().equals(commitPair.getValue()));
         }
         assert repo.getCommitPairsForEvolutionStudy().size() == expectedCommitPairs.length;
     }
 
     @Test
-    public void splCommitsMapped() throws GitAPIException, IOException {
-        VariabilityRepo repo = VariabilityRepo.load(simpleVariabilityRepoDir, simpleHistoryRepoDir);
-
-        String[] variabilityCommits = new String[]{
+    public void splCommitsMapped() {
+        final String[] variabilityCommits = new String[]{
                 "674d9d7f78f92a3cea19392b853d3f39e6482959",
                 "d398531661b986467c2f15e7ef3b1429f0d4ad54",
                 "7cc1135c70cb6ce92bc3d41a7fbff984b2c0e3ea",
@@ -97,7 +102,7 @@ public class VariabilityRepoTest {
                 "6e0a4e66c09be9850d5dc5537ac9980c369fb392",
         };
 
-        String[] splCommits = new String[]{
+        final String[] splCommits = new String[]{
                 "c11c2aff04769cbcb6c568f90257dc3cc7bb1737",
                 "aed45b2f723e372b750e8007c72730bcddee7174",
                 "e12024473264e88058027290a348d1ada31af20a",
@@ -109,7 +114,7 @@ public class VariabilityRepoTest {
         };
 
         for (int i = 0; i < variabilityCommits.length; i++) {
-            assert repo.getSPLCommit(new VarCommit(variabilityCommits[i])).id().equals(splCommits[i]);
+            assert repo.getVariabilityCommit(variabilityCommits[i]).splCommit().id().equals(splCommits[i]);
         }
     }
 }
