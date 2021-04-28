@@ -19,8 +19,8 @@ public class ListDecorator<T> implements List<T> {
      * @return The list wrapped in this decorator.
      */
     public List<T> unwrap() {
-        if (wrappee instanceof ListDecorator<T>) {
-            return ((ListDecorator<T>) wrappee).unwrap();
+        if (wrappee instanceof ListDecorator<T> l) {
+            return l.unwrap();
         }
         return wrappee;
     }
