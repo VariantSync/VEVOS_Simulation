@@ -12,6 +12,12 @@ import de.variantsync.util.functional.Unit;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Models a cut in the evolution history of the IVariantsRevision.
+ * Each commit to the SPL is reproduced on variants as a commit for each variant.
+ * Thus, several variants co-evolve at the same time.
+ * A VariantsRevision runs and captures this co-evolution for a single commit (i.e., modelled as a blueprint).
+ */
 public class VariantsRevision {
     public static record Branches(Map<Branch, VariantCommit> commitOf) {}
 
@@ -20,6 +26,15 @@ public class VariantsRevision {
     private final Lazy<Branches> generate;
     private final Lazy<Optional<VariantsRevision>> evolve;
 
+    /**
+     * Creates a VariantsRevision.
+     * @param splRepo The ISPLRepository from whose code variants should be generated.
+     * @param variantsRepo The IVariantsRepository to which variants should be generated and committed.
+     * @param blueprint A blueprint giving instructions on how to generate the variants.
+     * @param remainingHistory The remaining history that has to be generated after this revision was generated.
+     *                         This list is used to return the next VariantsRevision to generate once the constructed
+     *                         VariantsRevision was generated.
+     */
     VariantsRevision(
             ISPLRepository splRepo,
             IVariantsRepository variantsRepo,
@@ -30,14 +45,26 @@ public class VariantsRevision {
         this.variantsRepo = variantsRepo;
 
         generate = blueprint.generateArtefactsFor(this);
-        evolve = generate.map(commits ->
-                        remainingHistory.safehead().map(nextBlueprint ->
-                                new VariantsRevision(splRepo, variantsRepo, nextBlueprint, remainingHistory.tail())));
+
+        /*
+         * evolve generates the current variants and then returns the next revision to generate
+         * (i.e., it evolves into the next revision).
+         * The next revision can only be generated though, after the current revision was generated.
+         * Otherwise, it would be possible to access the next revision and generate it without having
+         * generated the current revision first.
+         * This would screw up the output git repository.
+         * By chaining the production of the next revision with the generation of the current one, we force the users to
+         * always generate the current variants before they can reason about the next revision (i.e., evolution step).
+         * Thus, there is no room for bugs regarding the order of revisions.
+         */
+        evolve = generate.then(() ->
+                remainingHistory.safehead().map(nextBlueprint ->
+                        new VariantsRevision(splRepo, variantsRepo, nextBlueprint, remainingHistory.tail())));
     }
 
     /**
      * Generates all variants of this revision and commits them to respective branches.
-     * @return The revision of the branches that were commited in this revision.
+     * @return The revision of the branches that were committed in this revision.
      */
     public Lazy<Branches> generate() {
         return generate;

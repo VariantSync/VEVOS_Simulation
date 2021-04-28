@@ -5,6 +5,11 @@ import de.variantsync.util.list.ListDecorator;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * A view that separates a list into head (first element) and tail (remaining elements).
+ * A ListHeadTailView thus shows a sublist of the given list starting at a certain index and ending at the end of
+ * the viewed list.
+ */
 public class ListHeadTailView<T> extends ListDecorator<T> {
     private final int index;
 
@@ -12,9 +17,13 @@ public class ListHeadTailView<T> extends ListDecorator<T> {
         this(list, 0);
     }
 
-    private ListHeadTailView(List<T> list, int index) {
+    public ListHeadTailView(List<T> list, int headIndex) {
         super(list);
-        this.index = index;
+        this.index = headIndex;
+    }
+
+    public boolean empty() {
+        return index >= size();
     }
 
     public T head() {
@@ -27,10 +36,6 @@ public class ListHeadTailView<T> extends ListDecorator<T> {
         }
 
         return Optional.of(head());
-    }
-
-    public boolean empty() {
-        return index >= size();
     }
 
     public ListHeadTailView<T> tail() {

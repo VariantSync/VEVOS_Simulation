@@ -6,6 +6,11 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+/**
+ * Helper class containing methods for functional programming missing in the standard library
+ * (or that we could not find).
+ * Contains also methods for pattern matching.
+ */
 public class Functional {
     /// Lists
 

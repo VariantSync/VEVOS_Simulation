@@ -19,7 +19,7 @@ public class Unit {
 
     @Override
     public int hashCode() {
-        return 1; // all instances are the same
+        return 1; // all instances are the same as there exists just one.
     }
 
     @Override

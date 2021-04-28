@@ -23,6 +23,13 @@ public class VariantsRepository implements IVariantsRepository {
     private final Path localPath;
     public Optional<VariantsRevision> revision0;
 
+    /**
+     * Creates a new VariantsRepository that will generate to the given directory.
+     * @param localPath The directory where the VariantsRepository is already located or should be located.
+     * @param splRepo The ISPLRepository from whose artefacts, variants should be generated.
+     * @param blueprintHistory A history of blueprints on how to generate the variants.
+     *                         The variants revisions will be generated in the order the blueprints appear in the list.
+     */
     public VariantsRepository(
             Path localPath,
             ISPLRepository splRepo,
@@ -35,12 +42,22 @@ public class VariantsRepository implements IVariantsRepository {
         revision0 = history.safehead().map(blueprint -> new VariantsRevision(splRepo, this, blueprint, history.tail()));
     }
 
+    /**
+     * Checks if the repository already exists and localPath.
+     * If it does, reads all relevant metadata from it, such as the currently checked out commit and the existing branches.
+     */
     private void parseRepoMetadata() {
         // TODO: Implement Issue 11 here.
         // If we start repo generation from the beginning, nothing has to be done, thus we have no branches in the beginning:
         branchesByName = new HashMap<>();
     }
 
+    /**
+     * Discards all blueprints from the given history for which revisions where already generated.
+     * This means, this removes blueprints from the head of the given history until the current head was not already generated.
+     * @param history The history to filter already generated revisions from.
+     * @return A list of blueprints that still have to be generated.
+     */
     private ListHeadTailView<VariantsRevisionBlueprint> filterExistingRevisions(ListHeadTailView<VariantsRevisionBlueprint> history) {
         branchesByName = new HashMap<>();
         // TODO: Implement Issue 11 here.

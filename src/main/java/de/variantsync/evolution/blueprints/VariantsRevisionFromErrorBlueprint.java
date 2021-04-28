@@ -12,6 +12,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * A blueprint that produces an artificial commit on each current variant.
+ * These commits are intended to denote ends of continuous commit histories from
+ * the original ISPLRepository.
+ * For instance, when there would be a single commit in the mid of the history of the ISPLRepository,
+ * that could not be parsed (we have no feature model and no presence conditions), this commit would split
+ * the history of the ISPLRepository we can model in half - all commits before that error commit and all commits afterwards.
+ * A VariantsRevisionFromErrorBlueprint is devoted to model such an error commit on the IVariantsRepository to mark
+ * the end of continuous analysable history.
+ */
 public class VariantsRevisionFromErrorBlueprint extends VariantsRevisionBlueprint {
     public final String COMMIT_MESSAGE = "SUB_HISTORY_END";
     private final VariantsRevisionFromVariabilityBlueprint predecessor;
@@ -28,6 +38,8 @@ public class VariantsRevisionFromErrorBlueprint extends VariantsRevisionBlueprin
 
     @Override
     protected Lazy<Sample> computeSample() {
+        // We don't have any variability information but instead want to introduce an artifical error commit.
+        // Thus, we just have to operate on the variants already present.
         return predecessor.getSample();
     }
 

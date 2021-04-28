@@ -103,8 +103,8 @@ public class Main {
             // Alternatively, we can also generate just a few steps if we like.
             {
                 // First, let's build the necessary computations.
-                final Lazy<Optional<VariantsRevision>> revision0 = Lazy.pure(variantsRepo.getStartRevision());
-                final Lazy<Optional<VariantsRevision>> genRevision0 = MonadTransformer.bind(revision0, VariantsRevision::evolve);
+                final Lazy<Optional<VariantsRevision>>    revision0 = Lazy.pure(variantsRepo.getStartRevision());
+                final Lazy<Optional<VariantsRevision>> genRevision0 = MonadTransformer.bind(revision0,    VariantsRevision::evolve);
                 final Lazy<Optional<VariantsRevision>> genRevision1 = MonadTransformer.bind(genRevision0, VariantsRevision::evolve);
                 final Lazy<Optional<VariantsRevision>> genRevision2 = MonadTransformer.bind(genRevision1, VariantsRevision::evolve);
 

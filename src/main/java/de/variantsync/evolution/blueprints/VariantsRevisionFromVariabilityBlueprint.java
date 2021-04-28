@@ -16,14 +16,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Default blueprint to generate variants from the software product line at a certain commit.
+ */
 public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBlueprint {
     private final VariabilityCommit variability;
     private final Optional<VariantsRevisionFromVariabilityBlueprint> predecessor;
 
     /**
-     *
+     * Creates a new blueprint that can generate variants from the given variabilityCommit that contains
+     * the variability information of a specific SPLCommit.
      * @param variabilityCommit The variability commit from which a VariantsRevision should be created.
-     * @param predecessor may be null
+     * @param predecessor The predecessor blueprint that generates the VariantsRevision that has to be generated before
+     *                    the revision of this blueprint. May be null, if this is the first blueprint to generate.
      */
     public VariantsRevisionFromVariabilityBlueprint(
             VariabilityCommit variabilityCommit,
