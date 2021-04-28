@@ -1,4 +1,4 @@
-package de.variantsync.subjects;
+package de.variantsync.variability;
 
 import de.variantsync.feature.Variant;
 import de.variantsync.repository.ISPLRepository;

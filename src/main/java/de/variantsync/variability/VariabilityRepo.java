@@ -1,8 +1,7 @@
-package de.variantsync.subjects;
+package de.variantsync.variability;
 
 import de.variantsync.io.TextIO;
 import de.variantsync.repository.Branch;
-import de.variantsync.repository.Commit;
 import de.variantsync.repository.IVariabilityRepository;
 import de.variantsync.repository.VariabilityHistory;
 import de.variantsync.util.GitUtil;
@@ -20,8 +19,8 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static de.variantsync.subjects.Constants.CURRENT_COMMIT_FILE;
-import static de.variantsync.subjects.Constants.ERROR_FILE;
+import static de.variantsync.variability.Constants.CURRENT_COMMIT_FILE;
+import static de.variantsync.variability.Constants.ERROR_FILE;
 
 /**
  * Record for storing meta data about the SPL commits that were processed by a variability extraction.

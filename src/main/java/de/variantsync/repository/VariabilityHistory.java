@@ -3,7 +3,7 @@ package de.variantsync.repository;
 import de.variantsync.evolution.blueprints.VariantsRevisionBlueprint;
 import de.variantsync.evolution.blueprints.VariantsRevisionFromErrorBlueprint;
 import de.variantsync.evolution.blueprints.VariantsRevisionFromVariabilityBlueprint;
-import de.variantsync.subjects.VariabilityCommit;
+import de.variantsync.variability.VariabilityCommit;
 import de.variantsync.util.list.NonEmptyList;
 
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package de.variantsync.subjects;
+package de.variantsync.variability;
 
 public record CommitPair(VariabilityCommit child, VariabilityCommit parent) {}
 

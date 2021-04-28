@@ -1,4 +1,4 @@
-package de.variantsync.subjects;
+package de.variantsync.variability;
 
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import de.variantsync.repository.Commit;

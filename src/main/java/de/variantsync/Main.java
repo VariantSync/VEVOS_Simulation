@@ -6,8 +6,8 @@ import de.variantsync.evolution.VariantsRevision;
 import de.variantsync.repository.ISPLRepository;
 import de.variantsync.repository.VariabilityHistory;
 import de.variantsync.sat.SAT;
-import de.variantsync.subjects.CommitPair;
-import de.variantsync.subjects.VariabilityRepo;
+import de.variantsync.variability.CommitPair;
+import de.variantsync.variability.VariabilityRepo;
 import de.variantsync.util.functional.Functional;
 import de.variantsync.util.functional.Lazy;
 import de.variantsync.util.Logger;
@@ -23,7 +23,6 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
-import java.util.function.Function;
 
 public class Main {
     private static final File PROPERTIES_FILE = new File("src/main/resources/user.properties");

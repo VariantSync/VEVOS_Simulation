@@ -7,9 +7,9 @@ import de.variantsync.feature.Variant;
 import de.variantsync.repository.Branch;
 import de.variantsync.repository.ISPLRepository;
 import de.variantsync.repository.IVariantsRepository;
-import de.variantsync.subjects.FeatureTraces;
-import de.variantsync.subjects.SPLCommit;
-import de.variantsync.subjects.VariabilityCommit;
+import de.variantsync.variability.FeatureTraces;
+import de.variantsync.variability.SPLCommit;
+import de.variantsync.variability.VariabilityCommit;
 import de.variantsync.util.functional.Lazy;
 
 import java.util.HashMap;

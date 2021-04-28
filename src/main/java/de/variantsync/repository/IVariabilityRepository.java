@@ -1,6 +1,6 @@
 package de.variantsync.repository;
 
-import de.variantsync.subjects.VariabilityCommit;
+import de.variantsync.variability.VariabilityCommit;
 
 import java.nio.file.Path;
 
