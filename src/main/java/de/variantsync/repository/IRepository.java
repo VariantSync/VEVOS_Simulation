@@ -2,6 +2,10 @@ package de.variantsync.repository;
 
 import java.nio.file.Path;
 
+/**
+ * Models a repository of a version control system such as Git.
+ * @param <C> Type of commits of this repository.
+ */
 public interface IRepository<C extends Commit<? extends IRepository<C>>> {
     /**
      * Check out the given commit in the local copy of the repository.

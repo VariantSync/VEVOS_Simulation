@@ -5,9 +5,9 @@ import org.prop4j.explain.solvers.SatSolver;
 import org.prop4j.explain.solvers.SatSolverFactory;
 
 public class SAT {
-    public static boolean isSatisfiable(Node node) {
+    public static boolean isSatisfiable(Node formula) {
         final SatSolver solver = SatSolverFactory.getDefault().getSatSolver();
-        solver.addFormulas(node);
+        solver.addFormulas(formula);
         return solver.isSatisfiable();
     }
 }

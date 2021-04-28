@@ -9,7 +9,6 @@ import java.util.Optional;
  * Repository that mimics the evolution of an ISPLRepository in terms of variants instead of an integrated code base.
  */
 public interface IVariantsRepository extends IRepository<VariantCommit> {
-
     /**
      * Commits the current state of the repository with the given message.
      * @param message Message for the commit to make.
