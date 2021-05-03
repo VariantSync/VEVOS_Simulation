@@ -1,10 +1,10 @@
 import de.ovgu.featureide.fm.core.analysis.cnf.generator.configuration.util.Pair;
-import de.variantsync.repository.Commit;
-import de.variantsync.variability.CommitPair;
-import de.variantsync.variability.VariabilityCommit;
-import de.variantsync.variability.VariabilityRepo;
-import de.variantsync.util.GenericArray;
-import de.variantsync.util.Logger;
+import de.variantsync.evolution.repository.Commit;
+import de.variantsync.evolution.variability.CommitPair;
+import de.variantsync.evolution.variability.VariabilityCommit;
+import de.variantsync.evolution.variability.VariabilityRepo;
+import de.variantsync.evolution.util.GenericArray;
+import de.variantsync.evolution.util.Logger;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.Before;
 import org.junit.Test;
