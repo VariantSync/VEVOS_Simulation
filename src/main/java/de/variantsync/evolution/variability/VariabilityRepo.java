@@ -7,6 +7,7 @@ import de.variantsync.evolution.repository.VariabilityHistory;
 import de.variantsync.evolution.util.GitUtil;
 import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.NotImplementedException;
+import de.variantsync.evolution.util.list.NonEmptyList;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -233,8 +234,20 @@ public class VariabilityRepo implements IVariabilityRepository {
 
     @Override
     public VariabilityHistory getCommitSequencesForEvolutionStudy() {
-        // TODO for Alex: This is the updated interface for getCommitPairsForEvolutionStudy.
-        throw new NotImplementedException();
+        LinkedList<LinkedList<VariabilityCommit>> commitLists = new LinkedList<>();
+        Set<VariabilityCommit> processedCommits = new HashSet<>();
+        for (var commit : this.successCommits) {
+           processCommitForUsability(commit, processedCommits, commitLists);
+        }
+
+        //NonEmptyList<NonEmptyList<VariabilityCommit>> history = null;
+        for (var commitList : commitLists) {
+            NonEmptyList<VariabilityCommit> commitSequence = new NonEmptyList<>(commitList);
+            if (history == null) {
+                NonEmptyList<NonEmptyList<VariabilityCommit>> history = new NonEmptyList<>(new NonEmptyList<>(commitList));
+            }
+        }
+        return new VariabilityHistory(history);
     }
 
     @Override
@@ -270,5 +283,38 @@ public class VariabilityRepo implements IVariabilityRepository {
     @Override
     public Path getPath() {
         return path;
+    }
+
+    private void processCommitForUsability(VariabilityCommit commit, Set<VariabilityCommit> processedCommits, LinkedList<LinkedList<VariabilityCommit>> variabilityHistory) {
+        // Check if it is a merge commit or if it was already processed, true -> return, false -> process
+        if (!this.nonMergeCommits.contains(commit) || processedCommits.contains(commit)) {
+            return;
+        }
+
+        // Check whether it has a parent
+        if (commit.getEvolutionParents().length == 1) {
+            var parent = commit.getEvolutionParents()[0];
+            // Check whether its parent was processed
+            if (processedCommits.contains(parent)) {
+                // true -> there is a list starting with the parent
+                for (var commitList : variabilityHistory) {
+                    if (commitList.getFirst() == parent) {
+                        // search for the list and prepend this commit to it
+                        commitList.addFirst(commit);
+                        // Add the commit to the processed commits
+                        processedCommits.add(commit);
+                        return;
+                    }
+                }
+            } else {
+                // process the parent commit that is then appended to the created list
+                processCommitForUsability(parent, processedCommits, variabilityHistory);
+            }
+        }
+        // false -> create a new list starting with this commit
+        LinkedList<VariabilityCommit> commitList = new LinkedList<>();
+        commitList.add(commit);
+        variabilityHistory.add(commitList);
+        processedCommits.add(commit);
     }
 }
