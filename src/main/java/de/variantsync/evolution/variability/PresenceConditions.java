@@ -5,7 +5,7 @@ import de.variantsync.evolution.repository.ISPLRepository;
 import de.variantsync.evolution.repository.IVariantsRepository;
 import de.variantsync.evolution.util.NotImplementedException;
 
-public class FeatureTraces {
+public class PresenceConditions {
     // TODO: Implement Issue #1 somewhere here? Also in generateVariant?
 
     public void generateVariant(Variant variant, ISPLRepository splRepo, IVariantsRepository variantsRepo) {

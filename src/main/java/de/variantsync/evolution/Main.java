@@ -1,6 +1,10 @@
 package de.variantsync.evolution;
 
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
+import de.variantsync.evolution.io.Resources;
+import de.variantsync.evolution.io.kernelhaven.KernelHavenPCLoader;
+import de.variantsync.evolution.io.pclocator.PCLocatorPCLoader;
+import de.variantsync.evolution.variability.PresenceConditions;
 import de.variantsync.evolution.variants.VariantsRepository;
 import de.variantsync.evolution.variants.VariantsRevision;
 import de.variantsync.evolution.repository.ISPLRepository;
@@ -16,6 +20,7 @@ import de.variantsync.evolution.util.functional.Unit;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.prop4j.*;
 
+import java.awt.image.Kernel;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -29,8 +34,15 @@ public class Main {
     private static final String VARIABILITY_REPO = "variability_repo";
     private static final String SPL_REPO = "spl_repo";
 
+    private static void initResources() {
+        Resources r = Resources.Instance();
+        r.registerLoader(PresenceConditions.class, new KernelHavenPCLoader());
+        r.registerLoader(PresenceConditions.class, new PCLocatorPCLoader());
+    }
+
     public static void main(String[] args) {
         Logger.initConsoleLogger();
+        initResources();
         Logger.status("Hi Paul");
 
         // Test imports

@@ -7,7 +7,7 @@ import de.variantsync.evolution.feature.Variant;
 import de.variantsync.evolution.repository.Branch;
 import de.variantsync.evolution.repository.ISPLRepository;
 import de.variantsync.evolution.repository.IVariantsRepository;
-import de.variantsync.evolution.variability.FeatureTraces;
+import de.variantsync.evolution.variability.PresenceConditions;
 import de.variantsync.evolution.variability.SPLCommit;
 import de.variantsync.evolution.variability.VariabilityCommit;
 import de.variantsync.evolution.util.functional.Lazy;
@@ -58,7 +58,7 @@ public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBl
     @Override
     public Lazy<VariantsRevision.Branches> generateArtefactsFor(VariantsRevision revision) {
         return variability.featureTraces.and(getSample()).map(ts -> {
-            final FeatureTraces traces = ts.getKey();
+            final PresenceConditions traces = ts.getKey();
             final Sample sample = ts.getValue();
             final SPLCommit splCommit = variability.splCommit();
             final ISPLRepository splRepo = revision.getSPLRepo();
