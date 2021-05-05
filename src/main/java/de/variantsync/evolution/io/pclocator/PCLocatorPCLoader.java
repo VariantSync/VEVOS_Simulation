@@ -2,7 +2,7 @@ package de.variantsync.evolution.io.pclocator;
 
 import de.variantsync.evolution.io.ResourceLoader;
 import de.variantsync.evolution.util.NotImplementedException;
-import de.variantsync.evolution.variability.PresenceConditions;
+import de.variantsync.evolution.variability.pc.PresenceConditions;
 
 import java.nio.file.Path;
 

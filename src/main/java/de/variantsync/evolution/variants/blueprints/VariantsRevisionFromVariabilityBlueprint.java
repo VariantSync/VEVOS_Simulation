@@ -7,7 +7,7 @@ import de.variantsync.evolution.feature.Variant;
 import de.variantsync.evolution.repository.Branch;
 import de.variantsync.evolution.repository.ISPLRepository;
 import de.variantsync.evolution.repository.IVariantsRepository;
-import de.variantsync.evolution.variability.PresenceConditions;
+import de.variantsync.evolution.variability.pc.PresenceConditions;
 import de.variantsync.evolution.variability.SPLCommit;
 import de.variantsync.evolution.variability.VariabilityCommit;
 import de.variantsync.evolution.util.functional.Lazy;

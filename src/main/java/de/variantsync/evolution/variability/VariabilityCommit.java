@@ -5,6 +5,7 @@ import de.variantsync.evolution.io.Resources;
 import de.variantsync.evolution.repository.Commit;
 import de.variantsync.evolution.repository.IVariabilityRepository;
 import de.variantsync.evolution.util.functional.Lazy;
+import de.variantsync.evolution.variability.pc.PresenceConditions;
 
 import java.nio.file.Path;
 
