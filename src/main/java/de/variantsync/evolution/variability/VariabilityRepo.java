@@ -289,6 +289,8 @@ public class VariabilityRepo implements IVariabilityRepository {
         return path;
     }
 
+    // TODO: #6 Documentation
+    // TODO: #6 Unit Tests
     private void retrieveUsableCommitSequences(VariabilityCommit commit, Set<VariabilityCommit> processedCommits, LinkedList<LinkedList<VariabilityCommit>> commitSequences) {
         // Check if it is a merge commit or if it was already processed, true -> return, false -> process
         if (!this.nonMergeCommits.contains(commit) || processedCommits.contains(commit)) {
