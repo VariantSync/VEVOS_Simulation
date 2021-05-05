@@ -234,17 +234,21 @@ public class VariabilityRepo implements IVariabilityRepository {
 
     @Override
     public VariabilityHistory getCommitSequencesForEvolutionStudy() {
-        LinkedList<LinkedList<VariabilityCommit>> commitLists = new LinkedList<>();
+        LinkedList<LinkedList<VariabilityCommit>> commitSequences = new LinkedList<>();
         Set<VariabilityCommit> processedCommits = new HashSet<>();
         for (var commit : this.successCommits) {
-           processCommitForUsability(commit, processedCommits, commitLists);
+           retrieveUsableCommitSequences(commit, processedCommits, commitSequences);
         }
 
-        //NonEmptyList<NonEmptyList<VariabilityCommit>> history = null;
-        for (var commitList : commitLists) {
+        NonEmptyList<NonEmptyList<VariabilityCommit>> history = null;
+        for (var commitList : commitSequences) {
             NonEmptyList<VariabilityCommit> commitSequence = new NonEmptyList<>(commitList);
             if (history == null) {
-                NonEmptyList<NonEmptyList<VariabilityCommit>> history = new NonEmptyList<>(new NonEmptyList<>(commitList));
+                LinkedList<NonEmptyList<VariabilityCommit>> tempList = new LinkedList<>();
+                tempList.add(commitSequence);
+                history = new NonEmptyList<>(tempList);
+            } else {
+                history.add(commitSequence);
             }
         }
         return new VariabilityHistory(history);
@@ -285,19 +289,19 @@ public class VariabilityRepo implements IVariabilityRepository {
         return path;
     }
 
-    private void processCommitForUsability(VariabilityCommit commit, Set<VariabilityCommit> processedCommits, LinkedList<LinkedList<VariabilityCommit>> variabilityHistory) {
+    private void retrieveUsableCommitSequences(VariabilityCommit commit, Set<VariabilityCommit> processedCommits, LinkedList<LinkedList<VariabilityCommit>> commitSequences) {
         // Check if it is a merge commit or if it was already processed, true -> return, false -> process
         if (!this.nonMergeCommits.contains(commit) || processedCommits.contains(commit)) {
             return;
         }
 
-        // Check whether it has a parent
+        // Check whether it has exactly one parent, there is no sense in processing it otherwise
         if (commit.getEvolutionParents().length == 1) {
             var parent = commit.getEvolutionParents()[0];
             // Check whether its parent was processed
             if (processedCommits.contains(parent)) {
                 // true -> there is a list starting with the parent
-                for (var commitList : variabilityHistory) {
+                for (var commitList : commitSequences) {
                     if (commitList.getFirst() == parent) {
                         // search for the list and prepend this commit to it
                         commitList.addFirst(commit);
@@ -307,14 +311,15 @@ public class VariabilityRepo implements IVariabilityRepository {
                     }
                 }
             } else {
+                // false -> create a new list starting with this commit
+                LinkedList<VariabilityCommit> commitList = new LinkedList<>();
+                commitList.add(commit);
+                commitSequences.add(commitList);
+                processedCommits.add(commit);
+
                 // process the parent commit that is then appended to the created list
-                processCommitForUsability(parent, processedCommits, variabilityHistory);
+                retrieveUsableCommitSequences(parent, processedCommits, commitSequences);
             }
         }
-        // false -> create a new list starting with this commit
-        LinkedList<VariabilityCommit> commitList = new LinkedList<>();
-        commitList.add(commit);
-        variabilityHistory.add(commitList);
-        processedCommits.add(commit);
     }
 }
