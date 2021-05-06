@@ -275,7 +275,7 @@ public class VariabilityRepo implements IVariabilityRepository {
                 commitList.addFirst(pair.parent());
                 commitToCommitSequenceMap.put(pair.parent(), commitList);
             } else {
-                // Neither parent nor child were added do a list
+                // Neither parent nor child were added to a list
                 // Create a new list that contains parent and child
                 LinkedList<VariabilityCommit> commitList = new LinkedList<>();
                 commitList.add(pair.parent());
