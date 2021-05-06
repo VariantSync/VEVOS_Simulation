@@ -232,22 +232,61 @@ public class VariabilityRepo implements IVariabilityRepository {
         }
     }
 
+    // TODO: #6 Documentation
     @Override
     public VariabilityHistory getCommitSequencesForEvolutionStudy() {
-        LinkedList<LinkedList<VariabilityCommit>> commitSequences = new LinkedList<>();
-        Set<VariabilityCommit> processedCommits = new HashSet<>();
-        for (var commit : this.successCommits) {
-           retrieveUsableCommitSequences(commit, processedCommits, commitSequences);
+        // Retrieve the pairs of usable commits
+        Set<CommitPair> usableCommitPairs = this.getCommitPairsForEvolutionStudy();
+        // Create lists for the commits in the pairs and merge lists according to parent-child relationships
+        Map<VariabilityCommit, LinkedList<VariabilityCommit>> commitToCommitSequenceMap = new HashMap<>();
+        for (CommitPair pair : usableCommitPairs) {
+            if (commitToCommitSequenceMap.containsKey(pair.parent()) && commitToCommitSequenceMap.containsKey(pair.child())) {
+                // Parent and child already belong to a list
+                // Merge the two lists, if they are not the same list
+                var parentList = commitToCommitSequenceMap.get(pair.parent());
+                var childList = commitToCommitSequenceMap.get(pair.child());
+                if (parentList == childList) {
+                    throw new IllegalStateException("The same parent-child pair was considered twice.");
+                }
+                // Add all commits from the child list to the parent list, and replace the list in the map
+                parentList.addAll(childList);
+                commitToCommitSequenceMap.put(pair.child(), parentList);
+            } else if (commitToCommitSequenceMap.containsKey(pair.parent())) {
+                // Only the parent belongs to a list
+                // Append the child to the list
+                var commitList = commitToCommitSequenceMap.get(pair.parent());
+                commitList.addLast(pair.child());
+                commitToCommitSequenceMap.put(pair.child(), commitList);
+            } else if (commitToCommitSequenceMap.containsKey(pair.child())) {
+                // Only the child belongs to a list
+                // Prepend the parent to the list
+                var commitList = commitToCommitSequenceMap.get(pair.child());
+                commitList.addFirst(pair.parent());
+                commitToCommitSequenceMap.put(pair.parent(), commitList);
+            } else {
+                // Neither parent nor child were added do a list
+                // Create a new list that contains parent and child
+                LinkedList<VariabilityCommit> commitList = new LinkedList<>();
+                commitList.add(pair.parent());
+                commitList.add(pair.child());
+                commitToCommitSequenceMap.put(pair.parent(), commitList);
+                commitToCommitSequenceMap.put(pair.child(), commitList);
+            }
         }
 
+        // Lastly, build a VariabilityHistory instance from the collected lists
         NonEmptyList<NonEmptyList<VariabilityCommit>> history = null;
-        for (var commitList : commitSequences) {
+        for (LinkedList<VariabilityCommit> commitList : new HashSet<>(commitToCommitSequenceMap.values())) {
             NonEmptyList<VariabilityCommit> commitSequence = new NonEmptyList<>(commitList);
-            if (history == null) {
+            if(history ==null)
+
+            {
                 LinkedList<NonEmptyList<VariabilityCommit>> tempList = new LinkedList<>();
                 tempList.add(commitSequence);
                 history = new NonEmptyList<>(tempList);
-            } else {
+            } else
+
+            {
                 history.add(commitSequence);
             }
         }
@@ -289,39 +328,4 @@ public class VariabilityRepo implements IVariabilityRepository {
         return path;
     }
 
-    // TODO: #6 Documentation
-    // TODO: #6 Unit Tests
-    private void retrieveUsableCommitSequences(VariabilityCommit commit, Set<VariabilityCommit> processedCommits, LinkedList<LinkedList<VariabilityCommit>> commitSequences) {
-        // Check if it is a merge commit or if it was already processed, true -> return, false -> process
-        if (!this.nonMergeCommits.contains(commit) || processedCommits.contains(commit)) {
-            return;
-        }
-
-        // Check whether it has exactly one parent, there is no sense in processing it otherwise
-        if (commit.getEvolutionParents().length == 1) {
-            var parent = commit.getEvolutionParents()[0];
-            // Check whether its parent was processed
-            if (processedCommits.contains(parent)) {
-                // true -> there is a list starting with the parent
-                for (var commitList : commitSequences) {
-                    if (commitList.getFirst() == parent) {
-                        // search for the list and prepend this commit to it
-                        commitList.addFirst(commit);
-                        // Add the commit to the processed commits
-                        processedCommits.add(commit);
-                        return;
-                    }
-                }
-            } else {
-                // false -> create a new list starting with this commit
-                LinkedList<VariabilityCommit> commitList = new LinkedList<>();
-                commitList.add(commit);
-                commitSequences.add(commitList);
-                processedCommits.add(commit);
-
-                // process the parent commit that is then appended to the created list
-                retrieveUsableCommitSequences(parent, processedCommits, commitSequences);
-            }
-        }
-    }
 }

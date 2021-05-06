@@ -93,8 +93,8 @@ public class VariabilityRepoTest {
     @Test
     public void variabilityHistoryBuildCorrectly() {
 
-        var firstPair = new Pair<>("d398531661b986467c2f15e7ef3b1429f0d4ad54", "674d9d7f78f92a3cea19392b853d3f39e6482959");
-        var secondPair = new Pair<>("6e0a4e66c09be9850d5dc5537ac9980c369fb392", "907d04e53eb1dc242cc05c3137c7a794c9639172");
+        var firstPair = new Pair<>("674d9d7f78f92a3cea19392b853d3f39e6482959", "d398531661b986467c2f15e7ef3b1429f0d4ad54");
+        var secondPair = new Pair<>("907d04e53eb1dc242cc05c3137c7a794c9639172", "6e0a4e66c09be9850d5dc5537ac9980c369fb392");
 
         VariabilityHistory history = repo.getCommitSequencesForEvolutionStudy();
         var commitSequence = history.commitSequence();
@@ -104,12 +104,18 @@ public class VariabilityRepoTest {
         assert commitSequence.get(1).size() == 2;
 
         var firstList = commitSequence.get(0);
-        assert firstPair.getKey().equals(firstList.get(0).id());
-        assert firstPair.getValue().equals(firstList.get(1).id());
-
         var secondList = commitSequence.get(1);
-        assert secondPair.getKey().equals(secondList.get(0).id());
-        assert secondPair.getValue().equals(secondList.get(1).id());
+
+        if (firstPair.getKey().equals(firstList.get(0).id())) {
+            assert firstPair.getValue().equals(firstList.get(1).id());
+            assert secondPair.getKey().equals(secondList.get(0).id());
+            assert secondPair.getValue().equals(secondList.get(1).id());
+        } else {
+            assert secondPair.getKey().equals(firstList.get(0).id());
+            assert secondPair.getValue().equals(firstList.get(1).id());
+            assert firstPair.getKey().equals(secondList.get(0).id());
+            assert firstPair.getValue().equals(secondList.get(1).id());
+        }
     }
 
     @Test
