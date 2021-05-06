@@ -6,7 +6,7 @@
 .settings/
 build.properties
 
-temporary-test-repos
+temporary-test-repos/
 
 target/
 bin/
