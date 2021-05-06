@@ -1,5 +1,6 @@
 import de.ovgu.featureide.fm.core.analysis.cnf.generator.configuration.util.Pair;
 import de.variantsync.evolution.repository.Commit;
+import de.variantsync.evolution.repository.VariabilityHistory;
 import de.variantsync.evolution.variability.CommitPair;
 import de.variantsync.evolution.variability.VariabilityCommit;
 import de.variantsync.evolution.variability.VariabilityRepo;
@@ -31,7 +32,7 @@ public class VariabilityRepoTest {
 
     @Test
     public void successCommitsAreLoaded() {
-        final String[] expectedSuccessCommits = new String[] {
+        final String[] expectedSuccessCommits = new String[]{
                 "674d9d7f78f92a3cea19392b853d3f39e6482959",
                 "d398531661b986467c2f15e7ef3b1429f0d4ad54",
                 "ca3644a751d12f6893a170deaf3acfd6be0fd7e2",
@@ -77,7 +78,7 @@ public class VariabilityRepoTest {
 
     @Test
     public void correctCommitsWithOneParentFiltered() {
-        final Pair<String,String>[] expectedCommitPairs = GenericArray.create(
+        final Pair<String, String>[] expectedCommitPairs = GenericArray.create(
                 new Pair<>("d398531661b986467c2f15e7ef3b1429f0d4ad54", "674d9d7f78f92a3cea19392b853d3f39e6482959"),
                 new Pair<>("6e0a4e66c09be9850d5dc5537ac9980c369fb392", "907d04e53eb1dc242cc05c3137c7a794c9639172")
         );
@@ -87,6 +88,28 @@ public class VariabilityRepoTest {
             assert pairs.stream().anyMatch(p -> p.child().id().equals(commitPair.getKey()) && p.parent().id().equals(commitPair.getValue()));
         }
         assert repo.getCommitPairsForEvolutionStudy().size() == expectedCommitPairs.length;
+    }
+
+    @Test
+    public void variabilityHistoryBuildCorrectly() {
+
+        var firstPair = new Pair<>("d398531661b986467c2f15e7ef3b1429f0d4ad54", "674d9d7f78f92a3cea19392b853d3f39e6482959");
+        var secondPair = new Pair<>("6e0a4e66c09be9850d5dc5537ac9980c369fb392", "907d04e53eb1dc242cc05c3137c7a794c9639172");
+
+        VariabilityHistory history = repo.getCommitSequencesForEvolutionStudy();
+        var commitSequence = history.commitSequence();
+        // Check the size
+        assert commitSequence.size() == 2;
+        assert commitSequence.get(0).size() == 2;
+        assert commitSequence.get(1).size() == 2;
+
+        var firstList = commitSequence.get(0);
+        assert firstPair.getKey().equals(firstList.get(0).id());
+        assert firstPair.getValue().equals(firstList.get(1).id());
+
+        var secondList = commitSequence.get(1);
+        assert secondPair.getKey().equals(secondList.get(0).id());
+        assert secondPair.getValue().equals(secondList.get(1).id());
     }
 
     @Test

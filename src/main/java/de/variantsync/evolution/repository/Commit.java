@@ -37,7 +37,7 @@ public abstract class Commit<T extends IRepository<? extends Commit<T>>> {
     @Override
     public int hashCode() {
         // The commit is already a hash computed by git.
-        return Integer.parseInt(commitId);
+        return commitId.hashCode();
     }
 
     /**
