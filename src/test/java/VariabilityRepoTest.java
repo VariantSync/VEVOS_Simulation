@@ -107,15 +107,20 @@ public class VariabilityRepoTest {
                 new Pair<>("c302e501b6581a9383edc37f35780cf6f6d4a7b9", "301d31223fa90a57f6492d65ca6730371d606b6c"),
 
                 new Pair<>("37c16cf271fa87c8f32514127837be4ce236f21e", "544e9b9dadf945fc4d109f81ce52a11192ce0ea8"),
-                new Pair<>("8f12802ceab73ba61235b7943196f11968b49472", "37c16cf271fa87c8f32514127837be4ce236f21e"),
-                new Pair<>("c69c1a5544c4d6b074f446c536bc8b5ff85cfa52", "8f12802ceab73ba61235b7943196f11968b49472"),
+                new Pair<>("8f12802ceab73ba61235b7943196f11968b49472", "426e2cdb99131fbbf5e8bba658f7641213ffadca"),
+                new Pair<>("c69c1a5544c4d6b074f446c536bc8b5ff85cfa52", "8e9b1f5c820093e42030794dc414891f899a58f9"),
                 new Pair<>("426e2cdb99131fbbf5e8bba658f7641213ffadca", "c69c1a5544c4d6b074f446c536bc8b5ff85cfa52"),
-                new Pair<>("8e9b1f5c820093e42030794dc414891f899a58f9", "426e2cdb99131fbbf5e8bba658f7641213ffadca")
+                new Pair<>("8e9b1f5c820093e42030794dc414891f899a58f9", "37c16cf271fa87c8f32514127837be4ce236f21e")
         );
 
         Set<CommitPair> pairs = repo.getCommitPairsForEvolutionStudy();
         for (var commitPair : expectedCommitPairs) {
-            assert pairs.stream().anyMatch(p -> p.child().id().equals(commitPair.getKey()) && p.parent().id().equals(commitPair.getValue()));
+            try {
+                assert pairs.stream().anyMatch(p -> p.child().id().equals(commitPair.getKey()) && p.parent().id().equals(commitPair.getValue()));
+            } catch (AssertionError e) {
+                System.err.println("No match for <" + commitPair.getKey() + " : " + commitPair.getValue() + ">");
+                throw e;
+            }
         }
         assert repo.getCommitPairsForEvolutionStudy().size() == expectedCommitPairs.length;
     }
@@ -127,7 +132,7 @@ public class VariabilityRepoTest {
         var secondList = new String[] {"907d04e53eb1dc242cc05c3137c7a794c9639172", "6e0a4e66c09be9850d5dc5537ac9980c369fb392"};
 
         var thirdList = new String[] {"ee7e6aaa41a5e69734bf1acea8e5f1e430f2e555", "301d31223fa90a57f6492d65ca6730371d606b6c", "c302e501b6581a9383edc37f35780cf6f6d4a7b9"};
-        var fourthList = new String[] {"544e9b9dadf945fc4d109f81ce52a11192ce0ea8", "37c16cf271fa87c8f32514127837be4ce236f21e", "8f12802ceab73ba61235b7943196f11968b49472", "c69c1a5544c4d6b074f446c536bc8b5ff85cfa52", "426e2cdb99131fbbf5e8bba658f7641213ffadca", "8e9b1f5c820093e42030794dc414891f899a58f9"};
+        var fourthList = new String[] {"544e9b9dadf945fc4d109f81ce52a11192ce0ea8", "37c16cf271fa87c8f32514127837be4ce236f21e", "8e9b1f5c820093e42030794dc414891f899a58f9", "c69c1a5544c4d6b074f446c536bc8b5ff85cfa52", "426e2cdb99131fbbf5e8bba658f7641213ffadca", "8f12802ceab73ba61235b7943196f11968b49472"};
 
         VariabilityHistory history = repo.getCommitSequencesForEvolutionStudy();
         var commitSequences = history.commitSequences();

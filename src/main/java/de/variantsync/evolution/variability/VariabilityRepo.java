@@ -250,7 +250,8 @@ public class VariabilityRepo implements IVariabilityRepository {
                 }
                 // Add all commits from the child list to the parent list, and replace the list in the map
                 parentList.addAll(childList);
-                commitToCommitSequenceMap.put(pair.child(), parentList);
+                // Now, update the associated list for each added commit
+                childList.forEach(c -> commitToCommitSequenceMap.put(c, parentList));
             } else if (commitToCommitSequenceMap.containsKey(pair.parent())) {
                 // Only the parent belongs to a list
                 // Append the child to the list

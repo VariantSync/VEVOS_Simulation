@@ -40,6 +40,11 @@ public abstract class Commit<T extends IRepository<? extends Commit<T>>> {
         return commitId.hashCode();
     }
 
+    @Override
+    public String toString() {
+        return this.id();
+    }
+
     /**
      * Checks whether the given collection of commits contains a commit with the given hash.
      * @param commits List of commits to be checked for containment.
