@@ -232,7 +232,17 @@ public class VariabilityRepo implements IVariabilityRepository {
         }
     }
 
-    // TODO: #6 Documentation
+    /**
+     * Retrieve all sequences of usable commits in form of a VariabilityHistory instance.
+     *
+     * <p>
+     * The retrieved VariabilityHistory is a list that contains commit sequences that can be used for our evolution study. Each
+     * sequence consists of at least two commits. A sequence is a list of commits, where a commit at index
+     * i is the logical parent of the commit at index i+1.
+     * </p>
+     *
+     * @return All sequences of commits that are usable in our evolution study.
+     */
     @Override
     public VariabilityHistory getCommitSequencesForEvolutionStudy() {
         // Retrieve the pairs of usable commits
@@ -279,15 +289,11 @@ public class VariabilityRepo implements IVariabilityRepository {
         NonEmptyList<NonEmptyList<VariabilityCommit>> history = null;
         for (LinkedList<VariabilityCommit> commitList : new HashSet<>(commitToCommitSequenceMap.values())) {
             NonEmptyList<VariabilityCommit> commitSequence = new NonEmptyList<>(commitList);
-            if(history ==null)
-
-            {
+            if (history == null) {
                 LinkedList<NonEmptyList<VariabilityCommit>> tempList = new LinkedList<>();
                 tempList.add(commitSequence);
                 history = new NonEmptyList<>(tempList);
-            } else
-
-            {
+            } else {
                 history.add(commitSequence);
             }
         }
