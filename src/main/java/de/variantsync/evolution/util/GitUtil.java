@@ -1,11 +1,14 @@
 package de.variantsync.evolution.util;
 
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /*
 // TODO: Exchange with https://spgit.informatik.uni-ulm.de/research-projects/variantsync/theses/soeren-viegener-bachelor/-/blob/master/tool/src/main/java/load/GitLoader.java if more functionality is required
@@ -87,6 +90,25 @@ public class GitLoader {
 
  */
 public class GitUtil {
+
+    /**
+     * Loads a Git from a remote repository
+     *
+     * @param remoteUri      URI of the remote git repository
+     * @param repositoryName Name of the repository. Sets the directory name in the default repositories directory where this repository is cloned to
+     * @return A Git object of the repository
+     */
+    public static Git fromRemote(String remoteUri, String repositoryName, String repoParentDir) throws GitAPIException {
+        try {
+            return Git.cloneRepository()
+                    .setURI(remoteUri)
+                    .setDirectory(Paths.get(repoParentDir, repositoryName).toFile())
+                    .call();
+        } catch (GitAPIException e) {
+            Logger.exception("Failed to load git repo from " + remoteUri, e);
+            throw e;
+        }
+    }
 
     public static Git loadGitRepo(File repoDir) throws IOException {
         try {

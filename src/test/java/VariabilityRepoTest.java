@@ -1,27 +1,48 @@
 import de.ovgu.featureide.fm.core.analysis.cnf.generator.configuration.util.Pair;
 import de.variantsync.evolution.repository.Commit;
 import de.variantsync.evolution.repository.VariabilityHistory;
+import de.variantsync.evolution.util.GitUtil;
 import de.variantsync.evolution.variability.CommitPair;
 import de.variantsync.evolution.variability.VariabilityCommit;
 import de.variantsync.evolution.variability.VariabilityRepo;
 import de.variantsync.evolution.util.GenericArray;
 import de.variantsync.evolution.util.Logger;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Set;
 
 public class VariabilityRepoTest {
-    private static final File simpleHistoryRepoDir = Paths.get("src", "test", "resources", "test-repos", "simple-history").toFile();
-    private static final File simpleVariabilityRepoDir = Paths.get("src", "test", "resources", "test-repos", "simple-variability").toFile();
+    private static final String simpleHistoryRepoURI = "https://gitlab.informatik.hu-berlin.de/mse/SampleRepos/SimpleHistory.git";
+    private static final String simpleVariabilityRepoURI = "https://gitlab.informatik.hu-berlin.de/mse/SampleRepos/SimpleVariabilityRepo.git";
+    private static final File simpleHistoryRepoDir;
+    private static final File simpleVariabilityRepoDir;
+    private static final Path tempTestRepoDir;
 
     static {
         Logger.initConsoleLogger();
+        try {
+            tempTestRepoDir = Files.createDirectories(Paths.get("temporary-test-repos"));
+            simpleHistoryRepoDir = new File(tempTestRepoDir.toFile(), "simple-history");
+            simpleVariabilityRepoDir = new File(tempTestRepoDir.toFile(), "simple-variability");
+
+            if (!simpleHistoryRepoDir.exists()) {
+                GitUtil.fromRemote(simpleHistoryRepoURI, "simple-history", tempTestRepoDir.toString());
+            }
+            if (!simpleVariabilityRepoDir.exists()) {
+                GitUtil.fromRemote(simpleVariabilityRepoURI, "simple-variability", tempTestRepoDir.toString());
+            }
+        } catch (IOException | GitAPIException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private VariabilityRepo repo;
@@ -128,11 +149,11 @@ public class VariabilityRepoTest {
     @Test
     public void variabilityHistoryBuildCorrectly() {
 
-        var firstList = new String[] {"674d9d7f78f92a3cea19392b853d3f39e6482959", "d398531661b986467c2f15e7ef3b1429f0d4ad54"};
-        var secondList = new String[] {"907d04e53eb1dc242cc05c3137c7a794c9639172", "6e0a4e66c09be9850d5dc5537ac9980c369fb392"};
+        var firstList = new String[]{"674d9d7f78f92a3cea19392b853d3f39e6482959", "d398531661b986467c2f15e7ef3b1429f0d4ad54"};
+        var secondList = new String[]{"907d04e53eb1dc242cc05c3137c7a794c9639172", "6e0a4e66c09be9850d5dc5537ac9980c369fb392"};
 
-        var thirdList = new String[] {"ee7e6aaa41a5e69734bf1acea8e5f1e430f2e555", "301d31223fa90a57f6492d65ca6730371d606b6c", "c302e501b6581a9383edc37f35780cf6f6d4a7b9"};
-        var fourthList = new String[] {"544e9b9dadf945fc4d109f81ce52a11192ce0ea8", "37c16cf271fa87c8f32514127837be4ce236f21e", "8e9b1f5c820093e42030794dc414891f899a58f9", "c69c1a5544c4d6b074f446c536bc8b5ff85cfa52", "426e2cdb99131fbbf5e8bba658f7641213ffadca", "8f12802ceab73ba61235b7943196f11968b49472"};
+        var thirdList = new String[]{"ee7e6aaa41a5e69734bf1acea8e5f1e430f2e555", "301d31223fa90a57f6492d65ca6730371d606b6c", "c302e501b6581a9383edc37f35780cf6f6d4a7b9"};
+        var fourthList = new String[]{"544e9b9dadf945fc4d109f81ce52a11192ce0ea8", "37c16cf271fa87c8f32514127837be4ce236f21e", "8e9b1f5c820093e42030794dc414891f899a58f9", "c69c1a5544c4d6b074f446c536bc8b5ff85cfa52", "426e2cdb99131fbbf5e8bba658f7641213ffadca", "8f12802ceab73ba61235b7943196f11968b49472"};
 
         VariabilityHistory history = repo.getCommitSequencesForEvolutionStudy();
         var commitSequences = history.commitSequences();
@@ -140,7 +161,7 @@ public class VariabilityRepoTest {
         assert commitSequences.size() == 4;
 
         for (var sequence : commitSequences) {
-            switch(sequence.size()) {
+            switch (sequence.size()) {
                 case 2 -> {
                     if (firstList[0].equals(sequence.get(0).id())) {
                         assertCommitIdsAreEqual(firstList, sequence);
