@@ -6,6 +6,8 @@
 .settings/
 build.properties
 
+temporary-test-repos/
+
 target/
 bin/
 __pycache__
