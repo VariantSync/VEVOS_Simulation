@@ -14,4 +14,11 @@ public record PresenceConditions(List<SourceCodeFile> files) {
         // TODO: Implement Issue #2 here.
         throw new NotImplementedException();
     }
+
+    @Override
+    public String toString() {
+        return "PresenceConditions: [" +
+                files.stream().map(SourceCodeFile::toString).reduce((a, b) -> a + ",\n  " + b) +
+                "]";
+    }
 }

@@ -40,4 +40,11 @@ public class PreprocessorBlock {
     public SourceCodeFile getParent() {
         return parent;
     }
+
+    @Override
+    public String toString() {
+        return featureMapping +
+                " from " + lineFrom +
+                " to " + lineTo;
+    }
 }

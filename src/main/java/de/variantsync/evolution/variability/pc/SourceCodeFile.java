@@ -6,7 +6,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 public record SourceCodeFile(Path relativePath, Node presenceCondition, List<PreprocessorBlock> blocks) {
-    void addBlock(PreprocessorBlock b) {
+    public void addBlock(PreprocessorBlock b) {
         blocks.add(b);
         b.setParent(this);
     }
