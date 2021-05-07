@@ -28,23 +28,6 @@ import java.util.Properties;
 import java.util.Set;
 
 public class Main {
-    private final static class Debug {
-//        private static final Path splRepoDir;
-        private static final Path variabilityRepoDir;
-        static {
-            final Path datasetsDir = Path.of("..", "variantevolution_datasets");
-//            splRepoDir = datasetsDir.resolve("linux");
-            variabilityRepoDir = datasetsDir.resolve("LinuxVariabilityData");
-        }
-
-        static void testPCsLoaderSimple() {
-            final Path pcsToLoad = variabilityRepoDir.resolve("code-variability.csv");
-            final PresenceConditions pcs = Resources.Instance().load(PresenceConditions.class, pcsToLoad);
-            System.out.println("Loaded Presence Conditions:");
-            System.out.println(pcs);
-        }
-    }
-
     private static final File PROPERTIES_FILE = new File("src/main/resources/user.properties");
     private static final String VARIABILITY_REPO = "variability_repo";
     private static final String SPL_REPO = "spl_repo";
@@ -59,7 +42,6 @@ public class Main {
     public static void main(String[] args) {
         Logger.initConsoleLogger();
         initResources();
-        Debug.testPCsLoaderSimple();
 
         // Debug variability repo
         Properties properties = new Properties();

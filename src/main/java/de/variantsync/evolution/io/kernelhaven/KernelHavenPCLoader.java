@@ -31,8 +31,6 @@ public class KernelHavenPCLoader implements ResourceLoader<PresenceConditions> {
         final NodeReader nodeReader = new NodeReader();
         nodeReader.activateJavaSymbols();
 
-        // TODO: Parse as tree structure!
-
         // skip first entry as it is the csv header
         final ListHeadTailView<String[]> rows = new ListHeadTailView<>(csv.rows()).tail();
         for (final String[] row : rows) {
