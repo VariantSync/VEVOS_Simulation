@@ -19,6 +19,10 @@ public class NonEmptyList<T> extends ListDecorator<T> {
         }
     }
 
+    public T head() {
+        return wrappee.get(0);
+    }
+
     @Override
     public boolean remove(Object o) {
         throw new UnsupportedOperationException(ERROR_MESSAGE);
