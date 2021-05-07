@@ -1,5 +1,8 @@
 package de.variantsync.evolution.io;
 
+import de.variantsync.evolution.util.Logger;
+import de.variantsync.evolution.util.functional.Result;
+
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,13 +29,22 @@ public class Resources {
     public <T> T load(Class<T> type, Path p) {
         final List<ResourceLoader<T>> loadersForT = getLoaders(type);
 
+        if (loadersForT.isEmpty()) {
+            throw new RuntimeException("No ResourceLoader registered for type " + type + " that could parse " + p);
+        }
+
         for (ResourceLoader<T> loader : loadersForT) {
             if (loader.canLoad(p)) {
-                return loader.load(p);
+                Result<T, Exception> result = loader.load(p);
+                if (result.isSuccess()) {
+                    return result.getSuccess();
+                } else {
+                    Logger.exception("ResourceLoader " + loader + " failed: ", result.getFailure());
+                }
             }
         }
 
-        throw new RuntimeException("No ResourceLoader registered for type " + type + " that could parse " + p);
+        throw new RuntimeException("All ResourceLoaders failed in loading resource " + p + " as type " + type + "!");
     }
 
     public static Resources Instance() {

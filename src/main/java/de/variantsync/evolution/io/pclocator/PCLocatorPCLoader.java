@@ -2,6 +2,7 @@ package de.variantsync.evolution.io.pclocator;
 
 import de.variantsync.evolution.io.ResourceLoader;
 import de.variantsync.evolution.util.NotImplementedException;
+import de.variantsync.evolution.util.functional.Result;
 import de.variantsync.evolution.variability.pc.PresenceConditions;
 
 import java.nio.file.Path;
@@ -9,13 +10,13 @@ import java.nio.file.Path;
 public class PCLocatorPCLoader implements ResourceLoader<PresenceConditions> {
     @Override
     public boolean canLoad(Path p) {
-        // TODO: Implement Issue #9 here.
-        throw new NotImplementedException();
+        // TODO: Implement Issue #14 here.
+        return false;
     }
 
     @Override
-    public PresenceConditions load(Path p) {
-        // TODO: Implement Issue #9 here.
-        throw new NotImplementedException();
+    public Result<PresenceConditions, Exception> load(Path p) {
+        // TODO: Implement Issue #14 here.
+        return Result.Failure(new NotImplementedException());
     }
 }

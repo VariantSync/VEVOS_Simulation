@@ -34,7 +34,8 @@ public class Main {
     private static final String SPL_REPO = "spl_repo";
 
     private static void initResources() {
-        Resources r = Resources.Instance();
+        final Resources r = Resources.Instance();
+        r.registerLoader(CSV.class, new CSVLoader());
         r.registerLoader(PresenceConditions.class, new KernelHavenPCLoader());
         r.registerLoader(PresenceConditions.class, new PCLocatorPCLoader());
     }
