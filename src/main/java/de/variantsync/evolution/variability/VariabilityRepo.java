@@ -250,8 +250,8 @@ public class VariabilityRepo implements IVariabilityRepository {
         // Create lists for the commits in the pairs and merge lists according to parent-child relationships
         Map<VariabilityCommit, LinkedList<VariabilityCommit>> commitToCommitSequenceMap = new HashMap<>();
         for (CommitPair pair : usableCommitPairs) {
-            boolean parentHasSequence = commitToCommitSequenceMap.containsKey(pair.parent());
-            boolean childHasSequence = commitToCommitSequenceMap.containsKey(pair.child());
+            final boolean parentHasSequence = commitToCommitSequenceMap.containsKey(pair.parent());
+            final boolean childHasSequence = commitToCommitSequenceMap.containsKey(pair.child());
             if (parentHasSequence && childHasSequence) {
                 // Parent and child already belong to a list
                 // Merge the two lists, if they are not the same list
