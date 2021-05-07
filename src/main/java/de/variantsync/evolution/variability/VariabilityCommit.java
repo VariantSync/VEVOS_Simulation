@@ -28,7 +28,7 @@ public class VariabilityCommit extends Commit<IVariabilityRepository> {
         return fm;
     });
 
-    public final Lazy<PresenceConditions> featureTraces = Lazy.of(() -> {
+    public final Lazy<PresenceConditions> presenceConditions = Lazy.of(() -> {
         sourceRepo.checkoutCommit(this);
         return Resources.Instance().load(PresenceConditions.class, sourceRepo.getVariabilityFile());
     });

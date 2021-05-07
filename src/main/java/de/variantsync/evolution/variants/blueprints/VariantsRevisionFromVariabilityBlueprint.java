@@ -57,7 +57,7 @@ public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBl
 
     @Override
     public Lazy<VariantsRevision.Branches> generateArtefactsFor(VariantsRevision revision) {
-        return variability.featureTraces.and(getSample()).map(ts -> {
+        return variability.presenceConditions.and(getSample()).map(ts -> {
             final PresenceConditions traces = ts.getKey();
             final Sample sample = ts.getValue();
             final SPLCommit splCommit = variability.splCommit();
