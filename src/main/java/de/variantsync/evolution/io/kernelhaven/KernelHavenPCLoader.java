@@ -31,6 +31,8 @@ public class KernelHavenPCLoader implements ResourceLoader<PresenceConditions> {
         final NodeReader nodeReader = new NodeReader();
         nodeReader.activateJavaSymbols();
 
+        // TODO: Parse as tree structure!
+
         // skip first entry as it is the csv header
         final ListHeadTailView<String[]> rows = new ListHeadTailView<>(csv.rows()).tail();
         for (final String[] row : rows) {
@@ -44,12 +46,12 @@ public class KernelHavenPCLoader implements ResourceLoader<PresenceConditions> {
 
             files.computeIfAbsent(
                     pathOfSourceFile,
-                    p -> new SourceCodeFile(p, fileCondition, new ArrayList<>()))
+                    p -> new SourceCodeFile(p, fileCondition))
                     .addBlock(new PreprocessorBlock(blockCondition, startLine, endLine));
         }
 
         List<SourceCodeFile> allFiles = new ArrayList<>(files.values());
-        allFiles.sort(Comparator.comparing(SourceCodeFile::relativePath));
+        allFiles.sort(Comparator.comparing(SourceCodeFile::getRelativePath));
         return Result.Success(new PresenceConditions(allFiles));
     }
 }
