@@ -250,7 +250,9 @@ public class VariabilityRepo implements IVariabilityRepository {
         // Create lists for the commits in the pairs and merge lists according to parent-child relationships
         Map<VariabilityCommit, LinkedList<VariabilityCommit>> commitToCommitSequenceMap = new HashMap<>();
         for (CommitPair pair : usableCommitPairs) {
-            if (commitToCommitSequenceMap.containsKey(pair.parent()) && commitToCommitSequenceMap.containsKey(pair.child())) {
+            boolean parentHasSequence = commitToCommitSequenceMap.containsKey(pair.parent());
+            boolean childHasSequence = commitToCommitSequenceMap.containsKey(pair.child());
+            if (parentHasSequence && childHasSequence) {
                 // Parent and child already belong to a list
                 // Merge the two lists, if they are not the same list
                 final var parentList = commitToCommitSequenceMap.get(pair.parent());
@@ -262,13 +264,13 @@ public class VariabilityRepo implements IVariabilityRepository {
                 parentList.addAll(childList);
                 // Now, update the associated list for each added commit
                 childList.forEach(c -> commitToCommitSequenceMap.put(c, parentList));
-            } else if (commitToCommitSequenceMap.containsKey(pair.parent())) {
+            } else if (parentHasSequence) {
                 // Only the parent belongs to a list
                 // Append the child to the list
                 final var commitList = commitToCommitSequenceMap.get(pair.parent());
                 commitList.addLast(pair.child());
                 commitToCommitSequenceMap.put(pair.child(), commitList);
-            } else if (commitToCommitSequenceMap.containsKey(pair.child())) {
+            } else if (childHasSequence) {
                 // Only the child belongs to a list
                 // Prepend the parent to the list
                 final var commitList = commitToCommitSequenceMap.get(pair.child());
