@@ -1,24 +1,23 @@
 package de.variantsync.evolution;
 
-import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import de.variantsync.evolution.io.Resources;
+import de.variantsync.evolution.io.data.CSV;
+import de.variantsync.evolution.io.data.CSVLoader;
 import de.variantsync.evolution.io.kernelhaven.KernelHavenPCLoader;
 import de.variantsync.evolution.io.pclocator.PCLocatorPCLoader;
+import de.variantsync.evolution.repository.ISPLRepository;
+import de.variantsync.evolution.repository.VariabilityHistory;
+import de.variantsync.evolution.util.Logger;
+import de.variantsync.evolution.util.functional.Functional;
+import de.variantsync.evolution.util.functional.Lazy;
+import de.variantsync.evolution.util.functional.MonadTransformer;
+import de.variantsync.evolution.util.functional.Unit;
+import de.variantsync.evolution.variability.CommitPair;
+import de.variantsync.evolution.variability.VariabilityRepo;
 import de.variantsync.evolution.variability.pc.PresenceConditions;
 import de.variantsync.evolution.variants.VariantsRepository;
 import de.variantsync.evolution.variants.VariantsRevision;
-import de.variantsync.evolution.repository.ISPLRepository;
-import de.variantsync.evolution.repository.VariabilityHistory;
-import de.variantsync.evolution.sat.SAT;
-import de.variantsync.evolution.variability.CommitPair;
-import de.variantsync.evolution.variability.VariabilityRepo;
-import de.variantsync.evolution.util.functional.Functional;
-import de.variantsync.evolution.util.functional.Lazy;
-import de.variantsync.evolution.util.Logger;
-import de.variantsync.evolution.util.functional.MonadTransformer;
-import de.variantsync.evolution.util.functional.Unit;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.prop4j.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,6 +28,23 @@ import java.util.Properties;
 import java.util.Set;
 
 public class Main {
+    private final static class Debug {
+//        private static final Path splRepoDir;
+        private static final Path variabilityRepoDir;
+        static {
+            final Path datasetsDir = Path.of("..", "variantevolution_datasets");
+//            splRepoDir = datasetsDir.resolve("linux");
+            variabilityRepoDir = datasetsDir.resolve("LinuxVariabilityData");
+        }
+
+        static void testPCsLoaderSimple() {
+            final Path pcsToLoad = variabilityRepoDir.resolve("code-variability.csv");
+            final PresenceConditions pcs = Resources.Instance().load(PresenceConditions.class, pcsToLoad);
+            System.out.println("Loaded Presence Conditions:");
+            System.out.println(pcs);
+        }
+    }
+
     private static final File PROPERTIES_FILE = new File("src/main/resources/user.properties");
     private static final String VARIABILITY_REPO = "variability_repo";
     private static final String SPL_REPO = "spl_repo";
@@ -43,13 +59,7 @@ public class Main {
     public static void main(String[] args) {
         Logger.initConsoleLogger();
         initResources();
-        Logger.status("Hi Paul");
-
-        // Test imports
-        IFeatureModel m;
-
-        final Node formula = new And(new Literal("A"), new Literal("A", false));
-        Logger.info("SAT(" + formula + ") = " + SAT.isSatisfiable(formula));
+        Debug.testPCsLoaderSimple();
 
         // Debug variability repo
         Properties properties = new Properties();
