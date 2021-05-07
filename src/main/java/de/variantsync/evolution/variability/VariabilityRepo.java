@@ -308,8 +308,7 @@ public class VariabilityRepo implements IVariabilityRepository {
 
     @Override
     public Path getVariabilityFile() {
-        // TODO for Alex
-        throw new NotImplementedException();
+        return path.resolve("code-variability.csv");
     }
 
     @Override
