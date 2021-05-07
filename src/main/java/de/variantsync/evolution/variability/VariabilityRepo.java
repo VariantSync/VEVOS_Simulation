@@ -253,8 +253,8 @@ public class VariabilityRepo implements IVariabilityRepository {
             if (commitToCommitSequenceMap.containsKey(pair.parent()) && commitToCommitSequenceMap.containsKey(pair.child())) {
                 // Parent and child already belong to a list
                 // Merge the two lists, if they are not the same list
-                var parentList = commitToCommitSequenceMap.get(pair.parent());
-                var childList = commitToCommitSequenceMap.get(pair.child());
+                final var parentList = commitToCommitSequenceMap.get(pair.parent());
+                final var childList = commitToCommitSequenceMap.get(pair.child());
                 if (parentList == childList) {
                     throw new IllegalStateException("The same parent-child pair was considered twice.");
                 }
@@ -265,21 +265,21 @@ public class VariabilityRepo implements IVariabilityRepository {
             } else if (commitToCommitSequenceMap.containsKey(pair.parent())) {
                 // Only the parent belongs to a list
                 // Append the child to the list
-                var commitList = commitToCommitSequenceMap.get(pair.parent());
+                final var commitList = commitToCommitSequenceMap.get(pair.parent());
                 commitList.addLast(pair.child());
                 commitToCommitSequenceMap.put(pair.child(), commitList);
             } else if (commitToCommitSequenceMap.containsKey(pair.child())) {
                 // Only the child belongs to a list
                 // Prepend the parent to the list
-                var commitList = commitToCommitSequenceMap.get(pair.child());
+                final var commitList = commitToCommitSequenceMap.get(pair.child());
                 commitList.addFirst(pair.parent());
                 commitToCommitSequenceMap.put(pair.parent(), commitList);
             } else {
                 // Neither parent nor child were added to a list
                 // Create a new list that contains parent and child
-                LinkedList<VariabilityCommit> commitList = new LinkedList<>();
-                commitList.add(pair.parent());
-                commitList.add(pair.child());
+                final LinkedList<VariabilityCommit> commitList = new LinkedList<>();
+                commitList.addLast(pair.parent());
+                commitList.addLast(pair.child());
                 commitToCommitSequenceMap.put(pair.parent(), commitList);
                 commitToCommitSequenceMap.put(pair.child(), commitList);
             }

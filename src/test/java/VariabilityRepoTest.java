@@ -127,7 +127,9 @@ public class VariabilityRepoTest {
 
     @Test
     public void variabilityHistoryBuildCorrectly() {
-
+        // We created a test VariabilityRepo for which we manually selected success and error commits. The following
+        // commit lists represent all sequences of success commits that were created. Any deviation from these sequences
+        // indicates a bug in loading the VariabilityRepo
         var firstList = new String[] {"674d9d7f78f92a3cea19392b853d3f39e6482959", "d398531661b986467c2f15e7ef3b1429f0d4ad54"};
         var secondList = new String[] {"907d04e53eb1dc242cc05c3137c7a794c9639172", "6e0a4e66c09be9850d5dc5537ac9980c369fb392"};
 
@@ -142,14 +144,18 @@ public class VariabilityRepoTest {
         for (var sequence : commitSequences) {
             switch(sequence.size()) {
                 case 2 -> {
+                    // The retrieved sequence contains 2 commits, so it must contain the same commits as either firstList or secondList
                     if (firstList[0].equals(sequence.get(0).id())) {
                         assertCommitIdsAreEqual(firstList, sequence);
                     } else {
                         assertCommitIdsAreEqual(secondList, sequence);
                     }
                 }
+                // The retrieved sequence contains three commits so it must contain the same commits as thirdList
                 case 3 -> assertCommitIdsAreEqual(thirdList, sequence);
+                // The retrieved sequence contains six commits so it must contain the same commits as fourthList
                 case 6 -> assertCommitIdsAreEqual(fourthList, sequence);
+                // The retrieved sequence contains an unexpected number of commits and the history is therefore incorrect
                 default -> throw new AssertionError("Invalid number of commits in the sequence.");
             }
         }
