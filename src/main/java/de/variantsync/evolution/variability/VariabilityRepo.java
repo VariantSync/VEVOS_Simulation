@@ -7,6 +7,7 @@ import de.variantsync.evolution.repository.VariabilityHistory;
 import de.variantsync.evolution.util.GitUtil;
 import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.NotImplementedException;
+import de.variantsync.evolution.util.list.NonEmptyList;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -231,10 +232,72 @@ public class VariabilityRepo implements IVariabilityRepository {
         }
     }
 
+    /**
+     * Retrieve all sequences of usable commits in form of a VariabilityHistory instance.
+     *
+     * <p>
+     * The retrieved VariabilityHistory is a list that contains commit sequences that can be used for our evolution study. Each
+     * sequence consists of at least two commits. A sequence is a list of commits, where a commit at index
+     * i is the logical parent of the commit at index i+1.
+     * </p>
+     *
+     * @return All sequences of commits that are usable in our evolution study.
+     */
     @Override
     public VariabilityHistory getCommitSequencesForEvolutionStudy() {
-        // TODO for Alex: This is the updated interface for getCommitPairsForEvolutionStudy.
-        throw new NotImplementedException();
+        // Retrieve the pairs of usable commits
+        Set<CommitPair> usableCommitPairs = this.getCommitPairsForEvolutionStudy();
+        // Create lists for the commits in the pairs and merge lists according to parent-child relationships
+        Map<VariabilityCommit, LinkedList<VariabilityCommit>> commitToCommitSequenceMap = new HashMap<>();
+        for (CommitPair pair : usableCommitPairs) {
+            if (commitToCommitSequenceMap.containsKey(pair.parent()) && commitToCommitSequenceMap.containsKey(pair.child())) {
+                // Parent and child already belong to a list
+                // Merge the two lists, if they are not the same list
+                final var parentList = commitToCommitSequenceMap.get(pair.parent());
+                final var childList = commitToCommitSequenceMap.get(pair.child());
+                if (parentList == childList) {
+                    throw new IllegalStateException("The same parent-child pair was considered twice.");
+                }
+                // Add all commits from the child list to the parent list, and replace the list in the map
+                parentList.addAll(childList);
+                // Now, update the associated list for each added commit
+                childList.forEach(c -> commitToCommitSequenceMap.put(c, parentList));
+            } else if (commitToCommitSequenceMap.containsKey(pair.parent())) {
+                // Only the parent belongs to a list
+                // Append the child to the list
+                final var commitList = commitToCommitSequenceMap.get(pair.parent());
+                commitList.addLast(pair.child());
+                commitToCommitSequenceMap.put(pair.child(), commitList);
+            } else if (commitToCommitSequenceMap.containsKey(pair.child())) {
+                // Only the child belongs to a list
+                // Prepend the parent to the list
+                final var commitList = commitToCommitSequenceMap.get(pair.child());
+                commitList.addFirst(pair.parent());
+                commitToCommitSequenceMap.put(pair.parent(), commitList);
+            } else {
+                // Neither parent nor child were added to a list
+                // Create a new list that contains parent and child
+                final LinkedList<VariabilityCommit> commitList = new LinkedList<>();
+                commitList.addLast(pair.parent());
+                commitList.addLast(pair.child());
+                commitToCommitSequenceMap.put(pair.parent(), commitList);
+                commitToCommitSequenceMap.put(pair.child(), commitList);
+            }
+        }
+
+        // Lastly, build a VariabilityHistory instance from the collected lists
+        NonEmptyList<NonEmptyList<VariabilityCommit>> history = null;
+        for (LinkedList<VariabilityCommit> commitList : new HashSet<>(commitToCommitSequenceMap.values())) {
+            NonEmptyList<VariabilityCommit> commitSequence = new NonEmptyList<>(commitList);
+            if (history == null) {
+                LinkedList<NonEmptyList<VariabilityCommit>> tempList = new LinkedList<>();
+                tempList.add(commitSequence);
+                history = new NonEmptyList<>(tempList);
+            } else {
+                history.add(commitSequence);
+            }
+        }
+        return new VariabilityHistory(history);
     }
 
     @Override
@@ -271,4 +334,5 @@ public class VariabilityRepo implements IVariabilityRepository {
     public Path getPath() {
         return path;
     }
+
 }
