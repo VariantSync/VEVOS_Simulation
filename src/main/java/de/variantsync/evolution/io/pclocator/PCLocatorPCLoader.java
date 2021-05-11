@@ -7,6 +7,10 @@ import de.variantsync.evolution.variability.pc.PresenceConditions;
 
 import java.nio.file.Path;
 
+/**
+ * Loads presence conditions computed with PCLocator.
+ * https://github.com/ekuiter/PCLocator
+ */
 public class PCLocatorPCLoader implements ResourceLoader<PresenceConditions> {
     @Override
     public boolean canLoad(Path p) {
