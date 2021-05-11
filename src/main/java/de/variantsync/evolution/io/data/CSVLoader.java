@@ -5,14 +5,31 @@ import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.PathUtils;
 import de.variantsync.evolution.util.functional.Result;
 
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class CSVLoader implements ResourceLoader<CSV> {
-    private final String separator = ";";
+    public final static String DefaultSeparator = ";";
+    private String separator;
+    private String separatorWithWhiteSpace;
+
+    public CSVLoader() {
+        this(DefaultSeparator);
+    }
+
+    public CSVLoader(String separator) {
+        setSeparator(separator);
+    }
+
+    public void setSeparator(String separator) {
+        this.separator = separator;
+        this.separatorWithWhiteSpace = "\\s*" + separator + "\\s*";
+    }
 
     @Override
     public boolean canLoad(Path p) {
@@ -21,27 +38,12 @@ public class CSVLoader implements ResourceLoader<CSV> {
 
     @Override
     public Result<CSV, Exception> load(Path p) {
-        Scanner scanner;
-        try {
-            scanner = new Scanner(p.toFile());
-        } catch (FileNotFoundException e) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(p.toFile()))) {
+            final List<String[]> rows =
+                    reader.lines().map(line -> line.trim().split(separatorWithWhiteSpace)).collect(Collectors.toList());
+            return Result.Success(new CSV(rows));
+        } catch (IOException e) {
             return Result.Failure(e);
         }
-        scanner.useDelimiter("\n");
-
-        List<String[]> rows = new ArrayList<>();
-        while(scanner.hasNext()) {
-            String line = scanner.next();
-            String[] entries = line.split(separator);
-
-            for (int i = 0; i < entries.length; ++i) {
-                entries[i] = entries[i].trim();
-            }
-
-            rows.add(entries);
-        }
-        scanner.close();
-
-        return Result.Success(new CSV(rows));
     }
 }

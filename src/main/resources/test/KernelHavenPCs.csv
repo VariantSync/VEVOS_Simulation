@@ -1,6 +1,6 @@
 Path;File Condition;Block Condition;Presence Condition;start;end
-src/Alex.cpp;true;true;;1;100
+src/Alex.cpp ; true ;true;;1;100
 src/Alex.cpp;true;A;;30;60
-src/Alex.cpp;true;B;;50;55
-src/Alex.cpp;true;(C && D) || E;;70;90
-src/foo/bar.cpp;A;false;;1;20
+src/Alex.cpp;true;B ;   ;50;55
+src/Alex.cpp;true;(C && D) || E;;70; 90
+ src/foo/bar.cpp;A;false;;1;20
