@@ -1,6 +1,6 @@
 package de.variantsync.evolution.util.fide.bugfix;
 
-import de.variantsync.evolution.util.NotImplementedException;
+import de.ovgu.featureide.fm.core.editing.NodeCreator;
 import org.prop4j.*;
 
 import java.util.Arrays;
@@ -14,60 +14,47 @@ public class FixTrueFalse {
     private final static List<String> trueNames = Arrays.asList("true", "1");
     private final static List<String> falseNames = Arrays.asList("false", "0");
 
-    private static boolean isTrue(Literal l) {
+    public final static Literal True = new Literal(NodeCreator.varTrue);
+    public final static Literal False = new Literal(NodeCreator.varFalse);
+
+    public static boolean isTrue(Node n) {
+        return n instanceof Literal l && isTrueLiteral(l);
+    }
+
+    public static boolean isFalse(Node n) {
+        return n instanceof Literal l && isFalseLiteral(l);
+    }
+
+    public static boolean isTrueLiteral(Literal l) {
         return trueNames.stream().anyMatch(t -> t.equals(l.var.toString().toLowerCase()));
     }
 
-    private static boolean isFalse(Literal l) {
+    public static boolean isFalseLiteral(Literal l) {
         return falseNames.stream().anyMatch(f -> f.equals(l.var.toString().toLowerCase()));
     }
 
     public static Node On(Node formula) {
-        if (formula instanceof And and) {
-            return new And(fmapOn(and.getChildren()));
-        }
-        if (formula instanceof Or or) {
-            return new Or(fmapOn(or.getChildren()));
-        }
-        if (formula instanceof Implies i) {
-            return new Implies(
-                    On(i.getChildren()[0]),
-                    On(i.getChildren()[1])
-            );
-        }
-        if (formula instanceof Equals e) {
-            return new Equals(
-                    On(e.getChildren()[0]),
-                    On(e.getChildren()[1])
-            );
-        }
-        if (formula instanceof Not n) {
-            return new Not(On(n.getChildren()[0]));
-        }
         if (formula instanceof Literal l) {
-            if (isTrue(l)) {
-                return l.positive ? FTrue.asLiteral() : FFalse.asLiteral();
+            if (isTrueLiteral(l)) {
+                return l.positive ? True : False;
             }
-            if (isFalse(l)) {
-                return l.positive ? FFalse.asLiteral() : FTrue.asLiteral();
+            if (isFalseLiteral(l)) {
+                return l.positive ? False : True;
             }
-            return l.clone();
+            return l;
         }
-        if (formula instanceof True) {
-            return FTrue.asLiteral();
+        if (formula instanceof org.prop4j.True) {
+            return True;
         }
-        if (formula instanceof False) {
-            return FFalse.asLiteral();
+        if (formula instanceof org.prop4j.False) {
+            return False;
         }
 
-        throw new NotImplementedException("Method not implemented for node type \"" + formula.getClass().getCanonicalName() + "\" but was invoked for " + formula);
-    }
-
-    private static Node[] fmapOn(Node[] children) {
-        Node[] target = new Node[children.length];
+        // else we have an operator (Not, And, Or, ...)
+        Node[] children = formula.getChildren();
         for (int i = 0; i < children.length; ++i) {
-            target[i] = On(children[i]);
+            children[i] = On(children[i]);
         }
-        return target;
+        return formula;
     }
 }

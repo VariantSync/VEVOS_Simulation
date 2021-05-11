@@ -1,9 +1,7 @@
 package de.variantsync.evolution.util.fide;
 
-import org.prop4j.And;
-import org.prop4j.False;
-import org.prop4j.Node;
-import org.prop4j.True;
+import de.variantsync.evolution.util.fide.bugfix.FixTrueFalse;
+import org.prop4j.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,12 +9,12 @@ import java.util.List;
 
 public class FormulaUtils {
     public static Node AndSimplified(Node a, Node b) {
-        if (a instanceof True) {
+        if (FixTrueFalse.isTrue(a)) {
             return b;
-        } else if (b instanceof True) {
+        } else if (FixTrueFalse.isTrue(b)) {
             return a;
-        } else if (a instanceof False || b instanceof False) {
-            return new False();
+        } else if (FixTrueFalse.isFalse(a) || FixTrueFalse.isFalse(b)) {
+            return FixTrueFalse.False;
         }
 
         return new And(a, b);
