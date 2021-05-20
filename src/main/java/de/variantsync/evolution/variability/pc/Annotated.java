@@ -2,30 +2,32 @@ package de.variantsync.evolution.variability.pc;
 
 import org.prop4j.Node;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
-public abstract class Annotated {
-    private Annotated parent;
-    private final List<PreprocessorBlock> blocks = new ArrayList<>();
-
-    public abstract Node getFeatureMapping();
-    public abstract Node getPresenceCondition();
-
-    void setParent(Annotated parent) {
-        this.parent = parent;
-    }
-    public Annotated getParent() {
-        return parent;
+/**
+ * Represents an artefact that can be annotated with FeatureAnnotations (i.e., line-based feature annotations).
+ * In particular, FeatureAnnotations themselves derive Annotated because annotations might be nested:
+ *
+ * #if A
+ *   #if B
+ *   ...
+ *   #endif
+ * #endif
+ */
+public abstract class Annotated extends FeatureTraceTree<LineBasedAnnotation> {
+    public Annotated(Node featureMapping) {
+        super(featureMapping);
     }
 
-    public void addBlock(PreprocessorBlock b) {
+    /**
+     * Merges the given FeatureAnnotation to this artefact in a sorted way.
+     * Containment within FeatureAnnotations will be solved recursively, creating a tree structure.
+     */
+    @Override
+    public void addTrace(final LineBasedAnnotation b) {
         int left = 0;
-        int right = blocks.size();
+        int right = subtrees.size();
         int pos = (left + right) / 2;
         while (left < right) {
-            final PreprocessorBlock a = blocks.get(pos);
+            final LineBasedAnnotation a = subtrees.get(pos);
 
             /*
             #if A
@@ -33,6 +35,8 @@ public abstract class Annotated {
 
             #if B
             #endif
+
+            ==> Insert b after a.
              */
             if (a.getLineTo() < b.getLineFrom()) {
                 left = pos + 1;
@@ -43,11 +47,13 @@ public abstract class Annotated {
 
             #if A
             #endif
+
+            ==> Insert b before a.
              */
             else if (b.getLineTo() < a.getLineFrom()) {
                 right = pos - 1;
             }
-            // there is an overlap
+            // Otherwise, there is an overlap.
             else {
                 final boolean bStartsAfterCurrent = a.getLineFrom() <= b.getLineFrom();
                 final boolean bEndsBeforeCurrent = b.getLineTo() <= a.getLineTo();
@@ -56,9 +62,12 @@ public abstract class Annotated {
                   #if B
                   #endif
                 #endif
+
+                ==> b is surrounded by (at least) a.
+                ==> Insert b to the subtree of a.
                  */
                 if (bStartsAfterCurrent && bEndsBeforeCurrent) {
-                    a.addBlock(b);
+                    a.addTrace(b);
                     return;
                 }
                 /*
@@ -66,25 +75,30 @@ public abstract class Annotated {
                   #if A
                   #endif
                 #endif
+
+                ==> b is surrounds at (at least) a.
+                ==> Replace the subtree a with b and add a as subtree to b.
                  */
                 else if (!bStartsAfterCurrent && !bEndsBeforeCurrent) {
                     // Swap A with B
-                    blocks.set(pos, b);
+                    subtrees.set(pos, b);
                     b.setParent(this);
-                    b.addBlock(a);
+                    b.addTrace(a);
                     return;
                 }
                 /*
                 Illegal State: Blocks are overlapping but not nested into each other such as
-                /*
                 #ifdef A
                   #ifdef B
                 #endif // A
                   #endif // B
-                or vice versa
+                or vice versa.
+                This is not possible to specify in practice.
+                Yet it could happen result from an ill-formed or buggy parsing process that we
+                should report by throwing an exception.
                  */
                 else {
-                    throw new RuntimeException(
+                    throw new IllegalFeatureTraceSpecification(
                             "Illegal Definition of Preprocessor Block! Given block \""
                                     + b
                                     + "\" overlaps block \""
@@ -96,42 +110,10 @@ public abstract class Annotated {
             pos = (left + right) / 2;
         }
 
-        blocks.add(pos, b);
+        /*
+        We found the location in the list at which to insert b.
+         */
+        subtrees.add(pos, b);
         b.setParent(this);
-    }
-
-    protected abstract void prettyPrintHeader(String indent, StringBuilder builder);
-    protected abstract void prettyPrintFooter(String indent, StringBuilder builder);
-
-    public String prettyPrint() {
-        final StringBuilder builder = new StringBuilder();
-        prettyPrint("", builder);
-        return builder.toString();
-    }
-
-    protected void prettyPrint(String indent, StringBuilder builder) {
-        prettyPrintHeader(indent, builder);
-        builder.append(System.lineSeparator());
-        {
-            final String childIndent = indent + "  ";
-            for (Annotated child : blocks) {
-                child.prettyPrint(childIndent, builder);
-            }
-        }
-        prettyPrintFooter(indent, builder);
-        builder.append(System.lineSeparator());
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Annotated annotated = (Annotated) o;
-        return blocks.equals(annotated.blocks);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(parent, blocks);
     }
 }

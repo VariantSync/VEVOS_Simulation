@@ -4,8 +4,10 @@ import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import de.variantsync.evolution.io.Resources;
 import de.variantsync.evolution.repository.Commit;
 import de.variantsync.evolution.repository.IVariabilityRepository;
+import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.functional.Lazy;
-import de.variantsync.evolution.variability.pc.PresenceConditions;
+import de.variantsync.evolution.variability.pc.FeatureTrace;
+import de.variantsync.evolution.variability.pc.FeatureTraceTree;
 
 import java.nio.file.Path;
 
@@ -28,9 +30,14 @@ public class VariabilityCommit extends Commit<IVariabilityRepository> {
         return fm;
     });
 
-    public final Lazy<PresenceConditions> presenceConditions = Lazy.of(() -> {
+    public final Lazy<FeatureTrace> presenceConditions = Lazy.of(() -> {
         sourceRepo.checkoutCommit(this);
-        return Resources.Instance().load(PresenceConditions.class, sourceRepo.getVariabilityFile());
+        try {
+            return Resources.Instance().load(FeatureTrace.class, sourceRepo.getVariabilityFile());
+        } catch (Resources.ResourceLoadingFailure resourceLoadingFailure) {
+            Logger.exception("", resourceLoadingFailure);
+            return null;
+        }
     });
 
     void setEvolutionParents(VariabilityCommit[] evolutionParents) {

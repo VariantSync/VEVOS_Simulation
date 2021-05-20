@@ -14,7 +14,7 @@ import de.variantsync.evolution.util.functional.MonadTransformer;
 import de.variantsync.evolution.util.functional.Unit;
 import de.variantsync.evolution.variability.CommitPair;
 import de.variantsync.evolution.variability.VariabilityRepo;
-import de.variantsync.evolution.variability.pc.PresenceConditions;
+import de.variantsync.evolution.variability.pc.FeatureTrace;
 import de.variantsync.evolution.variants.VariantsRepository;
 import de.variantsync.evolution.variants.VariantsRevision;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -35,8 +35,8 @@ public class Main {
     private static void initResources() {
         final Resources r = Resources.Instance();
         r.registerLoader(CSV.class, new CSVLoader());
-        r.registerLoader(PresenceConditions.class, new KernelHavenPCLoader());
-        r.registerLoader(PresenceConditions.class, new PCLocatorPCLoader());
+        r.registerLoader(FeatureTrace.class, new KernelHavenPCLoader());
+        r.registerLoader(FeatureTrace.class, new PCLocatorPCLoader());
     }
 
     public static void main(String[] args) {
