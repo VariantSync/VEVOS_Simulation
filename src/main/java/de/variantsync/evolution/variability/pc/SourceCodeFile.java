@@ -3,31 +3,21 @@ package de.variantsync.evolution.variability.pc;
 import org.prop4j.Node;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
+/**
+ * Represents a variable source code file (e.g., because part of a plugin or only conditionally included).
+ */
 public class SourceCodeFile extends Annotated {
     private final Path relativePath;
-    private final Node presenceCondition;
 
-    public SourceCodeFile(Path relativePath, Node presenceCondition) {
+    public SourceCodeFile(Path relativePath, Node featureMapping) {
+        super(featureMapping);
         this.relativePath = relativePath;
-        this.presenceCondition = presenceCondition;
     }
 
     public Path getRelativePath() {
         return relativePath;
-    }
-
-    @Override
-    public Node getFeatureMapping() {
-        return presenceCondition;
-    }
-
-    @Override
-    public Node getPresenceCondition() {
-        return presenceCondition;
     }
 
     @Override
@@ -51,11 +41,11 @@ public class SourceCodeFile extends Annotated {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         SourceCodeFile that = (SourceCodeFile) o;
-        return relativePath.equals(that.relativePath) && presenceCondition.equals(that.presenceCondition);
+        return relativePath.equals(that.relativePath);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), relativePath, presenceCondition);
+        return Objects.hash(super.hashCode(), relativePath);
     }
 }

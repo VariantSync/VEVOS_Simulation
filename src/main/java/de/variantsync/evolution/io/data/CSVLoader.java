@@ -1,18 +1,19 @@
 package de.variantsync.evolution.io.data;
 
 import de.variantsync.evolution.io.ResourceLoader;
-import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.PathUtils;
 import de.variantsync.evolution.util.functional.Result;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Class to load CSV files.
+ */
 public class CSVLoader implements ResourceLoader<CSV> {
     public final static String DefaultSeparator = ";";
     private String separator;
@@ -22,6 +23,11 @@ public class CSVLoader implements ResourceLoader<CSV> {
         this(DefaultSeparator);
     }
 
+    /**
+     * Create a CSVLoader with the given separator.
+     * @param separator A string that will be interpreted as separater between elements in a row in the csv file.
+     *                  The default value is ";".
+     */
     public CSVLoader(String separator) {
         setSeparator(separator);
     }

@@ -1,30 +1,23 @@
 package de.variantsync.evolution.variability.pc;
 
-import de.variantsync.evolution.util.fide.FormulaUtils;
 import org.prop4j.Node;
-
 import java.util.Objects;
 
-public class PreprocessorBlock extends Annotated {
-    private final Node featureMapping;
+/**
+ * A line-based annotation of source code, such as preprocessor annotations (#ifdef)
+ */
+public class LineBasedAnnotation extends Annotated {
     private final int lineFrom;
     private final int lineTo;
 
-    public PreprocessorBlock(Node featureMapping, int lineFrom, int lineTo) {
-        this.featureMapping = featureMapping;
+    /**
+     * Creates a new annotations starting at lineFrom (inclusive @Alex?) and ending at lineTo (inclusive@Alex?).
+     * TODO: @Alex: Indexing is zero based?
+     */
+    public LineBasedAnnotation(Node featureMapping, int lineFrom, int lineTo) {
+        super(featureMapping);
         this.lineFrom = lineFrom;
         this.lineTo = lineTo;
-    }
-
-    public Node getFeatureMapping() {
-        return featureMapping;
-    }
-
-    public Node getPresenceCondition() {
-        final Annotated parent = getParent();
-        return parent == null ?
-                featureMapping :
-                FormulaUtils.AndSimplified(parent.getPresenceCondition(), featureMapping);
     }
 
     @Override
@@ -46,8 +39,8 @@ public class PreprocessorBlock extends Annotated {
 
     @Override
     public String toString() {
-        return "PreprocessorBlock{" +
-                "featureMapping=" + featureMapping +
+        return "Annotation{" +
+                "featureMapping=" + getFeatureMapping() +
                 ", from " + lineFrom +
                 " to " + lineTo +
                 '}';
@@ -58,12 +51,12 @@ public class PreprocessorBlock extends Annotated {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        PreprocessorBlock that = (PreprocessorBlock) o;
-        return lineFrom == that.lineFrom && lineTo == that.lineTo && featureMapping.equals(that.featureMapping);
+        LineBasedAnnotation that = (LineBasedAnnotation) o;
+        return lineFrom == that.lineFrom && lineTo == that.lineTo;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), featureMapping, lineFrom, lineTo);
+        return Objects.hash(super.hashCode(), lineFrom, lineTo);
     }
 }
