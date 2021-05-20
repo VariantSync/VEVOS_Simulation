@@ -20,21 +20,16 @@ public class LineBasedAnnotation extends Annotated {
         this.lineTo = lineTo;
     }
 
-    @Override
-    protected void prettyPrintHeader(String indent, StringBuilder builder) {
-        builder.append(indent).append("#if ").append(getFeatureMapping()).append(" @").append(getLineFrom());
-    }
-
-    @Override
-    protected void prettyPrintFooter(String indent, StringBuilder builder) {
-        builder.append(indent).append("#endif @").append(getLineTo());
-    }
-
     public int getLineFrom() {
         return lineFrom;
     }
     public int getLineTo() {
         return lineTo;
+    }
+
+    @Override
+    protected LineBasedAnnotation plainCopy() {
+        return new LineBasedAnnotation(getFeatureMapping().clone(), lineFrom, lineTo);
     }
 
     @Override
@@ -58,5 +53,15 @@ public class LineBasedAnnotation extends Annotated {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), lineFrom, lineTo);
+    }
+
+    @Override
+    protected void prettyPrintHeader(String indent, StringBuilder builder) {
+        builder.append(indent).append("#if ").append(getFeatureMapping()).append(" @").append(getLineFrom());
+    }
+
+    @Override
+    protected void prettyPrintFooter(String indent, StringBuilder builder) {
+        builder.append(indent).append("#endif @").append(getLineTo());
     }
 }

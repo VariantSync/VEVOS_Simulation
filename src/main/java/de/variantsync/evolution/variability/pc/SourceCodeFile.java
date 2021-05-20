@@ -16,6 +16,11 @@ public class SourceCodeFile extends Annotated {
         this.relativePath = relativePath;
     }
 
+    @Override
+    protected SourceCodeFile plainCopy() {
+        return new SourceCodeFile(relativePath, getFeatureMapping().clone());
+    }
+
     public Path getRelativePath() {
         return relativePath;
     }

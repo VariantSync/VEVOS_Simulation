@@ -1,7 +1,6 @@
 package de.variantsync.evolution.variability.pc;
 
 import de.variantsync.evolution.feature.Variant;
-import de.variantsync.evolution.util.NotImplementedException;
 import de.variantsync.evolution.util.fide.FormulaUtils;
 import de.variantsync.evolution.util.fide.bugfix.FixTrueFalse;
 import org.prop4j.Node;
@@ -65,9 +64,20 @@ public class FeatureTraceTree<Child extends FeatureTraceTree<?>> implements Feat
     }
 
     @Override
-    public FeatureTrace project(Variant variant) {
-        // TODO: Implement Issue #2 here.
-        throw new NotImplementedException();
+    public FeatureTraceTree<Child> project(Variant variant) {
+        FeatureTraceTree<Child> copy = plainCopy();
+        for (Child subtree : subtrees) {
+            if (variant.isImplementing(subtree.getPresenceCondition())) {
+                @SuppressWarnings("unchecked")
+                Child childProjection = (Child) subtree.project(variant);
+                copy.addTrace(childProjection);
+            }
+        }
+        return copy;
+    }
+
+    protected FeatureTraceTree<Child> plainCopy() {
+        return new FeatureTraceTree<>(getFeatureMapping().clone());
     }
 
     /**
