@@ -2,7 +2,6 @@ package de.variantsync.evolution;
 
 import de.ovgu.featureide.fm.core.base.impl.*;
 import de.ovgu.featureide.fm.core.configuration.*;
-import de.ovgu.featureide.fm.core.init.FMCoreLibrary;
 import de.ovgu.featureide.fm.core.io.sxfm.SXFMFormat;
 import de.ovgu.featureide.fm.core.io.xml.XmlFeatureModelFormat;
 import de.variantsync.evolution.io.Resources;
@@ -19,7 +18,7 @@ import de.variantsync.evolution.util.functional.MonadTransformer;
 import de.variantsync.evolution.util.functional.Unit;
 import de.variantsync.evolution.variability.CommitPair;
 import de.variantsync.evolution.variability.VariabilityRepo;
-import de.variantsync.evolution.variability.pc.FeatureTrace;
+import de.variantsync.evolution.variability.pc.Artefact;
 import de.variantsync.evolution.variants.VariantsRepository;
 import de.variantsync.evolution.variants.VariantsRevision;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -40,8 +39,8 @@ public class Main {
     private static void InitResources() {
         final Resources r = Resources.Instance();
         r.registerLoader(CSV.class, new CSVLoader());
-        r.registerLoader(FeatureTrace.class, new KernelHavenPCLoader());
-        r.registerLoader(FeatureTrace.class, new PCLocatorPCLoader());
+        r.registerLoader(Artefact.class, new KernelHavenPCLoader());
+        r.registerLoader(Artefact.class, new PCLocatorPCLoader());
     }
 
     private static void InitFeatureIDE() {

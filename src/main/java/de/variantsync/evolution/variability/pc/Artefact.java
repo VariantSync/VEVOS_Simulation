@@ -4,9 +4,9 @@ import de.variantsync.evolution.feature.Variant;
 import org.prop4j.Node;
 
 /**
- * A mapping of source code entities to features.
+ * A mapping of artefacts to features.
  */
-public interface FeatureTrace {
+public interface Artefact {
     /**
      * @return the feature mapping of this node (i.e., the feature formula associated to this element).
      */
@@ -23,7 +23,7 @@ public interface FeatureTrace {
      * This object will not be altered, meaning a copy that represents the derived variant is returned.
      * @param variant The variant for which the feature traces should be reduced.
      */
-    FeatureTrace project(Variant variant);
+    Artefact project(Variant variant);
 
     default String prettyPrint() {
         return prettyPrint("");

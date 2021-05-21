@@ -12,7 +12,7 @@ import org.prop4j.Node;
  *   #endif
  * #endif
  */
-public abstract class Annotated extends FeatureTraceTree<LineBasedAnnotation> {
+public abstract class Annotated extends ArtefactTree<LineBasedAnnotation> {
     public Annotated(Node featureMapping) {
         super(featureMapping);
     }

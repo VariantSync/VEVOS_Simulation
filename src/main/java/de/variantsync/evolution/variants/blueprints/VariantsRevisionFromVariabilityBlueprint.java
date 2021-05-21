@@ -1,6 +1,6 @@
 package de.variantsync.evolution.variants.blueprints;
 
-import de.variantsync.evolution.variability.pc.FeatureTrace;
+import de.variantsync.evolution.variability.pc.Artefact;
 import de.variantsync.evolution.variants.VariantCommit;
 import de.variantsync.evolution.variants.VariantsRevision;
 import de.variantsync.evolution.feature.Sample;
@@ -58,7 +58,7 @@ public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBl
     @Override
     public Lazy<VariantsRevision.Branches> generateArtefactsFor(VariantsRevision revision) {
         return variability.presenceConditions.and(getSample()).map(ts -> {
-            final FeatureTrace traces = ts.getKey();
+            final Artefact traces = ts.getKey();
             final Sample sample = ts.getValue();
             final SPLCommit splCommit = variability.splCommit();
             final ISPLRepository splRepo = revision.getSPLRepo();
@@ -71,7 +71,7 @@ public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBl
                 splRepo.checkoutCommit(splCommit);
 
                 // Generate the code
-                FeatureTrace variantTrace = traces.project(variant);
+                Artefact variantTrace = traces.project(variant);
                 // TODO: Implement issue #2 here:
                 //       Read data from splRepo and write it according to variantTrace to variantsRepo.
                 // [...]

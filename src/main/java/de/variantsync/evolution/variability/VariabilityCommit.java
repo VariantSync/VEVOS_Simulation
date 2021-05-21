@@ -6,8 +6,7 @@ import de.variantsync.evolution.repository.Commit;
 import de.variantsync.evolution.repository.IVariabilityRepository;
 import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.functional.Lazy;
-import de.variantsync.evolution.variability.pc.FeatureTrace;
-import de.variantsync.evolution.variability.pc.FeatureTraceTree;
+import de.variantsync.evolution.variability.pc.Artefact;
 
 import java.nio.file.Path;
 
@@ -30,10 +29,10 @@ public class VariabilityCommit extends Commit<IVariabilityRepository> {
         return fm;
     });
 
-    public final Lazy<FeatureTrace> presenceConditions = Lazy.of(() -> {
+    public final Lazy<Artefact> presenceConditions = Lazy.of(() -> {
         sourceRepo.checkoutCommit(this);
         try {
-            return Resources.Instance().load(FeatureTrace.class, sourceRepo.getVariabilityFile());
+            return Resources.Instance().load(Artefact.class, sourceRepo.getVariabilityFile());
         } catch (Resources.ResourceLoadingFailure resourceLoadingFailure) {
             Logger.exception("", resourceLoadingFailure);
             return null;

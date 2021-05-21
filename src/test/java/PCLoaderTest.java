@@ -1,11 +1,7 @@
 import de.ovgu.featureide.fm.core.analysis.cnf.formula.FeatureModelFormula;
-import de.ovgu.featureide.fm.core.base.FeatureUtils;
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import de.variantsync.evolution.Main;
 import de.variantsync.evolution.feature.Variant;
-import de.variantsync.evolution.io.Resources;
-import de.variantsync.evolution.io.data.CSV;
-import de.variantsync.evolution.io.data.CSVLoader;
 import de.variantsync.evolution.io.kernelhaven.KernelHavenPCLoader;
 import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.fide.ConfigurationUtils;
@@ -31,9 +27,9 @@ public class PCLoaderTest {
     private static final Path illTestFile = resDir.resolve("KernelHavenPCs_illformed.csv");
 
     private static IFeatureModel features;
-    private static FeatureTrace expectedTrace;
+    private static Artefact expectedTrace;
 
-    private Result<FeatureTrace, Exception> parsedTrace, parsedIllTrace;
+    private Result<Artefact, Exception> parsedTrace, parsedIllTrace;
 
     @BeforeClass
     public static void setupStatic() {
@@ -59,7 +55,7 @@ public class PCLoaderTest {
                 bar.addTrace(new LineBasedAnnotation(FixTrueFalse.False, 1, 20));
             }
 
-            expectedTrace = new FeatureTraceTree<>(Arrays.asList(alex, bar));
+            expectedTrace = new ArtefactTree<>(Arrays.asList(alex, bar));
         }
     }
 
@@ -94,7 +90,7 @@ public class PCLoaderTest {
     @Test
     public void testProjection1() {
         assert parsedTrace.isSuccess();
-        final FeatureTrace traceToTest = parsedTrace.getSuccess();
+        final Artefact traceToTest = parsedTrace.getSuccess();
 
         final FeatureModelFormula fmf = new FeatureModelFormula(features);
 
@@ -110,7 +106,7 @@ public class PCLoaderTest {
 //        System.out.println("original:");
 //        System.out.println(traceToTest.prettyPrint("  "));
         for (Variant v : variantsToTest) {
-            final FeatureTrace projection = traceToTest.project(v);
+            final Artefact projection = traceToTest.project(v);
 //            System.out.println("Showing projection to variant " + v.toString().replaceAll("\\n", ", "));
 //            System.out.println("projection:");
 //            System.out.println(projection.prettyPrint("  "));

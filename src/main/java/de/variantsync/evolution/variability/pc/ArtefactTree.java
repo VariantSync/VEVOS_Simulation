@@ -15,37 +15,37 @@ import java.util.Objects;
  * @param <Child> The type of children that can be added to this tree. Only affects direct children, meaning
  *               that it is not transitive and grandchildren could be of another type.
  */
-public class FeatureTraceTree<Child extends FeatureTraceTree<?>> implements FeatureTrace {
+public class ArtefactTree<Child extends ArtefactTree<?>> implements Artefact {
     private final Node featureMapping;
 
-    private FeatureTraceTree<?> parent;
+    private ArtefactTree<?> parent;
     protected final List<Child> subtrees;
 
     /**
      * Creates a new empty tree (node) with feature mapping True.
      */
-    public FeatureTraceTree() {
+    public ArtefactTree() {
         this(FixTrueFalse.True);
     }
 
     /**
      * Creates a new empty tree (node) with the given feature mapping.
      */
-    public FeatureTraceTree(Node featureMapping) {
+    public ArtefactTree(Node featureMapping) {
         this(featureMapping, new ArrayList<>());
     }
 
     /**
      * Creates a new tree (node) with feature mapping True and the given subtrees.
      */
-    public FeatureTraceTree(List<Child> subtrees) {
+    public ArtefactTree(List<Child> subtrees) {
         this(FixTrueFalse.True, subtrees);
     }
 
     /**
      * Creates a new tree (node) with the given feature mapping and subtrees.
      */
-    public FeatureTraceTree(Node featureMapping, List<Child> subtrees) {
+    public ArtefactTree(Node featureMapping, List<Child> subtrees) {
         this.featureMapping = featureMapping;
         this.subtrees = subtrees;
     }
@@ -57,15 +57,15 @@ public class FeatureTraceTree<Child extends FeatureTraceTree<?>> implements Feat
 
     @Override
     public Node getPresenceCondition() {
-        final FeatureTrace parent = getParent();
+        final Artefact parent = getParent();
         return parent == null ?
                 featureMapping :
                 FormulaUtils.AndSimplified(parent.getPresenceCondition(), featureMapping);
     }
 
     @Override
-    public FeatureTraceTree<Child> project(Variant variant) {
-        final FeatureTraceTree<Child> copy = plainCopy();
+    public ArtefactTree<Child> project(Variant variant) {
+        final ArtefactTree<Child> copy = plainCopy();
         for (Child subtree : subtrees) {
             if (variant.isImplementing(subtree.getPresenceCondition())) {
                 @SuppressWarnings("unchecked")
@@ -76,8 +76,8 @@ public class FeatureTraceTree<Child extends FeatureTraceTree<?>> implements Feat
         return copy;
     }
 
-    protected FeatureTraceTree<Child> plainCopy() {
-        return new FeatureTraceTree<>(getFeatureMapping().clone());
+    protected ArtefactTree<Child> plainCopy() {
+        return new ArtefactTree<>(getFeatureMapping().clone());
     }
 
     /**
@@ -85,14 +85,14 @@ public class FeatureTraceTree<Child extends FeatureTraceTree<?>> implements Feat
      * Does not perform relocations and is only used for internal use after other tree operations.
      * @param parent The new parent of this tree.
      */
-    void setParent(final FeatureTraceTree<?>  parent) {
+    void setParent(final ArtefactTree<?> parent) {
         this.parent = parent;
     }
 
     /**
      * @return The parent of this (sub-)tree.
      */
-    public FeatureTraceTree<?> getParent() {
+    public ArtefactTree<?> getParent() {
         return parent;
     }
 
@@ -149,7 +149,7 @@ public class FeatureTraceTree<Child extends FeatureTraceTree<?>> implements Feat
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        FeatureTraceTree<?> that = (FeatureTraceTree<?>) o;
+        ArtefactTree<?> that = (ArtefactTree<?>) o;
         // don't compare parents so we only compare subtrees
         return featureMapping.equals(that.featureMapping) && subtrees.equals(that.subtrees);
     }

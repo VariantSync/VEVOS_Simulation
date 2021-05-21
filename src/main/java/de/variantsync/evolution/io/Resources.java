@@ -1,9 +1,7 @@
 package de.variantsync.evolution.io;
 
-import de.variantsync.evolution.io.kernelhaven.KernelHavenPCLoader;
 import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.functional.Result;
-import de.variantsync.evolution.variability.pc.FeatureTrace;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
