@@ -2,6 +2,8 @@ package de.variantsync.evolution.variability.pc;
 
 import org.prop4j.Node;
 
+import java.nio.file.Path;
+
 /**
  * Represents an artefact that can be annotated with FeatureAnnotations (i.e., line-based feature annotations).
  * In particular, FeatureAnnotations themselves derive Annotated because annotations might be nested:
@@ -13,9 +15,13 @@ import org.prop4j.Node;
  * #endif
  */
 public abstract class Annotated extends ArtefactTree<LineBasedAnnotation> {
-    public Annotated(Node featureMapping) {
+    protected Annotated(Node featureMapping) {
         super(featureMapping);
     }
+    protected Annotated(Node featureMapping, Path file) {
+        super(featureMapping, file);
+    }
+
 
     /**
      * Merges the given FeatureAnnotation to this artefact in a sorted way.

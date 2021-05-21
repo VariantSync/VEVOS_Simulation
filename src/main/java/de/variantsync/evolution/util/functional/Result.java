@@ -1,6 +1,14 @@
 package de.variantsync.evolution.util.functional;
 
+import de.variantsync.evolution.util.functional.interfaces.FragileProcedure;
+import de.variantsync.evolution.util.functional.interfaces.FragileSupplier;
+
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collector;
 
 public class Result<SuccessType, FailureType> {
     private final SuccessType result;
@@ -45,5 +53,20 @@ public class Result<SuccessType, FailureType> {
 
     public FailureType getFailure() {
         return failure;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <S, E extends Exception> Result<S, E> Try(FragileSupplier<S, E> s) {
+        try {
+            S result = s.get();
+            return Result.Success(result);
+        } catch (Exception e) { // We cannot catch E directly.
+//            throw new RuntimeException(e);
+            return Result.Failure((E) e);
+        }
+    }
+
+    public static <E extends Exception> Result<Unit, E> Try(FragileProcedure<E> s) {
+        return Try(Functional.LiftFragile(s));
     }
 }

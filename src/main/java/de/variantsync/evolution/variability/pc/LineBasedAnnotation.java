@@ -1,6 +1,12 @@
 package de.variantsync.evolution.variability.pc;
 
+import de.variantsync.evolution.feature.Variant;
+import de.variantsync.evolution.io.TextIO;
+import de.variantsync.evolution.util.functional.Result;
+import de.variantsync.evolution.util.functional.Unit;
 import org.prop4j.Node;
+
+import java.nio.file.Path;
 import java.util.Objects;
 
 /**
@@ -28,8 +34,49 @@ public class LineBasedAnnotation extends Annotated {
     }
 
     @Override
-    protected LineBasedAnnotation plainCopy() {
-        return new LineBasedAnnotation(getFeatureMapping().clone(), lineFrom, lineTo);
+    public Result<Unit, Exception> project(Variant variant, Path sourceDir, Path targetDir) {
+        final Path sourceFile = sourceDir.resolve(getFile());
+        final Path targetFile = targetDir.resolve(getFile());
+
+        if (subtrees.size() == 0) {
+            // just copy entire file content
+            return Result.Try(() -> TextIO.CopyTextLines(sourceFile, targetFile, lineFrom, lineTo));
+        } else {
+            int currentLine = lineFrom;
+            int currentChildIndex = 0;
+            LineBasedAnnotation currentChild;
+            while (currentChildIndex < subtrees.size()) {
+                currentChild = subtrees.get(currentChildIndex);
+
+                // copy lines
+                int currentChunkEnd = currentChild.lineFrom;
+                int linesToWrite = currentChunkEnd - currentLine;
+                if (linesToWrite > 0) {
+                    final int currentLineForUseInLambda = currentLine;
+                    final Result<Unit, Exception> res = Result.Try(() ->
+                        TextIO.CopyTextLines(sourceFile, targetFile, currentLineForUseInLambda, currentChunkEnd - 1));
+                    if (res.isFailure()) { return res; }
+                }
+                // handle child
+                if (variant.isImplementing(currentChild.getPresenceCondition())) {
+                    final var res = currentChild.project(variant, sourceDir, targetDir);
+                    if (res.isFailure()) { return res; }
+                } // else skip child as its lines have to be exluded
+
+                // go to next child and repeat
+                currentLine = currentChild.lineTo + 1;
+                ++currentChildIndex;
+            }
+
+            if (currentLine <= lineTo) {
+                final int currentLineForUseInLambda = currentLine;
+                final Result<Unit, Exception> res= Result.Try(() ->
+                    TextIO.CopyTextLines(sourceFile, targetFile, currentLineForUseInLambda, lineTo));
+                if (res.isFailure()) { return res; }
+            }
+        }
+
+        return Result.Success(Unit.Instance());
     }
 
     @Override

@@ -67,7 +67,7 @@ public class KernelHavenPCLoader implements ResourceLoader<Artefact> {
 
         // sort and return all files as list
         List<SourceCodeFile> allFiles = new ArrayList<>(files.values());
-        allFiles.sort(Comparator.comparing(SourceCodeFile::getRelativePath));
+        allFiles.sort(Comparator.comparing(SourceCodeFile::getFile));
         return Result.Success(new ArtefactTree<>(allFiles));
     }
 }

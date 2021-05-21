@@ -1,5 +1,8 @@
 package de.variantsync.evolution.variants.blueprints;
 
+import de.variantsync.evolution.util.Logger;
+import de.variantsync.evolution.util.functional.Result;
+import de.variantsync.evolution.util.functional.Unit;
 import de.variantsync.evolution.variability.pc.Artefact;
 import de.variantsync.evolution.variants.VariantCommit;
 import de.variantsync.evolution.variants.VariantsRevision;
@@ -65,19 +68,17 @@ public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBl
             final IVariantsRepository variantsRepo = revision.getVariantsRepo();
 
             final Map<Branch, VariantCommit> commits = new HashMap<>(sample.size());
-            for (Variant variant : sample.variants()) {
-                final Branch branch = variantsRepo.getBranchByName(variant.name());
+            for (final Variant variant : sample.variants()) {
+                final Branch branch = variantsRepo.getBranchByName(variant.getName());
                 variantsRepo.checkoutBranch(branch);
                 splRepo.checkoutCommit(splCommit);
 
                 // Generate the code
-                Artefact variantTrace = traces.project(variant);
-                // TODO: Implement issue #2 here:
-                //       Read data from splRepo and write it according to variantTrace to variantsRepo.
-                // [...]
+                final Result<Unit, Exception> result = traces.project(variant, splRepo.getPath(), variantsRepo.getPath());
+                Logger.log(result.map(u -> "Generating variant " + variant + " was successful!"));
 
                 // Commit the generated variant with the corresponding spl commit has as message.
-                final String commitMessage = splCommit.id() + " || " + splCommit.message() + " || " + variant.name();
+                final String commitMessage = splCommit.id() + " || " + splCommit.message() + " || " + variant.getName();
                 final Optional<VariantCommit> variantCommit = variantsRepo.commit(commitMessage);
                 variantCommit.ifPresent(commit -> commits.put(branch, commit));
             }

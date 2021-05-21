@@ -4,10 +4,12 @@ import de.variantsync.evolution.Main;
 import de.variantsync.evolution.feature.Variant;
 import de.variantsync.evolution.io.kernelhaven.KernelHavenPCLoader;
 import de.variantsync.evolution.util.Logger;
+import de.variantsync.evolution.util.PathUtils;
 import de.variantsync.evolution.util.fide.ConfigurationUtils;
 import de.variantsync.evolution.util.fide.FeatureModelUtils;
 import de.variantsync.evolution.util.fide.bugfix.FixTrueFalse;
 import de.variantsync.evolution.util.functional.Result;
+import de.variantsync.evolution.util.functional.Unit;
 import de.variantsync.evolution.variability.pc.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -25,6 +27,8 @@ public class PCLoaderTest {
     private static final Path resDir = Path.of("src", "main", "resources", "test");
     private static final Path testFile = resDir.resolve("KernelHavenPCs.csv");
     private static final Path illTestFile = resDir.resolve("KernelHavenPCs_illformed.csv");
+    private static final Path tinySPLDir = resDir.resolve("tinySPLRepo");
+    private static final Path genDir = resDir.resolve("gen");
 
     private static IFeatureModel features;
     private static Artefact expectedTrace;
@@ -42,17 +46,17 @@ public class PCLoaderTest {
         { // Build the expected result by hand.
             final SourceCodeFile alex = new SourceCodeFile(Path.of("src", "Alex.cpp"), FixTrueFalse.True);
             {
-                LineBasedAnnotation a = new LineBasedAnnotation(new Literal("A"), 30, 60);
-                a.addTrace(new LineBasedAnnotation(new Literal("B"), 50, 55));
-                LineBasedAnnotation tru = new LineBasedAnnotation(FixTrueFalse.True, 1, 100);
+                LineBasedAnnotation a = new LineBasedAnnotation(new Literal("A"), 4, 11);
+                a.addTrace(new LineBasedAnnotation(new Literal("B"), 6, 8));
+                LineBasedAnnotation tru = new LineBasedAnnotation(FixTrueFalse.True, 1, 20);
                 tru.addTrace(a);
-                tru.addTrace(new LineBasedAnnotation(new Or(new And(new Literal("C"), new Literal("D")), new Literal("E")), 70, 90));
+                tru.addTrace(new LineBasedAnnotation(new Or(new And(new Literal("C"), new Literal("D")), new Literal("E")), 16, 18));
                 alex.addTrace(tru);
             }
 
             final SourceCodeFile bar = new SourceCodeFile(Path.of("src", "foo", "bar.cpp"), new Literal("A"));
             {
-                bar.addTrace(new LineBasedAnnotation(FixTrueFalse.False, 1, 20));
+                bar.addTrace(new LineBasedAnnotation(FixTrueFalse.False, 1, 5));
             }
 
             expectedTrace = new ArtefactTree<>(Arrays.asList(alex, bar));
@@ -88,8 +92,9 @@ public class PCLoaderTest {
     }
 
     @Test
-    public void testProjection1() {
+    public void testGeneration() {
         assert parsedTrace.isSuccess();
+        assert PathUtils.deleteDirectory(genDir).isSuccess();
         final Artefact traceToTest = parsedTrace.getSuccess();
 
         final FeatureModelFormula fmf = new FeatureModelFormula(features);
@@ -102,18 +107,14 @@ public class PCLoaderTest {
                 ConfigurationUtils.FromFeatureModelAndSelection(fmf, Arrays.asList("A", "B", "C", "D", "E")));
 
         final List<Variant> variantsToTest = Arrays.asList(justA, justB, all);
-
-//        System.out.println("original:");
-//        System.out.println(traceToTest.prettyPrint("  "));
         for (Variant v : variantsToTest) {
-            final Artefact projection = traceToTest.project(v);
-//            System.out.println("Showing projection to variant " + v.toString().replaceAll("\\n", ", "));
-//            System.out.println("projection:");
-//            System.out.println(projection.prettyPrint("  "));
+            final Result<Unit, Exception> res = traceToTest.project(v, tinySPLDir, genDir.resolve(Path.of("variants", v.getName())));
+//System.out.println(traceToTest.prettyPrint());
+            if (res.isFailure()) {
+                Logger.error(res.getFailure().toString());
+            }
 
-            // TODO: Actually we have to build the expected projection manually here.
-            //       Otherwise this is an always successful test iff loadTestFileCorrectly was successful.
-            assert projection.equals(expectedTrace.project(v));
+            assert res.isSuccess();
         }
     }
 }

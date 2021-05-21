@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ConfigurationUtils {
-    public static boolean IsSatisfyingAssignment(Configuration config, Node formula) {
+    public static Map<Object, Boolean> ToAssignment(Configuration config) {
         final Map<Object, Boolean> assignment = new HashMap<>();
         assignment.put(FixTrueFalse.True.var, true);
         assignment.put(FixTrueFalse.False.var, false);
@@ -33,6 +33,14 @@ public class ConfigurationUtils {
             assignment.put(f.getName(), true);
         }
 
+        return assignment;
+    }
+
+    public static boolean IsSatisfyingAssignment(Configuration config, Node formula) {
+        return IsSatisfyingAssignment(ToAssignment(config), formula);
+    }
+
+    public static boolean IsSatisfyingAssignment(Map<Object, Boolean> assignment, Node formula) {
         return formula.getValue(assignment);
     }
 

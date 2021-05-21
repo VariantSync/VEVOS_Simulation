@@ -1,35 +1,47 @@
 package de.variantsync.evolution.variability.pc;
 
+import de.variantsync.evolution.feature.Variant;
+import de.variantsync.evolution.util.PathUtils;
+import de.variantsync.evolution.util.functional.Result;
+import de.variantsync.evolution.util.functional.Unit;
 import org.prop4j.Node;
 
+import java.io.IOException;
+import java.nio.file.CopyOption;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.Objects;
 
 /**
  * Represents a variable source code file (e.g., because part of a plugin or only conditionally included).
  */
 public class SourceCodeFile extends Annotated {
-    private final Path relativePath;
-
     public SourceCodeFile(Path relativePath, Node featureMapping) {
-        super(featureMapping);
-        this.relativePath = relativePath;
+        super(featureMapping, relativePath);
     }
 
     @Override
-    protected SourceCodeFile plainCopy() {
-        return new SourceCodeFile(relativePath, getFeatureMapping().clone());
-    }
+    public Result<Unit, Exception> project(Variant variant, Path sourceDir, Path targetDir) {
+        // 1.) create the target file
+        final Path targetFile = targetDir.resolve(getFile());
+        final Result<Boolean, IOException> r = Result.Try(() -> PathUtils.createEmpty(targetFile));
+        if (r.isFailure()) {
+            return Result.Failure(r.getFailure());
+        } else if (!r.getSuccess()) {
+            return Result.Failure(new IOException("Could not create file " + targetFile));
+        }
 
-    public Path getRelativePath() {
-        return relativePath;
+        // 2.) write children
+        return super.project(variant, sourceDir, targetDir);
     }
 
     @Override
     protected void prettyPrintHeader(String indent, StringBuilder builder) {
         builder
                 .append(indent)
-                .append(relativePath)
+                .append(getFile())
                 .append("<")
                 .append(getFeatureMapping())
                 .append(">[");
@@ -46,11 +58,11 @@ public class SourceCodeFile extends Annotated {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         SourceCodeFile that = (SourceCodeFile) o;
-        return relativePath.equals(that.relativePath);
+        return getFile().equals(that.getFile());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), relativePath);
+        return Objects.hash(super.hashCode(), getFile());
     }
 }

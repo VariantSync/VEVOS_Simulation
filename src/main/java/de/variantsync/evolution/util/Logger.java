@@ -1,5 +1,7 @@
 package de.variantsync.evolution.util;
 
+import de.variantsync.evolution.util.functional.Result;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
@@ -75,6 +77,14 @@ public class Logger {
 
     public static void exception(String message, Exception e) {
         INSTANCE.log(message + "\n" + e.getMessage(), ERROR);
+    }
+
+    public static <S, F> void log(Result<S, F> result) {
+        if (result.isSuccess()) {
+            info(result.getSuccess().toString()); // printing in green would be cool! :D
+        } else {
+            error(result.getFailure().toString());
+        }
     }
 
     public static void setLogLevel(LogLevel level) {
