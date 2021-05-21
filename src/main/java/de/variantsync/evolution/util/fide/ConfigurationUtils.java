@@ -1,21 +1,27 @@
 package de.variantsync.evolution.util.fide;
 
+import de.ovgu.featureide.fm.core.analysis.cnf.formula.FeatureModelFormula;
+import de.ovgu.featureide.fm.core.base.FeatureUtils;
+import de.ovgu.featureide.fm.core.base.IConfigurationFactory;
 import de.ovgu.featureide.fm.core.base.IFeature;
+import de.ovgu.featureide.fm.core.base.impl.ConfigurationFactoryManager;
+import de.ovgu.featureide.fm.core.base.impl.DefaultConfigurationFactory;
 import de.ovgu.featureide.fm.core.configuration.Configuration;
+import de.ovgu.featureide.fm.core.configuration.ConfigurationAnalyzer;
+import de.ovgu.featureide.fm.core.configuration.ConfigurationPropagator;
+import de.ovgu.featureide.fm.core.configuration.Selection;
+import de.variantsync.evolution.util.fide.bugfix.FixTrueFalse;
 import org.prop4j.Node;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ConfigurationUtils {
-    public static boolean isSatisfyingAssignment(Configuration config, Node formula) {
-        if (config == null) {
-            return true;
-        }
-
-        // TODO: Use Analyzer.isValid and canBeValid
-
-        Map<Object, Boolean> assignment = new HashMap<>();
+    public static boolean IsSatisfyingAssignment(Configuration config, Node formula) {
+        final Map<Object, Boolean> assignment = new HashMap<>();
+        assignment.put(FixTrueFalse.True.var, true);
+        assignment.put(FixTrueFalse.False.var, false);
 
         for (IFeature f : config.getFeatureModel().getFeatures()) {
             // Put name in map although formula.getValue expects Map<OBJECT, Boolean>.
@@ -28,5 +34,19 @@ public class ConfigurationUtils {
         }
 
         return formula.getValue(assignment);
+    }
+
+    public static Configuration FromFeatureModelAndSelection(FeatureModelFormula fm, List<String> activeFeatures) {
+        final Configuration configuration = new Configuration(fm);
+
+        for (String activeFeature : activeFeatures) {
+            configuration.setManual(activeFeature, Selection.SELECTED);
+        }
+
+        // Selection might be incomplete (e.g., parent feature not selected)
+        final ConfigurationAnalyzer analyzer = new ConfigurationAnalyzer(new ConfigurationPropagator(fm, configuration));
+        analyzer.completeMin();
+
+        return configuration;
     }
 }

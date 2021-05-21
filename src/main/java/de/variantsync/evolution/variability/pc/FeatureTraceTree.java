@@ -65,11 +65,11 @@ public class FeatureTraceTree<Child extends FeatureTraceTree<?>> implements Feat
 
     @Override
     public FeatureTraceTree<Child> project(Variant variant) {
-        FeatureTraceTree<Child> copy = plainCopy();
+        final FeatureTraceTree<Child> copy = plainCopy();
         for (Child subtree : subtrees) {
             if (variant.isImplementing(subtree.getPresenceCondition())) {
                 @SuppressWarnings("unchecked")
-                Child childProjection = (Child) subtree.project(variant);
+                final Child childProjection = (Child) subtree.project(variant);
                 copy.addTrace(childProjection);
             }
         }
@@ -123,9 +123,9 @@ public class FeatureTraceTree<Child extends FeatureTraceTree<?>> implements Feat
     }
 
     @Override
-    public String prettyPrint() {
+    public String prettyPrint(String indent) {
         final StringBuilder builder = new StringBuilder();
-        prettyPrint("", builder);
+        prettyPrint(indent, builder);
         return builder.toString();
     }
 

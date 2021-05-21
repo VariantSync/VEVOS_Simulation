@@ -25,5 +25,9 @@ public interface FeatureTrace {
      */
     FeatureTrace project(Variant variant);
 
-    String prettyPrint();
+    default String prettyPrint() {
+        return prettyPrint("");
+    }
+
+    String prettyPrint(String indent);
 }
