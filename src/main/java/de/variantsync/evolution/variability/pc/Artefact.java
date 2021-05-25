@@ -29,6 +29,7 @@ public interface Artefact {
      * This object will not be altered, meaning a copy that represents the derived variant is returned.
      * @param variant The variant for which the feature traces should be reduced.
      */
+    // TODO: Rename
     Result<Unit, Exception> project(Variant variant, Path sourceDir, Path targetDir);
 
 //    Result<Unit, Exception> write(Path sourceDir, Path targetDir);

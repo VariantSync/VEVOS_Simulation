@@ -38,6 +38,7 @@ public class LineBasedAnnotation extends Annotated {
         final Path sourceFile = sourceDir.resolve(getFile());
         final Path targetFile = targetDir.resolve(getFile());
 
+        // TODO: Cache all lines to write and then write them in one go.
         if (subtrees.size() == 0) {
             // just copy entire file content
             return Result.Try(() -> TextIO.CopyTextLines(sourceFile, targetFile, lineFrom, lineTo));
