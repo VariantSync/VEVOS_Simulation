@@ -58,7 +58,7 @@ public class Result<SuccessType, FailureType> {
     @SuppressWarnings("unchecked")
     public static <S, E extends Exception> Result<S, E> Try(FragileSupplier<S, E> s) {
         try {
-            S result = s.get();
+            final S result = s.get();
             return Result.Success(result);
         } catch (Exception e) { // We cannot catch E directly.
 //            throw new RuntimeException(e);
