@@ -49,7 +49,7 @@ public class LineBasedAnnotation extends Annotated {
             while (currentChildIndex < subtrees.size()) {
                 currentChild = subtrees.get(currentChildIndex);
 
-                // copy lines
+                // 1.) Copy all LOC between currentLine and begin of child
                 int currentChunkEnd = currentChild.lineFrom;
                 int linesToWrite = currentChunkEnd - currentLine;
                 if (linesToWrite > 0) {
