@@ -1,12 +1,18 @@
 package de.variantsync.evolution.variants;
 
+import de.variantsync.evolution.feature.Variant;
+import de.variantsync.evolution.repository.Repository;
 import de.variantsync.evolution.variants.blueprints.VariantsRevisionBlueprint;
 import de.variantsync.evolution.repository.Branch;
 import de.variantsync.evolution.repository.ISPLRepository;
 import de.variantsync.evolution.repository.IVariantsRepository;
 import de.variantsync.evolution.util.*;
 import de.variantsync.evolution.util.list.NonEmptyList;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.sat4j.opt.AbstractSelectorVariablesDecorator;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,9 +23,8 @@ import java.util.Optional;
  * Given a history of VariantsRevisionBlueprints, this class will generate a git repository with variants from
  * the original ISPLRepository.
  */
-public class VariantsRepository implements IVariantsRepository {
+public class VariantsRepository extends Repository<VariantCommit> implements IVariantsRepository {
     private Map<String, Branch> branchesByName;
-    private final Path localPath;
     public Optional<VariantsRevision> revision0;
 
     /**
@@ -34,7 +39,7 @@ public class VariantsRepository implements IVariantsRepository {
             ISPLRepository splRepo,
             NonEmptyList<VariantsRevisionBlueprint> blueprintHistory)
     {
-        this.localPath = localPath;
+        super(localPath);
         parseRepoMetadata();
 
         final ListHeadTailView<VariantsRevisionBlueprint> history = filterExistingRevisions(new ListHeadTailView<>(blueprintHistory));
@@ -75,36 +80,37 @@ public class VariantsRepository implements IVariantsRepository {
     }
 
     @Override
-    public Path getPath() {
-        return localPath;
-    }
-
-    @Override
     public Branch getBranchByName(String name) {
         return branchesByName.computeIfAbsent(name, Branch::new);
     }
 
     @Override
-    public VariantCommit checkoutCommit(VariantCommit variantCommit) {
-        // TODO: Implement Issue #12 here.
-        throw new NotImplementedException();
-    }
-
-    @Override
-    public void checkoutBranch(Branch branch) {
-        // TODO: Implement Issue #12 here.
-        throw new NotImplementedException();
-    }
-
-    @Override
-    public VariantCommit getCurrentCommit() {
-        // TODO: Implement Issue #12 here.
-        throw new NotImplementedException();
+    public VariantCommit getCurrentCommit() throws IOException {
+        try {
+            String id = getCurrentCommitId();
+            Branch branch = super.getCurrentBranch();
+            return new VariantCommit(id, branch);
+        } catch (IOException e) {
+            Logger.exception("Failed to get current commit.", e);
+            throw e;
+        }
     }
 
     @Override
     public Optional<VariantCommit> commit(String message) {
-        // TODO: Implement Issue #12 here.
-        throw new NotImplementedException();
+        Optional result = Optional.empty();
+
+        try {
+            //super.git().add(".").call();
+            RevCommit rev = super.git().commit().setMessage(message).call();
+            Branch branch = super.getCurrentBranch();
+            if(rev != null){
+                result = Optional.of(new VariantCommit(rev.getId().toString(),branch));
+            }
+        } catch (IOException | GitAPIException e) {
+            Logger.exception("Failed to commit with message: " + message, e);
+        }
+
+        return result;
     }
 }

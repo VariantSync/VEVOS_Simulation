@@ -19,32 +19,31 @@ public abstract class Repository<C extends Commit<? extends IRepository<C>>> imp
     }
 
     @Override
-    public C checkoutCommit(C c) {
+    public C checkoutCommit(C c) throws GitAPIException, IOException {
         try {
             C currentCommit = getCurrentCommit();
-            git().checkout().setName(c.toString()).call();
+            git().checkout().setName(c.id()).call();
             return currentCommit;
         } catch (GitAPIException | IOException e) {
             Logger.exception("Failed to checkout commit " + c, e);
-            // throw e;
-            return null;
+            throw e;
         }
     }
 
     @Override
-    public void checkoutBranch(Branch branch) {
+    public void checkoutBranch(Branch branch) throws GitAPIException, IOException {
         try {
             git().checkout().setName(branch.name()).call();
         } catch (GitAPIException | IOException e) {
             Logger.exception("Failed to checkout branch " + branch.name(), e);
-            // throw e;
+            throw e;
         }
     }
 
     @Override
-    public abstract C getCurrentCommit();
+    public abstract C getCurrentCommit() throws IOException;
 
-    protected String getCurrentCommitId() {
+    protected String getCurrentCommitId() throws IOException {
         String commitId = "";
 
         try {
@@ -52,20 +51,23 @@ public abstract class Repository<C extends Commit<? extends IRepository<C>>> imp
             commitId = ObjectId.toString(head);
         } catch (IOException e) {
             Logger.exception("Failed to get current commit", e);
-            // throw e;
+            throw e;
         }
 
         return commitId;
     }
-
-
 
     @Override
     public Path getPath() {
         return path;
     }
 
-    public Git git() throws IOException{
+    public Branch getCurrentBranch() throws IOException {
+        String branch = git().getRepository().getBranch();
+        return new Branch(branch);
+    }
+
+    public Git git() throws IOException {
         if(git == null){
             try {
                 git = GitUtil.loadGitRepo(path.toFile());
