@@ -32,8 +32,4 @@ public class Functional {
     public static <A, B> Function<Optional<A>, B> match(Function<A, B> just, Supplier<? extends B> nothing) {
         return ma -> match(ma, just, nothing);
     }
-
-    public static <A, B> boolean isDisjunctionEmpty(Collection<A> a, Collection<B> b) {
-        return a.stream().noneMatch(x -> b.stream().anyMatch(x::equals));
-    }
 }
