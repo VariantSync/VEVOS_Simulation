@@ -137,6 +137,7 @@ public class VariabilityRepo extends Repository<VariabilityCommit> implements IV
         repo.errorCommits = errorCommits;
         repo.allCommits = allCommits;
         mapCommitsAccordingToSPLHistory(splCommitToVarCommit, splRepoDir, repo);
+        git.close();
         return repo;
     }
 
@@ -325,9 +326,14 @@ public class VariabilityRepo extends Repository<VariabilityCommit> implements IV
             Logger.exception("Failed to get current commit.", e);
             throw e;
         }
-        return getVariabilityCommit(commitId);
 
+        VariabilityCommit commit = getVariabilityCommit(commitId);
 
+        if(commit != null){
+            return commit;
+        } else {
+            return new VariabilityCommit(this, commitId, null);
+        }
     }
 
 }

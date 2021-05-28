@@ -11,7 +11,9 @@ import de.variantsync.evolution.variability.FeatureTraces;
 import de.variantsync.evolution.variability.SPLCommit;
 import de.variantsync.evolution.variability.VariabilityCommit;
 import de.variantsync.evolution.util.functional.Lazy;
+import org.eclipse.jgit.api.errors.GitAPIException;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -67,8 +69,14 @@ public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBl
             final Map<Branch, VariantCommit> commits = new HashMap<>(sample.size());
             for (Variant variant : sample.variants()) {
                 final Branch branch = variantsRepo.getBranchByName(variant.name());
-                variantsRepo.checkoutBranch(branch);
-                splRepo.checkoutCommit(splCommit);
+
+                // TODO: fix exception handling?
+                try {
+                    variantsRepo.checkoutBranch(branch);
+                    splRepo.checkoutCommit(splCommit);
+                } catch (IOException | GitAPIException e) {
+
+                }
                 // Generate the code
                 traces.generateVariant(variant, splRepo, variantsRepo);
                 // Commit the generated variant with the corresponding spl commit has as message.

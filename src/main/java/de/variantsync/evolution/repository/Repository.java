@@ -48,6 +48,7 @@ public abstract class Repository<C extends Commit<? extends IRepository<C>>> imp
 
         try {
             ObjectId head = git().getRepository().resolve(Constants.HEAD);
+            // commitId = head.getName();
             commitId = ObjectId.toString(head);
         } catch (IOException e) {
             Logger.exception("Failed to get current commit", e);
@@ -67,7 +68,7 @@ public abstract class Repository<C extends Commit<? extends IRepository<C>>> imp
         return new Branch(branch);
     }
 
-    public Git git() throws IOException {
+    protected Git git() throws IOException {
         if(git == null){
             try {
                 git = GitUtil.loadGitRepo(path.toFile());

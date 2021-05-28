@@ -4,7 +4,9 @@ import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import de.variantsync.evolution.repository.Commit;
 import de.variantsync.evolution.repository.IVariabilityRepository;
 import de.variantsync.evolution.util.functional.Lazy;
+import org.eclipse.jgit.api.errors.GitAPIException;
 
+import java.io.IOException;
 import java.nio.file.Path;
 
 public class VariabilityCommit extends Commit<IVariabilityRepository> {
@@ -20,7 +22,16 @@ public class VariabilityCommit extends Commit<IVariabilityRepository> {
 
     public final Lazy<IFeatureModel> featureModel = Lazy.of(() -> {
         IFeatureModel fm = null;
-        sourceRepo.checkoutCommit(this);
+
+        // TODO: fix exception handling?
+        try {
+            sourceRepo.checkoutCommit(this);
+        } catch (GitAPIException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         Path fmPath = sourceRepo.getFeatureModelFile();
         // TODO: Implement Issue #3 here: Parse FM from fmPath.
         return fm;
@@ -28,7 +39,15 @@ public class VariabilityCommit extends Commit<IVariabilityRepository> {
 
     public final Lazy<FeatureTraces> featureTraces = Lazy.of(() -> {
         FeatureTraces traces = null;
-        sourceRepo.checkoutCommit(this);
+
+        // TODO: fix exception handling?
+        try {
+            sourceRepo.checkoutCommit(this);
+        } catch (GitAPIException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         Path varPath = sourceRepo.getVariabilityFile();
         // TODO: Implement Issue #9 here: Parse Variability data from varPath
         return traces;
