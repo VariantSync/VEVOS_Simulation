@@ -1,8 +1,8 @@
-package de.variantsync.evolution.util;
+package de.variantsync.evolution.util.list;
 
-import de.variantsync.evolution.util.list.ListDecorator;
-
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Optional;
 
 /**
@@ -11,7 +11,7 @@ import java.util.Optional;
  * the viewed list.
  */
 public class ListHeadTailView<T> extends ListDecorator<T> {
-    private final int index;
+    private final int headIndex;
 
     public ListHeadTailView(List<T> list) {
         this(list, 0);
@@ -19,15 +19,15 @@ public class ListHeadTailView<T> extends ListDecorator<T> {
 
     public ListHeadTailView(List<T> list, int headIndex) {
         super(list);
-        this.index = headIndex;
+        this.headIndex = headIndex;
     }
 
     public boolean empty() {
-        return index >= size();
+        return headIndex >= size();
     }
 
     public T head() {
-        return get(index);
+        return get(headIndex);
     }
 
     public Optional<T> safehead() {
@@ -39,6 +39,27 @@ public class ListHeadTailView<T> extends ListDecorator<T> {
     }
 
     public ListHeadTailView<T> tail() {
-        return new ListHeadTailView<>(wrappee, index + 1);
+        return new ListHeadTailView<>(wrappee, headIndex + 1);
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return listIterator();
+    }
+
+    @Override
+    public ListIterator<T> listIterator() {
+        return listIterator(0);
+    }
+
+    @Override
+    public ListIterator<T> listIterator(int index) {
+        int jumpsToDo = headIndex + index;
+        ListIterator<T> i = wrappee.listIterator();
+        while (jumpsToDo > 0) {
+            i.next();
+            --jumpsToDo;
+        }
+        return i;
     }
 }

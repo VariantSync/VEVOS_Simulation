@@ -1,5 +1,6 @@
 package de.variantsync.evolution.variants;
 
+import de.variantsync.evolution.util.list.ListHeadTailView;
 import de.variantsync.evolution.variants.blueprints.VariantsRevisionBlueprint;
 import de.variantsync.evolution.repository.Branch;
 import de.variantsync.evolution.repository.ISPLRepository;

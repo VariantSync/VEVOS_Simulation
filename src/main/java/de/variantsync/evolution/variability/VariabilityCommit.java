@@ -1,9 +1,13 @@
 package de.variantsync.evolution.variability;
 
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
+import de.variantsync.evolution.io.Resources;
 import de.variantsync.evolution.repository.Commit;
 import de.variantsync.evolution.repository.IVariabilityRepository;
+import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.functional.Lazy;
+import de.variantsync.evolution.variability.pc.FeatureTrace;
+import de.variantsync.evolution.variability.pc.FeatureTraceTree;
 
 import java.nio.file.Path;
 
@@ -22,16 +26,18 @@ public class VariabilityCommit extends Commit<IVariabilityRepository> {
         IFeatureModel fm = null;
         sourceRepo.checkoutCommit(this);
         Path fmPath = sourceRepo.getFeatureModelFile();
-        // TODO: Implement Issue #3 here: Parse FM from fmPath.
+        // TODO: Implement Issue #3 here: Parse FM from fmPath. Use Resource.Instance() for that.
         return fm;
     });
 
-    public final Lazy<FeatureTraces> featureTraces = Lazy.of(() -> {
-        FeatureTraces traces = null;
+    public final Lazy<FeatureTrace> presenceConditions = Lazy.of(() -> {
         sourceRepo.checkoutCommit(this);
-        Path varPath = sourceRepo.getVariabilityFile();
-        // TODO: Implement Issue #9 here: Parse Variability data from varPath
-        return traces;
+        try {
+            return Resources.Instance().load(FeatureTrace.class, sourceRepo.getVariabilityFile());
+        } catch (Resources.ResourceLoadingFailure resourceLoadingFailure) {
+            Logger.exception("", resourceLoadingFailure);
+            return null;
+        }
     });
 
     void setEvolutionParents(VariabilityCommit[] evolutionParents) {
