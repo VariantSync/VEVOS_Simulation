@@ -12,6 +12,7 @@ public class VariabilityMetadata {
     private final List<SPLCommit> incompletePCCommits;
 
     // Package-private constructor that should only be called by a corresponding resource loader
+    // TODO: Reconsider metadata structure w.r.t. new extraction output comprising the parent ids
     VariabilityMetadata(SuccessCommits successCommits, ErrorCommits errorCommits, IncompletePCCommits incompletePCCommits) {
         this.successCommits = successCommits.commits;
         this.errorCommits = errorCommits.commits;
