@@ -1,8 +1,8 @@
-import de.ovgu.featureide.fm.core.analysis.cnf.generator.configuration.util.Pair;
 import de.variantsync.evolution.repository.Commit;
 import de.variantsync.evolution.repository.VariabilityHistory;
 import de.variantsync.evolution.util.GitUtil;
-import de.variantsync.evolution.variability.CommitPair;
+import de.variantsync.evolution.variability.CommitIdPair;
+import de.variantsync.evolution.variability.SPLCommit;
 import de.variantsync.evolution.variability.VariabilityCommit;
 import de.variantsync.evolution.variability.VariabilityRepo;
 import de.variantsync.evolution.util.GenericArray;
@@ -119,30 +119,30 @@ public class VariabilityRepoTest {
 
     @Test
     public void correctCommitsWithOneParentFiltered() {
-        final Pair<String, String>[] expectedCommitPairs = GenericArray.create(
-                new Pair<>("d398531661b986467c2f15e7ef3b1429f0d4ad54", "674d9d7f78f92a3cea19392b853d3f39e6482959"),
-                new Pair<>("6e0a4e66c09be9850d5dc5537ac9980c369fb392", "907d04e53eb1dc242cc05c3137c7a794c9639172"),
+        final CommitIdPair[] expectedCommitIdPairs = GenericArray.create(
+                new CommitIdPair("d398531661b986467c2f15e7ef3b1429f0d4ad54", "674d9d7f78f92a3cea19392b853d3f39e6482959"),
+                new CommitIdPair("6e0a4e66c09be9850d5dc5537ac9980c369fb392", "907d04e53eb1dc242cc05c3137c7a794c9639172"),
 
-                new Pair<>("301d31223fa90a57f6492d65ca6730371d606b6c", "ee7e6aaa41a5e69734bf1acea8e5f1e430f2e555"),
-                new Pair<>("c302e501b6581a9383edc37f35780cf6f6d4a7b9", "301d31223fa90a57f6492d65ca6730371d606b6c"),
+                new CommitIdPair("301d31223fa90a57f6492d65ca6730371d606b6c", "ee7e6aaa41a5e69734bf1acea8e5f1e430f2e555"),
+                new CommitIdPair("c302e501b6581a9383edc37f35780cf6f6d4a7b9", "301d31223fa90a57f6492d65ca6730371d606b6c"),
 
-                new Pair<>("37c16cf271fa87c8f32514127837be4ce236f21e", "544e9b9dadf945fc4d109f81ce52a11192ce0ea8"),
-                new Pair<>("8f12802ceab73ba61235b7943196f11968b49472", "426e2cdb99131fbbf5e8bba658f7641213ffadca"),
-                new Pair<>("c69c1a5544c4d6b074f446c536bc8b5ff85cfa52", "8e9b1f5c820093e42030794dc414891f899a58f9"),
-                new Pair<>("426e2cdb99131fbbf5e8bba658f7641213ffadca", "c69c1a5544c4d6b074f446c536bc8b5ff85cfa52"),
-                new Pair<>("8e9b1f5c820093e42030794dc414891f899a58f9", "37c16cf271fa87c8f32514127837be4ce236f21e")
+                new CommitIdPair("37c16cf271fa87c8f32514127837be4ce236f21e", "544e9b9dadf945fc4d109f81ce52a11192ce0ea8"),
+                new CommitIdPair("8f12802ceab73ba61235b7943196f11968b49472", "426e2cdb99131fbbf5e8bba658f7641213ffadca"),
+                new CommitIdPair("c69c1a5544c4d6b074f446c536bc8b5ff85cfa52", "8e9b1f5c820093e42030794dc414891f899a58f9"),
+                new CommitIdPair("426e2cdb99131fbbf5e8bba658f7641213ffadca", "c69c1a5544c4d6b074f446c536bc8b5ff85cfa52"),
+                new CommitIdPair("8e9b1f5c820093e42030794dc414891f899a58f9", "37c16cf271fa87c8f32514127837be4ce236f21e")
         );
 
-        Set<CommitPair> pairs = repo.getCommitPairsForEvolutionStudy();
-        for (var commitPair : expectedCommitPairs) {
+        Set<CommitIdPair> pairs = repo.getCommitPairsForEvolutionStudy();
+        for (var commitPair : expectedCommitIdPairs) {
             try {
-                assert pairs.stream().anyMatch(p -> p.child().id().equals(commitPair.getKey()) && p.parent().id().equals(commitPair.getValue()));
+                assert pairs.stream().anyMatch(p -> p.childId().equals(commitPair.childId()) && p.parentId().equals(commitPair.parentId()));
             } catch (AssertionError e) {
-                System.err.println("No match for <" + commitPair.getKey() + " : " + commitPair.getValue() + ">");
+                System.err.println("No match for <" + commitPair.parentId() + " : " + commitPair.childId() + ">");
                 throw e;
             }
         }
-        assert repo.getCommitPairsForEvolutionStudy().size() == expectedCommitPairs.length;
+        assert repo.getCommitPairsForEvolutionStudy().size() == expectedCommitIdPairs.length;
     }
 
     @Test

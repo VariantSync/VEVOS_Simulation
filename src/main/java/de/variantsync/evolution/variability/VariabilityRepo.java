@@ -160,7 +160,7 @@ public class VariabilityRepo implements IVariabilityRepository {
      *
      * @return Set of commit pairs that can be used in a variability evolution study
      */
-    public Set<CommitPair> getCommitPairsForEvolutionStudy() {
+    public Set<CommitIdPair> getCommitPairsForEvolutionStudy() {
         return successCommits.stream()
                 // We only consider commits that did not process a merge
                 .filter(nonMergeCommits::contains)
@@ -169,7 +169,7 @@ public class VariabilityRepo implements IVariabilityRepository {
                     VariabilityCommit[] parents = c.getEvolutionParents();
                     return parents.length == 1 && successCommits.contains(parents[0]);
                 })
-                .map(c -> new CommitPair(c, c.getEvolutionParents()[0]))
+                .map(c -> new CommitIdPair(c.getEvolutionParents()[0], c))
                 .collect(Collectors.toSet());
     }
 
@@ -246,10 +246,10 @@ public class VariabilityRepo implements IVariabilityRepository {
     @Override
     public VariabilityHistory getCommitSequencesForEvolutionStudy() {
         // Retrieve the pairs of usable commits
-        Set<CommitPair> usableCommitPairs = this.getCommitPairsForEvolutionStudy();
+        Set<CommitIdPair> usableCommitIdPairs = this.getCommitPairsForEvolutionStudy();
         // Create lists for the commits in the pairs and merge lists according to parent-child relationships
         Map<VariabilityCommit, LinkedList<VariabilityCommit>> commitToCommitSequenceMap = new HashMap<>();
-        for (CommitPair pair : usableCommitPairs) {
+        for (CommitIdPair pair : usableCommitIdPairs) {
             final boolean parentHasSequence = commitToCommitSequenceMap.containsKey(pair.parent());
             final boolean childHasSequence = commitToCommitSequenceMap.containsKey(pair.child());
             if (parentHasSequence && childHasSequence) {
