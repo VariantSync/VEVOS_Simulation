@@ -2,7 +2,9 @@ package de.variantsync.evolution.repository;
 
 import de.variantsync.evolution.variants.VariantCommit;
 import de.variantsync.evolution.variants.VariantsRevision;
+import org.eclipse.jgit.api.errors.GitAPIException;
 
+import java.io.IOException;
 import java.util.Optional;
 
 /**
@@ -14,7 +16,7 @@ public interface IVariantsRepository extends IRepository<VariantCommit> {
      * @param message Message for the commit to make.
      * @return A handle for the commit that was just created. Returns empty if there were no changes to commit.
      */
-    Optional<VariantCommit> commit(String message);
+    Optional<VariantCommit> commit(String message) throws GitAPIException, IOException;
 
     /**
      * Returns a branch handle form a branches name.

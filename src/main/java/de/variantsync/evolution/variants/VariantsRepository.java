@@ -85,9 +85,8 @@ public class VariantsRepository extends Repository<VariantCommit> implements IVa
     }
 
     @Override
-    public VariantCommit getCurrentCommit() throws IOException {
+    public VariantCommit idToCommit(String id) throws IOException {
         try {
-            String id = getCurrentCommitId();
             Branch branch = super.getCurrentBranch();
             return new VariantCommit(id, branch);
         } catch (IOException e) {
@@ -97,11 +96,11 @@ public class VariantsRepository extends Repository<VariantCommit> implements IVa
     }
 
     @Override
-    public Optional<VariantCommit> commit(String message) {
+    public Optional<VariantCommit> commit(String message) throws GitAPIException, IOException {
         Optional result = Optional.empty();
 
         try {
-            //super.git().add(".").call();
+            super.git().add().addFilepattern(".").call();
             RevCommit rev = super.git().commit().setMessage(message).call();
             Branch branch = super.getCurrentBranch();
             if(rev != null){
@@ -109,6 +108,7 @@ public class VariantsRepository extends Repository<VariantCommit> implements IVa
             }
         } catch (IOException | GitAPIException e) {
             Logger.exception("Failed to commit with message: " + message, e);
+            throw e;
         }
 
         return result;

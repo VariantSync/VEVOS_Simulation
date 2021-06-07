@@ -317,22 +317,15 @@ public class VariabilityRepo extends Repository<VariabilityCommit> implements IV
 
 
     @Override
-    public VariabilityCommit getCurrentCommit() throws IOException {
+    public VariabilityCommit idToCommit(String id) {
         // TODO: Implement Issue #12 here.
-        String commitId = null;
-        try {
-            commitId = getCurrentCommitId();
-        } catch (IOException e) {
-            Logger.exception("Failed to get current commit.", e);
-            throw e;
-        }
 
-        VariabilityCommit commit = getVariabilityCommit(commitId);
+        VariabilityCommit commit = getVariabilityCommit(id);
 
         if(commit != null){
             return commit;
         } else {
-            return new VariabilityCommit(this, commitId, null);
+            return new VariabilityCommit(this, id, null);
         }
     }
 
