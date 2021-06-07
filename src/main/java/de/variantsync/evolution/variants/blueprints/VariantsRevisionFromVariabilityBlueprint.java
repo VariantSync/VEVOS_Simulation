@@ -70,12 +70,16 @@ public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBl
             for (Variant variant : sample.variants()) {
                 final Branch branch = variantsRepo.getBranchByName(variant.name());
 
-                // TODO: fix exception handling?
                 try {
                     variantsRepo.checkoutBranch(branch);
+                } catch (IOException | GitAPIException e) {
+                    throw new RuntimeException("Failed branch checkout in Variants Repository.");
+                }
+
+                try {
                     splRepo.checkoutCommit(splCommit);
                 } catch (IOException | GitAPIException e) {
-
+                    throw new RuntimeException("Failed commit checkout in SPL Repository.");
                 }
                 // Generate the code
                 traces.generateVariant(variant, splRepo, variantsRepo);

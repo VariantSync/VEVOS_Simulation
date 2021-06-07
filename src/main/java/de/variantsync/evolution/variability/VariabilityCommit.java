@@ -23,13 +23,10 @@ public class VariabilityCommit extends Commit<IVariabilityRepository> {
     public final Lazy<IFeatureModel> featureModel = Lazy.of(() -> {
         IFeatureModel fm = null;
 
-        // TODO: fix exception handling?
         try {
             sourceRepo.checkoutCommit(this);
-        } catch (GitAPIException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (GitAPIException | IOException e) {
+            throw new RuntimeException("Failed commit checkout.");
         }
 
         Path fmPath = sourceRepo.getFeatureModelFile();
@@ -40,14 +37,12 @@ public class VariabilityCommit extends Commit<IVariabilityRepository> {
     public final Lazy<FeatureTraces> featureTraces = Lazy.of(() -> {
         FeatureTraces traces = null;
 
-        // TODO: fix exception handling?
         try {
             sourceRepo.checkoutCommit(this);
-        } catch (GitAPIException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (GitAPIException | IOException e) {
+            throw new RuntimeException("Failed commit checkout.");
         }
+
         Path varPath = sourceRepo.getVariabilityFile();
         // TODO: Implement Issue #9 here: Parse Variability data from varPath
         return traces;

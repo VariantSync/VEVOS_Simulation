@@ -54,14 +54,12 @@ public class VariantsRevisionFromErrorBlueprint extends VariantsRevisionBlueprin
             for (Variant variant : sample.variants()) {
                 final Branch branch = variantsRepo.getBranchByName(variant.name());
 
-                // TODO: fix exception handling?
                 try {
                     variantsRepo.checkoutBranch(branch);
-                } catch (GitAPIException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                } catch (GitAPIException | IOException e) {
+                    throw new RuntimeException("Failed branch checkout in variants repository.");
                 }
+
                 // TODO: We cannot commit no changes. So we have to change something. What could that be?
                 //       A simple text file might really be all we need here. Either an empty file or a file with the hashes of the associated commits.
                 final Optional<VariantCommit> variantCommit = variantsRepo.commit(COMMIT_MESSAGE);
