@@ -4,7 +4,6 @@ import de.variantsync.evolution.variability.SPLCommit;
 import de.variantsync.evolution.variants.blueprints.VariantsRevisionBlueprint;
 import de.variantsync.evolution.variants.blueprints.VariantsRevisionFromErrorBlueprint;
 import de.variantsync.evolution.variants.blueprints.VariantsRevisionFromVariabilityBlueprint;
-import de.variantsync.evolution.variability.VariabilityCommit;
 import de.variantsync.evolution.util.list.NonEmptyList;
 
 import java.util.ArrayList;
