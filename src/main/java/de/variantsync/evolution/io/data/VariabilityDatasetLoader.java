@@ -11,11 +11,16 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDataset> {
     private final static String SUCCESS_COMMIT_FILE = "SUCCESS_COMMITS.txt";
     private final static String ERROR_COMMIT_FILE = "ERROR_COMMITS.txt";
     private final static String INCOMPLETE_PC_COMMIT_FILE = "INCOMPLETE_PC_COMMITS.txt";
+    private final static String FEATURE_MODEL_FILE = "variability-model.json";
+    private final static String PRESENCE_CONDITIONS_FILE = "code-variability.csv";
+    private final static String PARENTS_FILE = "PARENTS.txt";
+    private final static String MESSAGE_FILE = "MESSAGE.txt";
 
 
     /**
@@ -70,7 +75,7 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
     private List<SPLCommit> initializeSPLCommits(Path p, List<String> commitIds) {
         List<SPLCommit> splCommits = new ArrayList<>(commitIds.size());
         for (String id : commitIds) {
-            VariabilityFilePaths dataPaths = new VariabilityFilePaths(resolvePathToLogFile(p, id), resolvePathToFeatureModel(p, id), resolvePathToPresenceConditions(p, id));
+            VariabilityFilePaths dataPaths = new VariabilityFilePaths(resolvePathToLogFile(p, id), resolvePathToFeatureModel(p, id), resolvePathToPresenceConditions(p, id), resolvePathToMessageFile(p, id));
             SPLCommit splCommit = new SPLCommit(id, dataPaths);
             splCommits.add(splCommit);
         }
@@ -82,17 +87,22 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
     }
 
     private Path resolvePathToFeatureModel(Path rootDir, String commitId) {
-        Path p = resolvePathToCommitOutputDir(rootDir, commitId).resolve("variability-model.json");
+        Path p = resolvePathToCommitOutputDir(rootDir, commitId).resolve(FEATURE_MODEL_FILE);
         return p.toFile().exists() ? p : null;
     }
 
     private Path resolvePathToPresenceConditions(Path rootDir, String commitId) {
-        Path p = resolvePathToCommitOutputDir(rootDir, commitId).resolve("code-variability.csv");
+        Path p = resolvePathToCommitOutputDir(rootDir, commitId).resolve(PRESENCE_CONDITIONS_FILE);
         return p.toFile().exists() ? p : null;
     }
 
     private Path resolvePathToParentsFile(Path rootDir, String commitId) {
-        Path p = resolvePathToCommitOutputDir(rootDir, commitId).resolve("PARENTS.txt");
+        Path p = resolvePathToCommitOutputDir(rootDir, commitId).resolve(PARENTS_FILE);
+        return p.toFile().exists() ? p : null;
+    }
+
+    private Path resolvePathToMessageFile(Path rootDir, String commitId) {
+        Path p = resolvePathToCommitOutputDir(rootDir, commitId).resolve(MESSAGE_FILE);
         return p.toFile().exists() ? p : null;
     }
 
@@ -103,7 +113,7 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
 
     private List<String> readLines(Path p, String fileName) {
         try {
-            return Files.readAllLines(p.resolve(fileName));
+            return Files.readAllLines(p.resolve(fileName)).stream().map(String::trim).filter(s -> !s.isEmpty()).collect(Collectors.toList());
         } catch (IOException e) {
             Logger.debug("Was not able to read file " + p.resolve(fileName));
             return Collections.emptyList();

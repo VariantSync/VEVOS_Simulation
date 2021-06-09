@@ -48,22 +48,22 @@ public class VariabilityDatasetLoaderTest {
     @Test
     public void successCommitsAreLoaded() {
         final String[] expectedSuccessCommits = new String[]{
-                "674d9d7f78f92a3cea19392b853d3f39e6482959",
-                "d398531661b986467c2f15e7ef3b1429f0d4ad54",
+                "60dc6013409b060b6f68c34902b3390e26e585dd",
+                "e183211505ba66c89234b25687b76a7f4e4679cd",
+                "411129f5a1923ce107b2970311fdcea72e0b628b",
 
-                "ca3644a751d12f6893a170deaf3acfd6be0fd7e2",
+                "48c073dfcfd0907f1e460628a7379b4bcbc8c737",
 
-                "907d04e53eb1dc242cc05c3137c7a794c9639172",
+                "eab1607a6f137376e57a3381c2fdae9c9d46de4d",
+                "78fe3d306860e11e327a43cfce2c97748a34c1e1",
 
-                "ee7e6aaa41a5e69734bf1acea8e5f1e430f2e555",
-                "301d31223fa90a57f6492d65ca6730371d606b6c",
-                "c302e501b6581a9383edc37f35780cf6f6d4a7b9",
+                "454f7da158fdf3fe4b3c3fc8110f6c15861f97fa",
+                "c79e89cd49fc17be386ca026686dd01e0985a5ea",
+                "600f60df96cdbbf3319085d8e777d7e66c96e013",
+                "a54c3c30f2dff6dc36331f06360630b697b7562c",
 
-                "544e9b9dadf945fc4d109f81ce52a11192ce0ea8",
-
-                "c69c1a5544c4d6b074f446c536bc8b5ff85cfa52",
-                "426e2cdb99131fbbf5e8bba658f7641213ffadca",
-                "8e9b1f5c820093e42030794dc414891f899a58f9"
+                "38e15e31eabccf82d3183273240cd44f2dec9fa9",
+                "741ee98bf3edee477c504726fdc482ae85adf0e5"
         };
 
         List<SPLCommit> successCommits = dataset.getSuccessCommits();
@@ -76,12 +76,11 @@ public class VariabilityDatasetLoaderTest {
     @Test
     public void errorCommitsAreLoaded() {
         final String[] expectedErrorCommits = new String[]{
-                "1915b9aa580c6e3a332146b3a579f015db627377",
-                "7cc1135c70cb6ce92bc3d41a7fbff984b2c0e3ea",
-                "bd020e4f40e2726f138c901f6fa44a106a55a56d",
-                "55f9b80f8396c0f2a1a8f9f9cc314425bf231b0f",
-                "7f08e8f9e2e53f2d16db73b7752f03953ffe1df8",
-                "ee42dcd245ca2530b7d119ceda13202b608ba022"
+                "5e0646cefbafc911449d6c0f420ff633fa4b41e9",
+                "c11c2aff04769cbcb6c568f90257dc3cc7bb1737",
+                "0e1827400a0d06b9112777261c4bdb541ffbb134",
+                "80e14e6db5ef9ec4149887b544621d10a19edf92",
+                "4ea494802cd552464c2f1a47d727a206eccf1d20"
         };
 
         List<SPLCommit> errorCommits = dataset.getErrorCommits();
@@ -94,9 +93,10 @@ public class VariabilityDatasetLoaderTest {
     @Test
     public void incompletePCCommitsAreLoaded() {
         final String[] expectedSuccessCommits = new String[]{
-                "37c16cf271fa87c8f32514127837be4ce236f21e",
-                "8f12802ceab73ba61235b7943196f11968b49472",
-                "6e0a4e66c09be9850d5dc5537ac9980c369fb392"
+                "aed45b2f723e372b750e8007c72730bcddee7174",
+                "e12024473264e88058027290a348d1ada31af20a",
+                "f83a980b7c948f2a7a50c75f06e8298f971e61aa",
+                "f0619022ca9f6aeaba51fb1b71e77f6887cca4a4"
         };
 
         List<SPLCommit> incompletePCCommits = dataset.getIncompletePCCommits();
@@ -111,16 +111,14 @@ public class VariabilityDatasetLoaderTest {
         // We created a test VariabilityRepo for which we manually selected success and error commits. The following
         // commit lists represent all sequences of success commits that were created. Any deviation from these sequences
         // indicates a bug in loading the VariabilityRepo
-        var firstList = new String[]{"674d9d7f78f92a3cea19392b853d3f39e6482959", "d398531661b986467c2f15e7ef3b1429f0d4ad54"};
-        var secondList = new String[]{"907d04e53eb1dc242cc05c3137c7a794c9639172", "6e0a4e66c09be9850d5dc5537ac9980c369fb392"};
-
-        var thirdList = new String[]{"ee7e6aaa41a5e69734bf1acea8e5f1e430f2e555", "301d31223fa90a57f6492d65ca6730371d606b6c", "c302e501b6581a9383edc37f35780cf6f6d4a7b9"};
-        var fourthList = new String[]{"544e9b9dadf945fc4d109f81ce52a11192ce0ea8", "37c16cf271fa87c8f32514127837be4ce236f21e", "8e9b1f5c820093e42030794dc414891f899a58f9", "c69c1a5544c4d6b074f446c536bc8b5ff85cfa52", "426e2cdb99131fbbf5e8bba658f7641213ffadca", "8f12802ceab73ba61235b7943196f11968b49472"};
+        var firstList = new String[]{"eab1607a6f137376e57a3381c2fdae9c9d46de4d", "78fe3d306860e11e327a43cfce2c97748a34c1e1"};
+        var secondList = new String[]{"454f7da158fdf3fe4b3c3fc8110f6c15861f97fa", "c79e89cd49fc17be386ca026686dd01e0985a5ea", "600f60df96cdbbf3319085d8e777d7e66c96e013", "a54c3c30f2dff6dc36331f06360630b697b7562c"};
+        var thirdList = new String[]{"38e15e31eabccf82d3183273240cd44f2dec9fa9", "741ee98bf3edee477c504726fdc482ae85adf0e5"};
 
         VariabilityHistory history = dataset.getCommitSequencesForEvolutionStudy();
         var commitSequences = history.commitSequences();
         // Check the size
-        assert commitSequences.size() == 4;
+        assert commitSequences.size() == 3;
 
         for (var sequence : commitSequences) {
             switch (sequence.size()) {
@@ -129,13 +127,11 @@ public class VariabilityDatasetLoaderTest {
                     if (firstList[0].equals(sequence.get(0).id())) {
                         assertCommitIdsAreEqual(firstList, sequence);
                     } else {
-                        assertCommitIdsAreEqual(secondList, sequence);
+                        assertCommitIdsAreEqual(thirdList, sequence);
                     }
                 }
                 // The retrieved sequence contains three commits so it must contain the same commits as thirdList
-                case 3 -> assertCommitIdsAreEqual(thirdList, sequence);
-                // The retrieved sequence contains six commits so it must contain the same commits as fourthList
-                case 6 -> assertCommitIdsAreEqual(fourthList, sequence);
+                case 4 -> assertCommitIdsAreEqual(secondList, sequence);
                 // The retrieved sequence contains an unexpected number of commits and the history is therefore incorrect
                 default -> throw new AssertionError("Invalid number of commits in the sequence.");
             }

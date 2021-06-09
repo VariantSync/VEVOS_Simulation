@@ -10,15 +10,17 @@ public class VariabilityFilePaths {
     private final Path kernelHavenLog;
     private final Path featureModel;
     private final Path presenceConditions;
+    private final Path message;
 
     /**
      * Constructor for the data of commits for which no data could be extracted. Only a log file exists.
      * @param kernelHavenLog The path to the log file of KernelHaven
      */
-    public VariabilityFilePaths(Path kernelHavenLog, @Nullable Path featureModel, @Nullable Path presenceConditions) {
+    public VariabilityFilePaths(Path kernelHavenLog, @Nullable Path featureModel, @Nullable Path presenceConditions, @Nullable Path message) {
         this.kernelHavenLog = Objects.requireNonNull(kernelHavenLog);
         this.featureModel = featureModel;
         this.presenceConditions = presenceConditions;
+        this.message = message;
     }
 
     public Path pathToKernelHavenLog() {
@@ -38,6 +40,14 @@ public class VariabilityFilePaths {
             return Optional.empty();
         } else {
             return Optional.of(presenceConditions);
+        }
+    }
+
+    public Optional<Path> pathToMessage() {
+        if (message == null) {
+            return Optional.empty();
+        } else {
+            return Optional.of(message);
         }
     }
 }

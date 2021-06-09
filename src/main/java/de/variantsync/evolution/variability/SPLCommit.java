@@ -16,19 +16,13 @@ import java.util.Optional;
 
 public class SPLCommit extends Commit<ISPLRepository> {
     private SPLCommit[] parents;
-    private final String message;
     private final Lazy<String> kernelHavenLog;
     private final Lazy<IFeatureModel> featureModel;
     private final Lazy<FeatureTrace> presenceConditions;
+    private final Lazy<String> message;
 
     public SPLCommit(String commitId, VariabilityFilePaths variabilityFilePaths) {
-        // TODO: Implement Issue #13 here.
-        this(commitId, variabilityFilePaths, "");
-    }
-
-    public SPLCommit(String commitId, VariabilityFilePaths variabilityFilePaths, String message) {
         super(commitId);
-        this.message = message;
         this.kernelHavenLog = Lazy.of(() -> {
             try {
                 return Files.readString(variabilityFilePaths.pathToKernelHavenLog());
@@ -50,6 +44,14 @@ public class SPLCommit extends Commit<ISPLRepository> {
                 return null;
             }
         });
+        this.message = Lazy.of(() -> {
+            try {
+                return Files.readString(variabilityFilePaths.pathToMessage().orElseThrow());
+            } catch (IOException e) {
+                Logger.exception("Was not able to load commit message for id " + commitId, e);
+                return null;
+            }
+        });
     }
 
     public Optional<SPLCommit[]> parents() {
@@ -64,7 +66,7 @@ public class SPLCommit extends Commit<ISPLRepository> {
         this.parents = parents;
     }
 
-    public String message() {
+    public Lazy<String> message() {
         return message;
     }
 
