@@ -16,14 +16,17 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-// TODO: Fix commit ids once the data has been set up
 public class VariabilityDatasetLoaderTest {
     private static final String simpleHistoryRepoURI = "https://gitlab.informatik.hu-berlin.de/mse/SampleRepos/SimpleHistory.git";
     private static final Path simpleVariabilityMetadataDir = new File("src/test/resources/simple-variability-metadata").toPath();
     private static final File simpleHistoryRepoDir;
     private static final Path tempTestRepoDir;
 
+    // TODO Alex: Test for loading of message
+    // TODO Alex: Test for loading of log
+
     static {
+        // TODO Alex: Handle double initialization problem
         Logger.initConsoleLogger();
         try {
             tempTestRepoDir = Files.createDirectories(Paths.get("temporary-test-repos"));

@@ -101,6 +101,7 @@ public class VariabilityDataset {
         }
 
         // Lastly, build a VariabilityHistory instance from the collected lists
+        // TODO Alex: Handle NullPointerException that is caused by this piece of code if there are no valid sequences
         NonEmptyList<NonEmptyList<SPLCommit>> history = null;
         for (LinkedList<SPLCommit> commitList : new HashSet<>(commitToCommitSequenceMap.values())) {
             NonEmptyList<SPLCommit> commitSequence = new NonEmptyList<>(commitList);

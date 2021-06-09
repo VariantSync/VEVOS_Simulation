@@ -23,6 +23,7 @@ public class SPLCommit extends Commit<ISPLRepository> {
 
     public SPLCommit(String commitId, VariabilityFilePaths variabilityFilePaths) {
         super(commitId);
+        // TODO Alex: Think about how we can handle cases in which the files do not exist
         this.kernelHavenLog = Lazy.of(() -> {
             try {
                 return Files.readString(variabilityFilePaths.pathToKernelHavenLog());

@@ -1,6 +1,7 @@
 package de.variantsync.evolution.variability;
 
 public class Constants {
+    // TODO Alex: Use these constants instead of defining them elsewhere
     public static final String CURRENT_COMMIT_FILE = "CURRENT_COMMIT.txt";
     public static final String ERROR_FILE = "ERROR.txt";
     public static final String CODE_VARIABILITY_FILE = "code-variability.csv";
