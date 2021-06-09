@@ -1,5 +1,6 @@
 package de.variantsync.evolution.repository;
 
+import de.variantsync.evolution.variability.SPLCommit;
 import de.variantsync.evolution.variants.blueprints.VariantsRevisionBlueprint;
 import de.variantsync.evolution.variants.blueprints.VariantsRevisionFromErrorBlueprint;
 import de.variantsync.evolution.variants.blueprints.VariantsRevisionFromVariabilityBlueprint;
@@ -15,7 +16,7 @@ import java.util.ArrayList;
  * Such commits do not allow for generating a single continuous history in the target IVariantsRepository.
  * Thus, a VariabilityHistory to model contains all continuous sub-histories between error commits.
  */
-public record VariabilityHistory(NonEmptyList<NonEmptyList<VariabilityCommit>> commitSequences) {
+public record VariabilityHistory(NonEmptyList<NonEmptyList<SPLCommit>> commitSequences) {
     /**
      * Default implementation to generate instructions (blueprints) for generating an IVariantsRepository for this
      * VariabilityHistory.
@@ -34,9 +35,9 @@ public record VariabilityHistory(NonEmptyList<NonEmptyList<VariabilityCommit>> c
         final ArrayList<VariantsRevisionBlueprint> blueprints = new ArrayList<>(lengthOfList);
         VariantsRevisionFromVariabilityBlueprint lastVariabilityBlueprint = null;
 
-        for (NonEmptyList<VariabilityCommit> coherentSubHistory : commitSequences) {
-            for (VariabilityCommit varCommit : coherentSubHistory) {
-                lastVariabilityBlueprint = new VariantsRevisionFromVariabilityBlueprint(varCommit, lastVariabilityBlueprint);
+        for (NonEmptyList<SPLCommit> coherentSubHistory : commitSequences) {
+            for (SPLCommit splCommit : coherentSubHistory) {
+                lastVariabilityBlueprint = new VariantsRevisionFromVariabilityBlueprint(splCommit, lastVariabilityBlueprint);
                 blueprints.add(lastVariabilityBlueprint);
             }
 

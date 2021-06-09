@@ -9,7 +9,6 @@ import de.variantsync.evolution.repository.Branch;
 import de.variantsync.evolution.repository.ISPLRepository;
 import de.variantsync.evolution.repository.IVariantsRepository;
 import de.variantsync.evolution.variability.SPLCommit;
-import de.variantsync.evolution.variability.VariabilityCommit;
 import de.variantsync.evolution.util.functional.Lazy;
 
 import java.util.HashMap;
@@ -20,31 +19,31 @@ import java.util.Optional;
  * Default blueprint to generate variants from the software product line at a certain commit.
  */
 public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBlueprint {
-    private final VariabilityCommit variability;
+    private final SPLCommit splCommit;
     private final Optional<VariantsRevisionFromVariabilityBlueprint> predecessor;
 
     /**
-     * Creates a new blueprint that can generate variants from the given variabilityCommit that contains
+     * Creates a new blueprint that can generate variants from the given splCommit that contains
      * the variability information of a specific SPLCommit.
-     * @param variabilityCommit The variability commit from which a VariantsRevision should be created.
+     * @param splCommit The variability commit from which a VariantsRevision should be created.
      * @param predecessor The predecessor blueprint that generates the VariantsRevision that has to be generated before
      *                    the revision of this blueprint. May be null, if this is the first blueprint to generate.
      */
     public VariantsRevisionFromVariabilityBlueprint(
-            VariabilityCommit variabilityCommit,
+            SPLCommit splCommit,
             VariantsRevisionFromVariabilityBlueprint predecessor)
     {
-        this.variability = variabilityCommit;
+        this.splCommit = splCommit;
         this.predecessor = Optional.ofNullable(predecessor);
     }
 
-    public VariabilityCommit getVariabilityCommit() {
-        return variability;
+    public SPLCommit getSPLCommit() {
+        return splCommit;
     }
 
     @Override
     protected Lazy<Sample> computeSample() {
-        return variability.featureModel.map(featureModel -> {
+        return splCommit.featureModel().map(featureModel -> {
             // TODO: Implement Issue #10 here.
             // If present, we can reuse predecessor to not have to compute a sample again.
             // For instance, when the feature model did not change during a commit, then
@@ -57,10 +56,9 @@ public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBl
 
     @Override
     public Lazy<VariantsRevision.Branches> generateArtefactsFor(VariantsRevision revision) {
-        return variability.presenceConditions.and(getSample()).map(ts -> {
+        return splCommit.presenceConditions().and(getSample()).map(ts -> {
             final FeatureTrace traces = ts.getKey();
             final Sample sample = ts.getValue();
-            final SPLCommit splCommit = variability.splCommit();
             final ISPLRepository splRepo = revision.getSPLRepo();
             final IVariantsRepository variantsRepo = revision.getVariantsRepo();
 
