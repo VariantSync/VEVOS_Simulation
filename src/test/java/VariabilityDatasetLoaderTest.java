@@ -1,10 +1,9 @@
-import de.variantsync.evolution.io.data.VariabilityDataset;
+import de.variantsync.evolution.variability.VariabilityDataset;
 import de.variantsync.evolution.io.data.VariabilityDatasetLoader;
 import de.variantsync.evolution.repository.Commit;
 import de.variantsync.evolution.repository.VariabilityHistory;
 import de.variantsync.evolution.util.GitUtil;
 import de.variantsync.evolution.variability.SPLCommit;
-import de.variantsync.evolution.variability.VariabilityCommit;
 import de.variantsync.evolution.util.Logger;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.Before;
@@ -108,19 +107,6 @@ public class VariabilityDatasetLoaderTest {
     }
 
     @Test
-    public void logicalParentsAreLoaded() {
-        assert dataset.getEvolutionParents("674d9d7f78f92a3cea19392b853d3f39e6482959").length == 0;
-        assert dataset.getEvolutionParents("d398531661b986467c2f15e7ef3b1429f0d4ad54").length == 1;
-        assert dataset.getEvolutionParents("d398531661b986467c2f15e7ef3b1429f0d4ad54")[0].id().equals("674d9d7f78f92a3cea19392b853d3f39e6482959");
-        assert dataset.getEvolutionParents("6e0a4e66c09be9850d5dc5537ac9980c369fb392").length == 1;
-        assert dataset.getEvolutionParents("6e0a4e66c09be9850d5dc5537ac9980c369fb392")[0].id().equals("907d04e53eb1dc242cc05c3137c7a794c9639172");
-        assert dataset.getEvolutionParents("c69c1a5544c4d6b074f446c536bc8b5ff85cfa52")[0].id().equals("8e9b1f5c820093e42030794dc414891f899a58f9");
-        assert dataset.getEvolutionParents("8f12802ceab73ba61235b7943196f11968b49472")[0].id().equals("426e2cdb99131fbbf5e8bba658f7641213ffadca");
-        assert dataset.getEvolutionParents("426e2cdb99131fbbf5e8bba658f7641213ffadca")[0].id().equals("c69c1a5544c4d6b074f446c536bc8b5ff85cfa52");
-        assert dataset.getEvolutionParents("8e9b1f5c820093e42030794dc414891f899a58f9")[0].id().equals("37c16cf271fa87c8f32514127837be4ce236f21e");
-    }
-
-    @Test
     public void variabilityHistoryBuildCorrectly() {
         // We created a test VariabilityRepo for which we manually selected success and error commits. The following
         // commit lists represent all sequences of success commits that were created. Any deviation from these sequences
@@ -156,7 +142,7 @@ public class VariabilityDatasetLoaderTest {
         }
     }
 
-    private void assertCommitIdsAreEqual(String[] ids, List<VariabilityCommit> commits) {
+    private void assertCommitIdsAreEqual(String[] ids, List<SPLCommit> commits) {
         assert ids.length == commits.size();
         for (int i = 0; i < ids.length; i++) {
             assert ids[i].equals(commits.get(i).id());

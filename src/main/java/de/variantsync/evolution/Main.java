@@ -12,7 +12,7 @@ import de.variantsync.evolution.util.functional.Functional;
 import de.variantsync.evolution.util.functional.Lazy;
 import de.variantsync.evolution.util.functional.MonadTransformer;
 import de.variantsync.evolution.util.functional.Unit;
-import de.variantsync.evolution.variability.CommitIdPair;
+import de.variantsync.evolution.variability.CommitPair;
 import de.variantsync.evolution.variability.VariabilityRepo;
 import de.variantsync.evolution.variability.pc.FeatureTrace;
 import de.variantsync.evolution.variants.VariantsRepository;
@@ -61,12 +61,12 @@ public class Main {
         VariabilityRepo variabilityRepo = null;
         try {
             variabilityRepo = VariabilityRepo.load(variabilityRepoDir, splRepoDir);
-            Set<CommitIdPair> commitIdPairs = variabilityRepo.getCommitPairsForEvolutionStudy();
+            Set<CommitPair> commitPairs = variabilityRepo.getCommitPairsForEvolutionStudy();
             Logger.info("The repo contains " + variabilityRepo.getSuccessCommits().size() + " commits for which the variability extraction succeeded.");
             Logger.info("The repo contains " + variabilityRepo.getErrorCommits().size() + " commits for which the variability extraction failed.");
             Logger.info("The repo contains " + variabilityRepo.getNonMergeCommits().size() + " commits that processed an SPLCommit which was not a merge.");
-            Logger.info("The repo contains " + commitIdPairs.size() + " usable pairs.");
-            for (CommitIdPair pair : commitIdPairs) {
+            Logger.info("The repo contains " + commitPairs.size() + " usable pairs.");
+            for (CommitPair pair : commitPairs) {
                 Logger.info("<<CHILD> " + pair.child().id() + "> -- <<PARENT> " + pair.parent().id() + ">");
                 Logger.info("<<CHILD> " + pair.child().id() + "> -- <<SPL_COMMIT> " + pair.child().splCommit().id() + ">");
                 Logger.info("<<PARENT> " + pair.parent().id() + "> -- <<SPL_COMMIT> " + pair.parent().splCommit().id() + ">");

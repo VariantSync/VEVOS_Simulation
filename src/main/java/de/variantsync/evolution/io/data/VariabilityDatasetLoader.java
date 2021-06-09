@@ -1,17 +1,16 @@
 package de.variantsync.evolution.io.data;
 
 import de.variantsync.evolution.io.ResourceLoader;
-import de.variantsync.evolution.repository.VariabilityHistory;
 import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.functional.Result;
-import de.variantsync.evolution.variability.CommitIdPair;
+import de.variantsync.evolution.variability.SPLCommit;
+import de.variantsync.evolution.variability.VariabilityDataset;
+import de.variantsync.evolution.variability.VariabilityFilePaths;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDataset> {
     private final static String SUCCESS_COMMIT_FILE = "SUCCESS_COMMITS.txt";
@@ -39,108 +38,67 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
 
     @Override
     public Result<VariabilityDataset, Exception> load(Path p) {
+        // Read the metadata
         List<String> successIds = readLines(p, SUCCESS_COMMIT_FILE);
         List<String> errorIds = readLines(p, ERROR_COMMIT_FILE);
         List<String> incompletePCIds = readLines(p, INCOMPLETE_PC_COMMIT_FILE);
 
-    }
+        // Create SPLCommit objects for each commit
+        List<SPLCommit> successCommits = initializeSPLCommits(p, successIds);
+        List<SPLCommit> errorCommits = initializeSPLCommits(p, errorIds);
+        List<SPLCommit> incompletePCCommits = initializeSPLCommits(p, incompletePCIds);
 
-    /**
-     * Retrieve all sequences of usable commits in form of a VariabilityHistory instance.
-     *
-     * <p>
-     * The retrieved VariabilityHistory is a list that contains commit sequences that can be used for our evolution study. Each
-     * sequence consists of at least two commits. A sequence is a list of commits, where a commit at index
-     * i is the logical parent of the commit at index i+1.
-     * </p>
-     *
-     * @return All sequences of commits that are usable in our evolution study.
-     */
-    public VariabilityHistory getCommitSequencesForEvolutionStudy() {
-        // Retrieve the pairs of usable commits
-        Set<CommitIdPair> usableCommitIdPairs = this.getCommitPairsForEvolutionStudy();
-        // Create lists for the commits in the pairs and merge lists according to parent-child relationships
-        Map<VariabilityCommit, LinkedList<VariabilityCommit>> commitToCommitSequenceMap = new HashMap<>();
-        for (CommitIdPair pair : usableCommitIdPairs) {
-            final boolean parentHasSequence = commitToCommitSequenceMap.containsKey(pair.parent());
-            final boolean childHasSequence = commitToCommitSequenceMap.containsKey(pair.child());
-            if (parentHasSequence && childHasSequence) {
-                // Parent and child already belong to a list
-                // Merge the two lists, if they are not the same list
-                final var parentList = commitToCommitSequenceMap.get(pair.parent());
-                final var childList = commitToCommitSequenceMap.get(pair.child());
-                if (parentList == childList) {
-                    throw new IllegalStateException("The same parent-child pair was considered twice.");
-                }
-                // Add all commits from the child list to the parent list, and replace the list in the map
-                parentList.addAll(childList);
-                // Now, update the associated list for each added commit
-                childList.forEach(c -> commitToCommitSequenceMap.put(c, parentList));
-            } else if (parentHasSequence) {
-                // Only the parent belongs to a list
-                // Append the child to the list
-                final var commitList = commitToCommitSequenceMap.get(pair.parent());
-                commitList.addLast(pair.child());
-                commitToCommitSequenceMap.put(pair.child(), commitList);
-            } else if (childHasSequence) {
-                // Only the child belongs to a list
-                // Prepend the parent to the list
-                final var commitList = commitToCommitSequenceMap.get(pair.child());
-                commitList.addFirst(pair.parent());
-                commitToCommitSequenceMap.put(pair.parent(), commitList);
+        // Retrieve the SPLCommit objects for the parents of each commit
+        Map<String, SPLCommit> idToCommitMap = new HashMap<>();
+        successCommits.forEach(c -> idToCommitMap.put(c.id(), c));
+        errorCommits.forEach(c -> idToCommitMap.put(c.id(), c));
+        incompletePCCommits.forEach(c -> idToCommitMap.put(c.id(), c));
+        for (String id : idToCommitMap.keySet()) {
+            SPLCommit commit = idToCommitMap.get(id);
+            String[] parentIds = loadParentIds(p, id);
+            if (parentIds == null || parentIds.length == 0) {
+                commit.setParents(null);
             } else {
-                // Neither parent nor child were added to a list
-                // Create a new list that contains parent and child
-                final LinkedList<VariabilityCommit> commitList = new LinkedList<>();
-                commitList.addLast(pair.parent());
-                commitList.addLast(pair.child());
-                commitToCommitSequenceMap.put(pair.parent(), commitList);
-                commitToCommitSequenceMap.put(pair.child(), commitList);
+                commit.setParents(Arrays.stream(parentIds).map(idToCommitMap::get).toArray(SPLCommit[]::new));
             }
         }
 
-        // Lastly, build a VariabilityHistory instance from the collected lists
-        NonEmptyList<NonEmptyList<VariabilityCommit>> history = null;
-        for (LinkedList<VariabilityCommit> commitList : new HashSet<>(commitToCommitSequenceMap.values())) {
-            NonEmptyList<VariabilityCommit> commitSequence = new NonEmptyList<>(commitList);
-            if (history == null) {
-                LinkedList<NonEmptyList<VariabilityCommit>> tempList = new LinkedList<>();
-                tempList.add(commitSequence);
-                history = new NonEmptyList<>(tempList);
-            } else {
-                history.add(commitSequence);
-            }
-        }
-        return new VariabilityHistory(history);
+        // Return the fully-loaded dataset
+        return Result.Success(new VariabilityDataset(successCommits, errorCommits, incompletePCCommits));
     }
 
-    /**
-     * Return the set of commit pairs (childCommit, parentCommit) for which the following holds:
-     * <ul>
-     *     <li>
-     *         childCommit processed its corresponding SPL commit successfully, i.e., feature model and code variability was extracted
-     *     </li>
-     *     <li>
-     *         The SPL commit, which was processed by childCommit, has exactly one parent commit in the SPL history (it is no merge commit)
-     *     </li>
-     *     <li>
-     *         The parent of the SPL commit was also processed successfully and is represented by parentCommit
-     *     </li>
-     * </ul>
-     *
-     * @return Set of commit pairs that can be used in a variability evolution study
-     */
-    public Set<CommitIdPair> getCommitPairsForEvolutionStudy() {
-        return successCommits.stream()
-                // We only consider commits that did not process a merge
-                .filter(nonMergeCommits::contains)
-                // We only consider commits that processed an SPL commit whose parent was also processed
-                .filter(c -> {
-                    VariabilityCommit[] parents = c.getEvolutionParents();
-                    return parents.length == 1 && successCommits.contains(parents[0]);
-                })
-                .map(c -> new CommitIdPair(c.getEvolutionParents()[0], c))
-                .collect(Collectors.toSet());
+    private List<SPLCommit> initializeSPLCommits(Path p, List<String> commitIds) {
+        List<SPLCommit> splCommits = new ArrayList<>(commitIds.size());
+        for (String id : commitIds) {
+            VariabilityFilePaths dataPaths = new VariabilityFilePaths(resolvePathToLogFile(p, id), resolvePathToFeatureModel(p, id), resolvePathToPresenceConditions(p, id));
+            SPLCommit splCommit = new SPLCommit(id, dataPaths);
+            splCommits.add(splCommit);
+        }
+        return splCommits;
+    }
+
+    private Path resolvePathToCommitOutputDir(Path rootDir, String commitId) {
+        return rootDir.resolve("output/" + commitId);
+    }
+
+    private Path resolvePathToFeatureModel(Path rootDir, String commitId) {
+        Path p = resolvePathToCommitOutputDir(rootDir, commitId).resolve("variability-model.json");
+        return p.toFile().exists() ? p : null;
+    }
+
+    private Path resolvePathToPresenceConditions(Path rootDir, String commitId) {
+        Path p = resolvePathToCommitOutputDir(rootDir, commitId).resolve("code-variability.csv");
+        return p.toFile().exists() ? p : null;
+    }
+
+    private Path resolvePathToParentsFile(Path rootDir, String commitId) {
+        Path p = resolvePathToCommitOutputDir(rootDir, commitId).resolve("PARENTS.txt");
+        return p.toFile().exists() ? p : null;
+    }
+
+    private Path resolvePathToLogFile(Path rootDir, String commitId) {
+        Path p = rootDir.resolve("log/" + commitId + ".log");
+        return p.toFile().exists() ? p : null;
     }
 
     private List<String> readLines(Path p, String fileName) {
@@ -149,6 +107,20 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
         } catch (IOException e) {
             Logger.debug("Was not able to read file " + p.resolve(fileName));
             return Collections.emptyList();
+        }
+    }
+
+    private String[] loadParentIds(Path p, String commitId) {
+        Path parentsFile = resolvePathToParentsFile(p, commitId);
+        if (parentsFile != null && Files.exists(parentsFile)) {
+            try {
+                return Files.readString(parentsFile).split("\\s");
+            } catch (IOException e) {
+                Logger.exception("Was not able to load PARENTS.txt " + parentsFile + " even though it exists:", e);
+                return null;
+            }
+        } else {
+            return null;
         }
     }
 }
