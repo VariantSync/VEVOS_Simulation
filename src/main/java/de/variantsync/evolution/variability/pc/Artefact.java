@@ -6,8 +6,6 @@ import de.variantsync.evolution.util.functional.Result;
 import de.variantsync.evolution.util.functional.Unit;
 import org.prop4j.Node;
 
-import java.nio.file.Path;
-
 /**
  * A mapping of artefacts to features.
  */
@@ -30,7 +28,6 @@ public interface Artefact {
      * This object will not be altered, meaning a copy that represents the derived variant is returned.
      * @param variant The variant for which the feature traces should be reduced.
      */
-    // TODO: Rename
     // TODO: Replace Unit with ground truth data
     Result<Unit, Exception> generateVariant(Variant variant, CaseSensitivePath sourceDir, CaseSensitivePath targetDir);
 
