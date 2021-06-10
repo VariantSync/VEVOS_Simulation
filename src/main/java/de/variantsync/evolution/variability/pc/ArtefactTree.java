@@ -2,12 +2,15 @@ package de.variantsync.evolution.variability.pc;
 
 import de.variantsync.evolution.feature.Variant;
 import de.variantsync.evolution.util.CaseSensitivePath;
+import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.fide.FormulaUtils;
 import de.variantsync.evolution.util.fide.bugfix.FixTrueFalse;
 import de.variantsync.evolution.util.functional.Result;
 import de.variantsync.evolution.util.functional.Unit;
 import org.prop4j.Node;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -19,8 +22,8 @@ import java.util.Objects;
  *               that it is not transitive and grandchildren could be of another type.
  */
 public class ArtefactTree<Child extends ArtefactTree<?>> implements Artefact {
-    private Node featureMapping;
-    private CaseSensitivePath file;
+    private final Node featureMapping;
+    private final CaseSensitivePath file;
     private ArtefactTree<?> parent;
     protected final List<Child> subtrees;
 
@@ -87,11 +90,16 @@ public class ArtefactTree<Child extends ArtefactTree<?>> implements Artefact {
 
     @Override
     public Result<Unit, Exception> generateVariant(Variant variant, CaseSensitivePath sourceDir, CaseSensitivePath targetDir) {
-        for (Child subtree : subtrees) {
-            if (variant.isImplementing(subtree.getPresenceCondition())) {
-                var result = subtree.generateVariant(variant, sourceDir, targetDir);
-                if (result.isFailure()) {
-                    return result;
+        final CaseSensitivePath f = getFile();
+        if (f != null && !sourceDir.resolve(f).exists()) {
+            Logger.error("Skipping file " + f + " as it does not exist!");
+        } else {
+            for (Child subtree : subtrees) {
+                if (variant.isImplementing(subtree.getPresenceCondition())) {
+                    var result = subtree.generateVariant(variant, sourceDir, targetDir);
+                    if (result.isFailure()) {
+                        return result;
+                    }
                 }
             }
         }
