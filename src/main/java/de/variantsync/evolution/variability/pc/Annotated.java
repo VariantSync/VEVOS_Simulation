@@ -44,7 +44,7 @@ public abstract class Annotated extends ArtefactTree<LineBasedAnnotation> {
 
             ==> Insert b after a.
              */
-            if (a.getLineTo() < b.getLineFrom()) {
+            if (a.getLineTo() <= b.getLineFrom()) {
                 left = pos + 1;
             }
             /*
