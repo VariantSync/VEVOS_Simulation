@@ -71,18 +71,18 @@ public class LineBasedAnnotation extends Annotated {
             while (currentChildIndex < subtrees.size()) {
                 currentChild = subtrees.get(currentChildIndex);
 
-                // 1.) Copy all LOC between currentLine and begin of child
+                // 1.) Copy all lines of code between currentLine and begin of child.
                 int linesToWrite = currentChild.lineFrom - currentLine;
                 if (linesToWrite > 0) {
                     chunksToWrite.add(currentLine, currentChild.lineFrom - 1);
                 }
 
-                // handle child
+                // 2.) handle child
                 if (variant.isImplementing(currentChild.getPresenceCondition())) {
                     chunksToWrite.mappendInline(currentChild.getLinesToGenerateFor(variant));
                 } // else skip child as its lines have to be exluded
 
-                // go to next child and repeat
+                // 3.) go to next child and repeat
                 currentLine = currentChild.lineTo + 1;
                 ++currentChildIndex;
             }
