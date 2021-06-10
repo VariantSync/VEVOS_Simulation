@@ -16,6 +16,10 @@ public record CaseSensitivePath(Path path) implements Comparable<CaseSensitivePa
         return new CaseSensitivePath(this.path.resolve(other));
     }
 
+    public CaseSensitivePath resolve(String first, String... levels) {
+        return new CaseSensitivePath(this.path.resolve(Path.of(first, levels)));
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

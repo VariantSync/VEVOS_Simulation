@@ -69,6 +69,7 @@ public class PCLoaderTest {
 
     private static final CaseSensitivePath resDir = CaseSensitivePath.of("src", "main", "resources", "test");
     private static final CaseSensitivePath genDir = resDir.resolve("gen");
+    private static final CaseSensitivePath datasetsDir = CaseSensitivePath.of("..", "variantevolution_datasets");
 
     private static final PCTestData pcTest1 = new PCTestData(
             resDir.resolve("KernelHavenPCs.csv"),
@@ -79,8 +80,8 @@ public class PCLoaderTest {
             resDir.resolve("KernelHavenPCs_illformed.csv")
     );
     private static final PCTestData linux = new PCTestData(
-            CaseSensitivePath.of("..", "variantevolution_datasets", "LinuxVariabilityData", "code-variability.csv"),
-            CaseSensitivePath.of("\\\\wsl$","Ubuntu", "home", "bittner"),
+            datasetsDir.resolve("LinuxVariabilityData", "code-variability.csv"),
+            datasetsDir.resolve("linux"),
             genDir.resolve("linux")
     );
 
