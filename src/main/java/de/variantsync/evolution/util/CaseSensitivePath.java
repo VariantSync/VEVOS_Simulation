@@ -1,5 +1,6 @@
 package de.variantsync.evolution.util;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 
@@ -20,6 +21,10 @@ public record CaseSensitivePath(Path path) implements Comparable<CaseSensitivePa
         return new CaseSensitivePath(this.path.resolve(Path.of(first, levels)));
     }
 
+    public boolean exists() {
+        return Files.exists(path);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -36,5 +41,10 @@ public record CaseSensitivePath(Path path) implements Comparable<CaseSensitivePa
     @Override
     public int compareTo(CaseSensitivePath o) {
         return path.compareTo(o.path);
+    }
+
+    @Override
+    public String toString() {
+        return path.toString();
     }
 }
