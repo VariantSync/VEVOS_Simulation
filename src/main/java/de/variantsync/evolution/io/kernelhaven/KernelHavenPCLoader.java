@@ -50,8 +50,15 @@ public class KernelHavenPCLoader implements ResourceLoader<Artefact> {
             final Node blockCondition = FixTrueFalse.On(nodeReader.stringToNode(row[2]));
             // We don't need the actual presenceCondition (lol) as it is a value computed from row[1] and row[2]
             // final Node presenceCondition = nodeReader.stringToNode(row[3]);
-            final int startLine = Integer.parseInt(row[4]);
-            final int endLine = Integer.parseInt(row[5]);
+            int startLine = Integer.parseInt(row[4]);
+            final int endLine = Integer.parseInt(row[5]) + 1 /* to include #endif */;
+
+            /// If a block starts at 1 in KernelHaven files, it does not denote an #if but the entire file.
+            /// Thus, there is no #if at line 1 but LineBasedAnnotation expects a macro at startLine.
+            /// Thus, imagine a macro at line 0, that does not exist.
+            if (startLine == 1) {
+                startLine = 0;
+            }
 
             /*
             Add the file to our map if not already present and add the
