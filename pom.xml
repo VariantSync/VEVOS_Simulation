@@ -6,7 +6,7 @@
 
 	<!-- Adjust group id for anonymous projects -->
     <groupId>de.variantsync.subjects</groupId>
-	<!-- Adjust the project name -->
+	<!-- Adjust the generateVariant name -->
     <artifactId>SPLVariantEvolution</artifactId>
     <version>0.0.1</version>
 

@@ -15,7 +15,7 @@ import java.util.function.Supplier;
  *
  * Use Lazy to make explicit the points in computation when we interact with the environment.
  * In particular, in that moment, when you access the lazy's content, all necessary computations will run.
- * In this project, this means that the interactions with the file system and git repositories will take place at exactly
+ * In this generateVariant, this means that the interactions with the file system and git repositories will take place at exactly
  * that moment.
  *
  * @param <A> The return type of this lazy computation.
@@ -135,5 +135,9 @@ public class Lazy<A> implements Functor<Lazy, A> {
      */
     public <B> Lazy<Pair<A, B>> and(Lazy<? extends B> other) {
         return new Lazy<>(() -> new Pair<>(run(), other.run()));
+    }
+
+    public static <A extends Monoid<A>> Lazy<A> mappend(Lazy<A> a, Lazy<A> b) {
+        return a.and(b).map(p -> p.getKey().mappend(p.getValue()));
     }
 }

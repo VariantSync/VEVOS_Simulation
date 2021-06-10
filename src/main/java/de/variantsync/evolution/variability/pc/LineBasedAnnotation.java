@@ -2,11 +2,12 @@ package de.variantsync.evolution.variability.pc;
 
 import de.variantsync.evolution.feature.Variant;
 import de.variantsync.evolution.io.TextIO;
+import de.variantsync.evolution.util.CaseSensitivePath;
 import de.variantsync.evolution.util.functional.Result;
 import de.variantsync.evolution.util.functional.Unit;
+import de.variantsync.evolution.util.math.IntervalSet;
 import org.prop4j.Node;
 
-import java.nio.file.Path;
 import java.util.Objects;
 
 /**
@@ -18,7 +19,7 @@ public class LineBasedAnnotation extends Annotated {
 
     /**
      * Creates a new annotations starting at lineFrom (inclusive @Alex?) and ending at lineTo (inclusive@Alex?).
-     * TODO: @Alex: Indexing is zero based?
+     * Indexing is 1-based?
      */
     public LineBasedAnnotation(Node featureMapping, int lineFrom, int lineTo) {
         super(featureMapping);
@@ -34,14 +35,18 @@ public class LineBasedAnnotation extends Annotated {
     }
 
     @Override
-    public Result<Unit, Exception> project(Variant variant, Path sourceDir, Path targetDir) {
-        final Path sourceFile = sourceDir.resolve(getFile());
-        final Path targetFile = targetDir.resolve(getFile());
+    public Result<Unit, Exception> generateVariant(Variant variant, CaseSensitivePath sourceDir, CaseSensitivePath targetDir) {
+        final CaseSensitivePath sourceFile = sourceDir.resolve(getFile());
+        final CaseSensitivePath targetFile = targetDir.resolve(getFile());
+        final IntervalSet chunksToWrite    = getLinesToGenerateFor(variant);
+        return Result.Try(() -> TextIO.CopyTextLines(sourceFile.path(), targetFile.path(), chunksToWrite));
+    }
 
-        // TODO: Cache all lines to write and then write them in one go.
+    public IntervalSet getLinesToGenerateFor(Variant variant) {
+        final IntervalSet chunksToWrite = new IntervalSet();
         if (subtrees.size() == 0) {
             // just copy entire file content
-            return Result.Try(() -> TextIO.CopyTextLines(sourceFile, targetFile, lineFrom, lineTo));
+            chunksToWrite.add(lineFrom, lineTo);
         } else {
             int currentLine = lineFrom;
             int currentChildIndex = 0;
@@ -53,15 +58,11 @@ public class LineBasedAnnotation extends Annotated {
                 int currentChunkEnd = currentChild.lineFrom;
                 int linesToWrite = currentChunkEnd - currentLine;
                 if (linesToWrite > 0) {
-                    final int currentLineForUseInLambda = currentLine;
-                    final Result<Unit, Exception> res = Result.Try(() ->
-                        TextIO.CopyTextLines(sourceFile, targetFile, currentLineForUseInLambda, currentChunkEnd - 1));
-                    if (res.isFailure()) { return res; }
+                    chunksToWrite.add(currentLine, currentChunkEnd - 1);
                 }
                 // handle child
                 if (variant.isImplementing(currentChild.getPresenceCondition())) {
-                    final var res = currentChild.project(variant, sourceDir, targetDir);
-                    if (res.isFailure()) { return res; }
+                    chunksToWrite.mappendInline(currentChild.getLinesToGenerateFor(variant));
                 } // else skip child as its lines have to be exluded
 
                 // go to next child and repeat
@@ -70,14 +71,11 @@ public class LineBasedAnnotation extends Annotated {
             }
 
             if (currentLine <= lineTo) {
-                final int currentLineForUseInLambda = currentLine;
-                final Result<Unit, Exception> res= Result.Try(() ->
-                    TextIO.CopyTextLines(sourceFile, targetFile, currentLineForUseInLambda, lineTo));
-                if (res.isFailure()) { return res; }
+                chunksToWrite.add(currentLine, lineTo);
             }
         }
 
-        return Result.Success(Unit.Instance());
+        return chunksToWrite;
     }
 
     @Override

@@ -1,10 +1,13 @@
 package de.variantsync.evolution.io;
 
-import de.variantsync.evolution.io.data.CSV;
 import de.variantsync.evolution.util.Logger;
-import de.variantsync.evolution.util.functional.Result;
+import de.variantsync.evolution.util.math.Interval;
+import de.variantsync.evolution.util.math.IntervalSet;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -14,7 +17,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class TextIO {
-
     public static String[] readLinesAsArray(File file) throws IOException {
         LinkedList<String> lines = new LinkedList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
@@ -49,16 +51,24 @@ public class TextIO {
     }
 
     public static void CopyTextLines(Path sourceFile, Path targetFile, int lineFrom, int lineTo) throws IOException {
+        CopyTextLines(sourceFile, targetFile, new IntervalSet(new Interval(lineFrom, lineTo)));
+    }
+
+    public static void CopyTextLines(Path sourceFile, Path targetFile, IntervalSet linesToTake) throws IOException {
         try (Stream<String> linesStream = new BufferedReader(new FileReader(sourceFile.toFile())).lines()) {
-            final String linesToWrite =
-                    linesStream
-                            .collect(Collectors.toList())
-                            .subList(lineFrom - 1, lineTo).stream()
-                            .collect(Collectors.joining(System.lineSeparator()))
-                    + System.lineSeparator();
+            final List<String> read_lines = linesStream.collect(Collectors.toList());
+            StringBuilder linesToWrite = new StringBuilder();
+
+            for (Interval i : linesToTake) {
+                // -1 because lines are 1-indexed
+                for (int lineNo = i.from() - 1; lineNo < i.to(); ++lineNo) {
+                    linesToWrite.append(read_lines.get(lineNo)).append(System.lineSeparator());
+                }
+            }
+
             Files.write(
                     targetFile,
-                    linesToWrite.getBytes(),
+                    linesToWrite.toString().getBytes(),
                     StandardOpenOption.APPEND);
         }
     }

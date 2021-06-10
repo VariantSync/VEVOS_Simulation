@@ -1,38 +1,34 @@
 package de.variantsync.evolution.feature;
 
-import de.ovgu.featureide.fm.core.configuration.Configuration;
-import de.variantsync.evolution.util.fide.ConfigurationUtils;
+import de.variantsync.evolution.variability.config.IConfiguration;
 import org.prop4j.Node;
 
 import java.util.Arrays;
-import java.util.Map;
 
 public class Variant {
     private final String name;
-    private final Configuration configuration;
-    private final Map<Object, Boolean> configurationAsAssignment;
+    private final IConfiguration configuration;
 
-    public Variant(String name, Configuration configuration) {
+    public Variant(String name, IConfiguration configuration) {
         this.name = name;
         this.configuration = configuration;
-        this.configurationAsAssignment = ConfigurationUtils.ToAssignment(configuration);
     }
 
     public boolean isImplementing(final Node presenceCondition) {
-        return ConfigurationUtils.IsSatisfyingAssignment(configurationAsAssignment, presenceCondition);
+        return configuration.satisfies(presenceCondition);
     }
 
     public String getName() {
         return name;
     }
 
-    public Configuration getConfiguration() {
+    public IConfiguration getConfiguration() {
         return configuration;
     }
 
     @Override
     public String toString() {
-        return "Variant " + name + " with configuration "  +
+        return "Variant " + name + " with configuration " +
                 Arrays.stream(configuration.toString().split("\\n")).reduce((a, b) -> a + ", " + b);
     }
 }

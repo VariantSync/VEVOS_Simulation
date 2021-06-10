@@ -1,13 +1,13 @@
 package de.variantsync.evolution.variability.pc;
 
 import de.variantsync.evolution.feature.Variant;
+import de.variantsync.evolution.util.CaseSensitivePath;
 import de.variantsync.evolution.util.fide.FormulaUtils;
 import de.variantsync.evolution.util.fide.bugfix.FixTrueFalse;
 import de.variantsync.evolution.util.functional.Result;
 import de.variantsync.evolution.util.functional.Unit;
 import org.prop4j.Node;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -20,7 +20,7 @@ import java.util.Objects;
  */
 public class ArtefactTree<Child extends ArtefactTree<?>> implements Artefact {
     private Node featureMapping;
-    private Path file;
+    private CaseSensitivePath file;
     private ArtefactTree<?> parent;
     protected final List<Child> subtrees;
 
@@ -48,14 +48,14 @@ public class ArtefactTree<Child extends ArtefactTree<?>> implements Artefact {
     /**
      * Creates a new tree (node) with feature mapping True and the given subtrees.
      */
-    public ArtefactTree(Node featureMapping, Path file) {
+    public ArtefactTree(Node featureMapping, CaseSensitivePath file) {
         this(featureMapping, new ArrayList<>(), file);
     }
 
     /**
      * Creates a new tree (node) with the given feature mapping and subtrees.
      */
-    public ArtefactTree(Node featureMapping, List<Child> subtrees, Path file) {
+    public ArtefactTree(Node featureMapping, List<Child> subtrees, CaseSensitivePath file) {
         this.featureMapping = featureMapping;
         this.subtrees = subtrees;
         this.file = file;
@@ -75,7 +75,7 @@ public class ArtefactTree<Child extends ArtefactTree<?>> implements Artefact {
     }
 
     @Override
-    public Path getFile() {
+    public CaseSensitivePath getFile() {
         if (file != null) {
             return file;
         }
@@ -86,10 +86,10 @@ public class ArtefactTree<Child extends ArtefactTree<?>> implements Artefact {
     }
 
     @Override
-    public Result<Unit, Exception> project(Variant variant, Path sourceDir, Path targetDir) {
+    public Result<Unit, Exception> generateVariant(Variant variant, CaseSensitivePath sourceDir, CaseSensitivePath targetDir) {
         for (Child subtree : subtrees) {
             if (variant.isImplementing(subtree.getPresenceCondition())) {
-                var result = subtree.project(variant, sourceDir, targetDir);
+                var result = subtree.generateVariant(variant, sourceDir, targetDir);
                 if (result.isFailure()) {
                     return result;
                 }

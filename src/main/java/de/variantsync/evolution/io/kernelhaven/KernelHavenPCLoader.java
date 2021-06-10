@@ -3,6 +3,8 @@ package de.variantsync.evolution.io.kernelhaven;
 import de.variantsync.evolution.io.ResourceLoader;
 import de.variantsync.evolution.io.Resources;
 import de.variantsync.evolution.io.data.CSV;
+import de.variantsync.evolution.util.CaseSensitivePath;
+import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.PathUtils;
 import de.variantsync.evolution.util.fide.bugfix.FixTrueFalse;
 import de.variantsync.evolution.util.functional.Result;
@@ -28,7 +30,7 @@ public class KernelHavenPCLoader implements ResourceLoader<Artefact> {
 
     @Override
     public Result<Artefact, Exception> load(Path csvPath) {
-        final Map<Path, SourceCodeFile> files = new HashMap<>();
+        final Map<CaseSensitivePath, SourceCodeFile> files = new HashMap<>();
         final CSV csv;
         try {
             csv = Resources.Instance().load(CSV.class, csvPath);
@@ -43,7 +45,7 @@ public class KernelHavenPCLoader implements ResourceLoader<Artefact> {
         // skip first entry as it is the csv header
         final ListHeadTailView<String[]> rows = new ListHeadTailView<>(csv.rows()).tail();
         for (final String[] row : rows) {
-            final Path pathOfSourceFile = Path.of(row[0]);
+            final CaseSensitivePath pathOfSourceFile = CaseSensitivePath.of(row[0]);
             final Node fileCondition = FixTrueFalse.On(nodeReader.stringToNode(row[1]));
             final Node blockCondition = FixTrueFalse.On(nodeReader.stringToNode(row[2]));
             // We don't need the actual presenceCondition (lol) as it is a value computed from row[1] and row[2]

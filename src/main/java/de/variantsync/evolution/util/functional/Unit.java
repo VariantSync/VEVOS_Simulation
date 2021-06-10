@@ -3,7 +3,7 @@ package de.variantsync.evolution.util.functional;
 /**
  * Unit represents a type that has exactly one value (Instance()).
  */
-public class Unit {
+public class Unit implements Monoid<Unit> {
     private static final Unit instance = new Unit();
 
     private Unit() {}
@@ -25,5 +25,15 @@ public class Unit {
     @Override
     public String toString() {
         return "()";
+    }
+
+    @Override
+    public Unit mempty() {
+        return Instance();
+    }
+
+    @Override
+    public Unit mappend(Unit other) {
+        return mempty();
     }
 }

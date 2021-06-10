@@ -1,5 +1,6 @@
 package de.variantsync.evolution.variability.pc;
 
+import de.variantsync.evolution.util.CaseSensitivePath;
 import org.prop4j.Node;
 
 import java.nio.file.Path;
@@ -18,10 +19,9 @@ public abstract class Annotated extends ArtefactTree<LineBasedAnnotation> {
     protected Annotated(Node featureMapping) {
         super(featureMapping);
     }
-    protected Annotated(Node featureMapping, Path file) {
+    protected Annotated(Node featureMapping, CaseSensitivePath file) {
         super(featureMapping, file);
     }
-
 
     /**
      * Merges the given FeatureAnnotation to this artefact in a sorted way.
@@ -109,7 +109,9 @@ public abstract class Annotated extends ArtefactTree<LineBasedAnnotation> {
                                     + b
                                     + "\" overlaps block \""
                                     + a
-                                    + "\" but is not contained in it!");
+                                    + "\" in "
+                                    + this.getFile()
+                                    + " but is not contained in it!");
                 }
             }
 

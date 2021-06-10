@@ -1,32 +1,29 @@
 package de.variantsync.evolution.variability.pc;
 
 import de.variantsync.evolution.feature.Variant;
+import de.variantsync.evolution.util.CaseSensitivePath;
+import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.PathUtils;
 import de.variantsync.evolution.util.functional.Result;
 import de.variantsync.evolution.util.functional.Unit;
 import org.prop4j.Node;
 
 import java.io.IOException;
-import java.nio.file.CopyOption;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
 import java.util.Objects;
 
 /**
  * Represents a variable source code file (e.g., because part of a plugin or only conditionally included).
  */
 public class SourceCodeFile extends Annotated {
-    public SourceCodeFile(Path relativePath, Node featureMapping) {
+    public SourceCodeFile(CaseSensitivePath relativePath, Node featureMapping) {
         super(featureMapping, relativePath);
     }
 
     @Override
-    public Result<Unit, Exception> project(Variant variant, Path sourceDir, Path targetDir) {
+    public Result<Unit, Exception> generateVariant(Variant variant, CaseSensitivePath sourceDir, CaseSensitivePath targetDir) {
         // 1.) create the target file
-        final Path targetFile = targetDir.resolve(getFile());
-        final Result<Boolean, IOException> r = Result.Try(() -> PathUtils.createEmpty(targetFile));
+        final CaseSensitivePath targetFile = targetDir.resolve(getFile());
+        final Result<Boolean, IOException> r = Result.Try(() -> PathUtils.createEmpty(targetFile.path()));
         if (r.isFailure()) {
             return Result.Failure(r.getFailure());
         } else if (!r.getSuccess()) {
@@ -34,7 +31,7 @@ public class SourceCodeFile extends Annotated {
         }
 
         // 2.) write children
-        return super.project(variant, sourceDir, targetDir);
+        return super.generateVariant(variant, sourceDir, targetDir);
     }
 
     @Override

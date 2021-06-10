@@ -1,6 +1,7 @@
 package de.variantsync.evolution.variability.pc;
 
 import de.variantsync.evolution.feature.Variant;
+import de.variantsync.evolution.util.CaseSensitivePath;
 import de.variantsync.evolution.util.functional.Result;
 import de.variantsync.evolution.util.functional.Unit;
 import org.prop4j.Node;
@@ -22,7 +23,7 @@ public interface Artefact {
      */
     Node getPresenceCondition();
 
-    Path getFile();
+    CaseSensitivePath getFile();
 
     /**
      * Projects this feature trace to a specific variant and returns the projection.
@@ -30,7 +31,8 @@ public interface Artefact {
      * @param variant The variant for which the feature traces should be reduced.
      */
     // TODO: Rename
-    Result<Unit, Exception> project(Variant variant, Path sourceDir, Path targetDir);
+    // TODO: Replace Unit with ground truth data
+    Result<Unit, Exception> generateVariant(Variant variant, CaseSensitivePath sourceDir, CaseSensitivePath targetDir);
 
 //    Result<Unit, Exception> write(Path sourceDir, Path targetDir);
 

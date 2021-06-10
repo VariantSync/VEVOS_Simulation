@@ -1,5 +1,6 @@
 package de.variantsync.evolution.variants.blueprints;
 
+import de.variantsync.evolution.util.CaseSensitivePath;
 import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.functional.Result;
 import de.variantsync.evolution.util.functional.Unit;
@@ -74,7 +75,10 @@ public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBl
                 splRepo.checkoutCommit(splCommit);
 
                 // Generate the code
-                final Result<Unit, Exception> result = traces.project(variant, splRepo.getPath(), variantsRepo.getPath());
+                final Result<Unit, Exception> result = traces.generateVariant(
+                        variant,
+                        new CaseSensitivePath(splRepo.getPath()),
+                        new CaseSensitivePath(variantsRepo.getPath()));
                 Logger.log(result.map(u -> "Generating variant " + variant + " was successful!"));
 
                 // Commit the generated variant with the corresponding spl commit has as message.

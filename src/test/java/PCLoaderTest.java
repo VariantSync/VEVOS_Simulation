@@ -2,14 +2,16 @@ import de.ovgu.featureide.fm.core.analysis.cnf.formula.FeatureModelFormula;
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import de.variantsync.evolution.Main;
 import de.variantsync.evolution.feature.Variant;
+import de.variantsync.evolution.io.ResourceLoader;
 import de.variantsync.evolution.io.kernelhaven.KernelHavenPCLoader;
+import de.variantsync.evolution.util.CaseSensitivePath;
 import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.PathUtils;
-import de.variantsync.evolution.util.fide.ConfigurationUtils;
 import de.variantsync.evolution.util.fide.FeatureModelUtils;
 import de.variantsync.evolution.util.fide.bugfix.FixTrueFalse;
 import de.variantsync.evolution.util.functional.Result;
-import de.variantsync.evolution.util.functional.Unit;
+import de.variantsync.evolution.variability.config.FeatureIDEConfiguration;
+import de.variantsync.evolution.variability.config.SayYesToAllConfiguration;
 import de.variantsync.evolution.variability.pc.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -18,33 +20,78 @@ import org.prop4j.And;
 import org.prop4j.Literal;
 import org.prop4j.Or;
 
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 public class PCLoaderTest {
-    private static final Path resDir = Path.of("src", "main", "resources", "test");
-    private static final Path testFile = resDir.resolve("KernelHavenPCs.csv");
-    private static final Path illTestFile = resDir.resolve("KernelHavenPCs_illformed.csv");
-    private static final Path tinySPLDir = resDir.resolve("tinySPLRepo");
-    private static final Path genDir = resDir.resolve("gen");
+    private static class PCTestData {
+        // init in constructor
+        CaseSensitivePath pcs;
+        CaseSensitivePath splDir, variantsDir;
 
-    private static IFeatureModel features;
-    private static Artefact expectedTrace;
+        // init static
+        Artefact expectedTrace;
+        IFeatureModel features;
 
-    private Result<Artefact, Exception> parsedTrace, parsedIllTrace;
+        // init dynamic
+        Result<Artefact, Exception> traces;
+
+        public PCTestData(CaseSensitivePath pcs) {
+            this.pcs = pcs;
+        }
+
+        public PCTestData(CaseSensitivePath pcs, CaseSensitivePath splDir, CaseSensitivePath variantsDir) {
+            this(pcs);
+            this.splDir = splDir;
+            this.variantsDir = variantsDir;
+        }
+
+        public void init(ResourceLoader<Artefact> pcLoader) {
+            assert pcLoader.canLoad(pcs.path());
+            traces = pcLoader.load(pcs.path());
+        }
+
+        public boolean generate(final List<Variant> variantsToTest) {
+            traces.assertSuccess();
+            PathUtils.deleteDirectory(variantsDir.path()).assertSuccess();
+            final Artefact traceToTest = traces.getSuccess();
+
+            for (Variant v : variantsToTest) {
+                traceToTest
+                        .generateVariant(v, splDir, variantsDir.resolve(v.getName()))
+                        .assertSuccess();
+            }
+
+            return true;
+        }
+    }
+
+    private static final CaseSensitivePath resDir = CaseSensitivePath.of("src", "main", "resources", "test");
+    private static final CaseSensitivePath genDir = resDir.resolve("gen");
+
+    private static final PCTestData pcTest1 = new PCTestData(
+            resDir.resolve("KernelHavenPCs.csv"),
+            resDir.resolve("tinySPLRepo"),
+            genDir.resolve("tinySPLRepo")
+    );
+    private static final PCTestData illPcTest = new PCTestData(
+            resDir.resolve("KernelHavenPCs_illformed.csv")
+    );
+    private static final PCTestData linux = new PCTestData(
+            CaseSensitivePath.of("..", "variantevolution_datasets", "LinuxVariabilityData", "code-variability.csv"),
+            CaseSensitivePath.of("\\\\wsl$","Ubuntu", "home", "bittner"),
+            genDir.resolve("linux")
+    );
 
     @BeforeClass
     public static void setupStatic() {
         Main.Initialize();
 
-        features = FeatureModelUtils.FromOptionalFeatures("A", "B", "C", "D", "E");
-//        System.out.println(features);
-//        System.out.println(FeatureUtils.getRoot(features));
-
+        /// Init pcTest1
+        pcTest1.features = FeatureModelUtils.FromOptionalFeatures("A", "B", "C", "D", "E");
         { // Build the expected result by hand.
-            final SourceCodeFile alex = new SourceCodeFile(Path.of("src", "Alex.cpp"), FixTrueFalse.True);
+            final SourceCodeFile alex = new SourceCodeFile(CaseSensitivePath.of("src", "Alex.cpp"), FixTrueFalse.True);
             {
                 LineBasedAnnotation a = new LineBasedAnnotation(new Literal("A"), 4, 11);
                 a.addTrace(new LineBasedAnnotation(new Literal("B"), 6, 8));
@@ -54,67 +101,72 @@ public class PCLoaderTest {
                 alex.addTrace(tru);
             }
 
-            final SourceCodeFile bar = new SourceCodeFile(Path.of("src", "foo", "bar.cpp"), new Literal("A"));
+            final SourceCodeFile bar = new SourceCodeFile(CaseSensitivePath.of("src", "foo", "bar.cpp"), new Literal("A"));
             {
                 bar.addTrace(new LineBasedAnnotation(FixTrueFalse.False, 1, 5));
             }
 
-            expectedTrace = new ArtefactTree<>(Arrays.asList(alex, bar));
+            pcTest1.expectedTrace = new ArtefactTree<>(Arrays.asList(alex, bar));
         }
+
+        /// Init linux
+        linux.features = FeatureModelUtils.FromOptionalFeatures(
+                "CONFIG_IBM_PARTITION",
+                "CONFIG_BLOCK"
+        );
     }
 
     @Before
     public void setupTest() {
         final KernelHavenPCLoader pcLoader = new KernelHavenPCLoader();
-        assert pcLoader.canLoad(testFile);
-        assert pcLoader.canLoad(illTestFile);
-        parsedTrace = pcLoader.load(testFile);
-        parsedIllTrace = pcLoader.load(illTestFile);
+        pcTest1.init(pcLoader);
+        illPcTest.init(pcLoader);
+        linux.init(pcLoader);
     }
 
     @Test
     public void loadTestFileCorrectly() {
-        assert parsedTrace.isSuccess();
+        final PCTestData dataToCheck = pcTest1;
+        dataToCheck.traces.assertSuccess();
 
-        if (!expectedTrace.equals(parsedTrace.getSuccess())) {
+        if (!dataToCheck.expectedTrace.equals(dataToCheck.traces.getSuccess())) {
             Logger.error("Loaded PCs:\n"
-                    + parsedTrace.getSuccess().prettyPrint()
+                    + dataToCheck.traces.getSuccess().prettyPrint()
                     + "\nis different from expected result:\n"
-                    + expectedTrace.prettyPrint());
+                    + dataToCheck.expectedTrace.prettyPrint());
             assert false;
         }
     }
 
     @Test
     public void crashOnIllFormedFile() {
-        assert parsedIllTrace.isFailure();
-        assert parsedIllTrace.getFailure() instanceof IllegalFeatureTraceSpecification;
+        assert illPcTest.traces.isFailure();
+        assert illPcTest.traces.getFailure() instanceof IllegalFeatureTraceSpecification;
     }
 
     @Test
     public void testGeneration() {
-        assert parsedTrace.isSuccess();
-        assert PathUtils.deleteDirectory(genDir).isSuccess();
-        final Artefact traceToTest = parsedTrace.getSuccess();
+        final FeatureModelFormula fmf = new FeatureModelFormula(pcTest1.features);
+        assert pcTest1.generate(Arrays.asList(
+                new Variant("justA", new FeatureIDEConfiguration(fmf, Collections.singletonList("A"))),
+                new Variant("justB", new FeatureIDEConfiguration(fmf, Collections.singletonList("B"))),
+                new Variant("all", new FeatureIDEConfiguration(fmf, Arrays.asList("A", "B", "C", "D", "E")))
+        ));
+    }
 
-        final FeatureModelFormula fmf = new FeatureModelFormula(features);
+    @Test
+    public void testLinuxGeneration() {
+        final List<Variant> variantsToTest = Arrays.asList(
+                new Variant("all", new SayYesToAllConfiguration())
+        );
 
-        final Variant justA = new Variant("justA",
-                ConfigurationUtils.FromFeatureModelAndSelection(fmf, Collections.singletonList("A")));
-        final Variant justB = new Variant("justB",
-                ConfigurationUtils.FromFeatureModelAndSelection(fmf, Collections.singletonList("B")));
-        final Variant all = new Variant("all",
-                ConfigurationUtils.FromFeatureModelAndSelection(fmf, Arrays.asList("A", "B", "C", "D", "E")));
+        assert linux.generate(variantsToTest);
+    }
 
-        final List<Variant> variantsToTest = Arrays.asList(justA, justB, all);
-        for (Variant v : variantsToTest) {
-            final Result<Unit, Exception> res = traceToTest.project(v, tinySPLDir, genDir.resolve(Path.of("variants", v.getName())));
-//System.out.println(traceToTest.prettyPrint());
-            if (res.isFailure()) {
-                Logger.error(res.getFailure().toString());
-            }
-
-            assert res.isSuccess();
-        }
+    @Test
+    public void caseSensitivePathTest() {
+        final CaseSensitivePath a = CaseSensitivePath.of("net", "netfilter", "xt_RATEEST.c");
+        final CaseSensitivePath b = CaseSensitivePath.of("net", "netfilter", "xt_rateest.c");
+        assert !a.equals(b);
     }
 }

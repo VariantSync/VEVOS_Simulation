@@ -1,14 +1,10 @@
 package de.variantsync.evolution.util.functional;
 
+import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.functional.interfaces.FragileProcedure;
 import de.variantsync.evolution.util.functional.interfaces.FragileSupplier;
 
-import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.BinaryOperator;
 import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Collector;
 
 public class Result<SuccessType, FailureType> {
     private final SuccessType result;
@@ -29,6 +25,10 @@ public class Result<SuccessType, FailureType> {
 
     public <S2> Result<S2, FailureType> map(Function<SuccessType, S2> successCase) {
         return bimap(successCase, Function.identity());
+    }
+
+    public <F2> Result<SuccessType, F2> mapFail(Function<FailureType, F2> failureCase) {
+        return bimap(Function.identity(), failureCase);
     }
 
     public <S2, F2> Result<S2, F2> bimap(Function<SuccessType, S2> successCase, Function<FailureType, F2> failureCase) {
@@ -55,6 +55,13 @@ public class Result<SuccessType, FailureType> {
         return failure;
     }
 
+    public void assertSuccess() {
+        if (isFailure()) {
+            Logger.error(getFailure().toString());
+        }
+        assert isSuccess();
+    }
+
     @SuppressWarnings("unchecked")
     public static <S, E extends Exception> Result<S, E> Try(FragileSupplier<S, E> s) {
         try {
@@ -68,5 +75,14 @@ public class Result<SuccessType, FailureType> {
 
     public static <E extends Exception> Result<Unit, E> Try(FragileProcedure<E> s) {
         return Try(Functional.LiftFragile(s));
+    }
+
+    public static <S extends Monoid<S>, F extends Monoid<F>> Result<S, F> mappend(Result<S, F> a, Result<S, F> b) {
+        final Result<S, F> prec = a.isFailure() ? a : b;
+        final Result<S, F> other = a.isFailure() ? b : a;
+        return prec.bimap(
+                s -> other.isSuccess() ? s.mappend(other.getSuccess()) : s,
+                f -> other.isFailure() ? f.mappend(other.getFailure()) : f
+        );
     }
 }
