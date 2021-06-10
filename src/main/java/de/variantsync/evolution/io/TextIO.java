@@ -61,7 +61,11 @@ public class TextIO {
 
             for (Interval i : linesToTake) {
                 // -1 because lines are 1-indexed
-                for (int lineNo = i.from() - 1; lineNo < i.to(); ++lineNo) {
+                for (
+                        int lineNo = i.from() - 1;
+                        lineNo < i.to() && lineNo < read_lines.size(); // just skip all lines that are too much
+                        ++lineNo)
+                {
                     linesToWrite.append(read_lines.get(lineNo)).append(System.lineSeparator());
                 }
             }

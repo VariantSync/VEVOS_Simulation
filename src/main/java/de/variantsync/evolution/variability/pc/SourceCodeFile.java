@@ -23,11 +23,14 @@ public class SourceCodeFile extends Annotated {
     public Result<Unit, Exception> generateVariant(Variant variant, CaseSensitivePath sourceDir, CaseSensitivePath targetDir) {
         // 1.) create the target file
         final CaseSensitivePath targetFile = targetDir.resolve(getFile());
-        final Result<Boolean, IOException> r = Result.Try(() -> PathUtils.createEmpty(targetFile.path()));
-        if (r.isFailure()) {
-            return Result.Failure(r.getFailure());
-        } else if (!r.getSuccess()) {
-            return Result.Failure(new IOException("Could not create file " + targetFile));
+        final Result<Unit, Exception> result = Result.FromSuccessReturningProcedure(
+                () -> PathUtils.createEmpty(targetFile.path()),
+                () -> new IOException("File already exists!")
+        );
+
+        if (result.isFailure()) {
+            Logger.exception("Could not create file " + targetFile + " because ", result.getFailure());
+            return result;
         }
 
         // 2.) write children

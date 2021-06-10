@@ -3,6 +3,7 @@ package de.variantsync.evolution.variability.pc;
 import de.variantsync.evolution.feature.Variant;
 import de.variantsync.evolution.io.TextIO;
 import de.variantsync.evolution.util.CaseSensitivePath;
+import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.functional.Result;
 import de.variantsync.evolution.util.functional.Unit;
 import de.variantsync.evolution.util.math.IntervalSet;
@@ -18,8 +19,9 @@ public class LineBasedAnnotation extends Annotated {
     private final int lineTo;
 
     /**
-     * Creates a new annotations starting at lineFrom (inclusive @Alex?) and ending at lineTo (inclusive@Alex?).
-     * Indexing is 1-based?
+     * Creates a new annotations starting at lineFrom and ending at lineTo.
+     * [lineFrom, lineTo]
+     * Indexing is 0-based.
      */
     public LineBasedAnnotation(Node featureMapping, int lineFrom, int lineTo) {
         super(featureMapping);
@@ -44,22 +46,25 @@ public class LineBasedAnnotation extends Annotated {
 
     public IntervalSet getLinesToGenerateFor(Variant variant) {
         final IntervalSet chunksToWrite = new IntervalSet();
+        final int firstCodeLine = lineFrom + 1;
+        final int lastCodeLine = lineTo - 1;
+
         if (subtrees.size() == 0) {
             // just copy entire file content
-            chunksToWrite.add(lineFrom, lineTo);
+            chunksToWrite.add(firstCodeLine, lastCodeLine);
         } else {
-            int currentLine = lineFrom;
+            int currentLine = firstCodeLine;
             int currentChildIndex = 0;
             LineBasedAnnotation currentChild;
             while (currentChildIndex < subtrees.size()) {
                 currentChild = subtrees.get(currentChildIndex);
 
                 // 1.) Copy all LOC between currentLine and begin of child
-                int currentChunkEnd = currentChild.lineFrom;
-                int linesToWrite = currentChunkEnd - currentLine;
+                int linesToWrite = currentChild.lineFrom - currentLine;
                 if (linesToWrite > 0) {
-                    chunksToWrite.add(currentLine, currentChunkEnd - 1);
+                    chunksToWrite.add(currentLine, currentChild.lineFrom - 1);
                 }
+
                 // handle child
                 if (variant.isImplementing(currentChild.getPresenceCondition())) {
                     chunksToWrite.mappendInline(currentChild.getLinesToGenerateFor(variant));
@@ -70,8 +75,8 @@ public class LineBasedAnnotation extends Annotated {
                 ++currentChildIndex;
             }
 
-            if (currentLine <= lineTo) {
-                chunksToWrite.add(currentLine, lineTo);
+            if (currentLine <= lastCodeLine) {
+                chunksToWrite.add(currentLine, lastCodeLine);
             }
         }
 

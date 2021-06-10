@@ -27,11 +27,7 @@ import java.util.List;
 public class PCLoaderTest {
     private static class PCTestData {
         // init in constructor
-        CaseSensitivePath pcs;
-        CaseSensitivePath splDir, variantsDir;
-
-        // init static
-        Artefact expectedTrace;
+        CaseSensitivePath pcs, splDir, variantsDir;
         IFeatureModel features;
 
         // init dynamic
@@ -39,6 +35,8 @@ public class PCLoaderTest {
 
         public PCTestData(CaseSensitivePath pcs) {
             this.pcs = pcs;
+            assert pcLoader.canLoad(pcs.path());
+            traces = pcLoader.load(pcs.path());
         }
 
         public PCTestData(CaseSensitivePath pcs, CaseSensitivePath splDir, CaseSensitivePath variantsDir) {
@@ -47,9 +45,9 @@ public class PCLoaderTest {
             this.variantsDir = variantsDir;
         }
 
-        public void init(ResourceLoader<Artefact> pcLoader) {
-            assert pcLoader.canLoad(pcs.path());
-            traces = pcLoader.load(pcs.path());
+        public PCTestData(CaseSensitivePath pcs, CaseSensitivePath splDir, CaseSensitivePath variantsDir, IFeatureModel fm) {
+            this(pcs, splDir, variantsDir);
+            this.features = fm;
         }
 
         public boolean generate(final List<Variant> variantsToTest) {
@@ -67,36 +65,54 @@ public class PCLoaderTest {
         }
     }
 
+    private static final ResourceLoader<Artefact> pcLoader = new KernelHavenPCLoader();
+
     private static final CaseSensitivePath resDir = CaseSensitivePath.of("src", "main", "resources", "test");
     private static final CaseSensitivePath genDir = resDir.resolve("gen");
     private static final CaseSensitivePath datasetsDir = CaseSensitivePath.of("..", "variantevolution_datasets");
 
-    private static final PCTestData pcTest1 = new PCTestData(
-            resDir.resolve("KernelHavenPCs.csv"),
-            resDir.resolve("tinySPLRepo"),
-            genDir.resolve("tinySPLRepo")
-    );
-    private static final PCTestData illPcTest = new PCTestData(
-            resDir.resolve("KernelHavenPCs_illformed.csv")
-    );
-    private static final PCTestData linux = new PCTestData(
-            datasetsDir.resolve("LinuxVariabilityData", "code-variability.csv"),
-            datasetsDir.resolve("linux"),
-            genDir.resolve("linux")
-    );
+    private static PCTestData pcTest1;
+    private static PCTestData illPcTest;
+    private static PCTestData linuxSample;
+    private static PCTestData linux;
 
     @BeforeClass
     public static void setupStatic() {
         Main.Initialize();
 
-        /// Init pcTest1
-        pcTest1.features = FeatureModelUtils.FromOptionalFeatures("A", "B", "C", "D", "E");
+        pcTest1 = new PCTestData(
+                resDir.resolve("KernelHavenPCs.csv"),
+                resDir.resolve("tinySPLRepo"),
+                genDir.resolve("tinySPLRepo"),
+                FeatureModelUtils.FromOptionalFeatures("A", "B", "C", "D", "E")
+        );
+        illPcTest = new PCTestData(
+                resDir.resolve("KernelHavenPCs_illformed.csv")
+        );
+        linuxSample = new PCTestData(
+                resDir.resolve("LinuxPCS_Simple.csv"),
+                datasetsDir.resolve("linux"),
+                genDir.resolve("linux-sample")
+        );
+        linux = new PCTestData(
+                datasetsDir.resolve("LinuxVariabilityData", "code-variability.csv"),
+                datasetsDir.resolve("linux"),
+                genDir.resolve("linux")
+        );
+    }
+
+    @Test
+    public void loadPCTest1FileCorrectly() {
+        final PCTestData dataToCheck = pcTest1;
+        dataToCheck.traces.assertSuccess();
+
+        Artefact expectedTrace;
         { // Build the expected result by hand.
             final SourceCodeFile alex = new SourceCodeFile(CaseSensitivePath.of("src", "Alex.cpp"), FixTrueFalse.True);
             {
                 LineBasedAnnotation a = new LineBasedAnnotation(new Literal("A"), 4, 11);
                 a.addTrace(new LineBasedAnnotation(new Literal("B"), 6, 8));
-                LineBasedAnnotation tru = new LineBasedAnnotation(FixTrueFalse.True, 1, 20);
+                LineBasedAnnotation tru = new LineBasedAnnotation(FixTrueFalse.True, 0, 22);
                 tru.addTrace(a);
                 tru.addTrace(new LineBasedAnnotation(new Or(new And(new Literal("C"), new Literal("D")), new Literal("E")), 16, 18));
                 alex.addTrace(tru);
@@ -104,37 +120,17 @@ public class PCLoaderTest {
 
             final SourceCodeFile bar = new SourceCodeFile(CaseSensitivePath.of("src", "foo", "bar.cpp"), new Literal("A"));
             {
-                bar.addTrace(new LineBasedAnnotation(FixTrueFalse.False, 1, 5));
+                bar.addTrace(new LineBasedAnnotation(FixTrueFalse.False, 0, 5));
             }
 
-            pcTest1.expectedTrace = new ArtefactTree<>(Arrays.asList(alex, bar));
+            expectedTrace = new ArtefactTree<>(Arrays.asList(alex, bar));
         }
 
-        /// Init linux
-        linux.features = FeatureModelUtils.FromOptionalFeatures(
-                "CONFIG_IBM_PARTITION",
-                "CONFIG_BLOCK"
-        );
-    }
-
-    @Before
-    public void setupTest() {
-        final KernelHavenPCLoader pcLoader = new KernelHavenPCLoader();
-        pcTest1.init(pcLoader);
-        illPcTest.init(pcLoader);
-        linux.init(pcLoader);
-    }
-
-    @Test
-    public void loadTestFileCorrectly() {
-        final PCTestData dataToCheck = pcTest1;
-        dataToCheck.traces.assertSuccess();
-
-        if (!dataToCheck.expectedTrace.equals(dataToCheck.traces.getSuccess())) {
+        if (!expectedTrace.equals(dataToCheck.traces.getSuccess())) {
             Logger.error("Loaded PCs:\n"
                     + dataToCheck.traces.getSuccess().prettyPrint()
                     + "\nis different from expected result:\n"
-                    + dataToCheck.expectedTrace.prettyPrint());
+                    + expectedTrace.prettyPrint());
             assert false;
         }
     }
@@ -156,18 +152,24 @@ public class PCLoaderTest {
     }
 
     @Test
-    public void testLinuxGeneration() {
-        final List<Variant> variantsToTest = Arrays.asList(
+    public void testLinuxSampleGeneration() {
+        assert linuxSample.generate(Arrays.asList(
                 new Variant("all", new SayYesToAllConfiguration())
-        );
+        ));
+    }
 
-        assert linux.generate(variantsToTest);
+    @Test
+    public void testLinuxGeneration() {
+        assert linux.generate(Arrays.asList(
+                new Variant("all", new SayYesToAllConfiguration())
+        ));
     }
 
     @Test
     public void caseSensitivePathTest() {
-        final CaseSensitivePath a = CaseSensitivePath.of("net", "netfilter", "xt_RATEEST.c");
-        final CaseSensitivePath b = CaseSensitivePath.of("net", "netfilter", "xt_rateest.c");
+        final CaseSensitivePath sharedRoot = CaseSensitivePath.of("net", "netfilter");
+        final CaseSensitivePath a = sharedRoot.resolve("xt_RATEEST.c");
+        final CaseSensitivePath b = sharedRoot.resolve("xt_rateest.c");
         assert !a.equals(b);
     }
 }
