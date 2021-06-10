@@ -3,7 +3,6 @@ package de.variantsync.evolution.variability.pc;
 import de.variantsync.evolution.feature.Variant;
 import de.variantsync.evolution.io.TextIO;
 import de.variantsync.evolution.util.CaseSensitivePath;
-import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.functional.Result;
 import de.variantsync.evolution.util.functional.Unit;
 import de.variantsync.evolution.util.math.IntervalSet;
@@ -19,9 +18,15 @@ public class LineBasedAnnotation extends Annotated {
     private final int lineTo;
 
     /**
-     * Creates a new annotations starting at lineFrom and ending at lineTo.
-     * [lineFrom, lineTo]
-     * Indexing is 0-based.
+     * Creates a new annotation starting at lineFrom and ending at lineTo including both
+     * (i.e., [lineFrom, lineTo]).
+     * Indexing is 1-based (i.e., the first line in a file is indexed by 1).
+     * Example for a preprocessor block
+     * 3 #if X     <-- lineFrom
+     * 4   foo();
+     * 5   bar();
+     * 6 #endif    <-- lineTo
+     * is reflected by LineBasedAnnotation(X, 3, 6);
      */
     public LineBasedAnnotation(Node featureMapping, int lineFrom, int lineTo) {
         super(featureMapping);
@@ -44,6 +49,13 @@ public class LineBasedAnnotation extends Annotated {
         return Result.Try(() -> TextIO.CopyTextLines(sourceFile.path(), targetFile.path(), chunksToWrite));
     }
 
+    /**
+     * Computes all continuous blocks of lines that should be included in the given variant when evaluating the
+     * annotations in this artefact.
+     * @param variant The variant to get the corresponding lines of code for.
+     * @return A set S of intervals where all lines in the given intervals should be included in the given variant.
+     *         For any interval [a, b] the lines a, a+1, a+2, ..., b-1, b should be included.
+     */
     public IntervalSet getLinesToGenerateFor(Variant variant) {
         final IntervalSet chunksToWrite = new IntervalSet();
         final int firstCodeLine = lineFrom + 1;

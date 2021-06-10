@@ -23,7 +23,7 @@ public class SourceCodeFile extends Annotated {
     public Result<Unit, Exception> generateVariant(Variant variant, CaseSensitivePath sourceDir, CaseSensitivePath targetDir) {
         // 1.) create the target file
         final CaseSensitivePath targetFile = targetDir.resolve(getFile());
-        final Result<Unit, Exception> result = Result.FromSuccessReturningProcedure(
+        final Result<Unit, Exception> result = Result.FromFlag(
                 () -> PathUtils.createEmpty(targetFile.path()),
                 () -> new IOException("File already exists!")
         );

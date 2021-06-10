@@ -19,9 +19,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Wrapper for configurations from FeatureIDE.
+ */
 public class FeatureIDEConfiguration implements IConfiguration {
-    private Configuration featureIDEConfig;
-    private Lazy<Map<Object, Boolean>> asAssignment = Lazy.of(() -> {
+    private /* final */ Configuration featureIDEConfig;
+    private final Lazy<Map<Object, Boolean>> asAssignment = Lazy.of(() -> {
         final Map<Object, Boolean> assignment = new HashMap<>();
         assignment.put(FixTrueFalse.True.var, true);
         assignment.put(FixTrueFalse.False.var, false);
@@ -39,10 +42,19 @@ public class FeatureIDEConfiguration implements IConfiguration {
         return assignment;
     });
 
+    /**
+     * Wrap the given FeatureIDE configuration.
+     * @param featureIDEConfig Configuration in FeatureIDE format.
+     */
     public FeatureIDEConfiguration(Configuration featureIDEConfig) {
         this.featureIDEConfig = featureIDEConfig;
     }
 
+    /**
+     * Create a minimal viable configuration such that all features in the given selection are active.
+     * @param fm Feature model to satisfy.
+     * @param activeFeatures Features to select.
+     */
     public FeatureIDEConfiguration(FeatureModelFormula fm, List<String> activeFeatures) {
         this(new Configuration(fm));
 
@@ -55,10 +67,20 @@ public class FeatureIDEConfiguration implements IConfiguration {
         analyzer.completeMin();
     }
 
+    /**
+     * Load a configuration from the given path.
+     * UNTESTED!
+     * @param p Path to configuraton to load.
+     * @throws ExtensionManager.NoSuchExtensionException If no loader for the given file type is registered in FeatureIDE.
+     */
     public FeatureIDEConfiguration(Path p) throws ExtensionManager.NoSuchExtensionException {
         this(ConfigurationFactoryManager.getInstance().getFactory(p, ConfigFormatManager.getDefaultFormat()).create());
     }
 
+    /**
+     * Converts this configuration to an assignment from variables to values.
+     * @return An assignment from variables to values.
+     */
     public Map<Object, Boolean> toAssignment() {
         return asAssignment.run();
     }

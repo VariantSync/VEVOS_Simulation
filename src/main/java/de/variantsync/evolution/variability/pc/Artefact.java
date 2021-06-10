@@ -27,11 +27,11 @@ public interface Artefact {
      * Projects this feature trace to a specific variant and returns the projection.
      * This object will not be altered, meaning a copy that represents the derived variant is returned.
      * @param variant The variant for which the feature traces should be reduced.
+     * @param sourceDir The directory of the product line from which variants should be build.
+     * @param targetDir Output directory the variant will be generated into.
      */
-    // TODO: Replace Unit with ground truth data
+    // TODO: Implement Issue #1 here by replacing Unit with ground truth data?
     Result<Unit, Exception> generateVariant(Variant variant, CaseSensitivePath sourceDir, CaseSensitivePath targetDir);
-
-//    Result<Unit, Exception> write(Path sourceDir, Path targetDir);
 
     default String prettyPrint() {
         return prettyPrint("");

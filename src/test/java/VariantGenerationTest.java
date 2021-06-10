@@ -13,7 +13,6 @@ import de.variantsync.evolution.util.functional.Result;
 import de.variantsync.evolution.variability.config.FeatureIDEConfiguration;
 import de.variantsync.evolution.variability.config.SayYesToAllConfiguration;
 import de.variantsync.evolution.variability.pc.*;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.prop4j.And;
@@ -24,8 +23,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class PCLoaderTest {
-    private static class PCTestData {
+/**
+ * Tests for presence condition loading and variant generation.
+ */
+public class VariantGenerationTest {
+    private static class TestCaseData {
         // init in constructor
         CaseSensitivePath pcs, splDir, variantsDir;
         IFeatureModel features;
@@ -33,19 +35,19 @@ public class PCLoaderTest {
         // init dynamic
         Result<Artefact, Exception> traces;
 
-        public PCTestData(CaseSensitivePath pcs) {
+        public TestCaseData(CaseSensitivePath pcs) {
             this.pcs = pcs;
             assert pcLoader.canLoad(pcs.path());
             traces = pcLoader.load(pcs.path());
         }
 
-        public PCTestData(CaseSensitivePath pcs, CaseSensitivePath splDir, CaseSensitivePath variantsDir) {
+        public TestCaseData(CaseSensitivePath pcs, CaseSensitivePath splDir, CaseSensitivePath variantsDir) {
             this(pcs);
             this.splDir = splDir;
             this.variantsDir = variantsDir;
         }
 
-        public PCTestData(CaseSensitivePath pcs, CaseSensitivePath splDir, CaseSensitivePath variantsDir, IFeatureModel fm) {
+        public TestCaseData(CaseSensitivePath pcs, CaseSensitivePath splDir, CaseSensitivePath variantsDir, IFeatureModel fm) {
             this(pcs, splDir, variantsDir);
             this.features = fm;
         }
@@ -71,30 +73,30 @@ public class PCLoaderTest {
     private static final CaseSensitivePath genDir = resDir.resolve("gen");
     private static final CaseSensitivePath datasetsDir = CaseSensitivePath.of("..", "variantevolution_datasets");
 
-    private static PCTestData pcTest1;
-    private static PCTestData illPcTest;
-    private static PCTestData linuxSample;
-    private static PCTestData linux;
+    private static TestCaseData pcTest1;
+    private static TestCaseData illPcTest;
+    private static TestCaseData linuxSample;
+    private static TestCaseData linux;
 
     @BeforeClass
     public static void setupStatic() {
         Main.Initialize();
 
-        pcTest1 = new PCTestData(
+        pcTest1 = new TestCaseData(
                 resDir.resolve("KernelHavenPCs.csv"),
                 resDir.resolve("tinySPLRepo"),
                 genDir.resolve("tinySPLRepo"),
                 FeatureModelUtils.FromOptionalFeatures("A", "B", "C", "D", "E")
         );
-        illPcTest = new PCTestData(
+        illPcTest = new TestCaseData(
                 resDir.resolve("KernelHavenPCs_illformed.csv")
         );
-        linuxSample = new PCTestData(
+        linuxSample = new TestCaseData(
                 resDir.resolve("LinuxPCS_Simple.csv"),
                 datasetsDir.resolve("linux"),
                 genDir.resolve("linux-sample")
         );
-        linux = new PCTestData(
+        linux = new TestCaseData(
                 datasetsDir.resolve("LinuxVariabilityData", "code-variability.csv"),
                 datasetsDir.resolve("linux"),
                 genDir.resolve("linux")
@@ -103,7 +105,7 @@ public class PCLoaderTest {
 
     @Test
     public void loadPCTest1FileCorrectly() {
-        final PCTestData dataToCheck = pcTest1;
+        final TestCaseData dataToCheck = pcTest1;
         dataToCheck.traces.assertSuccess();
 
         Artefact expectedTrace;

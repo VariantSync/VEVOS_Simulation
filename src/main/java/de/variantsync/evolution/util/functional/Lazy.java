@@ -137,6 +137,13 @@ public class Lazy<A> implements Functor<Lazy, A> {
         return new Lazy<>(() -> new Pair<>(run(), other.run()));
     }
 
+    /**
+     * Combine two monoidal values once they were computed.
+     * @param a First lazy to evaluate.
+     * @param b Second lazy to evaluate.
+     * @param <A> Monoidal value type
+     * @return Lazy computation that is a combination of the given computations.
+     */
     public static <A extends Monoid<A>> Lazy<A> mappend(Lazy<A> a, Lazy<A> b) {
         return a.and(b).map(p -> p.getKey().mappend(p.getValue()));
     }
