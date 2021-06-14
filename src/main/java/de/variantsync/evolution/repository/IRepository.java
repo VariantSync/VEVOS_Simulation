@@ -9,7 +9,7 @@ import java.nio.file.Path;
  * Models a repository of a version control system such as Git.
  * @param <C> Type of commits of this repository.
  */
-public interface IRepository<C extends Commit<? extends IRepository<C>>> {
+public interface IRepository<C extends Commit<? extends IRepository<C>>> extends AutoCloseable {
     /**
      * Check out the given commit in the local copy of the repository.
      * (Method is designed for operating on a single branch only).

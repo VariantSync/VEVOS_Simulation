@@ -1,20 +1,20 @@
 package de.variantsync.evolution.variability;
 
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
+import de.variantsync.evolution.repository.AbstractVariabilityRepository;
 import de.variantsync.evolution.repository.Commit;
-import de.variantsync.evolution.repository.IVariabilityRepository;
 import de.variantsync.evolution.util.functional.Lazy;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
 import java.io.IOException;
 import java.nio.file.Path;
 
-public class VariabilityCommit extends Commit<IVariabilityRepository> {
-    private IVariabilityRepository sourceRepo;
+public class VariabilityCommit extends Commit<AbstractVariabilityRepository> {
+    private AbstractVariabilityRepository sourceRepo;
     private final SPLCommit origin;
     private VariabilityCommit[] evolutionParents;
 
-    public VariabilityCommit(IVariabilityRepository source, String commitId, SPLCommit splCommit) {
+    public VariabilityCommit(AbstractVariabilityRepository source, String commitId, SPLCommit splCommit) {
         super(commitId);
         this.sourceRepo = source;
         origin = splCommit;

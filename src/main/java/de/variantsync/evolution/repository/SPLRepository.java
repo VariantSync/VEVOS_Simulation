@@ -4,7 +4,11 @@ import de.variantsync.evolution.variability.SPLCommit;
 
 import java.nio.file.Path;
 
-public class SPLRepository extends Repository<SPLCommit> implements ISPLRepository {
+/**
+ * Repository containing a preprocessor based software product line (e.g., Linux kernel or Maven).
+ */
+
+public class SPLRepository extends Repository<SPLCommit> {
 
     public SPLRepository(Path path){
         super(path);

@@ -1,16 +1,15 @@
 package de.variantsync.evolution.variants;
 
-import de.variantsync.evolution.feature.Variant;
-import de.variantsync.evolution.repository.Repository;
+import de.variantsync.evolution.repository.AbstractVariantsRepository;
 import de.variantsync.evolution.variants.blueprints.VariantsRevisionBlueprint;
 import de.variantsync.evolution.repository.Branch;
 import de.variantsync.evolution.repository.ISPLRepository;
-import de.variantsync.evolution.repository.IVariantsRepository;
 import de.variantsync.evolution.util.*;
 import de.variantsync.evolution.util.list.NonEmptyList;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.EmptyCommitException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.sat4j.opt.AbstractSelectorVariablesDecorator;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -19,11 +18,11 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Default implementation for IVariantsRepository.
+ * Default implementation for AbstractVariantsRepository.
  * Given a history of VariantsRevisionBlueprints, this class will generate a git repository with variants from
  * the original ISPLRepository.
  */
-public class VariantsRepository extends Repository<VariantCommit> implements IVariantsRepository {
+public class VariantsRepository extends AbstractVariantsRepository {
     private Map<String, Branch> branchesByName;
     public Optional<VariantsRevision> revision0;
 
@@ -84,33 +83,63 @@ public class VariantsRepository extends Repository<VariantCommit> implements IVa
         return branchesByName.computeIfAbsent(name, Branch::new);
     }
 
+    // TODO: Make sure that the new VariantCommit uses the correct branch
+    //  (At the moment it uses the current branch because it is only used for getCurrentCommit)
+
     @Override
     public VariantCommit idToCommit(String id) throws IOException {
         try {
-            Branch branch = super.getCurrentBranch();
+            Branch branch = getCurrentBranch();
             return new VariantCommit(id, branch);
-        } catch (IOException e) {
-            Logger.exception("Failed to get current commit.", e);
+        } catch(IOException e){
+            Logger.exception("Failed get variant commit for id " + id, e);
+            close();
             throw e;
         }
     }
+
+    // TODO: Make sure that commit() behaves correctly.
+    // At the moment, it returns null in the case of an empty commit, and the VariantCommit otherwise (as described in AbstractVariantRepository)
+    // But in VariantsRevisionFromErrorBluePrint, an empty commit would lead to throwing a RuntimeException. Is that wanted?
+    // If empty commits should be possible, commit() could be adapted to allow those. (referring to TODOnote in VariantsRevisionFromErrorBlueprint)
 
     @Override
     public Optional<VariantCommit> commit(String message) throws GitAPIException, IOException {
         Optional result = Optional.empty();
 
         try {
-            super.git().add().addFilepattern(".").call();
-            RevCommit rev = super.git().commit().setMessage(message).call();
-            Branch branch = super.getCurrentBranch();
-            if(rev != null){
-                result = Optional.of(new VariantCommit(rev.getId().toString(),branch));
+            VariantCommit commit= commit(".", message);
+            if(commit != null){
+                result = Optional.of(commit);
             }
         } catch (IOException | GitAPIException e) {
             Logger.exception("Failed to commit with message: " + message, e);
+            close();
             throw e;
         }
 
         return result;
+    }
+
+    private Branch getCurrentBranch() throws IOException {
+        try {
+            String branch = git().getRepository().getBranch();
+            return new Branch(branch);
+        } catch(IOException e){
+            Logger.exception("Failed to get current branch", e);
+            throw e;
+        }
+    }
+
+    private VariantCommit commit(String pattern, String message) throws IOException, GitAPIException {
+        git().add().addFilepattern(pattern).call();
+
+        try{
+            RevCommit rev = git().commit().setMessage(message).setAllowEmpty(false).call();
+            String commitId = rev.getId().toString();
+            return idToCommit(commitId);
+        } catch(EmptyCommitException e){
+            return null;
+        }
     }
 }

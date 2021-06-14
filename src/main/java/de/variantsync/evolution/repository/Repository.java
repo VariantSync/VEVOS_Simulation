@@ -6,15 +6,13 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.Ref;
 
 import java.io.IOException;
 import java.nio.file.Path;
 
 public abstract class Repository<C extends Commit<? extends IRepository<C>>> implements IRepository<C>{
-    private Git git;
     private final Path path;
-    private C currentCommit;
+    private Git git;
 
     public Repository(Path path){
         this.path = path;
@@ -24,11 +22,11 @@ public abstract class Repository<C extends Commit<? extends IRepository<C>>> imp
     public C checkoutCommit(C c) throws GitAPIException, IOException {
         try {
             C previous = getCurrentCommit();
-            Ref ref = git().checkout().setName(c.id()).call();
-            currentCommit = idToCommit(ObjectId.toString(ref.getObjectId()));
+            git().checkout().setName(c.id()).call();
             return previous;
         } catch (GitAPIException | IOException e) {
             Logger.exception("Failed to checkout commit " + c, e);
+            close();
             throw e;
         }
     }
@@ -39,34 +37,37 @@ public abstract class Repository<C extends Commit<? extends IRepository<C>>> imp
             git().checkout().setName(branch.name()).call();
         } catch (GitAPIException | IOException e) {
             Logger.exception("Failed to checkout branch " + branch.name(), e);
+            close();
             throw e;
         }
     }
 
     @Override
     public C getCurrentCommit() throws IOException {
-        if(currentCommit == null){
-            currentCommit = idToCommit(getCurrentCommitId());
+        try {
+            return idToCommit(getCurrentCommitId());
+        } catch(IOException e) {
+            Logger.exception("Failed to get current commit.", e);
+            close();
+            throw e;
         }
-
-        return currentCommit;
     }
 
     public abstract C idToCommit(String id) throws IOException;
 
-    protected String getCurrentCommitId() throws IOException {
+
+    private String getCurrentCommitId() throws IOException {
         String commitId = "";
 
         try {
             ObjectId head = git().getRepository().resolve(Constants.HEAD);
-            // commitId = head.getName();
             commitId = ObjectId.toString(head);
+            return commitId;
         } catch (IOException e) {
-            Logger.exception("Failed to get current commit", e);
+            Logger.exception("Failed to get current commit ID", e);
+            close();
             throw e;
         }
-
-        return commitId;
     }
 
     @Override
@@ -74,21 +75,19 @@ public abstract class Repository<C extends Commit<? extends IRepository<C>>> imp
         return path;
     }
 
-    public Branch getCurrentBranch() throws IOException {
-        String branch = git().getRepository().getBranch();
-        return new Branch(branch);
-    }
-
     protected Git git() throws IOException {
         if(git == null){
-            try {
-                git = GitUtil.loadGitRepo(path.toFile());
-            } catch (IOException e) {
-                Logger.exception("Failed to load repository" + path, e);
-                throw e;
-            }
+            git = GitUtil.loadGitRepo(path.toFile());
         }
 
         return git;
+    }
+
+    public void close() {
+        if(git != null){
+            git.getRepository().close();
+            git.close();
+            git = null;
+        }
     }
 }
