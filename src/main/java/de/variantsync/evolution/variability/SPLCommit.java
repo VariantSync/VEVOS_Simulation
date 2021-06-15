@@ -23,6 +23,7 @@ public class SPLCommit extends Commit<ISPLRepository> {
 
     public SPLCommit(String commitId, KernelHavenLogPath kernelHavenLog, FeatureModelPath featureModel, PresenceConditionPath presenceConditions,  CommitMessagePath message) {
         super(commitId);
+        // Lazy loading of log file
         this.kernelHavenLog = Lazy.of(() -> {
             try {
                 if (kernelHavenLog != null) {
@@ -35,6 +36,7 @@ public class SPLCommit extends Commit<ISPLRepository> {
                 return Optional.empty();
             }
         });
+        // Lazy loading of feature model
         this.featureModel = Lazy.of(() -> {
             try {
                 if (featureModel != null) {
@@ -47,6 +49,7 @@ public class SPLCommit extends Commit<ISPLRepository> {
                 return Optional.empty();
             }
         });
+        // Lazy loading of presence condition
         this.presenceConditions = Lazy.of(() -> {
             try {
                 if (presenceConditions != null) {
@@ -59,6 +62,7 @@ public class SPLCommit extends Commit<ISPLRepository> {
                 return Optional.empty();
             }
         });
+        // Lazy loading of commit message
         this.message = Lazy.of(() -> {
             try {
                 if (message != null) {
@@ -73,6 +77,12 @@ public class SPLCommit extends Commit<ISPLRepository> {
         });
     }
 
+    /**
+     * Return the parents of this commit. As the dataset only contains the data about non-error commits,
+     * not all <code>SPLCommit</code> objects are associated with their parents. Therefore, an <code>Optional</code> is returned.
+     *
+     * @return An <code>Optional</code> containing the <code>SPLCommit</code> objects of the parent commits, if there are any.
+     */
     public Optional<SPLCommit[]> parents() {
         if (parents == null) {
             return Optional.empty();
@@ -85,18 +95,34 @@ public class SPLCommit extends Commit<ISPLRepository> {
         this.parents = parents;
     }
 
+    /**
+     *
+     * @return A Lazy that loads the commit message of this commit.
+     */
     public Lazy<Optional<String>> message() {
         return message;
     }
 
+    /**
+     *
+     * @return A Lazy that loads the KernelHaven log associated with this commit.
+     */
     public Lazy<Optional<String>> kernelHavenLog() {
         return kernelHavenLog;
     }
 
+    /**
+     *
+     * @return A Lazy that loads the feature model associated with this commit.
+     */
     public Lazy<Optional<IFeatureModel>> featureModel() {
         return featureModel;
     }
 
+    /**
+     *
+     * @return A Lazy that loads the presence conditions associated with this commit.
+     */
     public Lazy<Optional<Artefact>> presenceConditions() {
         return presenceConditions;
     }

@@ -3,8 +3,6 @@ package de.variantsync.evolution.variability;
 import de.variantsync.evolution.repository.VariabilityHistory;
 import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.list.NonEmptyList;
-import de.variantsync.evolution.variability.CommitPair;
-import de.variantsync.evolution.variability.SPLCommit;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -14,36 +12,52 @@ public class VariabilityDataset {
     private final Set<SPLCommit> allCommits;
     private final List<SPLCommit> successCommits;
     private final List<SPLCommit> errorCommits;
-    private final List<SPLCommit> incompletePCCommits;
+    private final List<SPLCommit> partialSuccessCommits;
 
-    public VariabilityDataset(@NotNull List<SPLCommit> successCommits, @NotNull List<SPLCommit> errorCommits, @NotNull List<SPLCommit> incompletePCCommits) {
+    public VariabilityDataset(@NotNull List<SPLCommit> successCommits, @NotNull List<SPLCommit> errorCommits, @NotNull List<SPLCommit> partialSuccessCommits) {
         this.successCommits = successCommits;
         this.errorCommits = errorCommits;
-        this.incompletePCCommits = incompletePCCommits;
+        this.partialSuccessCommits = partialSuccessCommits;
         this.allCommits = new HashSet<>();
         this.allCommits.addAll(successCommits);
         this.allCommits.addAll(errorCommits);
-        this.allCommits.addAll(incompletePCCommits);
-        if (allCommits.size() != successCommits.size() + errorCommits.size() + incompletePCCommits.size()) {
+        this.allCommits.addAll(partialSuccessCommits);
+        if (allCommits.size() != successCommits.size() + errorCommits.size() + partialSuccessCommits.size()) {
             Logger.error("Some of the dataset's commits belong to more than one category (SUCCESS | ERROR | INCOMPLETE_PC)");
             throw new IllegalArgumentException("Some of the dataset's commits belong to more than one category (SUCCESS | ERROR | INCOMPLETE_PC)");
         }
     }
 
+    /**
+     *
+     * @return A Set of all commits contained in this dataset.
+     */
     public Set<SPLCommit> getAllCommits() {
         return allCommits;
     }
 
+    /**
+     *
+     * @return A List of all commits for which variability data was extracted successfully.
+     */
     public List<SPLCommit> getSuccessCommits() {
         return successCommits;
     }
 
+    /**
+     *
+     * @return A List of all commits for which variability data could not be extracted.
+     */
     public List<SPLCommit> getErrorCommits() {
         return errorCommits;
     }
 
-    public List<SPLCommit> getIncompletePCCommits() {
-        return incompletePCCommits;
+    /**
+     *
+     * @return A List of all commits for which variability data was extracted partially.
+     */
+    public List<SPLCommit> getPartialSuccessCommits() {
+        return partialSuccessCommits;
     }
 
     /**

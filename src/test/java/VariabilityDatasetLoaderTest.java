@@ -110,7 +110,7 @@ public class VariabilityDatasetLoaderTest {
                 "f0619022ca9f6aeaba51fb1b71e77f6887cca4a4"
         };
 
-        List<SPLCommit> incompletePCCommits = dataset.getIncompletePCCommits();
+        List<SPLCommit> incompletePCCommits = dataset.getPartialSuccessCommits();
         for (var expectedCommit : expectedSuccessCommits) {
             assert Commit.contains(incompletePCCommits, expectedCommit);
         }
@@ -159,7 +159,7 @@ public class VariabilityDatasetLoaderTest {
 
     @Test
     public void messagesOfIncompletePCCommitsAreLoaded() {
-        for (SPLCommit commit : dataset.getIncompletePCCommits()) {
+        for (SPLCommit commit : dataset.getPartialSuccessCommits()) {
             String message = commit.message().run().orElseThrow();
             assert message.equals(COMMIT_MESSAGE);
         }
@@ -191,7 +191,7 @@ public class VariabilityDatasetLoaderTest {
 
     @Test
     public void presenceConditionsOfIncompletePCCommitsAreLoaded() {
-        for (SPLCommit commit : dataset.getIncompletePCCommits()) {
+        for (SPLCommit commit : dataset.getPartialSuccessCommits()) {
             Artefact trace = commit.presenceConditions().run().orElseThrow();
             assert trace != null;
         }
@@ -217,7 +217,7 @@ public class VariabilityDatasetLoaderTest {
     // TODO: This test should pass once #3 has been merged
     @Test
     public void featureModelsOfIncompletePCCommitsAreLoaded() {
-        for (SPLCommit commit : dataset.getIncompletePCCommits()) {
+        for (SPLCommit commit : dataset.getPartialSuccessCommits()) {
             IFeatureModel model = commit.featureModel().run().orElseThrow();
             assert model != null;
         }
