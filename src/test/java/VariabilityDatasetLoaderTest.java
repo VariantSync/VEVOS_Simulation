@@ -10,7 +10,7 @@ import de.variantsync.evolution.repository.VariabilityHistory;
 import de.variantsync.evolution.util.GitUtil;
 import de.variantsync.evolution.variability.SPLCommit;
 import de.variantsync.evolution.util.Logger;
-import de.variantsync.evolution.variability.pc.FeatureTrace;
+import de.variantsync.evolution.variability.pc.Artefact;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,7 +34,7 @@ public class VariabilityDatasetLoaderTest {
         Logger.initConsoleLogger();
         final Resources r = Resources.Instance();
         r.registerLoader(CSV.class, new CSVLoader());
-        r.registerLoader(FeatureTrace.class, new KernelHavenPCLoader());
+        r.registerLoader(Artefact.class, new KernelHavenPCLoader());
         // TODO: Register FeatureModel loader once #3 has been merged
         try {
             TEMP_TEST_REPO_DIR = Files.createDirectories(Paths.get("temporary-test-repos"));
@@ -184,7 +184,7 @@ public class VariabilityDatasetLoaderTest {
     @Test
     public void presenceConditionsOfSuccessCommitsAreLoaded() {
         for (SPLCommit commit : dataset.getSuccessCommits()) {
-            FeatureTrace trace = commit.presenceConditions().run().orElseThrow();
+            Artefact trace = commit.presenceConditions().run().orElseThrow();
             assert trace != null;
         }
     }
@@ -192,7 +192,7 @@ public class VariabilityDatasetLoaderTest {
     @Test
     public void presenceConditionsOfIncompletePCCommitsAreLoaded() {
         for (SPLCommit commit : dataset.getIncompletePCCommits()) {
-            FeatureTrace trace = commit.presenceConditions().run().orElseThrow();
+            Artefact trace = commit.presenceConditions().run().orElseThrow();
             assert trace != null;
         }
     }
@@ -200,7 +200,7 @@ public class VariabilityDatasetLoaderTest {
     @Test
     public void noPresenceConditionsForErrorCommits() {
         for (SPLCommit commit : dataset.getErrorCommits()) {
-            Optional<FeatureTrace> trace = commit.presenceConditions().run();
+            Optional<Artefact> trace = commit.presenceConditions().run();
             assert trace.isEmpty();
         }
     }

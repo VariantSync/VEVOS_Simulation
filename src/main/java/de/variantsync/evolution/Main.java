@@ -17,7 +17,6 @@ import de.variantsync.evolution.util.functional.Lazy;
 import de.variantsync.evolution.util.functional.MonadTransformer;
 import de.variantsync.evolution.util.functional.Unit;
 import de.variantsync.evolution.variability.CommitPair;
-import de.variantsync.evolution.variability.VariabilityRepo;
 import de.variantsync.evolution.variability.pc.Artefact;
 import de.variantsync.evolution.variants.VariantsRepository;
 import de.variantsync.evolution.variants.VariantsRevision;
@@ -87,6 +86,7 @@ public class Main {
         // Directory to which https://github.com/torvalds/linux was cloned to
         final File splRepoDir = new File(properties.getProperty(SPL_REPO));
 
+        // TODO: Reimplement the following code once a dataset for Linux or Busybox has been extracted
 //        Logger.info("variabilityRepoDir: " + variabilityRepoDir);
 //        Logger.info("splRepoDir: " + splRepoDir);
 //        VariabilityRepo variabilityRepo = null;

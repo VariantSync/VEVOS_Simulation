@@ -7,7 +7,7 @@ import de.variantsync.evolution.repository.Commit;
 import de.variantsync.evolution.repository.ISPLRepository;
 import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.functional.Lazy;
-import de.variantsync.evolution.variability.pc.FeatureTrace;
+import de.variantsync.evolution.variability.pc.Artefact;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -18,7 +18,7 @@ public class SPLCommit extends Commit<ISPLRepository> {
     private SPLCommit[] parents;
     private final Lazy<Optional<String>> kernelHavenLog;
     private final Lazy<Optional<IFeatureModel>> featureModel;
-    private final Lazy<Optional<FeatureTrace>> presenceConditions;
+    private final Lazy<Optional<Artefact>> presenceConditions;
     private final Lazy<Optional<String>> message;
 
     public SPLCommit(String commitId, KernelHavenLogPath kernelHavenLog, FeatureModelPath featureModel, PresenceConditionPath presenceConditions,  CommitMessagePath message) {
@@ -50,7 +50,7 @@ public class SPLCommit extends Commit<ISPLRepository> {
         this.presenceConditions = Lazy.of(() -> {
             try {
                 if (presenceConditions != null) {
-                    return Optional.of(Resources.Instance().load(FeatureTrace.class, presenceConditions.path));
+                    return Optional.of(Resources.Instance().load(Artefact.class, presenceConditions.path));
                 } else {
                     return Optional.empty();
                 }
@@ -97,7 +97,7 @@ public class SPLCommit extends Commit<ISPLRepository> {
         return featureModel;
     }
 
-    public Lazy<Optional<FeatureTrace>> presenceConditions() {
+    public Lazy<Optional<Artefact>> presenceConditions() {
         return presenceConditions;
     }
 
