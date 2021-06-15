@@ -37,13 +37,13 @@ public class IntervalSet implements Monoid<IntervalSet>, Iterable<Interval> {
     }
 
     @Override
-    public IntervalSet mempty() {
+    public IntervalSet mEmpty() {
         return new IntervalSet();
     }
 
     @Override
-    public IntervalSet mappend(IntervalSet other) {
-        final IntervalSet i = mempty();
+    public IntervalSet mAppend(IntervalSet other) {
+        final IntervalSet i = mEmpty();
         i.intervals.addAll(this.intervals);
         i.intervals.addAll(other.intervals);
         return i;

@@ -13,7 +13,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class TextIO {
@@ -58,8 +57,8 @@ public class TextIO {
      * @param lineTo last line to write.
      * @throws IOException May occur upon writing or creating files.
      */
-    public static void CopyTextLines(Path sourceFile, Path targetFile, int lineFrom, int lineTo) throws IOException {
-        CopyTextLines(sourceFile, targetFile, new IntervalSet(new Interval(lineFrom, lineTo)));
+    public static void copyTextLines(Path sourceFile, Path targetFile, int lineFrom, int lineTo) throws IOException {
+        copyTextLines(sourceFile, targetFile, new IntervalSet(new Interval(lineFrom, lineTo)));
     }
 
     /**
@@ -69,26 +68,24 @@ public class TextIO {
      * @param linesToTake Intervals of lines to copy.
      * @throws IOException May occur upon writing or creating files.
      */
-    public static void CopyTextLines(Path sourceFile, Path targetFile, IntervalSet linesToTake) throws IOException {
-        try (Stream<String> linesStream = new BufferedReader(new FileReader(sourceFile.toFile())).lines()) {
-            final List<String> read_lines = linesStream.collect(Collectors.toList());
-            StringBuilder linesToWrite = new StringBuilder();
+    public static void copyTextLines(Path sourceFile, Path targetFile, IntervalSet linesToTake) throws IOException {
+        final List<String> read_lines = Files.readAllLines(sourceFile);
+        StringBuilder linesToWrite = new StringBuilder();
 
-            for (Interval i : linesToTake) {
-                // -1 because lines are 1-indexed
-                for (
-                        int lineNo = i.from() - 1;
-                        lineNo < i.to() && lineNo < read_lines.size(); // just skip all lines that are too much
-                        ++lineNo)
-                {
-                    linesToWrite.append(read_lines.get(lineNo)).append(System.lineSeparator());
-                }
+        for (Interval i : linesToTake) {
+            // -1 because lines are 1-indexed
+            for (
+                    int lineNo = i.from() - 1;
+                    lineNo < i.to() && lineNo < read_lines.size(); // just skip all lines that are too much
+                    ++lineNo)
+            {
+                linesToWrite.append(read_lines.get(lineNo)).append(System.lineSeparator());
             }
-
-            Files.write(
-                    targetFile,
-                    linesToWrite.toString().getBytes(),
-                    StandardOpenOption.APPEND);
         }
+
+        Files.write(
+                targetFile,
+                linesToWrite.toString().getBytes(),
+                StandardOpenOption.APPEND);
     }
 }

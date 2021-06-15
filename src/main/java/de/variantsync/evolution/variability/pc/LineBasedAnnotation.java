@@ -46,7 +46,7 @@ public class LineBasedAnnotation extends Annotated {
         final CaseSensitivePath sourceFile = sourceDir.resolve(getFile());
         final CaseSensitivePath targetFile = targetDir.resolve(getFile());
         final IntervalSet chunksToWrite    = getLinesToGenerateFor(variant);
-        return Result.Try(() -> TextIO.CopyTextLines(sourceFile.path(), targetFile.path(), chunksToWrite));
+        return Result.Try(() -> TextIO.copyTextLines(sourceFile.path(), targetFile.path(), chunksToWrite));
     }
 
     /**

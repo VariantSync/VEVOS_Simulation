@@ -33,6 +33,14 @@ public class PathUtils {
         return f.createNewFile();
     }
 
+    /**
+     * Maybe bug?
+     * Alex: I often have the problem with Java that it only requests the deletion of the file, but does not
+     * guarantee that it is deleted. In the VariabilityExtraction project this was a serious issue and in the end
+     * I had to call rm -f  ... as shell command.
+     * @param path
+     * @return
+     */
     public static Result<Unit, CompositeException> deleteDirectory(Path path) {
         // read java doc, Files.walk need close the resources.
         // try-with-resources to ensure that the stream's open directories are closed

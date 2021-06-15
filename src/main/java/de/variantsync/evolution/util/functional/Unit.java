@@ -28,12 +28,12 @@ public class Unit implements Monoid<Unit> {
     }
 
     @Override
-    public Unit mempty() {
+    public Unit mEmpty() {
         return Instance();
     }
 
     @Override
-    public Unit mappend(Unit other) {
-        return mempty();
+    public Unit mAppend(Unit other) {
+        return mEmpty();
     }
 }

@@ -22,7 +22,7 @@ public class CompositeException extends Exception implements Monoid<CompositeExc
     }
 
     private CompositeException() {
-        super("mempty");
+        super("mEmpty");
         this.inner = new ArrayList<>();
     }
 
@@ -37,12 +37,12 @@ public class CompositeException extends Exception implements Monoid<CompositeExc
     }
 
     @Override
-    public CompositeException mempty() {
+    public CompositeException mEmpty() {
         return new CompositeException();
     }
 
     @Override
-    public CompositeException mappend(CompositeException other) {
+    public CompositeException mAppend(CompositeException other) {
         return new CompositeException(this, other);
     }
 

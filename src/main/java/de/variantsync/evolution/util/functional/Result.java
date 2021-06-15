@@ -191,8 +191,8 @@ public class Result<SuccessType, FailureType> {
         final Result<S, F> prec = a.isFailure() ? a : b;
         final Result<S, F> other = a.isFailure() ? b : a;
         return prec.bimap(
-                s -> other.isSuccess() ? s.mappend(other.getSuccess()) : s,
-                f -> other.isFailure() ? f.mappend(other.getFailure()) : f
+                s -> other.isSuccess() ? s.mAppend(other.getSuccess()) : s,
+                f -> other.isFailure() ? f.mAppend(other.getFailure()) : f
         );
     }
 }
