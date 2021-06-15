@@ -37,7 +37,6 @@ public class SPLCommit extends Commit<ISPLRepository> {
         });
         this.featureModel = Lazy.of(() -> {
             try {
-                // TODO: Implement Issue #3 here: Parse FM from fmPath. Use Resource.Instance() for that.
                 if (featureModel != null) {
                     return Optional.of(Resources.Instance().load(FeatureModel.class, featureModel.path));
                 } else {

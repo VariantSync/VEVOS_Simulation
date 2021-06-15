@@ -1,4 +1,8 @@
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
+import de.variantsync.evolution.io.Resources;
+import de.variantsync.evolution.io.data.CSV;
+import de.variantsync.evolution.io.data.CSVLoader;
+import de.variantsync.evolution.io.kernelhaven.KernelHavenPCLoader;
 import de.variantsync.evolution.variability.VariabilityDataset;
 import de.variantsync.evolution.io.data.VariabilityDatasetLoader;
 import de.variantsync.evolution.repository.Commit;
@@ -26,12 +30,12 @@ public class VariabilityDatasetLoaderTest {
     private static final File SIMPLE_HISTORY_REPO_DIR;
     private static final Path TEMP_TEST_REPO_DIR;
 
-    // TODO Alex: Test for loading of message
-    // TODO Alex: Test for loading of log
-
     static {
-        // TODO Alex: Handle double initialization problem
         Logger.initConsoleLogger();
+        final Resources r = Resources.Instance();
+        r.registerLoader(CSV.class, new CSVLoader());
+        r.registerLoader(FeatureTrace.class, new KernelHavenPCLoader());
+        // TODO: Register FeatureModel loader once #3 has been merged
         try {
             TEMP_TEST_REPO_DIR = Files.createDirectories(Paths.get("temporary-test-repos"));
             SIMPLE_HISTORY_REPO_DIR = new File(TEMP_TEST_REPO_DIR.toFile(), "simple-history");
@@ -195,12 +199,13 @@ public class VariabilityDatasetLoaderTest {
 
     @Test
     public void noPresenceConditionsForErrorCommits() {
-        for (SPLCommit commit : dataset.getSuccessCommits()) {
+        for (SPLCommit commit : dataset.getErrorCommits()) {
             Optional<FeatureTrace> trace = commit.presenceConditions().run();
             assert trace.isEmpty();
         }
     }
 
+    // TODO: This test should pass once #3 has been merged
     @Test
     public void featureModelsOfSuccessCommitsAreLoaded() {
         for (SPLCommit commit : dataset.getSuccessCommits()) {
@@ -209,6 +214,7 @@ public class VariabilityDatasetLoaderTest {
         }
     }
 
+    // TODO: This test should pass once #3 has been merged
     @Test
     public void featureModelsOfIncompletePCCommitsAreLoaded() {
         for (SPLCommit commit : dataset.getIncompletePCCommits()) {
@@ -219,7 +225,7 @@ public class VariabilityDatasetLoaderTest {
 
     @Test
     public void noFeatureModelForErrorCommits() {
-        for (SPLCommit commit : dataset.getSuccessCommits()) {
+        for (SPLCommit commit : dataset.getErrorCommits()) {
             Optional<IFeatureModel> model = commit.featureModel().run();
             assert model.isEmpty();
         }
