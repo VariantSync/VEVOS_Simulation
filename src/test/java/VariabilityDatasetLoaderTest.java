@@ -1,3 +1,4 @@
+import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import de.variantsync.evolution.variability.VariabilityDataset;
 import de.variantsync.evolution.io.data.VariabilityDatasetLoader;
 import de.variantsync.evolution.repository.Commit;
@@ -5,6 +6,7 @@ import de.variantsync.evolution.repository.VariabilityHistory;
 import de.variantsync.evolution.util.GitUtil;
 import de.variantsync.evolution.variability.SPLCommit;
 import de.variantsync.evolution.util.Logger;
+import de.variantsync.evolution.variability.pc.FeatureTrace;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,12 +17,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 
 public class VariabilityDatasetLoaderTest {
-    private static final String simpleHistoryRepoURI = "https://gitlab.informatik.hu-berlin.de/mse/SampleRepos/SimpleHistory.git";
-    private static final Path simpleVariabilityMetadataDir = new File("src/test/resources/simple-variability-metadata").toPath();
-    private static final File simpleHistoryRepoDir;
-    private static final Path tempTestRepoDir;
+    private static final String SPL_REPO_URI = "https://gitlab.informatik.hu-berlin.de/mse/SampleRepos/SimpleHistory.git";
+    private static final Path SIMPLE_VARIABILITY_METADATA_DIR = new File("src/test/resources/simple-variability-metadata").toPath();
+    private static final String COMMIT_MESSAGE = "Commit message stub";
+    private static final File SIMPLE_HISTORY_REPO_DIR;
+    private static final Path TEMP_TEST_REPO_DIR;
 
     // TODO Alex: Test for loading of message
     // TODO Alex: Test for loading of log
@@ -29,10 +33,10 @@ public class VariabilityDatasetLoaderTest {
         // TODO Alex: Handle double initialization problem
         Logger.initConsoleLogger();
         try {
-            tempTestRepoDir = Files.createDirectories(Paths.get("temporary-test-repos"));
-            simpleHistoryRepoDir = new File(tempTestRepoDir.toFile(), "simple-history");
-            if (!simpleHistoryRepoDir.exists()) {
-                GitUtil.fromRemote(simpleHistoryRepoURI, "simple-history", tempTestRepoDir.toString());
+            TEMP_TEST_REPO_DIR = Files.createDirectories(Paths.get("temporary-test-repos"));
+            SIMPLE_HISTORY_REPO_DIR = new File(TEMP_TEST_REPO_DIR.toFile(), "simple-history");
+            if (!SIMPLE_HISTORY_REPO_DIR.exists()) {
+                GitUtil.fromRemote(SPL_REPO_URI, "simple-history", TEMP_TEST_REPO_DIR.toString());
             }
         } catch (IOException | GitAPIException e) {
             throw new RuntimeException(e);
@@ -43,7 +47,7 @@ public class VariabilityDatasetLoaderTest {
 
     @Before
     public void loadData() {
-        var result = new VariabilityDatasetLoader().load(simpleVariabilityMetadataDir);
+        var result = new VariabilityDatasetLoader().load(SIMPLE_VARIABILITY_METADATA_DIR);
         assert result.isSuccess();
         this.dataset = result.getSuccess();
     }
@@ -138,6 +142,86 @@ public class VariabilityDatasetLoaderTest {
                 // The retrieved sequence contains an unexpected number of commits and the history is therefore incorrect
                 default -> throw new AssertionError("Invalid number of commits in the sequence.");
             }
+        }
+    }
+
+    @Test
+    public void messagesOfSuccessCommitsAreLoaded() {
+        for (SPLCommit commit : dataset.getSuccessCommits()) {
+            String message = commit.message().run().orElseThrow();
+            assert message.equals(COMMIT_MESSAGE);
+        }
+    }
+
+    @Test
+    public void messagesOfIncompletePCCommitsAreLoaded() {
+        for (SPLCommit commit : dataset.getIncompletePCCommits()) {
+            String message = commit.message().run().orElseThrow();
+            assert message.equals(COMMIT_MESSAGE);
+        }
+    }
+
+    @Test
+    public void noMessagesForErrorCommits() {
+        for (SPLCommit commit : dataset.getErrorCommits()) {
+            Optional<String> message = commit.message().run();
+            assert message.isEmpty();
+        }
+    }
+
+    @Test
+    public void logsOfEachCommitAreLoaded() {
+        for (SPLCommit commit : dataset.getAllCommits()) {
+            String log = commit.kernelHavenLog().run().orElseThrow();
+            assert "".equals(log);
+        }
+    }
+
+    @Test
+    public void presenceConditionsOfSuccessCommitsAreLoaded() {
+        for (SPLCommit commit : dataset.getSuccessCommits()) {
+            FeatureTrace trace = commit.presenceConditions().run().orElseThrow();
+            assert trace != null;
+        }
+    }
+
+    @Test
+    public void presenceConditionsOfIncompletePCCommitsAreLoaded() {
+        for (SPLCommit commit : dataset.getIncompletePCCommits()) {
+            FeatureTrace trace = commit.presenceConditions().run().orElseThrow();
+            assert trace != null;
+        }
+    }
+
+    @Test
+    public void noPresenceConditionsForErrorCommits() {
+        for (SPLCommit commit : dataset.getSuccessCommits()) {
+            Optional<FeatureTrace> trace = commit.presenceConditions().run();
+            assert trace.isEmpty();
+        }
+    }
+
+    @Test
+    public void featureModelsOfSuccessCommitsAreLoaded() {
+        for (SPLCommit commit : dataset.getSuccessCommits()) {
+            IFeatureModel model = commit.featureModel().run().orElseThrow();
+            assert model != null;
+        }
+    }
+
+    @Test
+    public void featureModelsOfIncompletePCCommitsAreLoaded() {
+        for (SPLCommit commit : dataset.getIncompletePCCommits()) {
+            IFeatureModel model = commit.featureModel().run().orElseThrow();
+            assert model != null;
+        }
+    }
+
+    @Test
+    public void noFeatureModelForErrorCommits() {
+        for (SPLCommit commit : dataset.getSuccessCommits()) {
+            Optional<IFeatureModel> model = commit.featureModel().run();
+            assert model.isEmpty();
         }
     }
 
