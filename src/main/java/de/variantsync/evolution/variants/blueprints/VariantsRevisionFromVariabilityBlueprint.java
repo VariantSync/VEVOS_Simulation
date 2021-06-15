@@ -1,6 +1,10 @@
 package de.variantsync.evolution.variants.blueprints;
 
-import de.variantsync.evolution.variability.pc.FeatureTrace;
+import de.variantsync.evolution.util.CaseSensitivePath;
+import de.variantsync.evolution.util.Logger;
+import de.variantsync.evolution.util.functional.Result;
+import de.variantsync.evolution.util.functional.Unit;
+import de.variantsync.evolution.variability.pc.Artefact;
 import de.variantsync.evolution.variants.VariantCommit;
 import de.variantsync.evolution.variants.VariantsRevision;
 import de.variantsync.evolution.feature.Sample;
@@ -58,25 +62,26 @@ public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBl
     public Lazy<VariantsRevision.Branches> generateArtefactsFor(VariantsRevision revision) {
         return splCommit.presenceConditions().and(getSample()).map(ts -> {
             // TODO: Should we implement handling of an empty optional, or do we consider this to be a fundamental error?
-            final FeatureTrace traces = ts.getKey().orElseThrow();
+            final Artefact traces = ts.getKey().orElseThrow();
             final Sample sample = ts.getValue();
             final ISPLRepository splRepo = revision.getSPLRepo();
             final IVariantsRepository variantsRepo = revision.getVariantsRepo();
 
             final Map<Branch, VariantCommit> commits = new HashMap<>(sample.size());
-            for (Variant variant : sample.variants()) {
-                final Branch branch = variantsRepo.getBranchByName(variant.name());
+            for (final Variant variant : sample.variants()) {
+                final Branch branch = variantsRepo.getBranchByName(variant.getName());
                 variantsRepo.checkoutBranch(branch);
                 splRepo.checkoutCommit(splCommit);
 
                 // Generate the code
-                FeatureTrace variantTrace = traces.project(variant);
-                // TODO: Implement issue #2 here:
-                //       Read data from splRepo and write it according to variantTrace to variantsRepo.
-                // [...]
+                final Result<Unit, Exception> result = traces.generateVariant(
+                        variant,
+                        new CaseSensitivePath(splRepo.getPath()),
+                        new CaseSensitivePath(variantsRepo.getPath()));
+                Logger.log(result.map(u -> "Generating variant " + variant + " was successful!"));
 
                 // Commit the generated variant with the corresponding spl commit has as message.
-                final String commitMessage = splCommit.id() + " || " + splCommit.message() + " || " + variant.name();
+                final String commitMessage = splCommit.id() + " || " + splCommit.message() + " || " + variant.getName();
                 final Optional<VariantCommit> variantCommit = variantsRepo.commit(commitMessage);
                 variantCommit.ifPresent(commit -> commits.put(branch, commit));
             }

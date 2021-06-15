@@ -50,7 +50,7 @@ public class VariantsRevisionFromErrorBlueprint extends VariantsRevisionBlueprin
             final Map<Branch, VariantCommit> commits = new HashMap<>(sample.size());
 
             for (Variant variant : sample.variants()) {
-                final Branch branch = variantsRepo.getBranchByName(variant.name());
+                final Branch branch = variantsRepo.getBranchByName(variant.getName());
                 variantsRepo.checkoutBranch(branch);
                 // TODO: We cannot commit no changes. So we have to change something. What could that be?
                 //       A simple text file might really be all we need here. Either an empty file or a file with the hashes of the associated commits.

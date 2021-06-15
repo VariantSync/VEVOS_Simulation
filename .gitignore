@@ -18,3 +18,4 @@ __pycache__
 */latex/*.log
 */latex/*.out
 */latex/*.synctex.gz
+/src/main/resources/test/gen/

@@ -1,5 +1,9 @@
 package de.variantsync.evolution;
 
+import de.ovgu.featureide.fm.core.base.impl.*;
+import de.ovgu.featureide.fm.core.configuration.*;
+import de.ovgu.featureide.fm.core.io.sxfm.SXFMFormat;
+import de.ovgu.featureide.fm.core.io.xml.XmlFeatureModelFormat;
 import de.variantsync.evolution.io.Resources;
 import de.variantsync.evolution.io.data.CSV;
 import de.variantsync.evolution.io.data.CSVLoader;
@@ -13,7 +17,8 @@ import de.variantsync.evolution.util.functional.Lazy;
 import de.variantsync.evolution.util.functional.MonadTransformer;
 import de.variantsync.evolution.util.functional.Unit;
 import de.variantsync.evolution.variability.CommitPair;
-import de.variantsync.evolution.variability.pc.FeatureTrace;
+import de.variantsync.evolution.variability.VariabilityRepo;
+import de.variantsync.evolution.variability.pc.Artefact;
 import de.variantsync.evolution.variants.VariantsRepository;
 import de.variantsync.evolution.variants.VariantsRevision;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -31,16 +36,43 @@ public class Main {
     private static final String VARIABILITY_REPO = "variability_repo";
     private static final String SPL_REPO = "spl_repo";
 
-    private static void initResources() {
+    private static void InitResources() {
         final Resources r = Resources.Instance();
         r.registerLoader(CSV.class, new CSVLoader());
-        r.registerLoader(FeatureTrace.class, new KernelHavenPCLoader());
-        r.registerLoader(FeatureTrace.class, new PCLocatorPCLoader());
+        r.registerLoader(Artefact.class, new KernelHavenPCLoader());
+        r.registerLoader(Artefact.class, new PCLocatorPCLoader());
+    }
+
+    private static void InitFeatureIDE() {
+        /*
+         * Who needs an SPL if we can clone-and-own from FeatureIDE's FMCoreLibrary, lol.
+         */
+
+        FMFactoryManager.getInstance().addExtension(DefaultFeatureModelFactory.getInstance());
+        FMFactoryManager.getInstance().addExtension(MultiFeatureModelFactory.getInstance());
+        FMFactoryManager.getInstance().setWorkspaceLoader(new CoreFactoryWorkspaceLoader());
+
+        FMFormatManager.getInstance().addExtension(new XmlFeatureModelFormat());
+        FMFormatManager.getInstance().addExtension(new SXFMFormat());
+
+        ConfigurationFactoryManager.getInstance().addExtension(DefaultConfigurationFactory.getInstance());
+        ConfigurationFactoryManager.getInstance().setWorkspaceLoader(new CoreFactoryWorkspaceLoader());
+
+        ConfigFormatManager.getInstance().addExtension(new XMLConfFormat());
+        ConfigFormatManager.getInstance().addExtension(new DefaultFormat());
+        ConfigFormatManager.getInstance().addExtension(new FeatureIDEFormat());
+        ConfigFormatManager.getInstance().addExtension(new EquationFormat());
+        ConfigFormatManager.getInstance().addExtension(new ExpressionFormat());
+    }
+
+    public static void Initialize() {
+        Logger.initConsoleLogger();
+        InitResources();
+        InitFeatureIDE();
     }
 
     public static void main(String[] args) {
-        Logger.initConsoleLogger();
-        initResources();
+        Initialize();
 
         // Debug variability repo
         Properties properties = new Properties();
