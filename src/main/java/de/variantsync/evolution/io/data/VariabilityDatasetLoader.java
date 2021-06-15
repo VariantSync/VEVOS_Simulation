@@ -4,8 +4,11 @@ import de.variantsync.evolution.io.ResourceLoader;
 import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.functional.Result;
 import de.variantsync.evolution.variability.SPLCommit;
+import de.variantsync.evolution.variability.SPLCommit.KernelHavenLogPath;
+import de.variantsync.evolution.variability.SPLCommit.FeatureModelPath;
+import de.variantsync.evolution.variability.SPLCommit.PresenceConditionPath;
+import de.variantsync.evolution.variability.SPLCommit.CommitMessagePath;
 import de.variantsync.evolution.variability.VariabilityDataset;
-import de.variantsync.evolution.variability.VariabilityFilePaths;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -75,8 +78,7 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
     private List<SPLCommit> initializeSPLCommits(Path p, List<String> commitIds) {
         List<SPLCommit> splCommits = new ArrayList<>(commitIds.size());
         for (String id : commitIds) {
-            VariabilityFilePaths dataPaths = new VariabilityFilePaths(resolvePathToLogFile(p, id), resolvePathToFeatureModel(p, id), resolvePathToPresenceConditions(p, id), resolvePathToMessageFile(p, id));
-            SPLCommit splCommit = new SPLCommit(id, dataPaths);
+            SPLCommit splCommit = new SPLCommit(id, resolvePathToLogFile(p, id), resolvePathToFeatureModel(p, id), resolvePathToPresenceConditions(p, id), resolvePathToMessageFile(p, id));
             splCommits.add(splCommit);
         }
         return splCommits;
@@ -86,14 +88,14 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
         return rootDir.resolve("output/" + commitId);
     }
 
-    private Path resolvePathToFeatureModel(Path rootDir, String commitId) {
+    private FeatureModelPath resolvePathToFeatureModel(Path rootDir, String commitId) {
         Path p = resolvePathToCommitOutputDir(rootDir, commitId).resolve(FEATURE_MODEL_FILE);
-        return p.toFile().exists() ? p : null;
+        return p.toFile().exists() ? new FeatureModelPath(p) : null;
     }
 
-    private Path resolvePathToPresenceConditions(Path rootDir, String commitId) {
+    private PresenceConditionPath resolvePathToPresenceConditions(Path rootDir, String commitId) {
         Path p = resolvePathToCommitOutputDir(rootDir, commitId).resolve(PRESENCE_CONDITIONS_FILE);
-        return p.toFile().exists() ? p : null;
+        return p.toFile().exists() ? new PresenceConditionPath(p) : null;
     }
 
     private Path resolvePathToParentsFile(Path rootDir, String commitId) {
@@ -101,14 +103,14 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
         return p.toFile().exists() ? p : null;
     }
 
-    private Path resolvePathToMessageFile(Path rootDir, String commitId) {
+    private CommitMessagePath resolvePathToMessageFile(Path rootDir, String commitId) {
         Path p = resolvePathToCommitOutputDir(rootDir, commitId).resolve(MESSAGE_FILE);
-        return p.toFile().exists() ? p : null;
+        return p.toFile().exists() ? new CommitMessagePath(p) : null;
     }
 
-    private Path resolvePathToLogFile(Path rootDir, String commitId) {
+    private KernelHavenLogPath resolvePathToLogFile(Path rootDir, String commitId) {
         Path p = rootDir.resolve("log/" + commitId + ".log");
-        return p.toFile().exists() ? p : null;
+        return p.toFile().exists() ? new KernelHavenLogPath(p) : null;
     }
 
     private List<String> readLines(Path p, String fileName) {

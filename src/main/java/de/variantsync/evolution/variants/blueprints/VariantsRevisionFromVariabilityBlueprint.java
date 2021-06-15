@@ -57,7 +57,8 @@ public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBl
     @Override
     public Lazy<VariantsRevision.Branches> generateArtefactsFor(VariantsRevision revision) {
         return splCommit.presenceConditions().and(getSample()).map(ts -> {
-            final FeatureTrace traces = ts.getKey();
+            // TODO: Should we implement handling of an empty optional, or do we consider this to be a fundamental error?
+            final FeatureTrace traces = ts.getKey().orElseThrow();
             final Sample sample = ts.getValue();
             final ISPLRepository splRepo = revision.getSPLRepo();
             final IVariantsRepository variantsRepo = revision.getVariantsRepo();

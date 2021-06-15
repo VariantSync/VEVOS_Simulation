@@ -1,11 +1,11 @@
 package de.variantsync.evolution.variability;
 
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
+import de.ovgu.featureide.fm.core.base.impl.FeatureModel;
 import de.variantsync.evolution.io.Resources;
 import de.variantsync.evolution.repository.Commit;
 import de.variantsync.evolution.repository.ISPLRepository;
 import de.variantsync.evolution.util.Logger;
-import de.variantsync.evolution.util.NotImplementedException;
 import de.variantsync.evolution.util.functional.Lazy;
 import de.variantsync.evolution.variability.pc.FeatureTrace;
 
@@ -16,41 +16,60 @@ import java.util.Optional;
 
 public class SPLCommit extends Commit<ISPLRepository> {
     private SPLCommit[] parents;
-    private final Lazy<String> kernelHavenLog;
-    private final Lazy<IFeatureModel> featureModel;
-    private final Lazy<FeatureTrace> presenceConditions;
-    private final Lazy<String> message;
+    private final Lazy<Optional<String>> kernelHavenLog;
+    private final Lazy<Optional<IFeatureModel>> featureModel;
+    private final Lazy<Optional<FeatureTrace>> presenceConditions;
+    private final Lazy<Optional<String>> message;
 
-    public SPLCommit(String commitId, VariabilityFilePaths variabilityFilePaths) {
+    public SPLCommit(String commitId, KernelHavenLogPath kernelHavenLog, FeatureModelPath featureModel, PresenceConditionPath presenceConditions,  CommitMessagePath message) {
         super(commitId);
-        // TODO Alex: Think about how we can handle cases in which the files do not exist
         this.kernelHavenLog = Lazy.of(() -> {
             try {
-                return Files.readString(variabilityFilePaths.pathToKernelHavenLog());
+                if (kernelHavenLog != null) {
+                    return Optional.of(Files.readString(kernelHavenLog.path));
+                } else {
+                    return Optional.empty();
+                }
             } catch (IOException e) {
                 Logger.exception("Was not able to load KernelHaven log for commit " + commitId, e);
-                return null;
+                return Optional.empty();
             }
         });
         this.featureModel = Lazy.of(() -> {
-            Path fmPath = variabilityFilePaths.pathToFeatureModel().orElseThrow();
-            // TODO: Implement Issue #3 here: Parse FM from fmPath. Use Resource.Instance() for that.
-            throw new NotImplementedException();
+            try {
+                // TODO: Implement Issue #3 here: Parse FM from fmPath. Use Resource.Instance() for that.
+                if (featureModel != null) {
+                    return Optional.of(Resources.Instance().load(FeatureModel.class, featureModel.path));
+                } else {
+                    return Optional.empty();
+                }
+            } catch (Resources.ResourceLoadingFailure resourceLoadingFailure) {
+                Logger.exception("Was not able to load feature model for id " + commitId, resourceLoadingFailure);
+                return Optional.empty();
+            }
         });
         this.presenceConditions = Lazy.of(() -> {
             try {
-                return Resources.Instance().load(FeatureTrace.class, variabilityFilePaths.pathToPresenceConditions().orElseThrow());
+                if (presenceConditions != null) {
+                    return Optional.of(Resources.Instance().load(FeatureTrace.class, presenceConditions.path));
+                } else {
+                    return Optional.empty();
+                }
             } catch (Resources.ResourceLoadingFailure resourceLoadingFailure) {
-                Logger.exception("", resourceLoadingFailure);
-                return null;
+                Logger.exception("Was not able to load presence conditions for id " + commitId, resourceLoadingFailure);
+                return Optional.empty();
             }
         });
         this.message = Lazy.of(() -> {
             try {
-                return Files.readString(variabilityFilePaths.pathToMessage().orElseThrow());
+                if (message != null) {
+                    return Optional.of(Files.readString(message.path));
+                } else {
+                    return Optional.empty();
+                }
             } catch (IOException e) {
                 Logger.exception("Was not able to load commit message for id " + commitId, e);
-                return null;
+                return Optional.empty();
             }
         });
     }
@@ -67,19 +86,24 @@ public class SPLCommit extends Commit<ISPLRepository> {
         this.parents = parents;
     }
 
-    public Lazy<String> message() {
+    public Lazy<Optional<String>> message() {
         return message;
     }
 
-    public Lazy<String> kernelHavenLog() {
+    public Lazy<Optional<String>> kernelHavenLog() {
         return kernelHavenLog;
     }
 
-    public Lazy<IFeatureModel> featureModel() {
+    public Lazy<Optional<IFeatureModel>> featureModel() {
         return featureModel;
     }
 
-    public Lazy<FeatureTrace> presenceConditions() {
+    public Lazy<Optional<FeatureTrace>> presenceConditions() {
         return presenceConditions;
     }
+
+    public record KernelHavenLogPath(Path path) {}
+    public record FeatureModelPath(Path path) {}
+    public record PresenceConditionPath(Path path) {}
+    public record CommitMessagePath(Path path) {}
 }
