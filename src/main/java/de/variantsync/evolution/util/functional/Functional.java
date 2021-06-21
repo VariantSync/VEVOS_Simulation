@@ -38,10 +38,6 @@ public class Functional {
         return ma -> match(ma, just, nothing);
     }
 
-    public static <A, B> boolean isDisjunctionEmpty(Collection<A> a, Collection<B> b) {
-        return a.stream().noneMatch(x -> b.stream().anyMatch(x::equals));
-    }
-
     /// Java to FP
 
     public static <A> Function<A, Unit> Lift(Consumer<A> f) {
