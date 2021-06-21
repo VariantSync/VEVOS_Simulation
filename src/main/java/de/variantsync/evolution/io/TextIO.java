@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class TextIO {
@@ -69,23 +70,26 @@ public class TextIO {
      * @throws IOException May occur upon writing or creating files.
      */
     public static void copyTextLines(Path sourceFile, Path targetFile, IntervalSet linesToTake) throws IOException {
-        final List<String> read_lines = Files.readAllLines(sourceFile);
-        StringBuilder linesToWrite = new StringBuilder();
+        /// Do not use Files.readAllLines(sourceFile) as it assumes the files to be in UTF-8 and crashes otherwise.
+        try(Stream<String> linesStream = new BufferedReader(new FileReader(sourceFile.toFile())).lines()) {
+            final List<String> read_lines = linesStream.collect(Collectors.toList());
+            final StringBuilder linesToWrite = new StringBuilder();
 
-        for (Interval i : linesToTake) {
-            // -1 because lines are 1-indexed
-            for (
-                    int lineNo = i.from() - 1;
-                    lineNo < i.to() && lineNo < read_lines.size(); // just skip all lines that are too much
-                    ++lineNo)
-            {
-                linesToWrite.append(read_lines.get(lineNo)).append(System.lineSeparator());
+            for (Interval i : linesToTake) {
+                // -1 because lines are 1-indexed
+                for (
+                        int lineNo = i.from() - 1;
+                        lineNo < i.to() && lineNo < read_lines.size(); // just skip all lines that are too much
+                        ++lineNo)
+                {
+                    linesToWrite.append(read_lines.get(lineNo)).append(System.lineSeparator());
+                }
             }
-        }
 
-        Files.write(
-                targetFile,
-                linesToWrite.toString().getBytes(),
-                StandardOpenOption.APPEND);
+            Files.write(
+                    targetFile,
+                    linesToWrite.toString().getBytes(),
+                    StandardOpenOption.APPEND);
+        }
     }
 }
