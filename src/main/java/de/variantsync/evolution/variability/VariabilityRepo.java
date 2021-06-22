@@ -1,8 +1,7 @@
 package de.variantsync.evolution.variability;
 
 import de.variantsync.evolution.io.TextIO;
-import de.variantsync.evolution.repository.Branch;
-import de.variantsync.evolution.repository.IVariabilityRepository;
+import de.variantsync.evolution.repository.AbstractVariabilityRepository;
 import de.variantsync.evolution.repository.VariabilityHistory;
 import de.variantsync.evolution.util.GitUtil;
 import de.variantsync.evolution.util.Logger;
@@ -31,7 +30,7 @@ import static de.variantsync.evolution.variability.Constants.ERROR_FILE;
  * and whether the extraction of variability was successful for that commit.
  * </p>
  */
-public class VariabilityRepo implements IVariabilityRepository {
+public class VariabilityRepo extends AbstractVariabilityRepository {
     private Map<String, VariabilityCommit> allCommits;
     // Maps a VarCommit that processed the SPLCommit s to other VarCommits that processed the SPLCommits p_1 to p_n, where
     // p_1 to p_n are the parent commits of s in the history of the SPL repo
@@ -42,10 +41,9 @@ public class VariabilityRepo implements IVariabilityRepository {
     // successCommits and errorCommits
     private Set<VariabilityCommit> nonMergeCommits;
 
-    private final Path path;
 
     private VariabilityRepo(Path path) {
-        this.path = path;
+        super(path);
         Logger.status("Variability repository initialized from " + path);
     }
 
@@ -137,6 +135,7 @@ public class VariabilityRepo implements IVariabilityRepository {
         repo.errorCommits = errorCommits;
         repo.allCommits = allCommits;
         mapCommitsAccordingToSPLHistory(splCommitToVarCommit, splRepoDir, repo);
+        git.close();
         return repo;
     }
 
@@ -313,27 +312,18 @@ public class VariabilityRepo implements IVariabilityRepository {
         return path.resolve("code-variability.csv");
     }
 
-    @Override
-    public VariabilityCommit checkoutCommit(VariabilityCommit variabilityCommit) {
-        // TODO: Implement Issue #12 here.
-        throw new NotImplementedException();
-    }
 
     @Override
-    public void checkoutBranch(Branch branch) {
-        // TODO: Implement Issue #12 here.
-        throw new NotImplementedException();
-    }
+    public VariabilityCommit idToCommit(String id) {
+        VariabilityCommit commit = getVariabilityCommit(id);
 
-    @Override
-    public VariabilityCommit getCurrentCommit() {
-        // TODO: Implement Issue #12 here.
-        throw new NotImplementedException();
-    }
+        /*
+        if(commit == null){
+            commit = new VariabilityCommit(this, id, null);
+        }
+        */
 
-    @Override
-    public Path getPath() {
-        return path;
-    }
 
+        return commit;
+    }
 }

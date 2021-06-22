@@ -31,7 +31,7 @@ public abstract class VariantsRevisionBlueprint {
     protected abstract Lazy<Sample> computeSample();
 
     /**
-     * Generates the variants for the given VariantsRevision and commits them to the corresponding IVariantsRepository.
+     * Generates the variants for the given VariantsRevision and commits them to the corresponding AbstractVariantsRepository.
      * @param revision The revision for which variants should be generated to disk.
      * @return A computation that when run, generates the variants and returns the generated commits.
      */
