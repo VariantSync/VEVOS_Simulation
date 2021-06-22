@@ -5,7 +5,7 @@ import de.variantsync.evolution.variants.blueprints.VariantsRevisionBlueprint;
 import de.variantsync.evolution.repository.Branch;
 import de.variantsync.evolution.repository.ISPLRepository;
 import de.variantsync.evolution.util.functional.Lazy;
-import de.variantsync.evolution.util.ListHeadTailView;
+import de.variantsync.evolution.util.list.ListHeadTailView;
 import de.variantsync.evolution.util.functional.MonadTransformer;
 import de.variantsync.evolution.util.functional.Unit;
 

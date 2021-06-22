@@ -5,6 +5,10 @@ import de.variantsync.evolution.repository.AbstractVariabilityRepository;
 import de.variantsync.evolution.repository.Commit;
 import de.variantsync.evolution.util.functional.Lazy;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import de.variantsync.evolution.io.Resources;
+import de.variantsync.evolution.util.Logger;
+import de.variantsync.evolution.variability.pc.FeatureTrace;
+
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -30,22 +34,23 @@ public class VariabilityCommit extends Commit<AbstractVariabilityRepository> {
         }
 
         Path fmPath = sourceRepo.getFeatureModelFile();
-        // TODO: Implement Issue #3 here: Parse FM from fmPath.
+        // TODO: Implement Issue #3 here: Parse FM from fmPath. Use Resource.Instance() for that.
         return fm;
     });
 
-    public final Lazy<FeatureTraces> featureTraces = Lazy.of(() -> {
-        FeatureTraces traces = null;
-
+    public final Lazy<FeatureTrace> presenceConditions = Lazy.of(() -> {
         try {
             sourceRepo.checkoutCommit(this);
         } catch (GitAPIException | IOException e) {
             throw new RuntimeException("Failed commit checkout.");
         }
 
-        Path varPath = sourceRepo.getVariabilityFile();
-        // TODO: Implement Issue #9 here: Parse Variability data from varPath
-        return traces;
+        try {
+            return Resources.Instance().load(FeatureTrace.class, sourceRepo.getVariabilityFile());
+        } catch (Resources.ResourceLoadingFailure resourceLoadingFailure) {
+            Logger.exception("", resourceLoadingFailure);
+            return null;
+        }
     });
 
     void setEvolutionParents(VariabilityCommit[] evolutionParents) {

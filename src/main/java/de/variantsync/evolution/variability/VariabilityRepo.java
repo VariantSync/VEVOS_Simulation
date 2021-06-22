@@ -309,8 +309,7 @@ public class VariabilityRepo extends AbstractVariabilityRepository {
 
     @Override
     public Path getVariabilityFile() {
-        // TODO for Alex
-        throw new NotImplementedException();
+        return path.resolve("code-variability.csv");
     }
 
 
