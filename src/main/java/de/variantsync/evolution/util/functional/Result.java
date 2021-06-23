@@ -72,9 +72,9 @@ public class Result<SuccessType, FailureType> {
      * Runs the given computation that indicates success by returning a boolean and that may throw an exception.
      * Running f will be interpreted as a success iff f returns true and throws no exception.
      * Running f will be interpreted as a failure iff f returns false or throws an exception.
-     * In case of failure, a failure value will be produced with the given failure supplier.
+     * If f did not throw an exception but returned false, a failure value will be produced with the given failure supplier.
      * @param f Computation to run that indicates success with a boolean return value or an exception.
-     * @param failure Factory for failure message in case f returned false or threw an exception.
+     * @param failure Factory for failure message in case f returned false.
      * @return Success iff f returned true and did not throw an exception, Failure otherwise.
      */
     public static <E extends Exception> Result<Unit, E> FromFlag(FragileSupplier<Boolean, E> f, Supplier<E> failure) {
