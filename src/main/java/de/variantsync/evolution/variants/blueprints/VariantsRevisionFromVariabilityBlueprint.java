@@ -11,11 +11,13 @@ import de.variantsync.evolution.feature.Sample;
 import de.variantsync.evolution.feature.Variant;
 import de.variantsync.evolution.repository.Branch;
 import de.variantsync.evolution.repository.ISPLRepository;
-import de.variantsync.evolution.repository.IVariantsRepository;
+import de.variantsync.evolution.repository.AbstractVariantsRepository;
 import de.variantsync.evolution.variability.SPLCommit;
 import de.variantsync.evolution.variability.VariabilityCommit;
 import de.variantsync.evolution.util.functional.Lazy;
+import org.eclipse.jgit.api.errors.GitAPIException;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -66,13 +68,23 @@ public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBl
             final Sample sample = ts.getValue();
             final SPLCommit splCommit = variability.splCommit();
             final ISPLRepository splRepo = revision.getSPLRepo();
-            final IVariantsRepository variantsRepo = revision.getVariantsRepo();
+            final AbstractVariantsRepository variantsRepo = revision.getVariantsRepo();
 
             final Map<Branch, VariantCommit> commits = new HashMap<>(sample.size());
-            for (final Variant variant : sample.variants()) {
+            for (Variant variant : sample.variants()) {
                 final Branch branch = variantsRepo.getBranchByName(variant.getName());
-                variantsRepo.checkoutBranch(branch);
-                splRepo.checkoutCommit(splCommit);
+
+                try {
+                    variantsRepo.checkoutBranch(branch);
+                } catch (IOException | GitAPIException e) {
+                    throw new RuntimeException("Failed checkout of branch " + branch + " in variants repository.");
+                }
+
+                try {
+                    splRepo.checkoutCommit(splCommit);
+                } catch (IOException | GitAPIException e) {
+                    throw new RuntimeException("Failed checkout of commit " + splCommit.id() + " in SPL Repository.");
+                }
 
                 // Generate the code
                 final Result<Unit, Exception> result = traces.generateVariant(
@@ -83,7 +95,14 @@ public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBl
 
                 // Commit the generated variant with the corresponding spl commit has as message.
                 final String commitMessage = splCommit.id() + " || " + splCommit.message() + " || " + variant.getName();
-                final Optional<VariantCommit> variantCommit = variantsRepo.commit(commitMessage);
+                final Optional<VariantCommit> variantCommit;
+
+                try {
+                    variantCommit = variantsRepo.commit(commitMessage);
+                } catch (GitAPIException | IOException e) {
+                    throw new RuntimeException("Failed to commit " + commitMessage + " to VariantsRepository.");
+                }
+
                 variantCommit.ifPresent(commit -> commits.put(branch, commit));
             }
 
