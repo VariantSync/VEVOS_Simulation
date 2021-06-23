@@ -52,7 +52,7 @@ public class VariantsRevisionFromErrorBlueprint extends VariantsRevisionBlueprin
             final Map<Branch, VariantCommit> commits = new HashMap<>(sample.size());
 
             for (Variant variant : sample.variants()) {
-                final Branch branch = variantsRepo.getBranchByName(variant.name());
+                final Branch branch = variantsRepo.getBranchByName(variant.getName());
                 final Optional<VariantCommit> variantCommit;
 
                 try {
@@ -63,7 +63,6 @@ public class VariantsRevisionFromErrorBlueprint extends VariantsRevisionBlueprin
                 } catch (GitAPIException | IOException e) {
                     throw new RuntimeException("Failed when using the VariantsRepository.");
                 }
-
 
                 if (variantCommit.isPresent()) {
                     commits.put(branch, variantCommit.get());

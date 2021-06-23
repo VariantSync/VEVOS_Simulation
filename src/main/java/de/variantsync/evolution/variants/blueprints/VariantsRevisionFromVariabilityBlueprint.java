@@ -1,12 +1,16 @@
 package de.variantsync.evolution.variants.blueprints;
 
-import de.variantsync.evolution.variability.pc.FeatureTrace;
+import de.variantsync.evolution.util.CaseSensitivePath;
+import de.variantsync.evolution.util.Logger;
+import de.variantsync.evolution.util.functional.Result;
+import de.variantsync.evolution.util.functional.Unit;
+import de.variantsync.evolution.variability.pc.Artefact;
 import de.variantsync.evolution.variants.VariantCommit;
 import de.variantsync.evolution.variants.VariantsRevision;
 import de.variantsync.evolution.feature.Sample;
 import de.variantsync.evolution.feature.Variant;
 import de.variantsync.evolution.repository.Branch;
-import de.variantsync.evolution.repository.ISPLRepository;
+import de.variantsync.evolution.repository.AbstractSPLRepository;
 import de.variantsync.evolution.repository.AbstractVariantsRepository;
 import de.variantsync.evolution.variability.SPLCommit;
 import de.variantsync.evolution.variability.VariabilityCommit;
@@ -60,15 +64,15 @@ public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBl
     @Override
     public Lazy<VariantsRevision.Branches> generateArtefactsFor(VariantsRevision revision) {
         return variability.presenceConditions.and(getSample()).map(ts -> {
-            final FeatureTrace traces = ts.getKey();
+            final Artefact traces = ts.getKey();
             final Sample sample = ts.getValue();
             final SPLCommit splCommit = variability.splCommit();
-            final ISPLRepository splRepo = revision.getSPLRepo();
+            final AbstractSPLRepository splRepo = revision.getSPLRepo();
             final AbstractVariantsRepository variantsRepo = revision.getVariantsRepo();
 
             final Map<Branch, VariantCommit> commits = new HashMap<>(sample.size());
             for (Variant variant : sample.variants()) {
-                final Branch branch = variantsRepo.getBranchByName(variant.name());
+                final Branch branch = variantsRepo.getBranchByName(variant.getName());
 
                 try {
                     variantsRepo.checkoutBranch(branch);
@@ -83,13 +87,14 @@ public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBl
                 }
 
                 // Generate the code
-                FeatureTrace variantTrace = traces.project(variant);
-                // TODO: Implement issue #2 here:
-                //       Read data from splRepo and write it according to variantTrace to variantsRepo.
-                // [...]
+                final Result<Unit, Exception> result = traces.generateVariant(
+                        variant,
+                        new CaseSensitivePath(splRepo.getPath()),
+                        new CaseSensitivePath(variantsRepo.getPath()));
+                Logger.log(result.map(u -> "Generating variant " + variant + " was successful!"));
 
                 // Commit the generated variant with the corresponding spl commit has as message.
-                final String commitMessage = splCommit.id() + " || " + splCommit.message() + " || " + variant.name();
+                final String commitMessage = splCommit.id() + " || " + splCommit.message() + " || " + variant.getName();
                 final Optional<VariantCommit> variantCommit;
 
                 try {

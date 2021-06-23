@@ -4,10 +4,10 @@ import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import de.variantsync.evolution.repository.AbstractVariabilityRepository;
 import de.variantsync.evolution.repository.Commit;
 import de.variantsync.evolution.util.functional.Lazy;
+import de.variantsync.evolution.variability.pc.Artefact;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import de.variantsync.evolution.io.Resources;
 import de.variantsync.evolution.util.Logger;
-import de.variantsync.evolution.variability.pc.FeatureTrace;
 
 
 import java.io.IOException;
@@ -38,7 +38,7 @@ public class VariabilityCommit extends Commit<AbstractVariabilityRepository> {
         return fm;
     });
 
-    public final Lazy<FeatureTrace> presenceConditions = Lazy.of(() -> {
+    public final Lazy<Artefact> presenceConditions = Lazy.of(() -> {
         try {
             sourceRepo.checkoutCommit(this);
         } catch (GitAPIException | IOException e) {
@@ -46,7 +46,7 @@ public class VariabilityCommit extends Commit<AbstractVariabilityRepository> {
         }
 
         try {
-            return Resources.Instance().load(FeatureTrace.class, sourceRepo.getVariabilityFile());
+            return Resources.Instance().load(Artefact.class, sourceRepo.getVariabilityFile());
         } catch (Resources.ResourceLoadingFailure resourceLoadingFailure) {
             Logger.exception("", resourceLoadingFailure);
             return null;
