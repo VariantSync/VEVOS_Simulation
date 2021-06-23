@@ -4,10 +4,9 @@ import de.variantsync.evolution.repository.AbstractVariantsRepository;
 import de.variantsync.evolution.util.list.ListHeadTailView;
 import de.variantsync.evolution.variants.blueprints.VariantsRevisionBlueprint;
 import de.variantsync.evolution.repository.Branch;
-import de.variantsync.evolution.repository.ISPLRepository;
+import de.variantsync.evolution.repository.AbstractSPLRepository;
 import de.variantsync.evolution.util.*;
 import de.variantsync.evolution.util.list.NonEmptyList;
-import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.EmptyCommitException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -36,7 +35,7 @@ public class VariantsRepository extends AbstractVariantsRepository {
      */
     public VariantsRepository(
             Path localPath,
-            ISPLRepository splRepo,
+            AbstractSPLRepository splRepo,
             NonEmptyList<VariantsRevisionBlueprint> blueprintHistory)
     {
         super(localPath);

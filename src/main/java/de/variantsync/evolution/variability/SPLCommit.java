@@ -1,9 +1,9 @@
 package de.variantsync.evolution.variability;
 
 import de.variantsync.evolution.repository.Commit;
-import de.variantsync.evolution.repository.ISPLRepository;
+import de.variantsync.evolution.repository.AbstractSPLRepository;
 
-public class SPLCommit extends Commit<ISPLRepository> {
+public class SPLCommit extends Commit<AbstractSPLRepository> {
     private final String message;
 
     public SPLCommit(String commitId) {

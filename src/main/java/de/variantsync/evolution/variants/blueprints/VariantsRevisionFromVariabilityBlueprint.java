@@ -10,7 +10,7 @@ import de.variantsync.evolution.variants.VariantsRevision;
 import de.variantsync.evolution.feature.Sample;
 import de.variantsync.evolution.feature.Variant;
 import de.variantsync.evolution.repository.Branch;
-import de.variantsync.evolution.repository.ISPLRepository;
+import de.variantsync.evolution.repository.AbstractSPLRepository;
 import de.variantsync.evolution.repository.AbstractVariantsRepository;
 import de.variantsync.evolution.variability.SPLCommit;
 import de.variantsync.evolution.variability.VariabilityCommit;
@@ -67,7 +67,7 @@ public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBl
             final Artefact traces = ts.getKey();
             final Sample sample = ts.getValue();
             final SPLCommit splCommit = variability.splCommit();
-            final ISPLRepository splRepo = revision.getSPLRepo();
+            final AbstractSPLRepository splRepo = revision.getSPLRepo();
             final AbstractVariantsRepository variantsRepo = revision.getVariantsRepo();
 
             final Map<Branch, VariantCommit> commits = new HashMap<>(sample.size());

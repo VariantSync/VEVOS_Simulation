@@ -3,7 +3,7 @@ package de.variantsync.evolution.variants;
 import de.variantsync.evolution.repository.AbstractVariantsRepository;
 import de.variantsync.evolution.variants.blueprints.VariantsRevisionBlueprint;
 import de.variantsync.evolution.repository.Branch;
-import de.variantsync.evolution.repository.ISPLRepository;
+import de.variantsync.evolution.repository.AbstractSPLRepository;
 import de.variantsync.evolution.util.functional.Lazy;
 import de.variantsync.evolution.util.list.ListHeadTailView;
 import de.variantsync.evolution.util.functional.MonadTransformer;
@@ -21,7 +21,7 @@ import java.util.Optional;
 public class VariantsRevision {
     public static record Branches(Map<Branch, VariantCommit> commitOf) {}
 
-    private final ISPLRepository splRepo;
+    private final AbstractSPLRepository splRepo;
     private final AbstractVariantsRepository variantsRepo;
     private final Lazy<Branches> generate;
     private final Lazy<Optional<VariantsRevision>> evolve;
@@ -36,7 +36,7 @@ public class VariantsRevision {
      *                         VariantsRevision was generated.
      */
     VariantsRevision(
-            ISPLRepository splRepo,
+            AbstractSPLRepository splRepo,
             AbstractVariantsRepository variantsRepo,
             VariantsRevisionBlueprint blueprint,
             ListHeadTailView<VariantsRevisionBlueprint> remainingHistory)
@@ -97,7 +97,7 @@ public class VariantsRevision {
         return MonadTransformer.bind(firstRevision, r  -> evolveAll(r.evolve()));
     }
 
-    public ISPLRepository getSPLRepo() {
+    public AbstractSPLRepository getSPLRepo() {
         return splRepo;
     }
 

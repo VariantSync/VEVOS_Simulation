@@ -9,7 +9,7 @@ import de.variantsync.evolution.io.data.CSV;
 import de.variantsync.evolution.io.data.CSVLoader;
 import de.variantsync.evolution.io.kernelhaven.KernelHavenPCLoader;
 import de.variantsync.evolution.io.pclocator.PCLocatorPCLoader;
-import de.variantsync.evolution.repository.ISPLRepository;
+import de.variantsync.evolution.repository.AbstractSPLRepository;
 import de.variantsync.evolution.repository.VariabilityHistory;
 import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.functional.Functional;
@@ -112,7 +112,7 @@ public class Main {
             assert variabilityRepo != null;
 
             // Setup
-            final ISPLRepository splRepository = null; /* Get SPL Repo from somewhere. Integrate it into variabilityRepo?*/
+            final AbstractSPLRepository splRepository = null; /* Get SPL Repo from somewhere. Integrate it into variabilityRepo?*/
             final VariabilityHistory history = variabilityRepo.getCommitSequencesForEvolutionStudy();
             final VariantsRepository variantsRepo = new VariantsRepository(
                     Path.of("/path/to/repo"),
