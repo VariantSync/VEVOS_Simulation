@@ -100,7 +100,7 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
     }
 
     private Path resolvePathToCommitOutputDir(Path rootDir, String commitId) {
-        return rootDir.resolve("output/" + commitId);
+        return rootDir.resolve("data/" + commitId);
     }
 
     private FeatureModelPath resolvePathToFeatureModel(Path rootDir, String commitId) {
