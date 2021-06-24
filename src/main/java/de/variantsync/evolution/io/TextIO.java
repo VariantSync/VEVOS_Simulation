@@ -58,8 +58,8 @@ public class TextIO {
      * @param lineTo last line to write.
      * @throws IOException May occur upon writing or creating files.
      */
-    public static void CopyTextLines(Path sourceFile, Path targetFile, int lineFrom, int lineTo) throws IOException {
-        CopyTextLines(sourceFile, targetFile, new IntervalSet(new Interval(lineFrom, lineTo)));
+    public static void copyTextLines(Path sourceFile, Path targetFile, int lineFrom, int lineTo) throws IOException {
+        copyTextLines(sourceFile, targetFile, new IntervalSet(new Interval(lineFrom, lineTo)));
     }
 
     /**
@@ -69,10 +69,11 @@ public class TextIO {
      * @param linesToTake Intervals of lines to copy.
      * @throws IOException May occur upon writing or creating files.
      */
-    public static void CopyTextLines(Path sourceFile, Path targetFile, IntervalSet linesToTake) throws IOException {
-        try (Stream<String> linesStream = new BufferedReader(new FileReader(sourceFile.toFile())).lines()) {
+    public static void copyTextLines(Path sourceFile, Path targetFile, IntervalSet linesToTake) throws IOException {
+        /// Do not use Files.readAllLines(sourceFile) as it assumes the files to be in UTF-8 and crashes otherwise.
+        try(Stream<String> linesStream = new BufferedReader(new FileReader(sourceFile.toFile())).lines()) {
             final List<String> read_lines = linesStream.collect(Collectors.toList());
-            StringBuilder linesToWrite = new StringBuilder();
+            final StringBuilder linesToWrite = new StringBuilder();
 
             for (Interval i : linesToTake) {
                 // -1 because lines are 1-indexed

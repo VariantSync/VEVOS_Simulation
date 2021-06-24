@@ -4,7 +4,7 @@ import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import de.ovgu.featureide.fm.core.base.impl.FeatureModel;
 import de.variantsync.evolution.io.Resources;
 import de.variantsync.evolution.repository.Commit;
-import de.variantsync.evolution.repository.ISPLRepository;
+import de.variantsync.evolution.repository.AbstractSPLRepository;
 import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.functional.Lazy;
 import de.variantsync.evolution.variability.pc.Artefact;
@@ -14,7 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
-public class SPLCommit extends Commit<ISPLRepository> {
+public class SPLCommit extends Commit<AbstractSPLRepository> {
     private SPLCommit[] parents;
     private final Lazy<Optional<String>> kernelHavenLog;
     private final Lazy<Optional<IFeatureModel>> featureModel;

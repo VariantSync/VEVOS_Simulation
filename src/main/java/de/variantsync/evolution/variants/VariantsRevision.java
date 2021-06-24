@@ -1,9 +1,9 @@
 package de.variantsync.evolution.variants;
 
+import de.variantsync.evolution.repository.AbstractVariantsRepository;
 import de.variantsync.evolution.variants.blueprints.VariantsRevisionBlueprint;
 import de.variantsync.evolution.repository.Branch;
-import de.variantsync.evolution.repository.ISPLRepository;
-import de.variantsync.evolution.repository.IVariantsRepository;
+import de.variantsync.evolution.repository.AbstractSPLRepository;
 import de.variantsync.evolution.util.functional.Lazy;
 import de.variantsync.evolution.util.list.ListHeadTailView;
 import de.variantsync.evolution.util.functional.MonadTransformer;
@@ -21,23 +21,23 @@ import java.util.Optional;
 public class VariantsRevision {
     public static record Branches(Map<Branch, VariantCommit> commitOf) {}
 
-    private final ISPLRepository splRepo;
-    private final IVariantsRepository variantsRepo;
+    private final AbstractSPLRepository splRepo;
+    private final AbstractVariantsRepository variantsRepo;
     private final Lazy<Branches> generate;
     private final Lazy<Optional<VariantsRevision>> evolve;
 
     /**
      * Creates a VariantsRevision.
      * @param splRepo The ISPLRepository from whose code variants should be generated.
-     * @param variantsRepo The IVariantsRepository to which variants should be generated and committed.
+     * @param variantsRepo The AbstractVariantsRepository to which variants should be generated and committed.
      * @param blueprint A blueprint giving instructions on how to generate the variants.
      * @param remainingHistory The remaining history that has to be generated after this revision was generated.
      *                         This list is used to return the next VariantsRevision to generate once the constructed
      *                         VariantsRevision was generated.
      */
     VariantsRevision(
-            ISPLRepository splRepo,
-            IVariantsRepository variantsRepo,
+            AbstractSPLRepository splRepo,
+            AbstractVariantsRepository variantsRepo,
             VariantsRevisionBlueprint blueprint,
             ListHeadTailView<VariantsRevisionBlueprint> remainingHistory)
     {
@@ -97,11 +97,11 @@ public class VariantsRevision {
         return MonadTransformer.bind(firstRevision, r  -> evolveAll(r.evolve()));
     }
 
-    public ISPLRepository getSPLRepo() {
+    public AbstractSPLRepository getSPLRepo() {
         return splRepo;
     }
 
-    public IVariantsRepository getVariantsRepo() {
+    public AbstractVariantsRepository getVariantsRepo() {
         return variantsRepo;
     }
 }

@@ -9,18 +9,18 @@ import de.variantsync.evolution.util.list.NonEmptyList;
 import java.util.ArrayList;
 
 /**
- * An ordered list of coherent sub-histories of an IVariabilityRepository.
+ * An ordered list of coherent sub-histories of an AbstractVariabilityRepository.
  * The history of the analysed ISPLRepository may contain commits that cannot or should not be analysed
  * (e.g., error or merge commits).
- * Such commits do not allow for generating a single continuous history in the target IVariantsRepository.
+ * Such commits do not allow for generating a single continuous history in the target AbstractVariantsRepository.
  * Thus, a VariabilityHistory to model contains all continuous sub-histories between error commits.
  */
 public record VariabilityHistory(NonEmptyList<NonEmptyList<SPLCommit>> commitSequences) {
     /**
-     * Default implementation to generate instructions (blueprints) for generating an IVariantsRepository for this
+     * Default implementation to generate instructions (blueprints) for generating an AbstractVariantsRepository for this
      * VariabilityHistory.
      *
-     * @return Blueprints to generate an IVariantsRepository from.
+     * @return Blueprints to generate an AbstractVariantsRepository from.
      *         The list will contain exactly one VariantsRevisionFromVariabilityBlueprint for each VariabilityCommit
      *         in the sub-histories.
      *         After each continuous sub-history an explicit error commit will be introduced via a
