@@ -1,7 +1,6 @@
 package de.variantsync.evolution.variants;
 
 import de.variantsync.evolution.repository.Branch;
-import de.variantsync.evolution.repository.SPLRepository;
 import de.variantsync.evolution.util.GitUtil;
 import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.list.NonEmptyList;
@@ -10,7 +9,6 @@ import de.variantsync.evolution.variants.blueprints.VariantsRevisionFromVariabil
 import junit.framework.TestCase;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.junit.Before;
 
 import java.io.File;
 import java.io.IOException;

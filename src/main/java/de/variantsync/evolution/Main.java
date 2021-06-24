@@ -7,6 +7,7 @@ import de.ovgu.featureide.fm.core.io.xml.XmlFeatureModelFormat;
 import de.variantsync.evolution.io.Resources;
 import de.variantsync.evolution.io.data.CSV;
 import de.variantsync.evolution.io.data.CSVLoader;
+import de.variantsync.evolution.io.data.VariabilityDatasetLoader;
 import de.variantsync.evolution.io.kernelhaven.KernelHavenPCLoader;
 import de.variantsync.evolution.io.pclocator.PCLocatorPCLoader;
 import de.variantsync.evolution.repository.AbstractSPLRepository;
@@ -17,22 +18,24 @@ import de.variantsync.evolution.util.functional.Lazy;
 import de.variantsync.evolution.util.functional.MonadTransformer;
 import de.variantsync.evolution.util.functional.Unit;
 import de.variantsync.evolution.variability.CommitPair;
+import de.variantsync.evolution.variability.SPLCommit;
+import de.variantsync.evolution.variability.VariabilityDataset;
 import de.variantsync.evolution.variability.pc.Artefact;
 import de.variantsync.evolution.variants.VariantsRepository;
 import de.variantsync.evolution.variants.VariantsRevision;
-import org.eclipse.jgit.api.errors.GitAPIException;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
 public class Main {
     private static final File PROPERTIES_FILE = new File("src/main/resources/user.properties");
-    private static final String VARIABILITY_REPO = "variability_repo";
+    private static final String VARIABILITY_DATASET = "variability_dataset";
     private static final String SPL_REPO = "spl_repo";
 
     private static void InitResources() {
@@ -81,38 +84,36 @@ public class Main {
             Logger.exception("Failed to open properties file: ", e);
             return;
         }
+        // TODO: Adjust
         // Directory to which https://gitlab.informatik.hu-berlin.de/mse/LinuxVariabilityData was cloned to
-        final File variabilityRepoDir = new File(properties.getProperty(VARIABILITY_REPO));
+        final Path variabilityDatasetDir = Paths.get(properties.getProperty(VARIABILITY_DATASET));
         // Directory to which https://github.com/torvalds/linux was cloned to
         final File splRepoDir = new File(properties.getProperty(SPL_REPO));
 
-        Logger.info("variabilityRepoDir: " + variabilityRepoDir);
+        Logger.info("variabilityDatasetDir: " + variabilityDatasetDir);
         Logger.info("splRepoDir: " + splRepoDir);
-        VariabilityRepo variabilityRepo = null;
-        try {
-            variabilityRepo = VariabilityRepo.load(variabilityRepoDir, splRepoDir);
-            Set<CommitPair> commitPairs = variabilityRepo.getCommitPairsForEvolutionStudy();
-            Logger.info("The repo contains " + variabilityRepo.getSuccessCommits().size() + " commits for which the variability extraction succeeded.");
-            Logger.info("The repo contains " + variabilityRepo.getErrorCommits().size() + " commits for which the variability extraction failed.");
-            Logger.info("The repo contains " + variabilityRepo.getNonMergeCommits().size() + " commits that processed an SPLCommit which was not a merge.");
-            Logger.info("The repo contains " + commitPairs.size() + " usable pairs.");
-            for (CommitPair pair : commitPairs) {
-                Logger.info("<<CHILD> " + pair.child().id() + "> -- <<PARENT> " + pair.parent().id() + ">");
-                Logger.info("<<CHILD> " + pair.child().id() + "> -- <<SPL_COMMIT> " + pair.child().splCommit().id() + ">");
-                Logger.info("<<PARENT> " + pair.parent().id() + "> -- <<SPL_COMMIT> " + pair.parent().splCommit().id() + ">");
-                Logger.info("");
-            }
-        } catch (IOException | GitAPIException e) {
-            Logger.exception("Failed to load variability or spl repo:", e);
+        VariabilityDataset variabilityDataset;
+
+        VariabilityDatasetLoader datasetLoader = new VariabilityDatasetLoader();
+        assert datasetLoader.canLoad(variabilityDatasetDir);
+        variabilityDataset = datasetLoader.load(variabilityDatasetDir).getSuccess();
+        Set<CommitPair<SPLCommit>> commitPairs = variabilityDataset.getCommitPairsForEvolutionStudy();
+        Logger.info("The repo contains " + variabilityDataset.getSuccessCommits().size() + " commits for which the variability extraction succeeded.");
+        Logger.info("The repo contains " + variabilityDataset.getErrorCommits().size() + " commits for which the variability extraction failed.");
+        Logger.info("The repo contains " + variabilityDataset.getPartialSuccessCommits().size() + " commits that for which the file presence conditions are missing.");
+        Logger.info("The repo contains " + commitPairs.size() + " usable pairs.");
+        for (CommitPair<SPLCommit> pair : commitPairs) {
+            Logger.info("<<CHILD> " + pair.child().id() + "> -- <<PARENT> " + pair.parent().id() + ">");
+            Logger.info("<<CHILD> " + pair.child().id() + "> -- <<SPL_COMMIT> " + pair.child().id() + ">");
+            Logger.info("<<PARENT> " + pair.parent().id() + "> -- <<SPL_COMMIT> " + pair.parent().id() + ">");
+            Logger.info("");
         }
 
         // How to use variant generator
         {
-            assert variabilityRepo != null;
-
             // Setup
-            final AbstractSPLRepository splRepository = null; /* Get SPL Repo from somewhere. Integrate it into variabilityRepo?*/
-            final VariabilityHistory history = variabilityRepo.getCommitSequencesForEvolutionStudy();
+            final AbstractSPLRepository splRepository = null; /* Get SPL Repo from somewhere. Integrate it into variabilityDataset?*/
+            final VariabilityHistory history = variabilityDataset.getCommitSequencesForEvolutionStudy();
             final VariantsRepository variantsRepo = new VariantsRepository(
                     Path.of("/path/to/repo"),
                     splRepository,
@@ -136,8 +137,8 @@ public class Main {
             // Alternatively, we can also generate just a few steps if we like.
             {
                 // First, let's build the necessary computations.
-                final Lazy<Optional<VariantsRevision>>    revision0 = Lazy.pure(variantsRepo.getStartRevision());
-                final Lazy<Optional<VariantsRevision>> genRevision0 = MonadTransformer.bind(revision0,    VariantsRevision::evolve);
+                final Lazy<Optional<VariantsRevision>> revision0 = Lazy.pure(variantsRepo.getStartRevision());
+                final Lazy<Optional<VariantsRevision>> genRevision0 = MonadTransformer.bind(revision0, VariantsRevision::evolve);
                 final Lazy<Optional<VariantsRevision>> genRevision1 = MonadTransformer.bind(genRevision0, VariantsRevision::evolve);
                 final Lazy<Optional<VariantsRevision>> genRevision2 = MonadTransformer.bind(genRevision1, VariantsRevision::evolve);
 

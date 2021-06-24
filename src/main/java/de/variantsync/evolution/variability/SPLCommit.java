@@ -21,7 +21,15 @@ public class SPLCommit extends Commit<AbstractSPLRepository> {
     private final Lazy<Optional<Artefact>> presenceConditions;
     private final Lazy<Optional<String>> message;
 
-    public SPLCommit(String commitId, KernelHavenLogPath kernelHavenLog, FeatureModelPath featureModel, PresenceConditionPath presenceConditions,  CommitMessagePath message) {
+    /**
+     * Constructor for commits that should only contain information about the commit id.
+     * @param commitId The id of the commit
+     */
+    public SPLCommit(String commitId) {
+        this(commitId, null, null, null, null);
+    }
+
+    public SPLCommit(String commitId, KernelHavenLogPath kernelHavenLog, FeatureModelPath featureModel, PresenceConditionPath presenceConditions, CommitMessagePath message) {
         super(commitId);
         // Lazy loading of log file
         this.kernelHavenLog = Lazy.of(() -> {
