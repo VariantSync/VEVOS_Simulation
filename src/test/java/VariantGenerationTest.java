@@ -61,7 +61,7 @@ public class VariantGenerationTest {
             for (Variant v : variantsToTest) {
                 traceToTest
                         .generateVariant(v, splDir, variantsDir.resolve(v.getName()))
-                        .map(Functional.performSideEffect(System.out::println))
+                        .map(Functional.performSideEffect(groundTruth -> System.out.println(groundTruth.prettyPrint())))
                         .assertSuccess();
             }
 

@@ -226,6 +226,11 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
     }
 
     @Override
+    public ArtefactTree<LineBasedAnnotation> plainCopy() {
+        return new LineBasedAnnotation(this.getFeatureMapping(), this.getLineFrom(), this.getLineTo());
+    }
+
+    @Override
     public String toString() {
         return "Annotation{" +
                 "featureMapping=" + getFeatureMapping() +

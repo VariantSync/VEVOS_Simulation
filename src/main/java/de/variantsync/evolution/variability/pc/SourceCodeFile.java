@@ -95,9 +95,4 @@ public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
         SourceCodeFile that = (SourceCodeFile) o;
         return getFile().equals(that.getFile());
     }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), getFile());
-    }
 }

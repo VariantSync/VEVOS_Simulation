@@ -193,7 +193,6 @@ public class ArtefactTree<Child extends ArtefactTree<?>> implements Artefact {
         builder.append(System.lineSeparator());
     }
 
-    @Override
     public ArtefactTree<Child> plainCopy() {
         return new ArtefactTree<>(this);
     }
@@ -209,6 +208,6 @@ public class ArtefactTree<Child extends ArtefactTree<?>> implements Artefact {
 
     @Override
     public int hashCode() {
-        return Objects.hash(featureMapping, parent, subtrees);
+        return Objects.hash(featureMapping, file /*, parent , subtrees*/);
     }
 }
