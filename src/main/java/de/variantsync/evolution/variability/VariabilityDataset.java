@@ -71,7 +71,7 @@ public class VariabilityDataset {
      *
      * @return All sequences of commits that are usable in our evolution study.
      */
-    public VariabilityHistory getCommitSequencesForEvolutionStudy() {
+    public VariabilityHistory getVariabilityHistory() {
         // Retrieve the pairs of usable commits
         Set<CommitPair<SPLCommit>> usableCommitPairs = this.getCommitPairsForEvolutionStudy();
         // Create lists for the commits in the pairs and merge lists according to parent-child relationships

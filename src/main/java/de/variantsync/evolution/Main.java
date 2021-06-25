@@ -17,6 +17,7 @@ import de.variantsync.evolution.util.functional.Functional;
 import de.variantsync.evolution.util.functional.Lazy;
 import de.variantsync.evolution.util.functional.MonadTransformer;
 import de.variantsync.evolution.util.functional.Unit;
+import de.variantsync.evolution.util.list.NonEmptyList;
 import de.variantsync.evolution.variability.CommitPair;
 import de.variantsync.evolution.variability.SPLCommit;
 import de.variantsync.evolution.variability.VariabilityDataset;
@@ -27,6 +28,7 @@ import de.variantsync.evolution.variants.VariantsRevision;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
@@ -37,6 +39,7 @@ public class Main {
     private static final File PROPERTIES_FILE = new File("src/main/resources/user.properties");
     private static final String VARIABILITY_DATASET = "variability_dataset";
     private static final String SPL_REPO = "spl_repo";
+    private static final String VARIANTS_REPO = "variants_repo";
 
     private static void InitResources() {
         final Resources r = Resources.Instance();
@@ -73,7 +76,7 @@ public class Main {
         InitFeatureIDE();
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         Initialize();
 
         // Debug variability repo
@@ -84,9 +87,21 @@ public class Main {
             Logger.exception("Failed to open properties file: ", e);
             return;
         }
-        // TODO: Adjust
-        // Directory to which https://gitlab.informatik.hu-berlin.de/mse/LinuxVariabilityData was cloned to
+        /*
+        Directory to which
+        https://www.informatik.hu-berlin.de/de/forschung/gebiete/mse/forsch/Data/linux-variability-debug.7z/at_download/file
+        (or any other dataset) was downloaded to
+         */
         final Path variabilityDatasetDir = Paths.get(properties.getProperty(VARIABILITY_DATASET));
+
+        // Check directory where the variability dataset is located
+        if (variabilityDatasetDir.toFile().exists() && Files.list(variabilityDatasetDir).count() > 0) {
+            Logger.debug("Variability dataset found under " + variabilityDatasetDir);
+        } else {
+            Logger.error("Was not able to find directory with variability dataset under " + variabilityDatasetDir);
+            Logger.error("Please download and extract \"https://www.informatik.hu-berlin.de/de/forschung/gebiete/mse/forsch/Data/linux-variability-debug.7z/at_download/file\"");
+        }
+
         // Directory to which https://github.com/torvalds/linux was cloned to
         final File splRepoDir = new File(properties.getProperty(SPL_REPO));
 
@@ -98,24 +113,30 @@ public class Main {
         assert datasetLoader.canLoad(variabilityDatasetDir);
         variabilityDataset = datasetLoader.load(variabilityDatasetDir).getSuccess();
         Set<CommitPair<SPLCommit>> commitPairs = variabilityDataset.getCommitPairsForEvolutionStudy();
-        Logger.info("The repo contains " + variabilityDataset.getSuccessCommits().size() + " commits for which the variability extraction succeeded.");
-        Logger.info("The repo contains " + variabilityDataset.getErrorCommits().size() + " commits for which the variability extraction failed.");
-        Logger.info("The repo contains " + variabilityDataset.getPartialSuccessCommits().size() + " commits that for which the file presence conditions are missing.");
-        Logger.info("The repo contains " + commitPairs.size() + " usable pairs.");
+        Logger.info("The dataset contains " + variabilityDataset.getSuccessCommits().size() + " commits for which the variability extraction succeeded.");
+        Logger.info("The dataset contains " + variabilityDataset.getErrorCommits().size() + " commits for which the variability extraction failed.");
+        Logger.info("The dataset contains " + variabilityDataset.getPartialSuccessCommits().size() + " commits that for which the file presence conditions are missing.");
+        Logger.info("The dataset contains " + commitPairs.size() + " usable pairs.");
         for (CommitPair<SPLCommit> pair : commitPairs) {
-            Logger.info("<<CHILD> " + pair.child().id() + "> -- <<PARENT> " + pair.parent().id() + ">");
-            Logger.info("<<CHILD> " + pair.child().id() + "> -- <<SPL_COMMIT> " + pair.child().id() + ">");
-            Logger.info("<<PARENT> " + pair.parent().id() + "> -- <<SPL_COMMIT> " + pair.parent().id() + ">");
-            Logger.info("");
+            Logger.debug("<<CHILD> " + pair.child().id() + "> -- <<PARENT> " + pair.parent().id() + ">");
+            Logger.debug("<<CHILD> " + pair.child().id() + "> -- <<SPL_COMMIT> " + pair.child().id() + ">");
+            Logger.debug("<<PARENT> " + pair.parent().id() + "> -- <<SPL_COMMIT> " + pair.parent().id() + ">");
+            Logger.debug("");
         }
+        VariabilityHistory history = variabilityDataset.getVariabilityHistory();
+        NonEmptyList<NonEmptyList<SPLCommit>> sequencesInHistory = history.commitSequences();
+        Logger.info("The dataset contains " + sequencesInHistory.size() + " sequences.");
+        for (int i = 0; i < sequencesInHistory.size(); i++) {
+            Logger.info("Sequence " + i + " has " + sequencesInHistory.get(i).size() + " commits.");
+        }
+        Logger.info("");
 
         // How to use variant generator
         {
             // Setup
             final AbstractSPLRepository splRepository = null; /* Get SPL Repo from somewhere. Integrate it into variabilityDataset?*/
-            final VariabilityHistory history = variabilityDataset.getCommitSequencesForEvolutionStudy();
             final VariantsRepository variantsRepo = new VariantsRepository(
-                    Path.of("/path/to/repo"),
+                    Path.of(properties.getProperty(VARIANTS_REPO)),
                     splRepository,
                     history.toBlueprints());
 

@@ -126,7 +126,7 @@ public class VariabilityDatasetLoaderTest {
         var secondList = new String[]{"454f7da158fdf3fe4b3c3fc8110f6c15861f97fa", "c79e89cd49fc17be386ca026686dd01e0985a5ea", "600f60df96cdbbf3319085d8e777d7e66c96e013", "a54c3c30f2dff6dc36331f06360630b697b7562c"};
         var thirdList = new String[]{"38e15e31eabccf82d3183273240cd44f2dec9fa9", "741ee98bf3edee477c504726fdc482ae85adf0e5"};
 
-        VariabilityHistory history = dataset.getCommitSequencesForEvolutionStudy();
+        VariabilityHistory history = dataset.getVariabilityHistory();
         var commitSequences = history.commitSequences();
         // Check the size
         assert commitSequences.size() == 3;
@@ -238,5 +238,3 @@ public class VariabilityDatasetLoaderTest {
         }
     }
 }
-
-
