@@ -87,7 +87,7 @@ public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBl
                 }
 
                 // Generate the code
-                final Result<Unit, Exception> result = traces.generateVariant(
+                final Result<? extends Artefact, Exception> result = traces.generateVariant(
                         variant,
                         new CaseSensitivePath(splRepo.getPath()),
                         new CaseSensitivePath(variantsRepo.getPath()));

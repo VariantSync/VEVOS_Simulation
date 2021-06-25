@@ -9,6 +9,7 @@ import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.PathUtils;
 import de.variantsync.evolution.util.fide.FeatureModelUtils;
 import de.variantsync.evolution.util.fide.bugfix.FixTrueFalse;
+import de.variantsync.evolution.util.functional.Functional;
 import de.variantsync.evolution.util.functional.Result;
 import de.variantsync.evolution.variability.config.FeatureIDEConfiguration;
 import de.variantsync.evolution.variability.config.SayYesToAllConfiguration;
@@ -60,6 +61,7 @@ public class VariantGenerationTest {
             for (Variant v : variantsToTest) {
                 traceToTest
                         .generateVariant(v, splDir, variantsDir.resolve(v.getName()))
+                        .map(Functional.performSideEffect(System.out::println))
                         .assertSuccess();
             }
 
@@ -110,7 +112,7 @@ public class VariantGenerationTest {
 
         Artefact expectedTrace;
         { // Build the expected result by hand.
-            final SourceCodeFile alex = new SourceCodeFile(CaseSensitivePath.of("src", "Alex.cpp"), FixTrueFalse.True);
+            final SourceCodeFile alex = new SourceCodeFile(FixTrueFalse.True, CaseSensitivePath.of("src", "Alex.cpp"));
             {
                 LineBasedAnnotation a = new LineBasedAnnotation(new Literal("A"), 4, 11);
                 a.addTrace(new LineBasedAnnotation(new Literal("B"), 6, 8));
@@ -120,7 +122,7 @@ public class VariantGenerationTest {
                 alex.addTrace(tru);
             }
 
-            final SourceCodeFile bar = new SourceCodeFile(CaseSensitivePath.of("src", "foo", "bar.cpp"), new Literal("A"));
+            final SourceCodeFile bar = new SourceCodeFile(new Literal("A"), CaseSensitivePath.of("src", "foo", "bar.cpp"));
             {
                 bar.addTrace(new LineBasedAnnotation(FixTrueFalse.False, 0, 5));
             }

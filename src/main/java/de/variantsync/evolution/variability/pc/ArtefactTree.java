@@ -64,6 +64,14 @@ public class ArtefactTree<Child extends ArtefactTree<?>> implements Artefact {
         this.file = file;
     }
 
+    /**
+     * Copy constructor.
+     * @param other Object to create a plain copy of (without copying children).
+     */
+    public ArtefactTree(ArtefactTree<Child> other) {
+        this(other.featureMapping, new ArrayList<>(), other.file);
+    }
+
     @Override
     public Node getFeatureMapping() {
         return featureMapping;
@@ -89,14 +97,23 @@ public class ArtefactTree<Child extends ArtefactTree<?>> implements Artefact {
     }
 
     @Override
-    public Result<Unit, Exception> generateVariant(Variant variant, CaseSensitivePath sourceDir, CaseSensitivePath targetDir) {
+    public Result<? extends Artefact, Exception> generateVariant(Variant variant, CaseSensitivePath sourceDir, CaseSensitivePath targetDir) {
         final CaseSensitivePath f = getFile();
+        final ArtefactTree<Child> copy = plainCopy();
+
         if (f != null && !sourceDir.resolve(f).exists()) {
             Logger.error("Skipping file " + f + " as it does not exist!");
         } else {
             for (Child subtree : subtrees) {
                 if (variant.isImplementing(subtree.getPresenceCondition())) {
-                    var result = subtree.generateVariant(variant, sourceDir, targetDir);
+                    final Result<Child, Exception> result = subtree
+                            .generateVariant(variant, sourceDir, targetDir)
+                            .map(groundTruth -> {
+                                final Child carsten = (Child) groundTruth;
+                                copy.addTrace(carsten);
+                                return carsten;
+                            });
+
                     if (result.isFailure()) {
                         return result;
                     }
@@ -104,7 +121,7 @@ public class ArtefactTree<Child extends ArtefactTree<?>> implements Artefact {
             }
         }
 
-        return Result.Success(Unit.Instance());
+        return Result.Success(copy);
     }
 
     /**
@@ -121,6 +138,10 @@ public class ArtefactTree<Child extends ArtefactTree<?>> implements Artefact {
      */
     public ArtefactTree<?> getParent() {
         return parent;
+    }
+
+    public List<Child> getSubtrees() {
+        return subtrees;
     }
 
     /**
@@ -170,6 +191,11 @@ public class ArtefactTree<Child extends ArtefactTree<?>> implements Artefact {
         // print end (e.g., "]")
         prettyPrintFooter(indent, builder);
         builder.append(System.lineSeparator());
+    }
+
+    @Override
+    public ArtefactTree<Child> plainCopy() {
+        return new ArtefactTree<>(this);
     }
 
     @Override

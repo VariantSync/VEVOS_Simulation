@@ -17,7 +17,9 @@ public class FormulaUtils {
             return FixTrueFalse.False;
         }
 
-        return new And(a, b);
+        final And result = new And(a, b);
+        flatten(result);
+        return result;
     }
 
     /**

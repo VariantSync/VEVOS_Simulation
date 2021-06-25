@@ -67,7 +67,7 @@ public class KernelHavenPCLoader implements ResourceLoader<Artefact> {
             try {
                 files.computeIfAbsent(
                         pathOfSourceFile,
-                        p -> new SourceCodeFile(p, fileCondition))
+                        p -> new SourceCodeFile(fileCondition, p))
                         .addTrace(new LineBasedAnnotation(blockCondition, startLine, endLine));
             } catch (Exception e) {
                 return Result.Failure(e);

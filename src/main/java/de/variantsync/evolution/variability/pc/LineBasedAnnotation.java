@@ -3,19 +3,26 @@ package de.variantsync.evolution.variability.pc;
 import de.variantsync.evolution.feature.Variant;
 import de.variantsync.evolution.io.TextIO;
 import de.variantsync.evolution.util.CaseSensitivePath;
+import de.variantsync.evolution.util.fide.FormulaUtils;
+import de.variantsync.evolution.util.fide.bugfix.FixTrueFalse;
 import de.variantsync.evolution.util.functional.Result;
 import de.variantsync.evolution.util.functional.Unit;
-import de.variantsync.evolution.util.math.IntervalSet;
+import de.variantsync.evolution.util.math.Chunk;
+import de.variantsync.evolution.util.math.GroundTruth;
 import org.prop4j.Node;
 
+import javax.sound.sampled.Line;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
  * A line-based annotation of source code, such as preprocessor annotations (#ifdef)
  */
-public class LineBasedAnnotation extends Annotated {
-    private final int lineFrom;
-    private final int lineTo;
+public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
+    private int lineFrom;
+    private int lineTo;
 
     /**
      * Creates a new annotation starting at lineFrom and ending at lineTo including both
@@ -40,13 +47,20 @@ public class LineBasedAnnotation extends Annotated {
     public int getLineTo() {
         return lineTo;
     }
+    public int getLineCount() {
+        return lineTo - lineFrom - 1;
+    }
+
+    protected void setLineFrom(int lineFrom) {
+        this.lineFrom = lineFrom;
+    }
+    protected void setLineTo(int lineTo) {
+        this.lineTo = lineTo;
+    }
 
     @Override
-    public Result<Unit, Exception> generateVariant(Variant variant, CaseSensitivePath sourceDir, CaseSensitivePath targetDir) {
-        final CaseSensitivePath sourceFile = sourceDir.resolve(getFile());
-        final CaseSensitivePath targetFile = targetDir.resolve(getFile());
-        final IntervalSet chunksToWrite    = getLinesToGenerateFor(variant);
-        return Result.Try(() -> TextIO.copyTextLines(sourceFile.path(), targetFile.path(), chunksToWrite));
+    public Result<LineBasedAnnotation, Exception> generateVariant(Variant variant, CaseSensitivePath sourceDir, CaseSensitivePath targetDir) {
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -56,14 +70,15 @@ public class LineBasedAnnotation extends Annotated {
      * @return A set S of intervals where all lines in the given intervals should be included in the given variant.
      *         For any interval [a, b] the lines a, a+1, a+2, ..., b-1, b should be included.
      */
-    public IntervalSet getLinesToGenerateFor(Variant variant) {
-        final IntervalSet chunksToWrite = new IntervalSet();
+    public List<LineBasedAnnotation> getLinesToGenerateFor(Variant variant, Node partialPC) {
+        final List<LineBasedAnnotation> chunksToWrite = new ArrayList<>();
         final int firstCodeLine = lineFrom + 1;
         final int lastCodeLine = lineTo - 1;
+        final Node myFeatureMapping = FormulaUtils.AndSimplified(partialPC, getFeatureMapping());
 
         if (subtrees.size() == 0) {
             // just copy entire file content
-            chunksToWrite.add(firstCodeLine, lastCodeLine);
+            chunksToWrite.add(new LineBasedAnnotation(myFeatureMapping, firstCodeLine, lastCodeLine));
         } else {
             int currentLine = firstCodeLine;
             int currentChildIndex = 0;
@@ -74,13 +89,15 @@ public class LineBasedAnnotation extends Annotated {
                 // 1.) Copy all lines of code between currentLine and begin of child.
                 int linesToWrite = currentChild.lineFrom - currentLine;
                 if (linesToWrite > 0) {
-                    chunksToWrite.add(currentLine, currentChild.lineFrom - 1);
+                    chunksToWrite.add(new LineBasedAnnotation(myFeatureMapping, currentLine, currentChild.lineFrom - 1));
                 }
 
                 // 2.) handle child
+                // TODO: An incremental sat solver would pay off here.
+                //       Push and pop the feature mappings.
                 if (variant.isImplementing(currentChild.getPresenceCondition())) {
-                    chunksToWrite.mappendInline(currentChild.getLinesToGenerateFor(variant));
-                } // else skip child as its lines have to be exluded
+                    chunksToWrite.addAll(currentChild.getLinesToGenerateFor(variant, myFeatureMapping));
+                } // else skip child as its lines have to be excluded
 
                 // 3.) go to next child and repeat
                 currentLine = currentChild.lineTo + 1;
@@ -88,11 +105,124 @@ public class LineBasedAnnotation extends Annotated {
             }
 
             if (currentLine <= lastCodeLine) {
-                chunksToWrite.add(currentLine, lastCodeLine);
+                chunksToWrite.add(new LineBasedAnnotation(myFeatureMapping, currentLine, lastCodeLine));
             }
         }
 
         return chunksToWrite;
+    }
+
+    public static void projectInline(List<LineBasedAnnotation> annotations, Variant variant) {
+        int currentLine = 0;
+        int chunkLength;
+        for (LineBasedAnnotation chunk : annotations) {
+            chunkLength = chunk.getLineCount();
+            chunk.setLineFrom(currentLine);
+            currentLine += chunkLength;
+            chunk.setLineTo(currentLine - 1);
+        }
+    }
+
+    /**
+     * Merges the given FeatureAnnotation to this artefact in a sorted way.
+     * Containment within FeatureAnnotations will be solved recursively, creating a tree structure.
+     */
+    @Override
+    public void addTrace(final LineBasedAnnotation b) {
+        int left = 0;
+        int right = subtrees.size();
+        int pos = (left + right) / 2;
+        while (left < right) {
+            final LineBasedAnnotation a = subtrees.get(pos);
+
+            /*
+            #if A
+            #endif
+
+            #if B
+            #endif
+
+            ==> Insert b after a.
+             */
+            if (a.getLineTo() <= b.getLineFrom()) {
+                left = pos + 1;
+            }
+            /*
+            #if B
+            #endif
+
+            #if A
+            #endif
+
+            ==> Insert b before a.
+             */
+            else if (b.getLineTo() < a.getLineFrom()) {
+                right = pos - 1;
+            }
+            // Otherwise, there is an overlap.
+            else {
+                final boolean bStartsAfterCurrent = a.getLineFrom() <= b.getLineFrom();
+                final boolean bEndsBeforeCurrent = b.getLineTo() <= a.getLineTo();
+                /*
+                #if A
+                  #if B
+                  #endif
+                #endif
+
+                ==> b is surrounded by (at least) a.
+                ==> Insert b to the subtree of a.
+                 */
+                if (bStartsAfterCurrent && bEndsBeforeCurrent) {
+                    a.addTrace(b);
+                    return;
+                }
+                /*
+                #if B
+                  #if A
+                  #endif
+                #endif
+
+                ==> b is surrounds at (at least) a.
+                ==> Replace the subtree a with b and add a as subtree to b.
+                 */
+                else if (!bStartsAfterCurrent && !bEndsBeforeCurrent) {
+                    // Swap A with B
+                    subtrees.set(pos, b);
+                    b.setParent(this);
+                    b.addTrace(a);
+                    return;
+                }
+                /*
+                Illegal State: Blocks are overlapping but not nested into each other such as
+                #ifdef A
+                  #ifdef B
+                #endif // A
+                  #endif // B
+                or vice versa.
+                This is not possible to specify in practice.
+                Yet it could happen result from an ill-formed or buggy parsing process that we
+                should report by throwing an exception.
+                 */
+                else {
+                    throw new IllegalFeatureTraceSpecification(
+                            "Illegal Definition of Preprocessor Block! Given block \""
+                                    + b
+                                    + "\" overlaps block \""
+                                    + a
+                                    + "\" in "
+                                    + this.getFile()
+                                    + " but is not contained in it!");
+                }
+            }
+
+            pos = (left + right) / 2;
+        }
+
+        /*
+        We found the location in the list at which to insert b.
+         */
+        subtrees.add(pos, b);
+        b.setParent(this);
     }
 
     @Override

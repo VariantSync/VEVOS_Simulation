@@ -78,16 +78,13 @@ public class Result<SuccessType, FailureType> {
      * @return Success iff f returned true and did not throw an exception, Failure otherwise.
      */
     public static <E extends Exception> Result<Unit, E> FromFlag(FragileSupplier<Boolean, E> f, Supplier<E> failure) {
-        final Result<Boolean, E> r = Try(f);
-        if (r.isSuccess()) {
-            if (r.getSuccess()) {
-                return Success(Unit.Instance());
-            } else {
-                return Failure(failure.get());
-            }
-        } else {
-            return Failure(r.getFailure());
-        }
+        return Try(f).bibind(
+                Functional.when(
+                        () -> Success(Unit.Instance()),
+                        () -> Failure(failure.get())
+                ),
+                Result::Failure
+        );
     }
 
     /**
@@ -141,10 +138,26 @@ public class Result<SuccessType, FailureType> {
      * Result is a bifunctor.
      */
     public <S2, F2> Result<S2, F2> bimap(Function<SuccessType, S2> successCase, Function<FailureType, F2> failureCase) {
-        if (result != null) {
+        if (isSuccess()) {
             return Success(successCase.apply(result));
         } else {
             return Failure(failureCase.apply(failure));
+        }
+    }
+
+    public <S2> Result<S2, FailureType> bind(Function<SuccessType, Result<S2, FailureType>> successCase) {
+        if (isSuccess()) {
+            return successCase.apply(result);
+        } else {
+            return Failure(getFailure());
+        }
+    }
+
+    public <S2, F2> Result<S2, F2> bibind(Function<SuccessType, Result<S2, F2>> successCase, Function<FailureType, Result<S2, F2>> failureCase) {
+        if (isSuccess()) {
+            return successCase.apply(result);
+        } else {
+            return failureCase.apply(failure);
         }
     }
 
