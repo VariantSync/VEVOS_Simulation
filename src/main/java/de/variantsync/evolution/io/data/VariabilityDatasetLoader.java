@@ -55,7 +55,7 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
      * <p></p>
      * extraction-results/
      * <p>|- log/</p>
-     * <p>|- output/</p>
+     * <p>|- data/</p>
      * <p>|- SUCCESS_COMMITS.txt</p>
      *
      * @param p path to the root directory of the dataset
