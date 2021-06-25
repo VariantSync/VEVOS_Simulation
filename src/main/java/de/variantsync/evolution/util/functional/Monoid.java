@@ -1,6 +1,6 @@
 package de.variantsync.evolution.util.functional;
 
 public interface Monoid<M> {
-    M mEmpty();
+    /* static */ M mEmpty();
     M mAppend(M other);
 }
