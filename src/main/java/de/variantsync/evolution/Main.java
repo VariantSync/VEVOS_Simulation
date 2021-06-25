@@ -90,6 +90,8 @@ public class Main {
         /*
         Directory to which
         https://www.informatik.hu-berlin.de/de/forschung/gebiete/mse/forsch/Data/linux-variability-debug.7z/at_download/file
+        or
+        https://www.informatik.hu-berlin.de/de/forschung/gebiete/mse/forsch/Data/busybox-complete.7z/at_download/file
         (or any other dataset) was downloaded to
          */
         final Path variabilityDatasetDir = Paths.get(properties.getProperty(VARIABILITY_DATASET));
