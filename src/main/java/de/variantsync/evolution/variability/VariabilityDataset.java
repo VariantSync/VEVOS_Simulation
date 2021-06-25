@@ -23,8 +23,9 @@ public class VariabilityDataset {
         this.allCommits.addAll(errorCommits);
         this.allCommits.addAll(partialSuccessCommits);
         if (allCommits.size() != successCommits.size() + errorCommits.size() + partialSuccessCommits.size()) {
-            Logger.error("Some of the dataset's commits belong to more than one category (SUCCESS | ERROR | INCOMPLETE_PC)");
-            throw new IllegalArgumentException("Some of the dataset's commits belong to more than one category (SUCCESS | ERROR | INCOMPLETE_PC)");
+            String errorMessage = "Some of the dataset's commits belong to more than one category (SUCCESS | ERROR | INCOMPLETE_PC)";
+            Logger.error(errorMessage);
+            throw new IllegalArgumentException(errorMessage);
         }
     }
 

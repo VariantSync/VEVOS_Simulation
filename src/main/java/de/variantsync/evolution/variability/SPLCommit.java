@@ -23,6 +23,7 @@ public class SPLCommit extends Commit<AbstractSPLRepository> {
 
     /**
      * Constructor for commits that should only contain information about the commit id.
+     *
      * @param commitId The id of the commit
      */
     public SPLCommit(String commitId) {
@@ -32,57 +33,41 @@ public class SPLCommit extends Commit<AbstractSPLRepository> {
     public SPLCommit(String commitId, KernelHavenLogPath kernelHavenLog, FeatureModelPath featureModel, PresenceConditionPath presenceConditions, CommitMessagePath message) {
         super(commitId);
         // Lazy loading of log file
-        this.kernelHavenLog = Lazy.of(() -> {
+        this.kernelHavenLog = Lazy.of(() -> Optional.ofNullable(kernelHavenLog).map(kernelHavenLogPath -> {
             try {
-                if (kernelHavenLog != null) {
-                    return Optional.of(Files.readString(kernelHavenLog.path));
-                } else {
-                    return Optional.empty();
-                }
+                return Files.readString(kernelHavenLogPath.path);
             } catch (IOException e) {
                 Logger.exception("Was not able to load KernelHaven log for commit " + commitId, e);
-                return Optional.empty();
+                return null;
             }
-        });
+        }));
         // Lazy loading of feature model
-        this.featureModel = Lazy.of(() -> {
+        this.featureModel = Lazy.of(() -> Optional.ofNullable(featureModel).map(featureModelPath -> {
             try {
-                if (featureModel != null) {
-                    return Optional.of(Resources.Instance().load(FeatureModel.class, featureModel.path));
-                } else {
-                    return Optional.empty();
-                }
+                return Resources.Instance().load(FeatureModel.class, featureModelPath.path);
             } catch (Resources.ResourceLoadingFailure resourceLoadingFailure) {
                 Logger.exception("Was not able to load feature model for id " + commitId, resourceLoadingFailure);
-                return Optional.empty();
+                return null;
             }
-        });
+        }));
         // Lazy loading of presence condition
-        this.presenceConditions = Lazy.of(() -> {
+        this.presenceConditions = Lazy.of(() -> Optional.ofNullable(presenceConditions).map(presenceConditionPath -> {
             try {
-                if (presenceConditions != null) {
-                    return Optional.of(Resources.Instance().load(Artefact.class, presenceConditions.path));
-                } else {
-                    return Optional.empty();
-                }
+                return Resources.Instance().load(Artefact.class, presenceConditionPath.path);
             } catch (Resources.ResourceLoadingFailure resourceLoadingFailure) {
                 Logger.exception("Was not able to load presence conditions for id " + commitId, resourceLoadingFailure);
-                return Optional.empty();
+                return null;
             }
-        });
+        }));
         // Lazy loading of commit message
-        this.message = Lazy.of(() -> {
+        this.message = Lazy.of(() -> Optional.ofNullable(message).map(commitMessagePath -> {
             try {
-                if (message != null) {
-                    return Optional.of(Files.readString(message.path));
-                } else {
-                    return Optional.empty();
-                }
+                return Files.readString(commitMessagePath.path);
             } catch (IOException e) {
                 Logger.exception("Was not able to load commit message for id " + commitId, e);
-                return Optional.empty();
+                return null;
             }
-        });
+        }));
     }
 
     /**
@@ -92,11 +77,7 @@ public class SPLCommit extends Commit<AbstractSPLRepository> {
      * @return An <code>Optional</code> containing the <code>SPLCommit</code> objects of the parent commits, if there are any.
      */
     public Optional<SPLCommit[]> parents() {
-        if (parents == null) {
-            return Optional.empty();
-        } else {
-            return Optional.of(parents);
-        }
+        return Optional.ofNullable(parents);
     }
 
     public void setParents(SPLCommit[] parents) {
@@ -104,7 +85,6 @@ public class SPLCommit extends Commit<AbstractSPLRepository> {
     }
 
     /**
-     *
      * @return A Lazy that loads the commit message of this commit.
      */
     public Lazy<Optional<String>> message() {
@@ -112,7 +92,6 @@ public class SPLCommit extends Commit<AbstractSPLRepository> {
     }
 
     /**
-     *
      * @return A Lazy that loads the KernelHaven log associated with this commit.
      */
     public Lazy<Optional<String>> kernelHavenLog() {
@@ -120,7 +99,6 @@ public class SPLCommit extends Commit<AbstractSPLRepository> {
     }
 
     /**
-     *
      * @return A Lazy that loads the feature model associated with this commit.
      */
     public Lazy<Optional<IFeatureModel>> featureModel() {
@@ -128,15 +106,21 @@ public class SPLCommit extends Commit<AbstractSPLRepository> {
     }
 
     /**
-     *
      * @return A Lazy that loads the presence conditions associated with this commit.
      */
     public Lazy<Optional<Artefact>> presenceConditions() {
         return presenceConditions;
     }
 
-    public record KernelHavenLogPath(Path path) {}
-    public record FeatureModelPath(Path path) {}
-    public record PresenceConditionPath(Path path) {}
-    public record CommitMessagePath(Path path) {}
+    public record KernelHavenLogPath(Path path) {
+    }
+
+    public record FeatureModelPath(Path path) {
+    }
+
+    public record PresenceConditionPath(Path path) {
+    }
+
+    public record CommitMessagePath(Path path) {
+    }
 }

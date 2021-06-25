@@ -24,6 +24,8 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
     private final static String PRESENCE_CONDITIONS_FILE = "code-variability.csv";
     private final static String PARENTS_FILE = "PARENTS.txt";
     private final static String MESSAGE_FILE = "MESSAGE.txt";
+    private static final String DATA_DIR_NAME = "data";
+    private static final String LOG_DIR_NAME = "log";
 
 
     /**
@@ -40,6 +42,7 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
                         return name.equals(SUCCESS_COMMIT_FILE) || name.equals(ERROR_COMMIT_FILE) || name.equals(PARTIAL_SUCCESS_COMMIT_FILE);
                     });
         } catch (IOException e) {
+            Logger.exception("Was not able to check the file(s) under " + p, e);
             return false;
         }
     }
@@ -75,13 +78,12 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
         successCommits.forEach(c -> idToCommitMap.put(c.id(), c));
         errorCommits.forEach(c -> idToCommitMap.put(c.id(), c));
         partialSuccessCommits.forEach(c -> idToCommitMap.put(c.id(), c));
-        for (String id : idToCommitMap.keySet()) {
-            SPLCommit commit = idToCommitMap.get(id);
-            String[] parentIds = loadParentIds(p, id);
+        for (Map.Entry<String, SPLCommit> entry : idToCommitMap.entrySet()) {
+            String[] parentIds = loadParentIds(p, entry.getKey());
             if (parentIds == null || parentIds.length == 0) {
-                commit.setParents(null);
+                entry.getValue().setParents(null);
             } else {
-                commit.setParents(Arrays.stream(parentIds).map(idToCommitMap::get).toArray(SPLCommit[]::new));
+                entry.getValue().setParents(Arrays.stream(parentIds).map(idToCommitMap::get).toArray(SPLCommit[]::new));
             }
         }
 
@@ -100,7 +102,7 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
     }
 
     private Path resolvePathToCommitOutputDir(Path rootDir, String commitId) {
-        return rootDir.resolve("data/" + commitId);
+        return rootDir.resolve(DATA_DIR_NAME).resolve(commitId);
     }
 
     private FeatureModelPath resolvePathToFeatureModel(Path rootDir, String commitId) {
@@ -124,7 +126,7 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
     }
 
     private KernelHavenLogPath resolvePathToLogFile(Path rootDir, String commitId) {
-        Path p = rootDir.resolve("log/" + commitId + ".log");
+        Path p = rootDir.resolve(LOG_DIR_NAME).resolve(commitId + ".log");
         return p.toFile().exists() ? new KernelHavenLogPath(p) : null;
     }
 
