@@ -125,11 +125,12 @@ public class VariabilityDatasetLoaderTest {
         // indicates a bug in loading the VariabilityRepo
         var firstList = new String[]{"eab1607a6f137376e57a3381c2fdae9c9d46de4d", "78fe3d306860e11e327a43cfce2c97748a34c1e1"};
         var secondList = new String[]{"454f7da158fdf3fe4b3c3fc8110f6c15861f97fa", "600f60df96cdbbf3319085d8e777d7e66c96e013", "a54c3c30f2dff6dc36331f06360630b697b7562c", "38e15e31eabccf82d3183273240cd44f2dec9fa9", "741ee98bf3edee477c504726fdc482ae85adf0e5"};
+        var thirdList = new String[]{"c79e89cd49fc17be386ca026686dd01e0985a5ea", "48c073dfcfd0907f1e460628a7379b4bcbc8c737"};
 
-        VariabilityHistory history = dataset.getVariabilityHistory(SequenceExtractors.longestSequenceOnly());
+        VariabilityHistory history = dataset.getVariabilityHistory(SequenceExtractors.longestNonOverlappingSequences());
         var commitSequences = history.commitSequences();
         // Check the size
-        assert commitSequences.size() == 2;
+        assert commitSequences.size() == 3;
 
         for (var sequence : commitSequences) {
             switch (sequence.size()) {
@@ -137,6 +138,8 @@ public class VariabilityDatasetLoaderTest {
                     // The retrieved sequence contains 2 commits, so it must contain the same commits as either firstList or secondList
                     if (firstList[0].equals(sequence.get(0).id())) {
                         assertCommitIdsAreEqual(firstList, sequence);
+                    } else {
+                        assertCommitIdsAreEqual(thirdList, sequence);
                     }
                 }
                 // The retrieved sequence contains three commits so it must contain the same commits as thirdList

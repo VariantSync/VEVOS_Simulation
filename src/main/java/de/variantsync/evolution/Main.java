@@ -126,7 +126,7 @@ public class Main {
             Logger.debug("<<PARENT> " + pair.parent().id() + "> -- <<SPL_COMMIT> " + pair.parent().id() + ">");
             Logger.debug("");
         }
-        VariabilityHistory history = variabilityDataset.getVariabilityHistory(SequenceExtractors.longestSequenceOnly());
+        VariabilityHistory history = variabilityDataset.getVariabilityHistory(SequenceExtractors.longestNonOverlappingSequences());
         NonEmptyList<NonEmptyList<SPLCommit>> sequencesInHistory = history.commitSequences();
         Logger.info("The dataset contains " + sequencesInHistory.size() + " sequences.");
         for (int i = 0; i < sequencesInHistory.size(); i++) {
