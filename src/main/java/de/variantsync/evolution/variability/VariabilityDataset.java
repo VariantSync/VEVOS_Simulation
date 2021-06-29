@@ -69,9 +69,9 @@ public class VariabilityDataset {
      *
      * @return All sequences of commits that are usable in our evolution study.
      */
-    public VariabilityHistory getVariabilityHistory(Function<Collection<SPLCommit>, List<NonEmptyList<SPLCommit>>> sequenceExtraction) {
+    public VariabilityHistory getVariabilityHistory(Function<Collection<SPLCommit>,  List<NonEmptyList<SPLCommit>>> sequenceExtractor) {
         // Build a VariabilityHistory instance by applying the provided function to the set of success commits
-        List<NonEmptyList<SPLCommit>> history = new ArrayList<>(sequenceExtraction.apply(this.successCommits));
+        List<NonEmptyList<SPLCommit>> history = new ArrayList<>(sequenceExtractor.apply(this.successCommits));
 
         if (history.isEmpty()) {
             Logger.error("There is no valid sequence of commits from which a VariabilityHistory can be built!");

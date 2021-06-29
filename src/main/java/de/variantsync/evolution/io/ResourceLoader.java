@@ -10,7 +10,7 @@ import java.nio.file.Path;
  */
 public interface ResourceLoader<T> {
     /**
-     * @return True iff this load can load the file at the given path p.
+     * @return True iff this load can load the resource at the given path p.
      */
     boolean canLoad(Path p);
 

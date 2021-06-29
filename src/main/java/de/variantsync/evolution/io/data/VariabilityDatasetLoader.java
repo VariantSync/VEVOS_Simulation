@@ -1,6 +1,7 @@
 package de.variantsync.evolution.io.data;
 
 import de.variantsync.evolution.io.ResourceLoader;
+import de.variantsync.evolution.io.TextIO;
 import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.functional.Result;
 import de.variantsync.evolution.variability.SPLCommit;
@@ -14,7 +15,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDataset> {
     private final static String SUCCESS_COMMIT_FILE = "SUCCESS_COMMITS.txt";
@@ -28,10 +28,6 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
     private static final String LOG_DIR_NAME = "log";
 
 
-    /**
-     * @param p The path which should be checked.
-     * @return true if the path points to a directory that contains at least one of the required metadata files, otherwise false.
-     */
     @Override
     public boolean canLoad(Path p) {
         try {
@@ -64,9 +60,13 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
     @Override
     public Result<VariabilityDataset, Exception> load(Path p) {
         // Read the metadata
-        List<String> successIds = readLines(p, SUCCESS_COMMIT_FILE);
-        List<String> errorIds = readLines(p, ERROR_COMMIT_FILE);
-        List<String> partialSuccessIds = readLines(p, PARTIAL_SUCCESS_COMMIT_FILE);
+        List<String> successIds = new ArrayList<>();
+        List<String> errorIds = new ArrayList<>();
+        List<String> partialSuccessIds = new ArrayList<>();
+
+        TextIO.readLinesTrimmed(p.resolve(SUCCESS_COMMIT_FILE)).ifSuccess(successIds::addAll);
+        TextIO.readLinesTrimmed(p.resolve(ERROR_COMMIT_FILE)).ifSuccess(errorIds::addAll);
+        TextIO.readLinesTrimmed(p.resolve(PARTIAL_SUCCESS_COMMIT_FILE)).ifSuccess(partialSuccessIds::addAll);
 
         // Create SPLCommit objects for each commit
         List<SPLCommit> successCommits = initializeSPLCommits(p, successIds);
@@ -128,15 +128,6 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
     private KernelHavenLogPath resolvePathToLogFile(Path rootDir, String commitId) {
         Path p = rootDir.resolve(LOG_DIR_NAME).resolve(commitId + ".log");
         return p.toFile().exists() ? new KernelHavenLogPath(p) : null;
-    }
-
-    private List<String> readLines(Path p, String fileName) {
-        try {
-            return Files.readAllLines(p.resolve(fileName)).stream().map(String::trim).filter(s -> !s.isEmpty()).collect(Collectors.toList());
-        } catch (IOException e) {
-            Logger.debug("Was not able to read file " + p.resolve(fileName));
-            return Collections.emptyList();
-        }
     }
 
     private String[] loadParentIds(Path p, String commitId) {
