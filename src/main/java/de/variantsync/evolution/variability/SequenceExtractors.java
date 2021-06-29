@@ -41,7 +41,7 @@ public class SequenceExtractors {
                                 sequenceStartCommits.add(c);
                             }
                         } else {
-                            // Sequence start because it is a merge commit
+                            // Sequence start because it is a merge commit or the start of the history
                             sequenceStartCommits.add(c);
                         }
                         return false;
