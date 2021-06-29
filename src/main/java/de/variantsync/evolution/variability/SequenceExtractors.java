@@ -28,7 +28,6 @@ public class SequenceExtractors {
         return (Collection<SPLCommit> commits) -> {
             Map<SPLCommit, Set<SPLCommit>> parentChildMap = new HashMap<>();
             Set<SPLCommit> commitSet = new HashSet<>(commits);
-            // Commits that have no parent in the given collection mark the start of a sequence
             Set<SPLCommit> sequenceStartCommits = new HashSet<>();
             // Filter commits and map each parent to all of its children. Additionally, determine sequence starts.
             // Hereby we can handle splits later on
@@ -52,6 +51,8 @@ public class SequenceExtractors {
 
             List<NonEmptyList<SPLCommit>> commitSequences = new LinkedList<>();
             // Retrieve the longest non-overlapping sequences for each start commit
+            // Start commits are all commits that have no valid ancestor in the given commit.
+            // Therefore, no two start commits can be part of the same sequence
             for (SPLCommit startCommit : sequenceStartCommits) {
                 // We now retrieve sequences starting from the sequenceStartCommit and sort the sequences
                 // descending by size, iterate over them, and remove all commits from a sequence that are already part
