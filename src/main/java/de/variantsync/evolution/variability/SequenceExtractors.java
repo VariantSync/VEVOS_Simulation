@@ -53,33 +53,22 @@ public class SequenceExtractors {
             List<NonEmptyList<SPLCommit>> commitSequences = new LinkedList<>();
             // Retrieve the longest non-overlapping sequences for each start commit
             for (SPLCommit startCommit : sequenceStartCommits) {
-                // We now retrieve sequences starting from the sequenceStartCommits
-                Set<LinkedList<SPLCommit>> sequences = retrieveSequencesForStart(parentChildMap, startCommit);
-                LinkedList<SPLCommit> longestSequence = null;
-                for (LinkedList<SPLCommit> sequence : sequences) {
-                    if (longestSequence == null) {
-                        longestSequence = sequence;
-                    } else if (longestSequence.size() < sequence.size()) {
-                        longestSequence = sequence;
-                    }
-                }
-                if (longestSequence != null && longestSequence.size() > 1) {
-                    commitSequences.add(new NonEmptyList<>(longestSequence));
-                }
-
-                // Now, sort the sequences descending by size, iterate over them, and remove all commits
-                // from a sequence that are already part of a longer sequence
-                List<LinkedList<SPLCommit>> orderedSequences = new ArrayList<>(sequences);
+                // We now retrieve sequences starting from the sequenceStartCommit and sort the sequences
+                // descending by size, iterate over them, and remove all commits from a sequence that are already part
+                // of a longer sequence
+                List<LinkedList<SPLCommit>> orderedSequences = new ArrayList<>(retrieveSequencesForStart(parentChildMap, startCommit));
                 orderedSequences.sort((o1, o2) -> Integer.compare(o2.size(), o1.size()));
-                for (int i = 1; i < orderedSequences.size(); i++) {
-                    LinkedList<SPLCommit> largerSequence = orderedSequences.get(i - 1);
-                    for (int j = i; j < orderedSequences.size(); j++) {
-                        LinkedList<SPLCommit> shorterSequence = orderedSequences.get(j);
-                        // Remove all commits from the shorter sequence that are contained in the larger sequence
-                        for (SPLCommit commit : largerSequence) {
-                            // We only have to consider the first element
-                            if (shorterSequence.getFirst() == commit) {
-                                shorterSequence.removeFirst();
+                for (int i = 0; i < orderedSequences.size(); i++) {
+                    if (i > 0) {
+                        LinkedList<SPLCommit> largerSequence = orderedSequences.get(i - 1);
+                        for (int j = i; j < orderedSequences.size(); j++) {
+                            LinkedList<SPLCommit> shorterSequence = orderedSequences.get(j);
+                            // Remove all commits from the shorter sequence that are contained in the larger sequence
+                            for (SPLCommit commit : largerSequence) {
+                                // We only have to consider the first element
+                                if (shorterSequence.getFirst() == commit) {
+                                    shorterSequence.removeFirst();
+                                }
                             }
                         }
                     }
