@@ -31,14 +31,18 @@ public class SequenceExtractors {
             Set<SPLCommit> sequenceStartCommits = new HashSet<>();
             // Filter commits and map each parent to all of its children. Additionally, determine sequence starts.
             // Hereby we can handle splits later on
-            commitSet.forEach(c -> c.parents()
+            commits.forEach(c -> c.parents()
                     .filter(parents -> {
                         if (parents.length == 1) {
                             if (commitSet.contains(parents[0])) {
                                 return true;
                             } else {
+                                // Sequence start because the parent's extraction was unsuccessful
                                 sequenceStartCommits.add(c);
                             }
+                        } else {
+                            // Sequence start because it is a merge commit
+                            sequenceStartCommits.add(c);
                         }
                         return false;
                     })
