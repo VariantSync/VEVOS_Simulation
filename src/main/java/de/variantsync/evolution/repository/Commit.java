@@ -5,9 +5,9 @@ import java.util.Objects;
 
 /**
  * Represents a commit for a certain repository.
- * @param <T> The repository type to instances of which the commit can be made / was made.
+ * @param The repository type to instances of which the commit can be made / was made.
  */
-public abstract class Commit<T extends IRepository<? extends Commit<T>>> {
+public abstract class Commit {
     private final String commitId;
 
     /**
@@ -30,7 +30,7 @@ public abstract class Commit<T extends IRepository<? extends Commit<T>>> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Commit<?> commit = (Commit<?>) o;
+        Commit commit = (Commit) o;
         return commitId.equals(commit.commitId);
     }
 
@@ -51,7 +51,7 @@ public abstract class Commit<T extends IRepository<? extends Commit<T>>> {
      * @param id Hashcode to be searched.
      * @return True, iff there exists at least one commit on the given collection with the given id.
      */
-    public static <U extends IRepository<? extends Commit<U>>> boolean contains(Collection<? extends Commit<U>> commits, String id) {
+    public static boolean contains(Collection<? extends Commit> commits, String id) {
         return commits.stream().anyMatch(c -> c.id().equals(id));
     }
 }

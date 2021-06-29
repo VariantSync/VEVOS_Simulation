@@ -157,6 +157,14 @@ public class Result<SuccessType, FailureType> {
     }
 
     public SuccessType getSuccess() {
+        return expect("Tried to retrieve the success value of a Failure result!");
+    }
+
+    public SuccessType expect(String message) {
+        if (isFailure()) {
+            Logger.error(message);
+            throw new RuntimeException(message);
+        }
         return result;
     }
 

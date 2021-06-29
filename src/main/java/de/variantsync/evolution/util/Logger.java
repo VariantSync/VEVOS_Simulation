@@ -27,7 +27,8 @@ public class Logger {
 
     public static void init(Map<LogLevel, OutputStream> streamMap) {
         if (Logger.INSTANCE != null) {
-            throw new RuntimeException("Logger already initialized.");
+            Logger.warning("Logger already initialized");
+            return;
         }
         for (LogLevel level : LogLevel.values()) {
             if (!streamMap.containsKey(level)) {

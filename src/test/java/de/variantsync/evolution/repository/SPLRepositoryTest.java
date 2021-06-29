@@ -85,7 +85,7 @@ public class SPLRepositoryTest {
     }
 
     @Test
-    public void testGetCurrentCommit() throws GitAPIException, IOException {
+    public void testGetCurrentCommit() throws IOException {
         String expectedId = "463ce6e2d40796b04fa3520201f21c5842e1b2b5"; // current commit of master branch
         SPLCommit commit = repo.getCurrentCommit();
         assert expectedId.equals(commit.id());
