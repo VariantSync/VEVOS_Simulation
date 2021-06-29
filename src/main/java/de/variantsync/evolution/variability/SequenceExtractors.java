@@ -47,10 +47,9 @@ public class SequenceExtractors {
 
             List<NonEmptyList<SPLCommit>> commitSequences = new LinkedList<>();
             // Retrieve the longest non-overlapping sequences for each start commit
-            for (Map.Entry<SPLCommit, Set<SPLCommit>> entry : parentChildMap.entrySet()) {
+            for (SPLCommit startCommit : sequenceStartCommits) {
                 // We now retrieve sequences starting from the sequenceStartCommits
-                if (sequenceStartCommits.contains(entry.getKey())) {
-                    Set<LinkedList<SPLCommit>> sequences = retrieveSequencesForStart(parentChildMap, entry.getKey());
+                    Set<LinkedList<SPLCommit>> sequences = retrieveSequencesForStart(parentChildMap, startCommit);
                     LinkedList<SPLCommit> longestSequence = null;
                     for (LinkedList<SPLCommit> sequence : sequences) {
                         if (longestSequence == null) {
@@ -85,7 +84,6 @@ public class SequenceExtractors {
                             commitSequences.add(new NonEmptyList<>(orderedSequences.get(i)));
                         }
                     }
-                }
             }
 
             return commitSequences;
