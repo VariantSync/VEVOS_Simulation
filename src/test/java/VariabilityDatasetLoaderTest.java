@@ -3,6 +3,7 @@ import de.variantsync.evolution.io.Resources;
 import de.variantsync.evolution.io.data.CSV;
 import de.variantsync.evolution.io.data.CSVLoader;
 import de.variantsync.evolution.io.kernelhaven.KernelHavenPCLoader;
+import de.variantsync.evolution.variability.SequenceExtractors;
 import de.variantsync.evolution.variability.VariabilityDataset;
 import de.variantsync.evolution.io.data.VariabilityDatasetLoader;
 import de.variantsync.evolution.repository.Commit;
@@ -123,13 +124,12 @@ public class VariabilityDatasetLoaderTest {
         // commit lists represent all sequences of success commits that were created. Any deviation from these sequences
         // indicates a bug in loading the VariabilityRepo
         var firstList = new String[]{"eab1607a6f137376e57a3381c2fdae9c9d46de4d", "78fe3d306860e11e327a43cfce2c97748a34c1e1"};
-        var secondList = new String[]{"454f7da158fdf3fe4b3c3fc8110f6c15861f97fa", "c79e89cd49fc17be386ca026686dd01e0985a5ea", "600f60df96cdbbf3319085d8e777d7e66c96e013", "a54c3c30f2dff6dc36331f06360630b697b7562c"};
-        var thirdList = new String[]{"38e15e31eabccf82d3183273240cd44f2dec9fa9", "741ee98bf3edee477c504726fdc482ae85adf0e5"};
+        var secondList = new String[]{"454f7da158fdf3fe4b3c3fc8110f6c15861f97fa", "600f60df96cdbbf3319085d8e777d7e66c96e013", "a54c3c30f2dff6dc36331f06360630b697b7562c", "38e15e31eabccf82d3183273240cd44f2dec9fa9", "741ee98bf3edee477c504726fdc482ae85adf0e5"};
 
-        VariabilityHistory history = dataset.getVariabilityHistory();
+        VariabilityHistory history = dataset.getVariabilityHistory(SequenceExtractors.longestSequenceOnly());
         var commitSequences = history.commitSequences();
         // Check the size
-        assert commitSequences.size() == 3;
+        assert commitSequences.size() == 2;
 
         for (var sequence : commitSequences) {
             switch (sequence.size()) {
@@ -137,12 +137,10 @@ public class VariabilityDatasetLoaderTest {
                     // The retrieved sequence contains 2 commits, so it must contain the same commits as either firstList or secondList
                     if (firstList[0].equals(sequence.get(0).id())) {
                         assertCommitIdsAreEqual(firstList, sequence);
-                    } else {
-                        assertCommitIdsAreEqual(thirdList, sequence);
                     }
                 }
                 // The retrieved sequence contains three commits so it must contain the same commits as thirdList
-                case 4 -> assertCommitIdsAreEqual(secondList, sequence);
+                case 5 -> assertCommitIdsAreEqual(secondList, sequence);
                 // The retrieved sequence contains an unexpected number of commits and the history is therefore incorrect
                 default -> throw new AssertionError("Invalid number of commits in the sequence.");
             }

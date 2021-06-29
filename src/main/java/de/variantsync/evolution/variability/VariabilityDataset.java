@@ -6,6 +6,7 @@ import de.variantsync.evolution.util.list.NonEmptyList;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class VariabilityDataset {
@@ -30,7 +31,6 @@ public class VariabilityDataset {
     }
 
     /**
-     *
      * @return A Set of all commits contained in this dataset.
      */
     public Set<SPLCommit> getAllCommits() {
@@ -38,7 +38,6 @@ public class VariabilityDataset {
     }
 
     /**
-     *
      * @return A List of all commits for which variability data was extracted successfully.
      */
     public List<SPLCommit> getSuccessCommits() {
@@ -46,7 +45,6 @@ public class VariabilityDataset {
     }
 
     /**
-     *
      * @return A List of all commits for which variability data could not be extracted.
      */
     public List<SPLCommit> getErrorCommits() {
@@ -54,7 +52,6 @@ public class VariabilityDataset {
     }
 
     /**
-     *
      * @return A List of all commits for which variability data was extracted partially.
      */
     public List<SPLCommit> getPartialSuccessCommits() {
@@ -72,67 +69,15 @@ public class VariabilityDataset {
      *
      * @return All sequences of commits that are usable in our evolution study.
      */
-    public VariabilityHistory getVariabilityHistory() {
-        // Retrieve the pairs of usable commits
-        Set<CommitPair<SPLCommit>> usableCommitPairs = this.getCommitPairsForEvolutionStudy();
-        // Create lists for the commits in the pairs and merge lists according to parent-child relationships
-        Map<SPLCommit, LinkedList<SPLCommit>> commitToCommitSequenceMap = new HashMap<>();
-        for (CommitPair<SPLCommit> pair : usableCommitPairs) {
-            final boolean parentHasSequence = commitToCommitSequenceMap.containsKey(pair.parent());
-            final boolean childHasSequence = commitToCommitSequenceMap.containsKey(pair.child());
-            if (parentHasSequence && childHasSequence) {
-                // Parent and child already belong to a list
-                // Merge the two lists, if they are not the same list
-                final var parentList = commitToCommitSequenceMap.get(pair.parent());
-                final var childList = commitToCommitSequenceMap.get(pair.child());
-                if (parentList == childList) {
-                    throw new IllegalStateException("The same parent-child pair was considered twice.");
-                }
-                // Add all commits from the child list to the parent list, and replace the list in the map
-                parentList.addAll(childList);
-                // Now, update the associated list for each added commit
-                childList.forEach(c -> commitToCommitSequenceMap.put(c, parentList));
-            } else if (parentHasSequence) {
-                // Only the parent belongs to a list
-                // Append the child to the list
-                final var commitList = commitToCommitSequenceMap.get(pair.parent());
-                commitList.addLast(pair.child());
-                commitToCommitSequenceMap.put(pair.child(), commitList);
-            } else if (childHasSequence) {
-                // Only the child belongs to a list
-                // Prepend the parent to the list
-                final var commitList = commitToCommitSequenceMap.get(pair.child());
-                commitList.addFirst(pair.parent());
-                commitToCommitSequenceMap.put(pair.parent(), commitList);
-            } else {
-                // Neither parent nor child were added to a list
-                // Create a new list that contains parent and child
-                final LinkedList<SPLCommit> commitList = new LinkedList<>();
-                commitList.addLast(pair.parent());
-                commitList.addLast(pair.child());
-                commitToCommitSequenceMap.put(pair.parent(), commitList);
-                commitToCommitSequenceMap.put(pair.child(), commitList);
-            }
-        }
+    public VariabilityHistory getVariabilityHistory(Function<Collection<SPLCommit>, List<NonEmptyList<SPLCommit>>> sequenceExtraction) {
+        // Build a VariabilityHistory instance by applying the provided function to the set of success commits
+        List<NonEmptyList<SPLCommit>> history = new ArrayList<>(sequenceExtraction.apply(this.successCommits));
 
-        // Lastly, build a VariabilityHistory instance from the collected lists
-        NonEmptyList<NonEmptyList<SPLCommit>> history = null;
-        for (LinkedList<SPLCommit> commitList : new HashSet<>(commitToCommitSequenceMap.values())) {
-            NonEmptyList<SPLCommit> commitSequence = new NonEmptyList<>(commitList);
-            if (history == null) {
-                LinkedList<NonEmptyList<SPLCommit>> tempList = new LinkedList<>();
-                tempList.add(commitSequence);
-                history = new NonEmptyList<>(tempList);
-            } else {
-                history.add(commitSequence);
-            }
-        }
-
-        if (history == null) {
+        if (history.isEmpty()) {
             Logger.error("There is no valid sequence of commits from which a VariabilityHistory can be built!");
             throw new IllegalStateException();
         } else {
-            return new VariabilityHistory(history);
+            return new VariabilityHistory(new NonEmptyList<>(history));
         }
     }
 

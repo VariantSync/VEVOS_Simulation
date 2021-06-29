@@ -10,7 +10,7 @@ import org.eclipse.jgit.lib.ObjectId;
 import java.io.IOException;
 import java.nio.file.Path;
 
-public abstract class Repository<C extends Commit<? extends IRepository<C>>> implements IRepository<C>{
+public abstract class Repository<C extends Commit> implements IRepository<C>{
     private final Path path;
     private Git git;
 

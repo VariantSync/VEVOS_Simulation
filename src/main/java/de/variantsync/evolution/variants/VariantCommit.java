@@ -7,7 +7,7 @@ import de.variantsync.evolution.repository.AbstractVariantsRepository;
 /**
  * Represents a commit to an AbstractVariantsRepository.
  */
-public class VariantCommit extends Commit<AbstractVariantsRepository> {
+public class VariantCommit extends Commit {
     private final Branch branch;
 
     public VariantCommit(String commitId, Branch branch) {

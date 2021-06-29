@@ -14,7 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
-public class SPLCommit extends Commit<AbstractSPLRepository> {
+public class SPLCommit extends Commit {
     private SPLCommit[] parents;
     private final Lazy<Optional<String>> kernelHavenLog;
     private final Lazy<Optional<IFeatureModel>> featureModel;

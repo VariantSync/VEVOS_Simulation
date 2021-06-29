@@ -20,6 +20,7 @@ import de.variantsync.evolution.util.functional.Unit;
 import de.variantsync.evolution.util.list.NonEmptyList;
 import de.variantsync.evolution.variability.CommitPair;
 import de.variantsync.evolution.variability.SPLCommit;
+import de.variantsync.evolution.variability.SequenceExtractors;
 import de.variantsync.evolution.variability.VariabilityDataset;
 import de.variantsync.evolution.variability.pc.Artefact;
 import de.variantsync.evolution.variants.VariantsRepository;
@@ -125,7 +126,7 @@ public class Main {
             Logger.debug("<<PARENT> " + pair.parent().id() + "> -- <<SPL_COMMIT> " + pair.parent().id() + ">");
             Logger.debug("");
         }
-        VariabilityHistory history = variabilityDataset.getVariabilityHistory();
+        VariabilityHistory history = variabilityDataset.getVariabilityHistory(SequenceExtractors.longestSequenceOnly());
         NonEmptyList<NonEmptyList<SPLCommit>> sequencesInHistory = history.commitSequences();
         Logger.info("The dataset contains " + sequencesInHistory.size() + " sequences.");
         for (int i = 0; i < sequencesInHistory.size(); i++) {
