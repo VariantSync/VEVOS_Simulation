@@ -61,12 +61,7 @@ public class TextIO {
      * @return The lines that were read
      */
     public static Result<List<String>, IOException> readLinesTrimmed(Path p) {
-        try {
-            return Result.Success(Files.readAllLines(p).stream().map(String::trim).filter(s -> !s.isEmpty()).collect(Collectors.toList()));
-        } catch (IOException e) {
-            Logger.error("Was not able to read file " + p);
-            return Result.Failure(e);
-        }
+        return Result.Try(() -> Files.readAllLines(p).stream().map(String::trim).filter(s -> !s.isEmpty()).collect(Collectors.toList()));
     }
 
     /**
