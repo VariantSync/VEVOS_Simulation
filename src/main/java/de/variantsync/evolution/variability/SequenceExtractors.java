@@ -21,6 +21,7 @@ public class SequenceExtractors {
      * For example, if the commits comprise three partially overlapping sequences ([A-B-C-D-E], [X-Y-Z], [A-B-F-G]),
      * the function will return the sequences ([A-B-C-D-E], [X-Y-Z], [F-G]).
      * </p>
+     *
      * @return A function that has the properties described above.
      */
     public static Function<Collection<SPLCommit>, List<NonEmptyList<SPLCommit>>> longestNonOverlappingSequences() {
@@ -53,41 +54,41 @@ public class SequenceExtractors {
             // Retrieve the longest non-overlapping sequences for each start commit
             for (SPLCommit startCommit : sequenceStartCommits) {
                 // We now retrieve sequences starting from the sequenceStartCommits
-                    Set<LinkedList<SPLCommit>> sequences = retrieveSequencesForStart(parentChildMap, startCommit);
-                    LinkedList<SPLCommit> longestSequence = null;
-                    for (LinkedList<SPLCommit> sequence : sequences) {
-                        if (longestSequence == null) {
-                            longestSequence = sequence;
-                        } else if (longestSequence.size() < sequence.size()) {
-                            longestSequence = sequence;
-                        }
+                Set<LinkedList<SPLCommit>> sequences = retrieveSequencesForStart(parentChildMap, startCommit);
+                LinkedList<SPLCommit> longestSequence = null;
+                for (LinkedList<SPLCommit> sequence : sequences) {
+                    if (longestSequence == null) {
+                        longestSequence = sequence;
+                    } else if (longestSequence.size() < sequence.size()) {
+                        longestSequence = sequence;
                     }
-                    if (longestSequence != null && longestSequence.size() > 1) {
-                        commitSequences.add(new NonEmptyList<>(longestSequence));
-                    }
+                }
+                if (longestSequence != null && longestSequence.size() > 1) {
+                    commitSequences.add(new NonEmptyList<>(longestSequence));
+                }
 
-                    // Now, sort the sequences descending by size, iterate over them, and remove all commits
-                    // from a sequence that are already part of a longer sequence
-                    List<LinkedList<SPLCommit>> orderedSequences = new ArrayList<>(sequences);
-                    orderedSequences.sort((o1, o2) -> Integer.compare(o2.size(), o1.size()));
-                    for (int i = 1; i < orderedSequences.size(); i++) {
-                        LinkedList<SPLCommit> largerSequence = orderedSequences.get(i-1);
-                        for (int j = i; j < orderedSequences.size(); j++) {
-                            LinkedList<SPLCommit> shorterSequence = orderedSequences.get(j);
-                            // Remove all commits from the shorter sequence that are contained in the larger sequence
-                            for (SPLCommit commit : largerSequence) {
-                                // We only have to consider the first element
-                                if (shorterSequence.getFirst() == commit) {
-                                    shorterSequence.removeFirst();
-                                }
+                // Now, sort the sequences descending by size, iterate over them, and remove all commits
+                // from a sequence that are already part of a longer sequence
+                List<LinkedList<SPLCommit>> orderedSequences = new ArrayList<>(sequences);
+                orderedSequences.sort((o1, o2) -> Integer.compare(o2.size(), o1.size()));
+                for (int i = 1; i < orderedSequences.size(); i++) {
+                    LinkedList<SPLCommit> largerSequence = orderedSequences.get(i - 1);
+                    for (int j = i; j < orderedSequences.size(); j++) {
+                        LinkedList<SPLCommit> shorterSequence = orderedSequences.get(j);
+                        // Remove all commits from the shorter sequence that are contained in the larger sequence
+                        for (SPLCommit commit : largerSequence) {
+                            // We only have to consider the first element
+                            if (shorterSequence.getFirst() == commit) {
+                                shorterSequence.removeFirst();
                             }
                         }
-                        // The sequence at i has now been filtered completely, so it can be added if it contains at least
-                        // two commits
-                        if (orderedSequences.get(i).size() > 1) {
-                            commitSequences.add(new NonEmptyList<>(orderedSequences.get(i)));
-                        }
                     }
+                    // The sequence at i has now been filtered completely, so it can be added if it contains at least
+                    // two commits
+                    if (orderedSequences.get(i).size() > 1) {
+                        commitSequences.add(new NonEmptyList<>(orderedSequences.get(i)));
+                    }
+                }
             }
 
             return commitSequences;
