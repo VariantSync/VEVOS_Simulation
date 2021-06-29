@@ -64,9 +64,20 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
         List<String> errorIds = new ArrayList<>();
         List<String> partialSuccessIds = new ArrayList<>();
 
-        TextIO.readLinesTrimmed(p.resolve(SUCCESS_COMMIT_FILE)).ifSuccess(successIds::addAll);
-        TextIO.readLinesTrimmed(p.resolve(ERROR_COMMIT_FILE)).ifSuccess(errorIds::addAll);
-        TextIO.readLinesTrimmed(p.resolve(PARTIAL_SUCCESS_COMMIT_FILE)).ifSuccess(partialSuccessIds::addAll);
+        Path successFile = p.resolve(SUCCESS_COMMIT_FILE);
+        if (Files.exists(successFile)) {
+            successIds = TextIO.readLinesTrimmed(successFile).expect("Success-commit file exists but could not be loaded.");
+        }
+
+        Path errorFile = p.resolve(ERROR_COMMIT_FILE);
+        if (Files.exists(errorFile)) {
+            errorIds = TextIO.readLinesTrimmed(errorFile).expect("Error-commit file exists but could not be loaded.");
+        }
+
+        Path partialSuccessFile = p.resolve(PARTIAL_SUCCESS_COMMIT_FILE);
+        if (Files.exists(partialSuccessFile)) {
+            partialSuccessIds = TextIO.readLinesTrimmed(partialSuccessFile).expect("Partial-success-commit file exists but could not be loaded.");
+        }
 
         // Create SPLCommit objects for each commit
         List<SPLCommit> successCommits = initializeSPLCommits(p, successIds);
