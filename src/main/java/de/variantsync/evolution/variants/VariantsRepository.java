@@ -62,7 +62,6 @@ public class VariantsRepository extends AbstractVariantsRepository {
      * @return A list of blueprints that still have to be generated.
      */
     private ListHeadTailView<VariantsRevisionBlueprint> filterExistingRevisions(ListHeadTailView<VariantsRevisionBlueprint> history) {
-        branchesByName = new HashMap<>();
         // TODO: Implement Issue 11 here.
         // E.g. if we see that the first blueprint was already processed then we could return history.tail().
         // 1.) Find the last valid revision.
@@ -105,7 +104,7 @@ public class VariantsRepository extends AbstractVariantsRepository {
 
     @Override
     public Optional<VariantCommit> commit(String message) throws GitAPIException, IOException {
-        Optional result = Optional.empty();
+        Optional<VariantCommit> result = Optional.empty();
 
         try {
             VariantCommit commit= commit(".", message);
