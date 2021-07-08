@@ -1,11 +1,10 @@
 package de.variantsync.evolution.variability;
 
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
-import de.ovgu.featureide.fm.core.base.impl.FeatureModel;
 import de.variantsync.evolution.io.Resources;
 import de.variantsync.evolution.repository.Commit;
-import de.variantsync.evolution.repository.AbstractSPLRepository;
 import de.variantsync.evolution.util.Logger;
+import de.variantsync.evolution.util.fide.FeatureModelUtils;
 import de.variantsync.evolution.util.functional.Lazy;
 import de.variantsync.evolution.variability.pc.Artefact;
 
@@ -44,9 +43,9 @@ public class SPLCommit extends Commit {
         // Lazy loading of feature model
         this.featureModel = Lazy.of(() -> Optional.ofNullable(featureModel).map(featureModelPath -> {
             try {
-                return Resources.Instance().load(FeatureModel.class, featureModelPath.path);
-            } catch (Resources.ResourceLoadingFailure resourceLoadingFailure) {
-                Logger.exception("Was not able to load feature model for id " + commitId, resourceLoadingFailure);
+                return FeatureModelUtils.FromDIMACSFile(featureModelPath.path);
+            } catch (IOException e) {
+                Logger.exception("Was not able to load feature model for id " + commitId, e);
                 return null;
             }
         }));
