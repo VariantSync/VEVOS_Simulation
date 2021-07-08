@@ -1,11 +1,14 @@
 package de.variantsync.evolution.variability;
 
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
+import de.ovgu.featureide.fm.core.io.Problem;
+import de.ovgu.featureide.fm.core.io.ProblemList;
 import de.variantsync.evolution.io.Resources;
 import de.variantsync.evolution.repository.Commit;
 import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.fide.FeatureModelUtils;
 import de.variantsync.evolution.util.functional.Lazy;
+import de.variantsync.evolution.util.functional.Result;
 import de.variantsync.evolution.variability.pc.Artefact;
 
 import java.io.IOException;
@@ -42,10 +45,15 @@ public class SPLCommit extends Commit {
         }));
         // Lazy loading of feature model
         this.featureModel = Lazy.of(() -> Optional.ofNullable(featureModel).map(featureModelPath -> {
-            try {
-                return FeatureModelUtils.FromDIMACSFile(featureModelPath.path);
-            } catch (IOException e) {
-                Logger.exception("Was not able to load feature model for id " + commitId, e);
+            Result<IFeatureModel, ProblemList> featureModelResult = FeatureModelUtils.FromDIMACSFile(featureModelPath.path);
+            if (featureModelResult.isSuccess()) {
+                Logger.debug("Feature model parsed successfully from " + featureModelPath.path);
+                return featureModelResult.getSuccess();
+            } else {
+                Logger.error("Was not able to load feature model for id " + commitId + " under path " + featureModelPath.path);
+                ProblemList problemList = featureModelResult.getFailure();
+                Logger.error("DIMACSFormat encountered " + problemList.size() + " problems during the parsing of the DIMACS file.");
+                problemList.stream().map(Problem::toString).forEach(Logger::error);
                 return null;
             }
         }));

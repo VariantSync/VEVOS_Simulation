@@ -30,6 +30,8 @@ public class VariabilityDatasetLoaderTest {
     private static final String COMMIT_MESSAGE = "Commit message stub";
     private static final File SIMPLE_HISTORY_REPO_DIR;
     private static final Path TEMP_TEST_REPO_DIR;
+    // I added an invalid String "ääääääää" to the DIMACS file of e12024473264e88058027290a348d1ada31af20a
+    private static final String COMMIT_WITH_INVALID_DIMACS_FILE = "e12024473264e88058027290a348d1ada31af20a";
 
     static {
         Logger.initConsoleLogger();
@@ -206,7 +208,6 @@ public class VariabilityDatasetLoaderTest {
         }
     }
 
-    // TODO: This test should pass once #3 has been merged
     @Test
     public void featureModelsOfSuccessCommitsAreLoaded() {
         for (SPLCommit commit : dataset.getSuccessCommits()) {
@@ -215,12 +216,25 @@ public class VariabilityDatasetLoaderTest {
         }
     }
 
-    // TODO: This test should pass once #3 has been merged
     @Test
     public void featureModelsOfIncompletePCCommitsAreLoaded() {
         for (SPLCommit commit : dataset.getPartialSuccessCommits()) {
+            if (commit.id().equals(COMMIT_WITH_INVALID_DIMACS_FILE)) {
+                // I added an invalid String to one of the commits
+                continue;
+            }
             IFeatureModel model = commit.featureModel().run().orElseThrow();
             assert model != null;
+        }
+    }
+
+    @Test
+    public void expectParseError() {
+        for (SPLCommit commit : dataset.getPartialSuccessCommits()) {
+            if (commit.id().equals(COMMIT_WITH_INVALID_DIMACS_FILE)) {
+                Optional<IFeatureModel> model = commit.featureModel().run();
+                assert model.isEmpty();
+            }
         }
     }
 
