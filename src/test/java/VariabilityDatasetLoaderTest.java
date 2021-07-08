@@ -38,7 +38,6 @@ public class VariabilityDatasetLoaderTest {
         final Resources r = Resources.Instance();
         r.registerLoader(CSV.class, new CSVLoader());
         r.registerLoader(Artefact.class, new KernelHavenPCLoader());
-        // TODO: Register FeatureModel loader once #3 has been merged
         try {
             TEMP_TEST_REPO_DIR = Files.createDirectories(Paths.get("temporary-test-repos"));
             SIMPLE_HISTORY_REPO_DIR = new File(TEMP_TEST_REPO_DIR.toFile(), "simple-history");
