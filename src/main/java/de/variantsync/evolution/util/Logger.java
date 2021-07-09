@@ -76,8 +76,12 @@ public class Logger {
         error(collectionToString(collection));
     }
 
-    public static void exception(String message, Exception e) {
+    public static void error(String message, Exception e) {
         INSTANCE.log(message + "\n" + e.getMessage(), ERROR);
+    }
+
+    public static <T> void error(String message, Collection<T> collection) {
+        error(message, collectionToString(collection));
     }
 
     public static <S, F> void log(Result<S, F> result) {
@@ -108,6 +112,10 @@ public class Logger {
         }
         sb.append("]");
         return sb.toString();
+    }
+
+    public static void error(String message, Object failure) {
+        Logger.error(message + "\n" + failure.toString());
     }
 
     protected void log(String message, LogLevel targetLevel) {

@@ -91,7 +91,7 @@ public class VariantsRepository extends AbstractVariantsRepository {
             Branch branch = getCurrentBranch();
             return new VariantCommit(id, branch);
         } catch(IOException e){
-            Logger.exception("Failed get variant commit for id " + id, e);
+            Logger.error("Failed get variant commit for id " + id, e);
             close();
             throw e;
         }
@@ -112,7 +112,7 @@ public class VariantsRepository extends AbstractVariantsRepository {
                 result = Optional.of(commit);
             }
         } catch (IOException | GitAPIException e) {
-            Logger.exception("Failed to commit with message: " + message, e);
+            Logger.error("Failed to commit with message: " + message, e);
             close();
             throw e;
         }
@@ -125,7 +125,7 @@ public class VariantsRepository extends AbstractVariantsRepository {
             String branch = git().getRepository().getBranch();
             return new Branch(branch);
         } catch(IOException e){
-            Logger.exception("Failed to get current branch", e);
+            Logger.error("Failed to get current branch", e);
             throw e;
         }
     }

@@ -1,5 +1,6 @@
 package de.variantsync.evolution;
 
+import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import de.ovgu.featureide.fm.core.base.impl.*;
 import de.ovgu.featureide.fm.core.configuration.*;
 import de.ovgu.featureide.fm.core.io.sxfm.SXFMFormat;
@@ -7,6 +8,7 @@ import de.ovgu.featureide.fm.core.io.xml.XmlFeatureModelFormat;
 import de.variantsync.evolution.io.Resources;
 import de.variantsync.evolution.io.data.CSV;
 import de.variantsync.evolution.io.data.CSVLoader;
+import de.variantsync.evolution.io.data.IFeatureModelLoader;
 import de.variantsync.evolution.io.data.VariabilityDatasetLoader;
 import de.variantsync.evolution.io.kernelhaven.KernelHavenPCLoader;
 import de.variantsync.evolution.repository.AbstractSPLRepository;
@@ -46,6 +48,7 @@ public class Main {
         final Resources r = Resources.Instance();
         r.registerLoader(CSV.class, new CSVLoader());
         r.registerLoader(Artefact.class, new KernelHavenPCLoader());
+        r.registerLoader(IFeatureModel.class, new IFeatureModelLoader());
     }
 
     private static void InitFeatureIDE() {
@@ -88,7 +91,7 @@ public class Main {
         try (FileInputStream inputStream = new FileInputStream(PROPERTIES_FILE)) {
             properties.load(inputStream);
         } catch (IOException e) {
-            Logger.exception("Failed to open properties file: ", e);
+            Logger.error("Failed to open properties file: ", e);
             return;
         }
         /*

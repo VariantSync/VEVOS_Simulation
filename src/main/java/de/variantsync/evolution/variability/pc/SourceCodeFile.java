@@ -29,7 +29,7 @@ public class SourceCodeFile extends Annotated {
         );
 
         if (result.isFailure()) {
-            Logger.exception("Could not create file " + targetFile + " because ", result.getFailure());
+            Logger.error("Could not create file " + targetFile + " because ", result.getFailure());
             return result;
         }
 

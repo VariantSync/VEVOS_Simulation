@@ -58,11 +58,11 @@ public class Resources {
 
         for (ResourceLoader<T> loader : loadersForT) {
             if (loader.canLoad(p)) {
-                Result<T, Exception> result = loader.load(p);
+                Result<T, ?> result = loader.load(p);
                 if (result.isSuccess()) {
                     return result.getSuccess();
                 } else {
-                    Logger.exception("ResourceLoader " + loader + " failed: ", result.getFailure());
+                    Logger.error("ResourceLoader " + loader + " failed: ", result.getFailure());
                 }
             }
         }
