@@ -8,7 +8,7 @@ import de.ovgu.featureide.fm.core.io.xml.XmlFeatureModelFormat;
 import de.variantsync.evolution.io.Resources;
 import de.variantsync.evolution.io.data.CSV;
 import de.variantsync.evolution.io.data.CSVLoader;
-import de.variantsync.evolution.io.data.IFeatureModelLoader;
+import de.variantsync.evolution.io.data.DimacsFeatureModelLoader;
 import de.variantsync.evolution.io.data.VariabilityDatasetLoader;
 import de.variantsync.evolution.io.kernelhaven.KernelHavenPCLoader;
 import de.variantsync.evolution.repository.AbstractSPLRepository;
@@ -48,7 +48,7 @@ public class Main {
         final Resources r = Resources.Instance();
         r.registerLoader(CSV.class, new CSVLoader());
         r.registerLoader(Artefact.class, new KernelHavenPCLoader());
-        r.registerLoader(IFeatureModel.class, new IFeatureModelLoader());
+        r.registerLoader(IFeatureModel.class, new DimacsFeatureModelLoader());
     }
 
     private static void InitFeatureIDE() {

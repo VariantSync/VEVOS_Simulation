@@ -10,7 +10,7 @@ import de.variantsync.evolution.util.functional.Result;
 import java.io.File;
 import java.nio.file.Path;
 
-public class IFeatureModelLoader implements ResourceLoader<IFeatureModel> {
+public class DimacsFeatureModelLoader implements ResourceLoader<IFeatureModel> {
     private static final String EXTENSION = ".dimacs";
 
     @Override
