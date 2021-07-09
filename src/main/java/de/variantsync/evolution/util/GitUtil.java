@@ -7,7 +7,6 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /*
@@ -105,7 +104,7 @@ public class GitUtil {
                     .setDirectory(Paths.get(repoParentDir, repositoryName).toFile())
                     .call();
         } catch (GitAPIException e) {
-            Logger.exception("Failed to load git repo from " + remoteUri, e);
+            Logger.error("Failed to load git repo from " + remoteUri, e);
             throw e;
         }
     }
@@ -118,7 +117,7 @@ public class GitUtil {
 
             return new Git(repository);
         } catch (IOException e) {
-            Logger.exception("Was not able to load git repo: ", e);
+            Logger.error("Was not able to load git repo: ", e);
             throw e;
         }
     }

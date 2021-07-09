@@ -20,7 +20,7 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
     private final static String SUCCESS_COMMIT_FILE = "SUCCESS_COMMITS.txt";
     private final static String ERROR_COMMIT_FILE = "ERROR_COMMITS.txt";
     private final static String PARTIAL_SUCCESS_COMMIT_FILE = "PARTIAL_SUCCESS_COMMITS.txt";
-    private final static String FEATURE_MODEL_FILE = "variability-model.json";
+    private final static String FEATURE_MODEL_FILE = "feature-model.dimacs";
     private final static String PRESENCE_CONDITIONS_FILE = "code-variability.csv";
     private final static String PARENTS_FILE = "PARENTS.txt";
     private final static String MESSAGE_FILE = "MESSAGE.txt";
@@ -38,7 +38,7 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
                         return name.equals(SUCCESS_COMMIT_FILE) || name.equals(ERROR_COMMIT_FILE) || name.equals(PARTIAL_SUCCESS_COMMIT_FILE);
                     });
         } catch (IOException e) {
-            Logger.exception("Was not able to check the file(s) under " + p, e);
+            Logger.error("Was not able to check the file(s) under " + p, e);
             return false;
         }
     }
@@ -147,7 +147,7 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
             try {
                 return Files.readString(parentsFile).split("\\s");
             } catch (IOException e) {
-                Logger.exception("Was not able to load PARENTS.txt " + parentsFile + " even though it exists:", e);
+                Logger.error("Was not able to load PARENTS.txt " + parentsFile + " even though it exists:", e);
                 return null;
             }
         } else {

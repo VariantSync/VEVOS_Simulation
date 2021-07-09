@@ -76,7 +76,7 @@ public class Logger {
         error(collectionToString(collection));
     }
 
-    public static void exception(String message, Exception e) {
+    public static void error(String message, Exception e) {
         INSTANCE.log(message + "\n" + e.getMessage(), ERROR);
     }
 

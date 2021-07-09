@@ -1,5 +1,6 @@
 package de.variantsync.evolution;
 
+import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import de.ovgu.featureide.fm.core.base.impl.*;
 import de.ovgu.featureide.fm.core.configuration.*;
 import de.ovgu.featureide.fm.core.io.sxfm.SXFMFormat;
@@ -7,9 +8,9 @@ import de.ovgu.featureide.fm.core.io.xml.XmlFeatureModelFormat;
 import de.variantsync.evolution.io.Resources;
 import de.variantsync.evolution.io.data.CSV;
 import de.variantsync.evolution.io.data.CSVLoader;
+import de.variantsync.evolution.io.data.DimacsFeatureModelLoader;
 import de.variantsync.evolution.io.data.VariabilityDatasetLoader;
 import de.variantsync.evolution.io.kernelhaven.KernelHavenPCLoader;
-import de.variantsync.evolution.io.pclocator.PCLocatorPCLoader;
 import de.variantsync.evolution.repository.AbstractSPLRepository;
 import de.variantsync.evolution.repository.VariabilityHistory;
 import de.variantsync.evolution.util.Logger;
@@ -41,12 +42,13 @@ public class Main {
     private static final String VARIABILITY_DATASET = "variability_dataset";
     private static final String SPL_REPO = "spl_repo";
     private static final String VARIANTS_REPO = "variants_repo";
+    private static boolean initialized = false;
 
     private static void InitResources() {
         final Resources r = Resources.Instance();
         r.registerLoader(CSV.class, new CSVLoader());
         r.registerLoader(Artefact.class, new KernelHavenPCLoader());
-        r.registerLoader(Artefact.class, new PCLocatorPCLoader());
+        r.registerLoader(IFeatureModel.class, new DimacsFeatureModelLoader());
     }
 
     private static void InitFeatureIDE() {
@@ -72,9 +74,13 @@ public class Main {
     }
 
     public static void Initialize() {
-        Logger.initConsoleLogger();
-        InitResources();
-        InitFeatureIDE();
+        if (!initialized) {
+            Logger.initConsoleLogger();
+            InitResources();
+            InitFeatureIDE();
+            initialized = true;
+            Logger.debug("Finished initialization");
+        }
     }
 
     public static void main(String[] args) throws IOException {
@@ -85,7 +91,7 @@ public class Main {
         try (FileInputStream inputStream = new FileInputStream(PROPERTIES_FILE)) {
             properties.load(inputStream);
         } catch (IOException e) {
-            Logger.exception("Failed to open properties file: ", e);
+            Logger.error("Failed to open properties file: ", e);
             return;
         }
         /*

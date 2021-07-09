@@ -1,10 +1,8 @@
 package de.variantsync.evolution.variability;
 
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
-import de.ovgu.featureide.fm.core.base.impl.FeatureModel;
 import de.variantsync.evolution.io.Resources;
 import de.variantsync.evolution.repository.Commit;
-import de.variantsync.evolution.repository.AbstractSPLRepository;
 import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.functional.Lazy;
 import de.variantsync.evolution.variability.pc.Artefact;
@@ -33,39 +31,39 @@ public class SPLCommit extends Commit {
     public SPLCommit(String commitId, KernelHavenLogPath kernelHavenLog, FeatureModelPath featureModel, PresenceConditionPath presenceConditions, CommitMessagePath message) {
         super(commitId);
         // Lazy loading of log file
-        this.kernelHavenLog = Lazy.of(() -> Optional.ofNullable(kernelHavenLog).map(kernelHavenLogPath -> {
+        this.kernelHavenLog = Lazy.of(() -> Optional.ofNullable(kernelHavenLog).flatMap(kernelHavenLogPath -> {
             try {
-                return Files.readString(kernelHavenLogPath.path);
+                return Optional.of(Files.readString(kernelHavenLogPath.path));
             } catch (IOException e) {
-                Logger.exception("Was not able to load KernelHaven log for commit " + commitId, e);
-                return null;
+                Logger.error("Was not able to load KernelHaven log for commit " + commitId, e);
+                return Optional.empty();
             }
         }));
         // Lazy loading of feature model
-        this.featureModel = Lazy.of(() -> Optional.ofNullable(featureModel).map(featureModelPath -> {
+        this.featureModel = Lazy.of(() -> Optional.ofNullable(featureModel).flatMap(featureModelPath -> {
             try {
-                return Resources.Instance().load(FeatureModel.class, featureModelPath.path);
+                return Optional.of(Resources.Instance().load(IFeatureModel.class, featureModelPath.path));
             } catch (Resources.ResourceLoadingFailure resourceLoadingFailure) {
-                Logger.exception("Was not able to load feature model for id " + commitId, resourceLoadingFailure);
-                return null;
+                Logger.error("Was not able to load feature model for id " + commitId, resourceLoadingFailure);
+                return Optional.empty();
             }
         }));
         // Lazy loading of presence condition
-        this.presenceConditions = Lazy.of(() -> Optional.ofNullable(presenceConditions).map(presenceConditionPath -> {
+        this.presenceConditions = Lazy.of(() -> Optional.ofNullable(presenceConditions).flatMap(presenceConditionPath -> {
             try {
-                return Resources.Instance().load(Artefact.class, presenceConditionPath.path);
+                return Optional.of(Resources.Instance().load(Artefact.class, presenceConditionPath.path));
             } catch (Resources.ResourceLoadingFailure resourceLoadingFailure) {
-                Logger.exception("Was not able to load presence conditions for id " + commitId, resourceLoadingFailure);
-                return null;
+                Logger.error("Was not able to load presence conditions for id " + commitId, resourceLoadingFailure);
+                return Optional.empty();
             }
         }));
         // Lazy loading of commit message
-        this.message = Lazy.of(() -> Optional.ofNullable(message).map(commitMessagePath -> {
+        this.message = Lazy.of(() -> Optional.ofNullable(message).flatMap(commitMessagePath -> {
             try {
-                return Files.readString(commitMessagePath.path);
+                return Optional.of(Files.readString(commitMessagePath.path));
             } catch (IOException e) {
-                Logger.exception("Was not able to load commit message for id " + commitId, e);
-                return null;
+                Logger.error("Was not able to load commit message for id " + commitId, e);
+                return Optional.empty();
             }
         }));
     }

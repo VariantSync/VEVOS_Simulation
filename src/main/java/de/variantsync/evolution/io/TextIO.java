@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,7 +25,7 @@ public class TextIO {
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             reader.lines().forEach(lines::add);
         } catch (IOException e) {
-            Logger.exception("Failed to read lines from file: ", e);
+            Logger.error("Failed to read lines from file: ", e);
             throw e;
         }
         return lines.toArray(new String[0]);
@@ -36,7 +35,7 @@ public class TextIO {
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             return reader.lines();
         } catch (IOException e) {
-            Logger.exception("Failed to read lines from file: ", e);
+            Logger.error("Failed to read lines from file: ", e);
             throw e;
         }
     }
@@ -49,7 +48,7 @@ public class TextIO {
             }
             return line;
         } catch (IOException e) {
-            Logger.exception("Failed to read lines from file: ", e);
+            Logger.error("Failed to read lines from file: ", e);
             throw e;
         }
     }
