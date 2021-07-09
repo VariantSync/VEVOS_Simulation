@@ -40,6 +40,7 @@ public class Main {
     private static final String VARIABILITY_DATASET = "variability_dataset";
     private static final String SPL_REPO = "spl_repo";
     private static final String VARIANTS_REPO = "variants_repo";
+    private static boolean initialized = false;
 
     private static void InitResources() {
         final Resources r = Resources.Instance();
@@ -70,9 +71,13 @@ public class Main {
     }
 
     public static void Initialize() {
-        Logger.initConsoleLogger();
-        InitResources();
-        InitFeatureIDE();
+        if (!initialized) {
+            Logger.initConsoleLogger();
+            InitResources();
+            InitFeatureIDE();
+            initialized = true;
+            Logger.debug("Finished initialization");
+        }
     }
 
     public static void main(String[] args) throws IOException {

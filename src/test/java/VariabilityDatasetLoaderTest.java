@@ -1,4 +1,5 @@
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
+import de.variantsync.evolution.Main;
 import de.variantsync.evolution.io.Resources;
 import de.variantsync.evolution.io.data.CSV;
 import de.variantsync.evolution.io.data.CSVLoader;
@@ -34,10 +35,7 @@ public class VariabilityDatasetLoaderTest {
     private static final String COMMIT_WITH_INVALID_DIMACS_FILE = "e12024473264e88058027290a348d1ada31af20a";
 
     static {
-        Logger.initConsoleLogger();
-        final Resources r = Resources.Instance();
-        r.registerLoader(CSV.class, new CSVLoader());
-        r.registerLoader(Artefact.class, new KernelHavenPCLoader());
+        Main.Initialize();
         try {
             TEMP_TEST_REPO_DIR = Files.createDirectories(Paths.get("temporary-test-repos"));
             SIMPLE_HISTORY_REPO_DIR = new File(TEMP_TEST_REPO_DIR.toFile(), "simple-history");

@@ -44,8 +44,6 @@ public class FeatureModelUtils {
     public static Result<IFeatureModel, ProblemList> FromDIMACSFile(Path pathToDIMACSFile) {
         DefaultFeatureModelFactory factory = DefaultFeatureModelFactory.getInstance();
         IFeatureModel featureModel = factory.create();
-        // Register the default factory, so that it can be found by the DIMACSReader
-        FMFactoryManager.getInstance().addExtension(factory);
         DIMACSFormat dimacsFormat = new DIMACSFormat();
         try {
             ProblemList problemList = dimacsFormat.read(featureModel, Files.readString(pathToDIMACSFile));
