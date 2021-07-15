@@ -61,7 +61,10 @@ public class VariantGenerationTest {
             for (Variant v : variantsToTest) {
                 traceToTest
                         .generateVariant(v, splDir, variantsDir.resolve(v.getName()))
-                        .map(Functional.performSideEffect(groundTruth -> System.out.println(groundTruth.prettyPrint())))
+                        .map(Functional.performSideEffect(groundTruth -> {
+                            System.out.println("=== [Ground Truth for " + v + "] ===");
+                            System.out.println(groundTruth.prettyPrint());
+                        }))
                         .assertSuccess();
             }
 

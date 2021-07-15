@@ -48,7 +48,7 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
         return lineTo;
     }
     public int getLineCount() {
-        return lineTo - lineFrom - 1;
+        return lineTo - lineFrom + 1;
     }
 
     protected void setLineFrom(int lineFrom) {
@@ -112,8 +112,19 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
         return chunksToWrite;
     }
 
-    public static void projectInline(List<LineBasedAnnotation> annotations, Variant variant) {
-        int currentLine = 0;
+    /**
+     * Makes all line numbers in the given annotations consecutive.
+     * For example, given the following annotations as input
+     * [ [3, 4], [8, 13], [20, 21] ]
+     * would be reduced to
+     * [ [1, 2] [3, 8], [9, 10] ].
+     * When the given annotations are complete for a specific variant,
+     * this reduction corresponds to turning line numbers in the product line to line numbers in a variant.
+     *
+     * @param annotations Annotations in an SPL that should be reduced to a variant.
+     */
+    public static void convertSPLLineNumbersToVariantLineNumbers(List<LineBasedAnnotation> annotations) {
+        int currentLine = 1;
         int chunkLength;
         for (LineBasedAnnotation chunk : annotations) {
             chunkLength = chunk.getLineCount();

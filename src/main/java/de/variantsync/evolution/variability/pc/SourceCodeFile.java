@@ -30,32 +30,31 @@ public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
     @Override
     public Result<SourceCodeFile, Exception> generateVariant(Variant variant, CaseSensitivePath sourceDir, CaseSensitivePath targetDir) {
         final CaseSensitivePath targetFile = targetDir.resolve(getFile());
-        // 1. create the target file
-        return Result.FromFlag(
-                () -> PathUtils.createEmpty(targetFile.path()),
-                () -> new IOException("File already exists!")
-        )
-        // 2. compute lines to write to disk
+        // 1. Create the target file.
+        return PathUtils.createEmptyAsResult(targetFile.path())
+        // 2. Write to target file.
         .bind(unit -> {
             final CaseSensitivePath sourceFile = sourceDir.resolve(getFile());
             final List<LineBasedAnnotation> splGroundTruth = rootAnnotation.getLinesToGenerateFor(variant, FixTrueFalse.True);
             return Result.<IOException>Try(() -> TextIO.copyTextLines(sourceFile.path(), targetFile.path(), splGroundTruth)).map(u -> splGroundTruth);
         })
-        // 3. translate line numbers from SPL to variant
-        .map(splGroundTruth -> {
-            // We can mutate the splGroundTruth here as we do not need it anymore. So we can reuse the object for speeeeed.
-            LineBasedAnnotation.projectInline(splGroundTruth, variant);
-            final SourceCodeFile variantGroundTruth = plainCopy();
-            for (LineBasedAnnotation variantAnnotation : splGroundTruth) {
-                variantGroundTruth.addTrace(variantAnnotation);
-            }
-            return variantGroundTruth;
-        })
-        // 4. log if failure (and implicitly transform IOException to Exception)
-        .mapFail((IOException ioexception) -> {
-            Logger.error("Could not create variant file " + targetFile + " because ", ioexception);
-            return ioexception;
-        });
+        .bimap(
+                // 3. In case of success, translate line numbers from SPL to variant and return ground truth.
+                splGroundTruth -> {
+                    // We can mutate the splGroundTruth here as we do not need it anymore. So we can reuse the object for speeeeed.
+                    LineBasedAnnotation.convertSPLLineNumbersToVariantLineNumbers(splGroundTruth);
+                    // Return a copy of this subtree as ground truth.
+                    final SourceCodeFile variantGroundTruth = plainCopy();
+                    variantGroundTruth.addTraces(splGroundTruth);
+                    //variantGroundTruth.simplify();
+                    return variantGroundTruth;
+                },
+                // 4. In case of failure, log it (and implicitly transform IOException to Exception).
+                ioexception -> {
+                    Logger.error("Could not create variant file " + targetFile + " because ", ioexception);
+                    return ioexception;
+                }
+        );
     }
 
     @Override

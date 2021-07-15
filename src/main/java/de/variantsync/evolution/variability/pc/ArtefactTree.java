@@ -144,6 +144,12 @@ public class ArtefactTree<Child extends ArtefactTree<?>> implements Artefact {
         return subtrees;
     }
 
+    public void addTraces(final Collection<Child> annotations) {
+        for (Child b : annotations) {
+            addTrace(b);
+        }
+    }
+
     /**
      * Adds the given subtree to this tree.
      * Behaviour might change based on subclasses (e.g., for Annotated).
