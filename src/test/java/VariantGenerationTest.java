@@ -71,7 +71,7 @@ public class VariantGenerationTest {
 
     private static final ResourceLoader<Artefact> pcLoader = new KernelHavenPCLoader();
 
-    private static final CaseSensitivePath resDir = CaseSensitivePath.of("src", "main", "resources", "test");
+    private static final CaseSensitivePath resDir = CaseSensitivePath.of("src", "test", "resources", "variantgeneration");
     private static final CaseSensitivePath genDir = resDir.resolve("gen");
     private static final CaseSensitivePath datasetsDir = CaseSensitivePath.of("..", "variantevolution_datasets");
 
