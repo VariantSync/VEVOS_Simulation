@@ -1,12 +1,20 @@
 package de.variantsync.evolution.util.fide;
 
-import de.ovgu.featureide.fm.core.base.IFeature;
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import de.ovgu.featureide.fm.core.base.impl.DefaultFeatureModelFactory;
+import de.ovgu.featureide.fm.core.base.impl.FMFactoryManager;
 import de.ovgu.featureide.fm.core.base.impl.Feature;
+import de.ovgu.featureide.fm.core.io.Problem;
+import de.ovgu.featureide.fm.core.io.ProblemList;
+import de.ovgu.featureide.fm.core.io.dimacs.DIMACSFormat;
+import de.variantsync.evolution.util.functional.Result;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
 public class FeatureModelUtils {
     public static IFeatureModel CreateEmptyFeatureModel() {
@@ -31,5 +39,22 @@ public class FeatureModelUtils {
 
     public static IFeatureModel FromOptionalFeatures(String... featureNames) {
         return FromOptionalFeatures(Arrays.asList(featureNames));
+    }
+
+    public static Result<IFeatureModel, ProblemList> FromDIMACSFile(Path pathToDIMACSFile) {
+        DefaultFeatureModelFactory factory = DefaultFeatureModelFactory.getInstance();
+        IFeatureModel featureModel = factory.create();
+        DIMACSFormat dimacsFormat = new DIMACSFormat();
+        try {
+            ProblemList problemList = dimacsFormat.read(featureModel, Files.readString(pathToDIMACSFile));
+            if (problemList.size() > 0) {
+                // The feature model is empty if there was a problem during parsing, hence, we return a Failure
+                return Result.Failure(problemList);
+            } else {
+                return Result.Success(featureModel);
+            }
+        } catch (IOException e) {
+            return Result.Failure(new ProblemList(Collections.singleton(new Problem(e))));
+        }
     }
 }

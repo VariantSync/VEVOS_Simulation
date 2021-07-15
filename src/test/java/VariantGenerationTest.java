@@ -34,7 +34,7 @@ public class VariantGenerationTest {
         IFeatureModel features;
 
         // init dynamic
-        Result<Artefact, Exception> traces;
+        Result<Artefact, ?> traces;
 
         public TestCaseData(CaseSensitivePath pcs) {
             this.pcs = pcs;

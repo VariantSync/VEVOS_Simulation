@@ -1,3 +1,6 @@
 package de.variantsync.evolution.variability;
 
-public record CommitPair(VariabilityCommit child, VariabilityCommit parent) {}
+import de.variantsync.evolution.repository.Commit;
+import de.variantsync.evolution.repository.IRepository;
+
+public record CommitPair<T extends Commit>(T parent, T child) {}

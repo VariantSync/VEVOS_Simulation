@@ -6,14 +6,11 @@ import de.variantsync.evolution.util.CaseSensitivePath;
 import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.PathUtils;
 import de.variantsync.evolution.util.fide.bugfix.FixTrueFalse;
-import de.variantsync.evolution.util.functional.Functional;
 import de.variantsync.evolution.util.functional.Result;
-import de.variantsync.evolution.util.functional.Unit;
 import org.prop4j.Node;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Represents a variable source code file (e.g., because part of a plugin or only conditionally included).
@@ -56,7 +53,7 @@ public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
         })
         // 4. log if failure (and implicitly transform IOException to Exception)
         .mapFail((IOException ioexception) -> {
-            Logger.exception("Could not create variant file " + targetFile + " because ", ioexception);
+            Logger.error("Could not create variant file " + targetFile + " because ", ioexception);
             return ioexception;
         });
     }

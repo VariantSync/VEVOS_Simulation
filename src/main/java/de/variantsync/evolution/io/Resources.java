@@ -62,7 +62,7 @@ public class Resources {
                 if (result.isSuccess()) {
                     return result.getSuccess();
                 } else {
-                    Logger.exception("ResourceLoader " + loader + " failed: ", result.getFailure());
+                    Logger.error("ResourceLoader " + loader + " failed: ", result.getFailure());
                 }
             }
         }

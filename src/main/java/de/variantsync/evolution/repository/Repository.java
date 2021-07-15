@@ -10,7 +10,7 @@ import org.eclipse.jgit.lib.ObjectId;
 import java.io.IOException;
 import java.nio.file.Path;
 
-public abstract class Repository<C extends Commit<? extends IRepository<C>>> implements IRepository<C>{
+public abstract class Repository<C extends Commit> implements IRepository<C>{
     private final Path path;
     private Git git;
 
@@ -25,7 +25,7 @@ public abstract class Repository<C extends Commit<? extends IRepository<C>>> imp
             git().checkout().setName(c.id()).call();
             return previous;
         } catch (GitAPIException | IOException e) {
-            Logger.exception("Failed to checkout commit " + c, e);
+            Logger.error("Failed to checkout commit " + c, e);
             close();
             throw e;
         }
@@ -36,7 +36,7 @@ public abstract class Repository<C extends Commit<? extends IRepository<C>>> imp
         try {
             git().checkout().setName(branch.name()).call();
         } catch (GitAPIException | IOException e) {
-            Logger.exception("Failed to checkout branch " + branch.name(), e);
+            Logger.error("Failed to checkout branch " + branch.name(), e);
             close();
             throw e;
         }
@@ -47,7 +47,7 @@ public abstract class Repository<C extends Commit<? extends IRepository<C>>> imp
         try {
             return idToCommit(getCurrentCommitId());
         } catch(IOException e) {
-            Logger.exception("Failed to get current commit.", e);
+            Logger.error("Failed to get current commit.", e);
             close();
             throw e;
         }
@@ -64,7 +64,7 @@ public abstract class Repository<C extends Commit<? extends IRepository<C>>> imp
             commitId = ObjectId.toString(head);
             return commitId;
         } catch (IOException e) {
-            Logger.exception("Failed to get current commit ID", e);
+            Logger.error("Failed to get current commit ID", e);
             close();
             throw e;
         }
