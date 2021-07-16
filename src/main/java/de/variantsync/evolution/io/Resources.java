@@ -1,7 +1,9 @@
 package de.variantsync.evolution.io;
 
+import de.variantsync.evolution.util.CaseSensitivePath;
 import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.functional.Result;
+import de.variantsync.evolution.util.functional.Unit;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -14,17 +16,23 @@ import java.util.Map;
  * ResourceLoaders can be registered here to be used upon resource loading.
  */
 public class Resources {
-    public static class ResourceLoadingFailure extends Exception {
-        private ResourceLoadingFailure(String msg) {
+    public static class ResourceIOException extends Exception {
+        private ResourceIOException(String msg) {
             super(msg);
         }
     }
 
     private final static Resources instance = new Resources();
     private final Map<Class<?>, List<ResourceLoader<?>>> loaders;
+    private final Map<Class<?>, List<ResourceWriter<?>>> writers;
 
     private Resources() {
         loaders = new HashMap<>();
+        writers = new HashMap<>();
+    }
+
+    private static <T, U> List<U> lookup(Class<T> type, Map<Class<?>, List<U>> map) {
+        return map.computeIfAbsent(type, k -> new ArrayList<>());
     }
 
     /**
@@ -32,7 +40,15 @@ public class Resources {
      */
     @SuppressWarnings("unchecked")
     private <T> List<ResourceLoader<T>> getLoaders(Class<T> type) {
-        return (List<ResourceLoader<T>>) (Object) loaders.computeIfAbsent(type, k -> new ArrayList<>());
+        return (List<ResourceLoader<T>>) (Object) lookup(type, loaders);
+    }
+
+    /**
+     * @return Returns a list of all resource writers that are registered for writing the given type of resource T.
+     */
+    @SuppressWarnings("unchecked")
+    private <T> List<ResourceWriter<T>> getWriters(Class<T> type) {
+        return (List<ResourceWriter<T>>) (Object) lookup(type, writers);
     }
 
     /**
@@ -44,16 +60,24 @@ public class Resources {
     }
 
     /**
+     * Adds the given writer to this manager such that it will be queried for
+     * resource writing when a resource of the given type T is given by the user via @write.
+     */
+    public <T> void registerWriter(Class<T> type, ResourceWriter<T> writer) {
+        getWriters(type).add(writer);
+    }
+
+    /**
      * Loads the resource at path p as the given type T.
      * @return The loaded resource.
-     * @throws ResourceLoadingFailure if no resource loader is registered for loading objects of type T
+     * @throws ResourceIOException if no resource loader is registered for loading objects of type T
      *                                or if all resource loaders failed in loading.
      */
-    public <T> T load(Class<T> type, Path p) throws ResourceLoadingFailure {
+    public <T> T load(Class<T> type, Path p) throws ResourceIOException {
         final List<ResourceLoader<T>> loadersForT = getLoaders(type);
 
         if (loadersForT.isEmpty()) {
-            throw new ResourceLoadingFailure("No ResourceLoader registered for type " + type + " that could parse " + p);
+            throw new ResourceIOException("No ResourceLoader registered for type " + type + " that can parse " + p);
         }
 
         for (ResourceLoader<T> loader : loadersForT) {
@@ -67,7 +91,26 @@ public class Resources {
             }
         }
 
-        throw new ResourceLoadingFailure("All ResourceLoaders failed in loading resource " + p + " as type " + type + "!");
+        throw new ResourceIOException("All ResourceLoaders failed in loading resource " + p + " as type " + type + "!");
+    }
+
+    public <T> void write(Class<T> type, T object, Path p) throws ResourceIOException {
+        final List<ResourceWriter<T>> writersForT = getWriters(type);
+
+        if (writersForT.isEmpty()) {
+            throw new ResourceIOException("No ResourceWriter registered for type " + type + " that can write " + p);
+        }
+
+        for (ResourceWriter<T> writer : writersForT) {
+            if (writer.canWrite(p)) {
+                Result<Unit, Exception> result = writer.write(object, p);
+                if (result.isSuccess()) {
+                    return;
+                } else {
+                    Logger.error("ResourceWriter " + writer + " failed: ", result.getFailure());
+                }
+            }
+        }
     }
 
     public static Resources Instance() {

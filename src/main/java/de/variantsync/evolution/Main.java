@@ -47,8 +47,11 @@ public class Main {
     private static void InitResources() {
         final Resources r = Resources.Instance();
         r.registerLoader(CSV.class, new CSVLoader());
-        r.registerLoader(Artefact.class, new KernelHavenPCLoader());
         r.registerLoader(IFeatureModel.class, new DimacsFeatureModelLoader());
+
+        final KernelHavenPCLoader kernelHavenPCLoader = new KernelHavenPCLoader();
+        r.registerLoader(Artefact.class, kernelHavenPCLoader);
+        r.registerWriter(Artefact.class, kernelHavenPCLoader);
     }
 
     private static void InitFeatureIDE() {

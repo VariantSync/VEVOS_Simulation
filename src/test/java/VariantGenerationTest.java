@@ -3,6 +3,7 @@ import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import de.variantsync.evolution.Main;
 import de.variantsync.evolution.feature.Variant;
 import de.variantsync.evolution.io.ResourceLoader;
+import de.variantsync.evolution.io.Resources;
 import de.variantsync.evolution.io.kernelhaven.KernelHavenPCLoader;
 import de.variantsync.evolution.util.CaseSensitivePath;
 import de.variantsync.evolution.util.Logger;
@@ -61,10 +62,15 @@ public class VariantGenerationTest {
             for (Variant v : variantsToTest) {
                 traceToTest
                         .generateVariant(v, splDir, variantsDir.resolve(v.getName()))
-                        .map(Functional.performSideEffect(groundTruth -> {
+                        .bind(groundTruth -> {
+                            groundTruth.simplify();
                             System.out.println("=== [Ground Truth for " + v + "] ===");
                             System.out.println(groundTruth.prettyPrint());
-                        }))
+                            return Result.Try(() -> Resources.Instance().write(
+                                    Artefact.class,
+                                    groundTruth,
+                                    variantsDir.resolve(v.getName()).resolve("ground_truth.csv").path()));
+                        })
                         .assertSuccess();
             }
 
