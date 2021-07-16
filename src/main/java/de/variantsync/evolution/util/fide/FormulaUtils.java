@@ -8,6 +8,21 @@ import java.util.Arrays;
 import java.util.List;
 
 public class FormulaUtils {
+    public static Node negate(Node node) {
+        if (node instanceof Literal) {
+            return negate((Literal) node);
+        }
+
+        return new Not(node);
+    }
+
+    public static Literal negate(Literal lit) {
+        if (lit == null || lit.var == null) {
+            throw new NullPointerException();
+        }
+        return new Literal(lit.var, !lit.positive);
+    }
+
     public static Node AndSimplified(Node a, Node b) {
         if (FixTrueFalse.isTrue(a)) {
             return b;
