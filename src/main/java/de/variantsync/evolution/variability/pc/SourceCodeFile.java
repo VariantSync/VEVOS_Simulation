@@ -46,7 +46,6 @@ public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
                     // Return a copy of this subtree as ground truth.
                     final SourceCodeFile variantGroundTruth = plainCopy();
                     variantGroundTruth.addTraces(splGroundTruth);
-                    //variantGroundTruth.simplify();
                     return variantGroundTruth;
                 },
                 // 4. In case of failure, log it (and implicitly transform IOException to Exception).
@@ -55,6 +54,10 @@ public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
                     return ioexception;
                 }
         );
+    }
+
+    public void simplify() {
+        rootAnnotation.simplify();
     }
 
     @Override

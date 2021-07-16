@@ -32,6 +32,8 @@ public interface Artefact {
      */
     Result<? extends Artefact, Exception> generateVariant(Variant variant, CaseSensitivePath sourceDir, CaseSensitivePath targetDir);
 
+    void simplify();
+
     default String prettyPrint() {
         return prettyPrint("");
     }

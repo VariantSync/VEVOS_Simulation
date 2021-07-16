@@ -1,18 +1,11 @@
 package de.variantsync.evolution.variability.pc;
 
 import de.variantsync.evolution.feature.Variant;
-import de.variantsync.evolution.io.TextIO;
 import de.variantsync.evolution.util.CaseSensitivePath;
 import de.variantsync.evolution.util.fide.FormulaUtils;
-import de.variantsync.evolution.util.fide.bugfix.FixTrueFalse;
 import de.variantsync.evolution.util.functional.Result;
-import de.variantsync.evolution.util.functional.Unit;
-import de.variantsync.evolution.util.math.Chunk;
-import de.variantsync.evolution.util.math.GroundTruth;
 import org.prop4j.Node;
 
-import javax.sound.sampled.Line;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -132,6 +125,10 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
             currentLine += chunkLength;
             chunk.setLineTo(currentLine - 1);
         }
+    }
+
+    public void simplify() {
+        LineBasedAnnotationSimplifier.simplify(this);
     }
 
     /**

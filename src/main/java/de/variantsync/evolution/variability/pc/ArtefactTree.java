@@ -5,13 +5,12 @@ import de.variantsync.evolution.util.CaseSensitivePath;
 import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.fide.FormulaUtils;
 import de.variantsync.evolution.util.fide.bugfix.FixTrueFalse;
+import de.variantsync.evolution.util.functional.Functional;
 import de.variantsync.evolution.util.functional.Result;
-import de.variantsync.evolution.util.functional.Unit;
 import org.prop4j.Node;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -22,10 +21,10 @@ import java.util.Objects;
  *               that it is not transitive and grandchildren could be of another type.
  */
 public class ArtefactTree<Child extends ArtefactTree<?>> implements Artefact {
-    private final Node featureMapping;
+    private Node featureMapping;
     private final CaseSensitivePath file;
     private ArtefactTree<?> parent;
-    protected final List<Child> subtrees;
+    protected List<Child> subtrees;
 
     /**
      * Creates a new empty tree (node) with feature mapping True.
@@ -65,11 +64,15 @@ public class ArtefactTree<Child extends ArtefactTree<?>> implements Artefact {
     }
 
     /**
-     * Copy constructor.
+     * Plain copy constructor.
      * @param other Object to create a plain copy of (without copying children).
      */
     public ArtefactTree(ArtefactTree<Child> other) {
         this(other.featureMapping, new ArrayList<>(), other.file);
+    }
+
+    protected void setFeatureMapping(Node featureMapping) {
+        this.featureMapping = featureMapping;
     }
 
     @Override
@@ -108,12 +111,8 @@ public class ArtefactTree<Child extends ArtefactTree<?>> implements Artefact {
                 if (variant.isImplementing(subtree.getPresenceCondition())) {
                     final Result<Child, Exception> result = subtree
                             .generateVariant(variant, sourceDir, targetDir)
-                            .map(groundTruth -> {
-                                final Child carsten = (Child) groundTruth;
-                                copy.addTrace(carsten);
-                                return carsten;
-                            });
-
+                            .map(Functional::uncheckedCast);
+                    result.ifSuccess(copy::addTrace);
                     if (result.isFailure()) {
                         return result;
                     }
@@ -140,6 +139,17 @@ public class ArtefactTree<Child extends ArtefactTree<?>> implements Artefact {
         return parent;
     }
 
+    /**
+     * Replaces this trees subtrees with the given subtrees.
+     * Previous subtrees will have their parent set to null.
+     */
+    protected void setSubtrees(List<Child> subtrees) {
+        for (Child c : this.subtrees) {
+            c.setParent(null);
+        }
+        this.subtrees = subtrees;
+    }
+
     public List<Child> getSubtrees() {
         return subtrees;
     }
@@ -158,6 +168,23 @@ public class ArtefactTree<Child extends ArtefactTree<?>> implements Artefact {
     public void addTrace(final Child child) {
         subtrees.add(child);
         child.setParent(this);
+    }
+
+    /**
+     * Removes all subtrees.
+     */
+    public void clear() {
+        for (Child c : subtrees) {
+            c.setParent(null);
+        }
+        subtrees.clear();
+    }
+
+    @Override
+    public void simplify() {
+        for (Child c : subtrees) {
+            c.simplify();
+        }
     }
 
     /**

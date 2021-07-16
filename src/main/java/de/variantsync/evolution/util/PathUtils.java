@@ -24,13 +24,28 @@ public class PathUtils {
         return false;
     }
 
+    public static Result<Unit, IOException> createEmptyAsResult(Path p) {
+        return Result.FromFlag(
+                () -> PathUtils.createEmpty(p),
+                () -> new IOException("File already exists!")
+        );
+    }
+
+    /**
+     * Creates a new empty file at the given path.
+     * @param p pointing to a non-existent file to create.
+     * @return True if the file was created. False if the file already exists.
+     * @throws IOException When file could not be created.
+     */
     public static boolean createEmpty(Path p) throws IOException {
         return createEmpty(p.toFile());
     }
 
+    /**
+     * @see PathUtils::createEmpty(Path)
+     */
     public static boolean createEmpty(File f) throws IOException {
-        f.getParentFile().mkdirs();
-        return f.createNewFile();
+        return f.getParentFile().mkdirs() && f.createNewFile();
     }
 
     /**
@@ -38,8 +53,8 @@ public class PathUtils {
      * Alex: I often have the problem with Java that it only requests the deletion of the file, but does not
      * guarantee that it is deleted. In the VariabilityExtraction project this was a serious issue and in the end
      * I had to call rm -f  ... as shell command.
-     * @param path
-     * @return
+     * @param path Path to a directory that should be deleted.
+     * @return Unit iff deletion was successful, an exception explaining the failure otherwise.
      */
     public static Result<Unit, CompositeException> deleteDirectory(Path path) {
         // read java doc, Files.walk need close the resources.
