@@ -26,6 +26,10 @@ public class Functional {
         };
     }
 
+    public static <A, B> A uncheckedCast(B b) {
+        return (A) b;
+    }
+
     /// Lists
 
     public static <T, U> List<U> fmap(List<? extends T> a, Function<T, U> f) {
