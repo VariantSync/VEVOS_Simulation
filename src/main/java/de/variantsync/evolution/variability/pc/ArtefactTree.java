@@ -100,6 +100,14 @@ public class ArtefactTree<Child extends ArtefactTree<?>> implements Artefact {
     }
 
     @Override
+    public void acceptDepthFirst(ArtefactVisitor visitor) {
+        visitor.visitArtefactTree(this);
+        for (Child s : subtrees) {
+            s.acceptDepthFirst(visitor);
+        }
+    }
+
+    @Override
     public Result<? extends Artefact, Exception> generateVariant(Variant variant, CaseSensitivePath sourceDir, CaseSensitivePath targetDir) {
         final CaseSensitivePath f = getFile();
         final ArtefactTree<Child> copy = plainCopy();

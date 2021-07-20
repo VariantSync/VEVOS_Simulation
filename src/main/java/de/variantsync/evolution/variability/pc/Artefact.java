@@ -21,7 +21,13 @@ public interface Artefact {
      */
     Node getPresenceCondition();
 
+    /**
+     * @return File on disk this artefact is associated to. This artefact can represent the entire file or a part of
+     * that file.
+     */
     CaseSensitivePath getFile();
+
+    void acceptDepthFirst(ArtefactVisitor visitor);
 
     /**
      * Projects this feature trace to a specific variant and returns the projection.

@@ -28,6 +28,12 @@ public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
     }
 
     @Override
+    public void acceptDepthFirst(ArtefactVisitor visitor) {
+        visitor.visitSourceCodeFile(this);
+        rootAnnotation.acceptDepthFirst(visitor);
+    }
+
+    @Override
     public Result<SourceCodeFile, Exception> generateVariant(Variant variant, CaseSensitivePath sourceDir, CaseSensitivePath targetDir) {
         final CaseSensitivePath targetFile = targetDir.resolve(getFile());
         // 1. Create the target file.

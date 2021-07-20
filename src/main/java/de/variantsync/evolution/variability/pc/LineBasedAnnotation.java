@@ -52,6 +52,14 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
     }
 
     @Override
+    public void acceptDepthFirst(ArtefactVisitor visitor) {
+        visitor.visitLineBasedAnnotation(this);
+        for (LineBasedAnnotation child : subtrees) {
+            child.acceptDepthFirst(visitor);
+        }
+    }
+
+    @Override
     public Result<LineBasedAnnotation, Exception> generateVariant(Variant variant, CaseSensitivePath sourceDir, CaseSensitivePath targetDir) {
         throw new UnsupportedOperationException();
     }
@@ -240,7 +248,7 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
 
     @Override
     public String toString() {
-        return "Annotation{" +
+        return "LineBasedAnnotation{" +
                 "featureMapping=" + getFeatureMapping() +
                 ", from " + lineFrom +
                 " to " + lineTo +
