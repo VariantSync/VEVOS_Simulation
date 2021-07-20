@@ -6,12 +6,16 @@ import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.fide.bugfix.FixTrueFalse;
 import de.variantsync.evolution.util.functional.Functional;
 import de.variantsync.evolution.util.functional.Result;
-import de.variantsync.evolution.variability.pc.visitor.ArtefactVisitorContext;
-import de.variantsync.evolution.variability.pc.visitor.SyntheticArtefactTreeNodeVisitorContext;
+import de.variantsync.evolution.variability.pc.visitor.ArtefactVisitorFocus;
+import de.variantsync.evolution.variability.pc.visitor.SyntheticArtefactTreeNodeVisitorFocus;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A synthetic node in the artefact tree that does not need to have a physical counterpart (e.g., file or annotation).
+ * @param <Child> The type of children this node can have.
+ */
 public class SyntheticArtefactTreeNode<Child extends ArtefactTree<?>> extends ArtefactTree<Child> {
     /**
      * Creates a new empty tree (node) with feature mapping True.
@@ -36,8 +40,8 @@ public class SyntheticArtefactTreeNode<Child extends ArtefactTree<?>> extends Ar
     }
 
     @Override
-    public ArtefactVisitorContext<? extends Artefact> createVisitorContext() {
-        return new SyntheticArtefactTreeNodeVisitorContext<>(this);
+    public ArtefactVisitorFocus<? extends Artefact> createVisitorFocus() {
+        return new SyntheticArtefactTreeNodeVisitorFocus<>(this);
     }
 
     @Override

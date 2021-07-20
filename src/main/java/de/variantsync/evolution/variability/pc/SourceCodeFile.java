@@ -7,8 +7,7 @@ import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.PathUtils;
 import de.variantsync.evolution.util.fide.bugfix.FixTrueFalse;
 import de.variantsync.evolution.util.functional.Result;
-import de.variantsync.evolution.variability.pc.visitor.ArtefactVisitor;
-import de.variantsync.evolution.variability.pc.visitor.SourceCodeFileVisitorContext;
+import de.variantsync.evolution.variability.pc.visitor.SourceCodeFileVisitorFocus;
 import org.prop4j.Node;
 
 import java.io.IOException;
@@ -31,8 +30,8 @@ public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
     }
 
     @Override
-    public SourceCodeFileVisitorContext createVisitorContext() {
-        return new SourceCodeFileVisitorContext(this);
+    public SourceCodeFileVisitorFocus createVisitorFocus() {
+        return new SourceCodeFileVisitorFocus(this);
     }
 
     @Override

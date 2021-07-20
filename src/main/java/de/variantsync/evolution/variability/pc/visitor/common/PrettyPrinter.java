@@ -6,6 +6,9 @@ import de.variantsync.evolution.variability.pc.LineBasedAnnotation;
 import de.variantsync.evolution.variability.pc.SourceCodeFile;
 import de.variantsync.evolution.variability.pc.visitor.*;
 
+/**
+ * Pretty printer for ArtefactTrees.
+ */
 public class PrettyPrinter implements ArtefactVisitor {
     private StringBuilder builder;
     private String indent = "";
@@ -16,23 +19,23 @@ public class PrettyPrinter implements ArtefactVisitor {
         return builder.toString();
     }
 
-    private void printSubtrees(ArtefactTreeVisitorContext<? extends Artefact> context) {
+    private void printSubtrees(ArtefactTreeVisitorFocus<? extends Artefact> focus) {
         final String oldIndent = indent;
         indent += "  ";
-        context.visitAllSubtrees(this);
+        focus.visitAllSubtrees(this);
         indent = oldIndent;
     }
 
     @Override
-    public <T extends ArtefactTree<?>> void visitGenericArtefactTreeNode(SyntheticArtefactTreeNodeVisitorContext<T> context) {
+    public <T extends ArtefactTree<?>> void visitGenericArtefactTreeNode(SyntheticArtefactTreeNodeVisitorFocus<T> focus) {
         builder.append(indent).append("[").append(System.lineSeparator());
-        printSubtrees(context);
+        printSubtrees(focus);
         builder.append(indent).append("]").append(System.lineSeparator());
     }
 
     @Override
-    public void visitSourceCodeFile(SourceCodeFileVisitorContext context) {
-        final SourceCodeFile file = context.getValue();
+    public void visitSourceCodeFile(SourceCodeFileVisitorFocus focus) {
+        final SourceCodeFile file = focus.getValue();
         builder
                 .append(indent)
                 .append(file.getFile())
@@ -41,14 +44,14 @@ public class PrettyPrinter implements ArtefactVisitor {
                 .append(">[")
                 .append(System.lineSeparator());
 
-        printSubtrees(context);
+        printSubtrees(focus);
 
         builder.append(indent).append("]").append(System.lineSeparator());
     }
 
     @Override
-    public void visitLineBasedAnnotation(LineBasedAnnotationVisitorContext context) {
-        final LineBasedAnnotation annotation = context.getValue();
+    public void visitLineBasedAnnotation(LineBasedAnnotationVisitorFocus focus) {
+        final LineBasedAnnotation annotation = focus.getValue();
         builder
                 .append(indent)
                 .append("#if ")
@@ -57,7 +60,7 @@ public class PrettyPrinter implements ArtefactVisitor {
                 .append(annotation.getLineFrom())
                 .append(System.lineSeparator());
 
-        printSubtrees(context);
+        printSubtrees(focus);
 
         builder.append(indent).append("#endif @").append(annotation.getLineTo()).append(System.lineSeparator());
     }

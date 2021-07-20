@@ -4,7 +4,7 @@ import de.variantsync.evolution.feature.Variant;
 import de.variantsync.evolution.util.CaseSensitivePath;
 import de.variantsync.evolution.util.functional.Result;
 import de.variantsync.evolution.variability.pc.visitor.ArtefactVisitor;
-import de.variantsync.evolution.variability.pc.visitor.ArtefactVisitorContext;
+import de.variantsync.evolution.variability.pc.visitor.ArtefactVisitorFocus;
 import de.variantsync.evolution.variability.pc.visitor.common.PrettyPrinter;
 import org.prop4j.Node;
 
@@ -29,6 +29,9 @@ public interface Artefact {
      */
     CaseSensitivePath getFile();
 
+    /**
+     * Simplifies the artefact w.r.t. to presence conditions and redundant structure.
+     */
     void simplify();
 
     /**
@@ -40,11 +43,19 @@ public interface Artefact {
      */
     Result<? extends Artefact, Exception> generateVariant(Variant variant, CaseSensitivePath sourceDir, CaseSensitivePath targetDir);
 
+    /**
+     * Accepts the given visitor to traverse this artefact (see visitor pattern).
+     */
     default void accept(ArtefactVisitor visitor) {
-        createVisitorContext().accept(visitor);
+        createVisitorFocus().accept(visitor);
     }
 
-    ArtefactVisitorContext<? extends Artefact> createVisitorContext();
+    /**
+     * Creates a focus for this particular artifact.
+     * This method is not supposed to be invoked by users but the visitor infrastructure only.
+     * Each class implementing Artefact is supposed to provide a custom focus.
+     */
+    ArtefactVisitorFocus<? extends Artefact> createVisitorFocus();
 
     default String prettyPrint() {
         return new PrettyPrinter().prettyPrint(this);

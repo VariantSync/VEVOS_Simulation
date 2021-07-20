@@ -87,17 +87,17 @@ public class KernelHavenPCIO implements ResourceLoader<Artefact>, ResourceWriter
 
     @Override
     public Result<Unit, ? extends Exception> write(Artefact object, Path p) {
-        System.out.println(object.prettyPrint());
-        object.accept(Debug.createSimpleTreePrinter());
-        System.out.println();
+//        System.out.println(object.prettyPrint());
+//        object.accept(Debug.createSimpleTreePrinter());
+//        System.out.println();
 
         final ArtefactToCSVVisitor csvCreator = new ArtefactToCSVVisitor();
         object.accept(csvCreator);
         final CSV csv = csvCreator.export();
 
-        System.out.println(csv.toString());
-        System.out.println("  ==> " + p);
-        System.out.println();
+//        System.out.println(csv.toString());
+//        System.out.println("  ==> " + p);
+//        System.out.println();
 
         return Result.Try(() -> Resources.Instance().write(CSV.class, csv, p));
     }

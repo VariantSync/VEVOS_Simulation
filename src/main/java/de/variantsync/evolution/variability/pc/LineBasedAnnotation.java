@@ -4,8 +4,7 @@ import de.variantsync.evolution.feature.Variant;
 import de.variantsync.evolution.util.CaseSensitivePath;
 import de.variantsync.evolution.util.fide.FormulaUtils;
 import de.variantsync.evolution.util.functional.Result;
-import de.variantsync.evolution.variability.pc.visitor.ArtefactVisitor;
-import de.variantsync.evolution.variability.pc.visitor.LineBasedAnnotationVisitorContext;
+import de.variantsync.evolution.variability.pc.visitor.LineBasedAnnotationVisitorFocus;
 import org.prop4j.Node;
 
 import java.util.ArrayList;
@@ -54,8 +53,8 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
     }
 
     @Override
-    public LineBasedAnnotationVisitorContext createVisitorContext() {
-        return new LineBasedAnnotationVisitorContext(this);
+    public LineBasedAnnotationVisitorFocus createVisitorFocus() {
+        return new LineBasedAnnotationVisitorFocus(this);
     }
 
     @Override

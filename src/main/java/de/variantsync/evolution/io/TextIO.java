@@ -95,6 +95,14 @@ public class TextIO {
         }
     }
 
+    /**
+     * Writes the given text to the given file.
+     * Does not create a new file.
+     * @param p File to create and fill with text.
+     * @param text Text to write to file.
+     * @throws IOException if an I/O error occurs writing to or creating the file, or the text cannot be encoded using the specified charset.
+     *                     Also throws if the given file already exists.
+     */
     public static void write(Path p, String text) throws IOException {
         Files.writeString(p, text, StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
     }

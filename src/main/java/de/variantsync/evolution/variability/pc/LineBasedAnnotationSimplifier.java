@@ -8,12 +8,43 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+/**
+ * Collections of methods for simplifying LineBasedAnnotations.
+ */
 public class LineBasedAnnotationSimplifier {
+    /**
+     * @return A simplified formula of the given annotation's feature mapping.
+     */
     public static Node simplifiedMapping(LineBasedAnnotation root) {
         // Actually we could employ presence condition simplification by Rhein et al. here.
         return root.getFeatureMapping().simplifyTree();
     }
 
+    /**
+     * Inlines all subtrees with redundant annotation. Example:
+     *
+     * #if A
+     *   #if True
+     *   #endif
+     *   #if A || B
+     *   #endif
+     *   #if A
+     *     #if B
+     *     #endif
+     *   #endif
+     * #endif
+     *
+     * is simplified to
+     *
+     * #if A
+     *   #if B
+     *   #endif
+     * #endif
+     *
+     * while keeping referenced line numbers intact.
+     *
+     * @return All non-redundant subtrees that should become the subtrees of root after simplification.
+     */
     public static List<LineBasedAnnotation> flattenedSubtrees(LineBasedAnnotation root) {
         final Queue<LineBasedAnnotation> subtreesToCheck = new LinkedList<>(root.getSubtrees());
         final List<LineBasedAnnotation> nonRedundantSubtrees = new ArrayList<>(subtreesToCheck.size());
@@ -31,6 +62,28 @@ public class LineBasedAnnotationSimplifier {
         return nonRedundantSubtrees;
     }
 
+    /**
+     * Merges all adjacent annotations in the given list that are the same. Example:
+     *
+     * #if A
+     * #endif
+     * #if B
+     * #endif
+     * #if B
+     * #endif
+     *
+     * is simplified to
+     *
+     * #if A
+     * #endif
+     * #if B
+     * #endif
+     *
+     * while keeping referenced line numbers intact.
+     * Does not check for formula equivalence (e.g., True <=> A or not A) but equality (True == True).
+     *
+     * @return All non-redundant subtrees that should become the subtrees of root after simplification.
+     */
     public static List<LineBasedAnnotation> mergedEqualNeighbours(final List<LineBasedAnnotation> mappings) {
         if (mappings.isEmpty()) return mappings;
 
@@ -59,6 +112,9 @@ public class LineBasedAnnotationSimplifier {
         return simplifiedSubtrees;
     }
 
+    /**
+     * Simplifies the given annotations using all other simplification methods in this class.
+     */
     public static void simplify(LineBasedAnnotation root) {
         root.setFeatureMapping(simplifiedMapping(root));
         List<LineBasedAnnotation> flattenedSubtrees = mergedEqualNeighbours(flattenedSubtrees(root));

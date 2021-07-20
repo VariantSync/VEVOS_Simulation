@@ -5,9 +5,9 @@ import de.variantsync.evolution.variability.pc.ArtefactTree;
 import de.variantsync.evolution.variability.pc.visitor.ArtefactVisitor;
 import de.variantsync.evolution.variability.pc.LineBasedAnnotation;
 import de.variantsync.evolution.variability.pc.SourceCodeFile;
-import de.variantsync.evolution.variability.pc.visitor.LineBasedAnnotationVisitorContext;
-import de.variantsync.evolution.variability.pc.visitor.SourceCodeFileVisitorContext;
-import de.variantsync.evolution.variability.pc.visitor.SyntheticArtefactTreeNodeVisitorContext;
+import de.variantsync.evolution.variability.pc.visitor.LineBasedAnnotationVisitorFocus;
+import de.variantsync.evolution.variability.pc.visitor.SourceCodeFileVisitorFocus;
+import de.variantsync.evolution.variability.pc.visitor.SyntheticArtefactTreeNodeVisitorFocus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,27 +53,27 @@ public class ArtefactToCSVVisitor  implements ArtefactVisitor {
     }
 
     @Override
-    public <T extends ArtefactTree<?>> void visitGenericArtefactTreeNode(SyntheticArtefactTreeNodeVisitorContext<T> context) {
-        context.visitAllSubtrees(this);
+    public <T extends ArtefactTree<?>> void visitGenericArtefactTreeNode(SyntheticArtefactTreeNodeVisitorFocus<T> focus) {
+        focus.visitAllSubtrees(this);
     }
 
     @Override
-    public void visitSourceCodeFile(SourceCodeFileVisitorContext context) {
-        currentFile = context.getValue();
-        context.visitRootAnnotation(this);
+    public void visitSourceCodeFile(SourceCodeFileVisitorFocus focus) {
+        currentFile = focus.getValue();
+        focus.visitRootAnnotation(this);
         currentFile = null;
     }
 
     @Override
-    public void visitLineBasedAnnotation(LineBasedAnnotationVisitorContext context) {
-        final LineBasedAnnotation annotation = context.getValue();
+    public void visitLineBasedAnnotation(LineBasedAnnotationVisitorFocus focus) {
+        final LineBasedAnnotation annotation = focus.getValue();
 
         int currentLine = annotation.getLineFrom();
         for (LineBasedAnnotation subtree : annotation.getSubtrees()) {
             if (currentLine < subtree.getLineFrom()) {
                 csv.add(toRow(annotation, currentLine, subtree.getLineFrom() - 1));
             }
-            context.visitSubtree(subtree, this);
+            focus.visitSubtree(subtree, this);
             currentLine = subtree.getLineTo() + 1;
         }
 

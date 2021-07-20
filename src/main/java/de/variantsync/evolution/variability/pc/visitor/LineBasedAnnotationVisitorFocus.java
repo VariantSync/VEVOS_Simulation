@@ -2,8 +2,8 @@ package de.variantsync.evolution.variability.pc.visitor;
 
 import de.variantsync.evolution.variability.pc.LineBasedAnnotation;
 
-public class LineBasedAnnotationVisitorContext extends ArtefactTreeVisitorContext<LineBasedAnnotation> {
-    public LineBasedAnnotationVisitorContext(LineBasedAnnotation artefact) {
+public class LineBasedAnnotationVisitorFocus extends ArtefactTreeVisitorFocus<LineBasedAnnotation> {
+    public LineBasedAnnotationVisitorFocus(LineBasedAnnotation artefact) {
         super(artefact);
     }
 
