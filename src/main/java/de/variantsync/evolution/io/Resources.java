@@ -82,7 +82,7 @@ public class Resources {
 
         for (ResourceLoader<T> loader : loadersForT) {
             if (loader.canLoad(p)) {
-                Result<T, Exception> result = loader.load(p);
+                Result<T, ? extends Exception> result = loader.load(p);
                 if (result.isSuccess()) {
                     return result.getSuccess();
                 } else {
@@ -103,7 +103,7 @@ public class Resources {
 
         for (ResourceWriter<T> writer : writersForT) {
             if (writer.canWrite(p)) {
-                Result<Unit, Exception> result = writer.write(object, p);
+                Result<Unit, ? extends Exception> result = writer.write(object, p);
                 if (result.isSuccess()) {
                     return;
                 } else {

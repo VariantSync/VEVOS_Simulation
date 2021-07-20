@@ -16,5 +16,5 @@ public interface ResourceWriter<T> {
      * Will only be invoked by Resources when canLoad(p) returned true so no duplicate check is necessary.
      * @return Either the loaded resource at path p or an exception describing the failure.
      */
-    Result<Unit, Exception> write(T object, Path p);
+    Result<Unit, ? extends Exception> write(T object, Path p);
 }

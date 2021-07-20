@@ -11,10 +11,7 @@ import de.variantsync.evolution.util.fide.bugfix.FixTrueFalse;
 import de.variantsync.evolution.util.functional.Result;
 import de.variantsync.evolution.util.functional.Unit;
 import de.variantsync.evolution.util.list.ListHeadTailView;
-import de.variantsync.evolution.variability.pc.LineBasedAnnotation;
-import de.variantsync.evolution.variability.pc.Artefact;
-import de.variantsync.evolution.variability.pc.ArtefactTree;
-import de.variantsync.evolution.variability.pc.SourceCodeFile;
+import de.variantsync.evolution.variability.pc.*;
 import org.prop4j.Node;
 import org.prop4j.NodeReader;
 
@@ -88,7 +85,9 @@ public class KernelHavenPCLoader implements ResourceLoader<Artefact>, ResourceWr
     }
 
     @Override
-    public Result<Unit, Exception> write(Artefact object, Path p) {
+    public Result<Unit, ? extends Exception> write(Artefact object, Path p) {
+        System.out.println(object.prettyPrint());
+        object.acceptDepthFirst(ArtefactVisitor.fromConsumer(System.out::println));
         return Result.Failure(new NotImplementedException());
     }
 }
