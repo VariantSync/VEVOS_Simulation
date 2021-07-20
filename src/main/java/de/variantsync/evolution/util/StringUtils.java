@@ -1,0 +1,9 @@
+package de.variantsync.evolution.util;
+
+public class StringUtils {
+    public static String genIndent(int i) {
+        StringBuilder s = new StringBuilder();
+        for (; i > 0; --i) s.append("  ");
+        return s.toString();
+    };
+}
