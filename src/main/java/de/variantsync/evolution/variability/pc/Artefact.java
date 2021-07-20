@@ -5,6 +5,7 @@ import de.variantsync.evolution.util.CaseSensitivePath;
 import de.variantsync.evolution.util.functional.Result;
 import de.variantsync.evolution.variability.pc.visitor.ArtefactVisitor;
 import de.variantsync.evolution.variability.pc.visitor.ArtefactVisitorContext;
+import de.variantsync.evolution.variability.pc.visitor.common.PrettyPrinter;
 import org.prop4j.Node;
 
 /**
@@ -28,12 +29,7 @@ public interface Artefact {
      */
     CaseSensitivePath getFile();
 
-
-    default void accept(ArtefactVisitor visitor) {
-        createVisitorContext().accept(visitor);
-    }
-
-    ArtefactVisitorContext<? extends Artefact> createVisitorContext();
+    void simplify();
 
     /**
      * Projects this feature trace to a specific variant and returns the projection.
@@ -44,10 +40,13 @@ public interface Artefact {
      */
     Result<? extends Artefact, Exception> generateVariant(Variant variant, CaseSensitivePath sourceDir, CaseSensitivePath targetDir);
 
-    void simplify();
+    default void accept(ArtefactVisitor visitor) {
+        createVisitorContext().accept(visitor);
+    }
+
+    ArtefactVisitorContext<? extends Artefact> createVisitorContext();
 
     default String prettyPrint() {
-        return prettyPrint("");
+        return new PrettyPrinter().prettyPrint(this);
     }
-    String prettyPrint(String indent);
 }

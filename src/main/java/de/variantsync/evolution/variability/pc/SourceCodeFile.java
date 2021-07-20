@@ -83,21 +83,6 @@ public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
     }
 
     @Override
-    protected void prettyPrintHeader(String indent, StringBuilder builder) {
-        builder
-                .append(indent)
-                .append(getFile())
-                .append("<")
-                .append(getFeatureMapping())
-                .append(">[");
-    }
-
-    @Override
-    protected void prettyPrintFooter(String indent, StringBuilder builder) {
-        builder.append(indent).append("]");
-    }
-
-    @Override
     public String toString() {
         return "SourceCodeFile{" +
                 "featureMapping=" + getFeatureMapping() +

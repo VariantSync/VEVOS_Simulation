@@ -262,14 +262,4 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
     public int hashCode() {
         return Objects.hash(super.hashCode(), lineFrom, lineTo);
     }
-
-    @Override
-    protected void prettyPrintHeader(String indent, StringBuilder builder) {
-        builder.append(indent).append("#if ").append(getFeatureMapping()).append(" @").append(getLineFrom());
-    }
-
-    @Override
-    protected void prettyPrintFooter(String indent, StringBuilder builder) {
-        builder.append(indent).append("#endif @").append(getLineTo());
-    }
 }

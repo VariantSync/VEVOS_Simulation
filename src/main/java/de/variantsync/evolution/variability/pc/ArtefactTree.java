@@ -141,45 +141,6 @@ public abstract class ArtefactTree<Child extends ArtefactTree<?>> implements Art
         }
     }
 
-    /**
-     * Prints meta information to the given builder that should be displayed before printing all children.
-     * @param indent The current indent of the output string to show the tree in a convenient way.
-     */
-    protected void prettyPrintHeader(String indent, StringBuilder builder) {
-        builder.append(indent).append("[");
-    }
-
-    /**
-     * Prints meta information to the given builder that should be displayed after printing all children.
-     * @param indent The current indent of the output string to show the tree in a convenient way.
-     */
-    protected void prettyPrintFooter(String indent, StringBuilder builder) {
-        builder.append(indent).append("]");
-    }
-
-    @Override
-    public String prettyPrint(String indent) {
-        final StringBuilder builder = new StringBuilder();
-        prettyPrint(indent, builder);
-        return builder.toString();
-    }
-
-    protected void prettyPrint(String indent, StringBuilder builder) {
-        // print node info (e.g., "[")
-        prettyPrintHeader(indent, builder);
-        builder.append(System.lineSeparator());
-        // print all subtrees
-        {
-            final String childIndent = indent + "  ";
-            for (Child child : subtrees) {
-                child.prettyPrint(childIndent, builder);
-            }
-        }
-        // print end (e.g., "]")
-        prettyPrintFooter(indent, builder);
-        builder.append(System.lineSeparator());
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
