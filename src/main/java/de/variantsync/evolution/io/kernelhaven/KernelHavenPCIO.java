@@ -5,14 +5,12 @@ import de.variantsync.evolution.io.ResourceWriter;
 import de.variantsync.evolution.io.Resources;
 import de.variantsync.evolution.io.data.CSV;
 import de.variantsync.evolution.util.CaseSensitivePath;
-import de.variantsync.evolution.util.NotImplementedException;
 import de.variantsync.evolution.util.PathUtils;
 import de.variantsync.evolution.util.fide.bugfix.FixTrueFalse;
 import de.variantsync.evolution.util.functional.Result;
 import de.variantsync.evolution.util.functional.Unit;
 import de.variantsync.evolution.util.list.ListHeadTailView;
 import de.variantsync.evolution.variability.pc.*;
-import de.variantsync.evolution.variability.pc.visitor.common.Debug;
 import org.prop4j.Node;
 import org.prop4j.NodeReader;
 
@@ -91,7 +89,7 @@ public class KernelHavenPCIO implements ResourceLoader<Artefact>, ResourceWriter
 //        object.accept(Debug.createSimpleTreePrinter());
 //        System.out.println();
 
-        final ArtefactToCSVVisitor csvCreator = new ArtefactToCSVVisitor();
+        final ArtefactCSVExporter csvCreator = new ArtefactCSVExporter();
         object.accept(csvCreator);
         final CSV csv = csvCreator.export();
 
