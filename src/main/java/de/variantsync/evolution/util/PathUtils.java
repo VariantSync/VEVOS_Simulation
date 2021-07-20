@@ -45,7 +45,10 @@ public class PathUtils {
      * @see PathUtils::createEmpty(Path)
      */
     public static boolean createEmpty(File f) throws IOException {
-        return f.getParentFile().mkdirs() && f.createNewFile();
+        if (!f.getParentFile().exists() && !f.getParentFile().mkdirs()) {
+            throw new IOException("Creating directory " + f.getParentFile() + " failed. Thus, the file " + f.getAbsolutePath() + " could not be created!");
+        }
+        return f.createNewFile();
     }
 
     /**
