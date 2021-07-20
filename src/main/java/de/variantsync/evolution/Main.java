@@ -46,8 +46,12 @@ public class Main {
 
     private static void InitResources() {
         final Resources r = Resources.Instance();
-        r.registerLoader(CSV.class, new CSVLoader());
+
         r.registerLoader(IFeatureModel.class, new DimacsFeatureModelLoader());
+
+        final CSVLoader csvLoader = new CSVLoader();
+        r.registerLoader(CSV.class, csvLoader);
+        r.registerWriter(CSV.class, csvLoader);
 
         final KernelHavenPCLoader kernelHavenPCLoader = new KernelHavenPCLoader();
         r.registerLoader(Artefact.class, kernelHavenPCLoader);

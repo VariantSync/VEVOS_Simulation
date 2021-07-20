@@ -1,8 +1,11 @@
 package de.variantsync.evolution.io.data;
 
 import de.variantsync.evolution.io.ResourceLoader;
+import de.variantsync.evolution.io.ResourceWriter;
+import de.variantsync.evolution.io.TextIO;
 import de.variantsync.evolution.util.PathUtils;
 import de.variantsync.evolution.util.functional.Result;
+import de.variantsync.evolution.util.functional.Unit;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -14,7 +17,7 @@ import java.util.stream.Collectors;
 /**
  * Class to load CSV files.
  */
-public class CSVLoader implements ResourceLoader<CSV> {
+public class CSVLoader implements ResourceLoader<CSV>, ResourceWriter<CSV> {
     public final static String DefaultSeparator = ";";
     private String separator;
     private String separatorWithWhiteSpace;
@@ -43,6 +46,11 @@ public class CSVLoader implements ResourceLoader<CSV> {
     }
 
     @Override
+    public boolean canWrite(Path p) {
+        return canLoad(p);
+    }
+
+    @Override
     public Result<CSV, Exception> load(Path p) {
         try (BufferedReader reader = new BufferedReader(new FileReader(p.toFile()))) {
             final List<String[]> rows =
@@ -51,5 +59,10 @@ public class CSVLoader implements ResourceLoader<CSV> {
         } catch (IOException e) {
             return Result.Failure(e);
         }
+    }
+
+    @Override
+    public Result<Unit, ? extends Exception> write(CSV object, Path p) {
+        return Result.Try(() -> TextIO.write(p, object.toString(separator)));
     }
 }
