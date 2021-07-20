@@ -4,6 +4,8 @@ import de.variantsync.evolution.feature.Variant;
 import de.variantsync.evolution.util.CaseSensitivePath;
 import de.variantsync.evolution.util.fide.FormulaUtils;
 import de.variantsync.evolution.util.functional.Result;
+import de.variantsync.evolution.variability.pc.visitor.ArtefactVisitor;
+import de.variantsync.evolution.variability.pc.visitor.LineBasedAnnotationVisitorContext;
 import org.prop4j.Node;
 
 import java.util.ArrayList;
@@ -52,11 +54,8 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
     }
 
     @Override
-    public void acceptDepthFirst(ArtefactVisitor visitor) {
-        visitor.visitLineBasedAnnotation(this);
-        for (LineBasedAnnotation child : subtrees) {
-            child.acceptDepthFirst(visitor);
-        }
+    public LineBasedAnnotationVisitorContext createVisitorContext() {
+        return new LineBasedAnnotationVisitorContext(this);
     }
 
     @Override
@@ -239,11 +238,6 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
          */
         subtrees.add(pos, b);
         b.setParent(this);
-    }
-
-    @Override
-    public ArtefactTree<LineBasedAnnotation> plainCopy() {
-        return new LineBasedAnnotation(this.getFeatureMapping(), this.getLineFrom(), this.getLineTo());
     }
 
     @Override

@@ -3,7 +3,8 @@ package de.variantsync.evolution.variability.pc;
 import de.variantsync.evolution.feature.Variant;
 import de.variantsync.evolution.util.CaseSensitivePath;
 import de.variantsync.evolution.util.functional.Result;
-import de.variantsync.evolution.util.functional.Unit;
+import de.variantsync.evolution.variability.pc.visitor.ArtefactVisitor;
+import de.variantsync.evolution.variability.pc.visitor.ArtefactVisitorContext;
 import org.prop4j.Node;
 
 /**
@@ -27,7 +28,12 @@ public interface Artefact {
      */
     CaseSensitivePath getFile();
 
-    void acceptDepthFirst(ArtefactVisitor visitor);
+
+    default void accept(ArtefactVisitor visitor) {
+        createVisitorContext().accept(visitor);
+    }
+
+    ArtefactVisitorContext<? extends Artefact> createVisitorContext();
 
     /**
      * Projects this feature trace to a specific variant and returns the projection.

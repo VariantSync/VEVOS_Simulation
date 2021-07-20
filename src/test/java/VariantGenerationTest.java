@@ -12,6 +12,7 @@ import de.variantsync.evolution.util.fide.FeatureModelUtils;
 import de.variantsync.evolution.util.fide.bugfix.FixTrueFalse;
 import de.variantsync.evolution.util.functional.Functional;
 import de.variantsync.evolution.util.functional.Result;
+import de.variantsync.evolution.util.functional.Unit;
 import de.variantsync.evolution.variability.config.FeatureIDEConfiguration;
 import de.variantsync.evolution.variability.config.SayYesToAllConfiguration;
 import de.variantsync.evolution.variability.pc.*;
@@ -63,9 +64,11 @@ public class VariantGenerationTest {
                 traceToTest
                         .generateVariant(v, splDir, variantsDir.resolve(v.getName()))
                         .bind(groundTruth -> {
+//                            System.out.println("=== [Ground Truth for " + v + "] ===");
+//                            System.out.println(groundTruth.prettyPrint());
+//                            System.out.println("=== [Ground Truth Simplified] ===");
                             groundTruth.simplify();
-                            System.out.println("=== [Ground Truth for " + v + "] ===");
-                            System.out.println(groundTruth.prettyPrint());
+//                            System.out.println(groundTruth.prettyPrint());
                             return Result.Try(() -> Resources.Instance().write(
                                     Artefact.class,
                                     groundTruth,
@@ -136,7 +139,7 @@ public class VariantGenerationTest {
                 bar.addTrace(new LineBasedAnnotation(FixTrueFalse.False, 0, 5));
             }
 
-            expectedTrace = new ArtefactTree<>(Arrays.asList(alex, bar));
+            expectedTrace = new SyntheticArtefactTreeNode<>(Arrays.asList(alex, bar));
         }
 
         if (!expectedTrace.equals(dataToCheck.traces.getSuccess())) {

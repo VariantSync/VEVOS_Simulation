@@ -12,6 +12,7 @@ import de.variantsync.evolution.util.functional.Result;
 import de.variantsync.evolution.util.functional.Unit;
 import de.variantsync.evolution.util.list.ListHeadTailView;
 import de.variantsync.evolution.variability.pc.*;
+import de.variantsync.evolution.variability.pc.visitor.common.Debug;
 import org.prop4j.Node;
 import org.prop4j.NodeReader;
 
@@ -81,13 +82,23 @@ public class KernelHavenPCLoader implements ResourceLoader<Artefact>, ResourceWr
         // sort and return all files as list
         List<SourceCodeFile> allFiles = new ArrayList<>(files.values());
         allFiles.sort(Comparator.comparing(SourceCodeFile::getFile));
-        return Result.Success(new ArtefactTree<>(allFiles));
+        return Result.Success(new SyntheticArtefactTreeNode<>(allFiles));
     }
 
     @Override
     public Result<Unit, ? extends Exception> write(Artefact object, Path p) {
         System.out.println(object.prettyPrint());
-        object.acceptDepthFirst(ArtefactVisitor.fromConsumer(System.out::println));
-        return Result.Failure(new NotImplementedException());
+        object.accept(Debug.createSimpleTreePrinter());
+        System.out.println();
+
+        final ArtefactToCSVVisitor csvCreator = new ArtefactToCSVVisitor();
+        object.accept(csvCreator);
+        final CSV csv = csvCreator.export();
+
+        System.out.println(csv.toString());
+        System.out.println("  ==> " + p);
+        System.out.println();
+
+        return Result.Try(() -> Resources.Instance().write(CSV.class, csv, p));
     }
 }

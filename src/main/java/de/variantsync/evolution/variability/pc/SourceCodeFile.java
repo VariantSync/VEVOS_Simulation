@@ -7,20 +7,23 @@ import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.PathUtils;
 import de.variantsync.evolution.util.fide.bugfix.FixTrueFalse;
 import de.variantsync.evolution.util.functional.Result;
+import de.variantsync.evolution.variability.pc.visitor.ArtefactVisitor;
+import de.variantsync.evolution.variability.pc.visitor.SourceCodeFileVisitorContext;
 import org.prop4j.Node;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * Represents a variable source code file (e.g., because part of a plugin or only conditionally included).
  */
 public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
-    private final LineBasedAnnotation rootAnnotation = new LineBasedAnnotation(FixTrueFalse.True, 0, 0);
+    private final LineBasedAnnotation rootAnnotation;
 
     public SourceCodeFile(Node featureMapping, CaseSensitivePath relativePath) {
-        super(featureMapping, relativePath);
-        super.addTrace(rootAnnotation);
+        super(featureMapping, Collections.singletonList(new LineBasedAnnotation(FixTrueFalse.True, 1, 1)), relativePath);
+        rootAnnotation = getSubtrees().get(0);
     }
 
     public SourceCodeFile(SourceCodeFile other) {
@@ -28,9 +31,8 @@ public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
     }
 
     @Override
-    public void acceptDepthFirst(ArtefactVisitor visitor) {
-        visitor.visitSourceCodeFile(this);
-        rootAnnotation.acceptDepthFirst(visitor);
+    public SourceCodeFileVisitorContext createVisitorContext() {
+        return new SourceCodeFileVisitorContext(this);
     }
 
     @Override
@@ -62,6 +64,10 @@ public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
         );
     }
 
+    public LineBasedAnnotation getRootAnnotation() {
+        return rootAnnotation;
+    }
+
     public void simplify() {
         rootAnnotation.simplify();
     }
@@ -72,7 +78,6 @@ public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
         rootAnnotation.setLineTo(Math.max(rootAnnotation.getLineTo(), lineBasedAnnotation.getLineTo()));
     }
 
-    @Override
     public SourceCodeFile plainCopy() {
         return new SourceCodeFile(this);
     }
@@ -90,6 +95,14 @@ public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
     @Override
     protected void prettyPrintFooter(String indent, StringBuilder builder) {
         builder.append(indent).append("]");
+    }
+
+    @Override
+    public String toString() {
+        return "SourceCodeFile{" +
+                "featureMapping=" + getFeatureMapping() +
+                ", path=" + getFile() +
+                '}';
     }
 
     @Override
