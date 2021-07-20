@@ -170,7 +170,7 @@ public class Main {
             // Alternatively, we can also generate just a few steps if we like.
             {
                 // First, let's build the necessary computations.
-                final Lazy<Optional<VariantsRevision>> revision0 = Lazy.pure(variantsRepo.getStartRevision());
+                final Lazy<Optional<VariantsRevision>> revision0 = Lazy.pure(firstRevisionToGenerate);
                 final Lazy<Optional<VariantsRevision>> genRevision0 = MonadTransformer.bind(revision0, VariantsRevision::evolve);
                 final Lazy<Optional<VariantsRevision>> genRevision1 = MonadTransformer.bind(genRevision0, VariantsRevision::evolve);
                 final Lazy<Optional<VariantsRevision>> genRevision2 = MonadTransformer.bind(genRevision1, VariantsRevision::evolve);
@@ -181,7 +181,7 @@ public class Main {
                 // This would generate revision0 and then revision1 and then revision2.
                 // This returns a handle for revision3 which is not yet generated.
                 Optional<VariantsRevision> revision3 = genRevision2.run();
-                // Because Lazy caches intermediate results, revision0 and revision1 have only be generated exactly once.
+                // Because Lazy caches intermediate results, revision0 and revision1 have only been generated exactly once.
             }
         }
     }
