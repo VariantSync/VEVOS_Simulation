@@ -8,6 +8,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -92,5 +93,9 @@ public class TextIO {
                     linesToWrite.toString().getBytes(),
                     StandardOpenOption.APPEND);
         }
+    }
+
+    public static void write(Path p, String text) throws IOException {
+        Files.writeString(p, text, StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
     }
 }
