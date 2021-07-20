@@ -4,15 +4,13 @@ import de.variantsync.evolution.Main;
 import de.variantsync.evolution.feature.Variant;
 import de.variantsync.evolution.io.ResourceLoader;
 import de.variantsync.evolution.io.Resources;
-import de.variantsync.evolution.io.kernelhaven.KernelHavenPCLoader;
+import de.variantsync.evolution.io.kernelhaven.KernelHavenPCIO;
 import de.variantsync.evolution.util.CaseSensitivePath;
 import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.PathUtils;
 import de.variantsync.evolution.util.fide.FeatureModelUtils;
 import de.variantsync.evolution.util.fide.bugfix.FixTrueFalse;
-import de.variantsync.evolution.util.functional.Functional;
 import de.variantsync.evolution.util.functional.Result;
-import de.variantsync.evolution.util.functional.Unit;
 import de.variantsync.evolution.variability.config.FeatureIDEConfiguration;
 import de.variantsync.evolution.variability.config.SayYesToAllConfiguration;
 import de.variantsync.evolution.variability.pc.*;
@@ -81,7 +79,7 @@ public class VariantGenerationTest {
         }
     }
 
-    private static final ResourceLoader<Artefact> pcLoader = new KernelHavenPCLoader();
+    private static final ResourceLoader<Artefact> pcLoader = new KernelHavenPCIO();
 
     private static final CaseSensitivePath resDir = CaseSensitivePath.of("src", "test", "resources", "variantgeneration");
     private static final CaseSensitivePath genDir = resDir.resolve("gen");

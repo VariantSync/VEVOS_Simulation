@@ -7,10 +7,10 @@ import de.ovgu.featureide.fm.core.io.sxfm.SXFMFormat;
 import de.ovgu.featureide.fm.core.io.xml.XmlFeatureModelFormat;
 import de.variantsync.evolution.io.Resources;
 import de.variantsync.evolution.io.data.CSV;
-import de.variantsync.evolution.io.data.CSVLoader;
+import de.variantsync.evolution.io.data.CSVIO;
 import de.variantsync.evolution.io.data.DimacsFeatureModelLoader;
 import de.variantsync.evolution.io.data.VariabilityDatasetLoader;
-import de.variantsync.evolution.io.kernelhaven.KernelHavenPCLoader;
+import de.variantsync.evolution.io.kernelhaven.KernelHavenPCIO;
 import de.variantsync.evolution.repository.AbstractSPLRepository;
 import de.variantsync.evolution.repository.VariabilityHistory;
 import de.variantsync.evolution.util.Logger;
@@ -49,13 +49,13 @@ public class Main {
 
         r.registerLoader(IFeatureModel.class, new DimacsFeatureModelLoader());
 
-        final CSVLoader csvLoader = new CSVLoader();
-        r.registerLoader(CSV.class, csvLoader);
-        r.registerWriter(CSV.class, csvLoader);
+        final CSVIO CSVIO = new CSVIO();
+        r.registerLoader(CSV.class, CSVIO);
+        r.registerWriter(CSV.class, CSVIO);
 
-        final KernelHavenPCLoader kernelHavenPCLoader = new KernelHavenPCLoader();
-        r.registerLoader(Artefact.class, kernelHavenPCLoader);
-        r.registerWriter(Artefact.class, kernelHavenPCLoader);
+        final KernelHavenPCIO kernelHavenPCIO = new KernelHavenPCIO();
+        r.registerLoader(Artefact.class, kernelHavenPCIO);
+        r.registerWriter(Artefact.class, kernelHavenPCIO);
     }
 
     private static void InitFeatureIDE() {
