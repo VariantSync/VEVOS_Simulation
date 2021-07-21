@@ -10,7 +10,7 @@ temporary-test-repos/
 
 target/
 bin/
-data/
+./data/
 __pycache__
 
 */latex/*.aux
