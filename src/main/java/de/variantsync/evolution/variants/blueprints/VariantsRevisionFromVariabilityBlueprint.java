@@ -2,8 +2,7 @@ package de.variantsync.evolution.variants.blueprints;
 
 import de.variantsync.evolution.util.CaseSensitivePath;
 import de.variantsync.evolution.util.Logger;
-import de.variantsync.evolution.util.functional.Result;
-import de.variantsync.evolution.util.functional.Unit;
+import de.variantsync.evolution.util.functional.*;
 import de.variantsync.evolution.variability.pc.Artefact;
 import de.variantsync.evolution.variants.VariantCommit;
 import de.variantsync.evolution.variants.VariantsRevision;
@@ -13,7 +12,7 @@ import de.variantsync.evolution.repository.Branch;
 import de.variantsync.evolution.repository.AbstractSPLRepository;
 import de.variantsync.evolution.repository.AbstractVariantsRepository;
 import de.variantsync.evolution.variability.SPLCommit;
-import de.variantsync.evolution.util.functional.Lazy;
+import de.variantsync.evolution.variants.sampling.SamplingStrategy;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
 import java.io.IOException;
@@ -26,6 +25,7 @@ import java.util.Optional;
  */
 public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBlueprint {
     private final SPLCommit splCommit;
+    private final SamplingStrategy sampler;
 
     /**
      * Creates a new blueprint that can generate variants from the given splCommit that contains
@@ -36,11 +36,12 @@ public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBl
      */
     public VariantsRevisionFromVariabilityBlueprint(
             SPLCommit splCommit,
-            VariantsRevisionFromVariabilityBlueprint predecessor)
+            VariantsRevisionFromVariabilityBlueprint predecessor,
+            SamplingStrategy sampler)
     {
         super(predecessor);
         this.splCommit = splCommit;
-        this.predecessor = Optional.ofNullable(predecessor);
+        this.sampler = sampler;
     }
 
     public SPLCommit getSPLCommit() {
@@ -49,15 +50,7 @@ public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBl
 
     @Override
     protected Lazy<Sample> computeSample() {
-        return splCommit.featureModel().map(featureModel -> {
-            // TODO: Implement Issue #10 here.
-            // If present, we can reuse predecessor to not have to compute a sample again.
-            // For instance, when the feature model did not change during a commit, then
-            // we can just return the sample from the previous revision (i.e.
-            // predecessor.map(VariantsRevisionBlueprint::getSample).orElseGet(/*generate new sample here*/);
-            // ).
-            return null;
-        });
+        return splCommit.featureModel().map(featureModel -> sampler.sampleForRevision(featureModel, this));
     }
 
     @Override
