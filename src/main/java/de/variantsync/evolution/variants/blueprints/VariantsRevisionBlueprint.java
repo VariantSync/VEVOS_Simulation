@@ -4,6 +4,8 @@ import de.variantsync.evolution.variants.VariantsRevision;
 import de.variantsync.evolution.feature.Sample;
 import de.variantsync.evolution.util.functional.Lazy;
 
+import java.util.Optional;
+
 /**
  * A VariantsRevisionBlueprint holds instructions on how to generate variants and commits
  * for a VariantsRevision.
@@ -13,16 +15,27 @@ import de.variantsync.evolution.util.functional.Lazy;
  */
 public abstract class VariantsRevisionBlueprint {
     // We wrap computeSample in another Lazy to cache the result of computeSample (which is yet another lazy).
-    // Assume computeSample returns a new sample each time it is called (which could happen).
+    // Assume computeSample returns a new object each time it is called (which could happen).
     // Then whenever we do computeSample().run(), the sample would be calculated anew which could be costly.
-    // Thus, we cache the lazy that computes the sample (i.e., computeSample()).
-    private final Lazy<Lazy<Sample>> sample = Lazy.of(this::computeSample);
+    // Thus, we cache the lazy that computes the sample (i.e., computeSample()) by putting it into another
+    // lazy (i.e., Lazy.of(this::computeSample)). We flatten the result with join.
+    private final Lazy<Sample> sample = Lazy.join(Lazy.of(this::computeSample));
+
+    private final Optional<VariantsRevisionBlueprint> predecessor;
+
+    public VariantsRevisionBlueprint(VariantsRevisionBlueprint predecessor) {
+        this.predecessor = Optional.ofNullable(predecessor);
+    }
 
     /**
      * @return The sample of variants that should be generated for target VariantsRevision.
      */
     public Lazy<Sample> getSample() {
-        return sample.run();
+        return sample;
+    }
+
+    public Optional<VariantsRevisionBlueprint> getPredecessor() {
+        return predecessor;
     }
 
     /**

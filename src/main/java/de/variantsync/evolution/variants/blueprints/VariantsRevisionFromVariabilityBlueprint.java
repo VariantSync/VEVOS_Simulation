@@ -26,7 +26,6 @@ import java.util.Optional;
  */
 public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBlueprint {
     private final SPLCommit splCommit;
-    private final Optional<VariantsRevisionFromVariabilityBlueprint> predecessor;
 
     /**
      * Creates a new blueprint that can generate variants from the given splCommit that contains
@@ -39,6 +38,7 @@ public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBl
             SPLCommit splCommit,
             VariantsRevisionFromVariabilityBlueprint predecessor)
     {
+        super(predecessor);
         this.splCommit = splCommit;
         this.predecessor = Optional.ofNullable(predecessor);
     }
