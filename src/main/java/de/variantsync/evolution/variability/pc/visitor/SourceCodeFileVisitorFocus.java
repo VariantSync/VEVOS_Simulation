@@ -1,6 +1,9 @@
 package de.variantsync.evolution.variability.pc.visitor;
 
+import de.variantsync.evolution.variability.pc.LineBasedAnnotation;
 import de.variantsync.evolution.variability.pc.SourceCodeFile;
+
+import java.util.List;
 
 public class SourceCodeFileVisitorFocus extends ArtefactTreeVisitorFocus<SourceCodeFile> {
     public SourceCodeFileVisitorFocus(SourceCodeFile artefact) {
@@ -18,5 +21,12 @@ public class SourceCodeFileVisitorFocus extends ArtefactTreeVisitorFocus<SourceC
      */
     public void visitRootAnnotation(ArtefactVisitor visitor) {
         value.getRootAnnotation().createVisitorFocus().accept(visitor);
+    }
+
+    public void skipRootAnnotationButVisitItsSubtrees(ArtefactVisitor visitor) {
+        final List<LineBasedAnnotation> lineBasedAnnotations = value.getRootAnnotation().getSubtrees();
+        for (LineBasedAnnotation l : lineBasedAnnotations) {
+            l.createVisitorFocus().accept(visitor);
+        }
     }
 }

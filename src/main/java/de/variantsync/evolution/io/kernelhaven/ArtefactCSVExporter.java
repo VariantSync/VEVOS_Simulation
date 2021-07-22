@@ -79,13 +79,15 @@ public class ArtefactCSVExporter implements ArtefactVisitor {
     @Override
     public void visitSourceCodeFile(SourceCodeFileVisitorFocus focus) {
         currentFile = focus.getValue();
-        focus.visitRootAnnotation(this);
+        focus.skipRootAnnotationButVisitItsSubtrees(this);
         currentFile = null;
     }
 
     @Override
     public void visitLineBasedAnnotation(LineBasedAnnotationVisitorFocus focus) {
         final LineBasedAnnotation annotation = focus.getValue();
+        csv.add(toRow(annotation, annotation.getLineFrom(), annotation.getLineTo()));
+        focus.visitAllSubtrees(this);
 
         /*
         Check if there are lines that are annotated by the current annotation but not a nested application.
@@ -104,19 +106,19 @@ public class ArtefactCSVExporter implements ArtefactVisitor {
 
         Thus, check if there are some lines between the current annotation start and the inner annotations.
         */
-        int currentLine = annotation.getLineFrom();
-        for (LineBasedAnnotation subtree : annotation.getSubtrees()) {
-            if (currentLine < subtree.getLineFrom()) {
-                csv.add(toRow(annotation, currentLine, subtree.getLineFrom() - 1));
-            }
-            focus.visitSubtree(subtree, this);
-            currentLine = subtree.getLineTo() + 1;
-        }
-
-        /// If there were no children or there are lines annotated after the last nested annotation (see example above)
-        /// export these lines.
-        if (currentLine <= annotation.getLineTo()) {
-            csv.add(toRow(annotation, currentLine, annotation.getLineTo()));
-        }
+//        int currentLine = annotation.getLineFrom();
+//        for (LineBasedAnnotation subtree : annotation.getSubtrees()) {
+//            if (currentLine < subtree.getLineFrom()) {
+//                csv.add(toRow(annotation, currentLine, subtree.getLineFrom() - 1));
+//            }
+//            focus.visitSubtree(subtree, this);
+//            currentLine = subtree.getLineTo() + 1;
+//        }
+//
+//        /// If there were no children or there are lines annotated after the last nested annotation (see example above)
+//        /// export these lines.
+//        if (currentLine <= annotation.getLineTo()) {
+//            csv.add(toRow(annotation, currentLine, annotation.getLineTo()));
+//        }
     }
 }
