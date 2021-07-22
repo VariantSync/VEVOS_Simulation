@@ -44,20 +44,6 @@ public class Main {
     private static final String VARIANTS_REPO = "variants_repo";
     private static boolean initialized = false;
 
-    private static void InitResources() {
-        final Resources r = Resources.Instance();
-
-        r.registerLoader(IFeatureModel.class, new DimacsFeatureModelLoader());
-
-        final CSVIO CSVIO = new CSVIO();
-        r.registerLoader(CSV.class, CSVIO);
-        r.registerWriter(CSV.class, CSVIO);
-
-        final KernelHavenPCIO kernelHavenPCIO = new KernelHavenPCIO();
-        r.registerLoader(Artefact.class, kernelHavenPCIO);
-        r.registerWriter(Artefact.class, kernelHavenPCIO);
-    }
-
     private static void InitFeatureIDE() {
         /*
          * Who needs an SPL if we can clone-and-own from FeatureIDE's FMCoreLibrary, lol.
@@ -83,7 +69,6 @@ public class Main {
     public static void Initialize() {
         if (!initialized) {
             Logger.initConsoleLogger();
-            InitResources();
             InitFeatureIDE();
             initialized = true;
             Logger.debug("Finished initialization");
