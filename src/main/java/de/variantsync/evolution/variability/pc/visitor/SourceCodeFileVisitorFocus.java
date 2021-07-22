@@ -13,7 +13,7 @@ public class SourceCodeFileVisitorFocus extends ArtefactTreeVisitorFocus<SourceC
     }
 
     /**
-     * Visit the single child of the SourceCodeFile in focus with the givne visitor.
+     * Visit the single child of the SourceCodeFile in focus with the given visitor.
      * (Each SourceCodeFile has exactly one LineBasedAnnotation as child.)
      */
     public void visitRootAnnotation(ArtefactVisitor visitor) {
