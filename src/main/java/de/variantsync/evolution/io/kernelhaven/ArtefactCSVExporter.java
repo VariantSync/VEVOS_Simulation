@@ -54,7 +54,7 @@ public class ArtefactCSVExporter implements ArtefactVisitor {
      * Creates a CSV row for the given annotation but uses the given start and end lines.
      * @param annotation The annotation to create a row for.
      * @param start The first line in which this annotation is at least valid.
-     * @param end The last line in which this annotation is at least valid. All lines inbetween [start, end] will be
+     * @param end The last line in which this annotation is at least valid. All lines between [start, end] will be
      *            considered annotated with the given annotation.
      * @return The CSV row.
      */
