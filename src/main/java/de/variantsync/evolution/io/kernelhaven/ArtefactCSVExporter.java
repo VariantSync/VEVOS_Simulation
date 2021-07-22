@@ -1,6 +1,7 @@
 package de.variantsync.evolution.io.kernelhaven;
 
 import de.variantsync.evolution.io.data.CSV;
+import de.variantsync.evolution.util.fide.FormulaUtils;
 import de.variantsync.evolution.variability.pc.ArtefactTree;
 import de.variantsync.evolution.variability.pc.visitor.ArtefactVisitor;
 import de.variantsync.evolution.variability.pc.LineBasedAnnotation;
@@ -8,6 +9,7 @@ import de.variantsync.evolution.variability.pc.SourceCodeFile;
 import de.variantsync.evolution.variability.pc.visitor.LineBasedAnnotationVisitorFocus;
 import de.variantsync.evolution.variability.pc.visitor.SourceCodeFileVisitorFocus;
 import de.variantsync.evolution.variability.pc.visitor.SyntheticArtefactTreeNodeVisitorFocus;
+import org.prop4j.NodeWriter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,9 +63,9 @@ public class ArtefactCSVExporter implements ArtefactVisitor {
     private String[] toRow(LineBasedAnnotation annotation, int start, int end) {
         final String[] row = makeRow();
         row[0] = currentFile.getFile().toString();
-        row[1] = currentFile.getPresenceCondition().toString();
-        row[2] = annotation.getFeatureMapping().toString();
-        row[3] = annotation.getPresenceCondition().toString();
+        row[1] = FormulaUtils.toString(currentFile.getPresenceCondition(), NodeWriter.javaSymbols);
+        row[2] = FormulaUtils.toString(annotation.getFeatureMapping(), NodeWriter.javaSymbols);
+        row[3] = FormulaUtils.toString(annotation.getPresenceCondition(), NodeWriter.javaSymbols);
         row[4] = "" + start;
         row[5] = "" + end;
         return row;

@@ -59,4 +59,12 @@ public class FormulaUtils {
             }
         } while (!redundantChildren.isEmpty());
     }
+
+    public static String toString(Node formula, String[] symbols) {
+        final NodeWriter writer = new NodeWriter(formula);
+        writer.setNotation(NodeWriter.Notation.INFIX);
+        writer.setEnquoteWhitespace(false);
+        writer.setSymbols(symbols);
+        return writer.nodeToString();
+    }
 }
