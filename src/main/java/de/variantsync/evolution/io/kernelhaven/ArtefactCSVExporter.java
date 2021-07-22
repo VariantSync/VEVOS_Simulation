@@ -19,7 +19,7 @@ import java.util.List;
  * Path;File Condition;Block Condition;Presence Condition;start;end
  */
 public class ArtefactCSVExporter implements ArtefactVisitor {
-    private final static int ColumnCount = 6;
+    private final static int COLUMN_COUNT = 6;
     private final List<String[]> csv = new ArrayList<>();
     private SourceCodeFile currentFile = null;
 
