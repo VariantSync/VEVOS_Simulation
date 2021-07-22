@@ -19,7 +19,7 @@ import java.util.List;
  * Path;File Condition;Block Condition;Presence Condition;start;end
  */
 public class ArtefactCSVExporter implements ArtefactVisitor {
-    private final static int ColumnCount = 6;
+    private final static int COLUMN_COUNT = 6;
     private final List<String[]> csv = new ArrayList<>();
     private SourceCodeFile currentFile = null;
 
@@ -27,7 +27,7 @@ public class ArtefactCSVExporter implements ArtefactVisitor {
      * @return A new csv row.
      */
     private static String[] makeRow() {
-        return new String[ColumnCount];
+        return new String[COLUMN_COUNT];
     }
 
     public ArtefactCSVExporter() {
@@ -54,7 +54,7 @@ public class ArtefactCSVExporter implements ArtefactVisitor {
      * Creates a CSV row for the given annotation but uses the given start and end lines.
      * @param annotation The annotation to create a row for.
      * @param start The first line in which this annotation is at least valid.
-     * @param end The last line in which this annotation is at least valid. All lines inbetween [start, end] will be
+     * @param end The last line in which this annotation is at least valid. All lines between [start, end] will be
      *            considered annotated with the given annotation.
      * @return The CSV row.
      */

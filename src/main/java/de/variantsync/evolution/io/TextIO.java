@@ -78,9 +78,14 @@ public class TextIO {
             final StringBuilder linesToWrite = new StringBuilder();
 
             for (LineBasedAnnotation i : linesToTake) {
-                // -1 because lines are 1-indexed
                 for (
+                        // The list read_lines is 0-based.
+                        // LineBasedAnnotations are 1-based because line numbers are typically given 1-based.
+                        // Thus, we have to -1 here because line numbers in i are 1-indexed
+                        // but we want to look them up in read_lines, which is 0-based.
                         int lineNo = i.getLineFrom() - 1;
+                        // For the same reason we check for '<' here and not for '<=' although getLineTo should
+                        // be included (which it is this way).
                         lineNo < i.getLineTo() && lineNo < read_lines.size(); // just skip all lines that are too much
                         ++lineNo)
                 {
@@ -97,7 +102,7 @@ public class TextIO {
 
     /**
      * Writes the given text to the given file.
-     * Does not create a new file.
+     * Creates a new file and assumes there exists no file yet at the given path.
      * @param p File to create and fill with text.
      * @param text Text to write to file.
      * @throws IOException if an I/O error occurs writing to or creating the file, or the text cannot be encoded using the specified charset.

@@ -1,9 +1,15 @@
 package de.variantsync.evolution.io;
 
+import de.ovgu.featureide.fm.core.base.IFeatureModel;
+import de.variantsync.evolution.io.data.CSV;
+import de.variantsync.evolution.io.data.CSVIO;
+import de.variantsync.evolution.io.data.DimacsFeatureModelLoader;
+import de.variantsync.evolution.io.kernelhaven.KernelHavenPCIO;
 import de.variantsync.evolution.util.CaseSensitivePath;
 import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.functional.Result;
 import de.variantsync.evolution.util.functional.Unit;
+import de.variantsync.evolution.variability.pc.Artefact;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -29,10 +35,23 @@ public class Resources {
     private Resources() {
         loaders = new HashMap<>();
         writers = new HashMap<>();
+        registerDefaultIOAt(this);
     }
 
     private static <T, U> List<U> lookup(Class<T> type, Map<Class<?>, List<U>> map) {
         return map.computeIfAbsent(type, k -> new ArrayList<>());
+    }
+
+    private static void registerDefaultIOAt(Resources r) {
+        r.registerLoader(IFeatureModel.class, new DimacsFeatureModelLoader());
+
+        final CSVIO CSVIO = new CSVIO();
+        r.registerLoader(CSV.class, CSVIO);
+        r.registerWriter(CSV.class, CSVIO);
+
+        final KernelHavenPCIO kernelHavenPCIO = new KernelHavenPCIO();
+        r.registerLoader(Artefact.class, kernelHavenPCIO);
+        r.registerWriter(Artefact.class, kernelHavenPCIO);
     }
 
     /**
