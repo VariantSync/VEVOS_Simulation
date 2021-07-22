@@ -102,7 +102,7 @@ public class TextIO {
 
     /**
      * Writes the given text to the given file.
-     * Does not create a new file.
+     * Creates a new file and assumes there exists no file yet at the given path.
      * @param p File to create and fill with text.
      * @param text Text to write to file.
      * @throws IOException if an I/O error occurs writing to or creating the file, or the text cannot be encoded using the specified charset.
