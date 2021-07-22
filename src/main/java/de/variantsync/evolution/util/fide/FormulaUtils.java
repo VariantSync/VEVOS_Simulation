@@ -9,8 +9,8 @@ import java.util.List;
 
 public class FormulaUtils {
     public static Node negate(Node node) {
-        if (node instanceof Literal) {
-            return negate((Literal) node);
+        if (node instanceof Literal l) {
+            return negate(l);
         }
 
         return new Not(node);
