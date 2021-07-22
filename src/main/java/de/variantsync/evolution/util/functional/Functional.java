@@ -19,13 +19,6 @@ import java.util.stream.Collectors;
  * Contains also methods for pattern matching.
  */
 public class Functional {
-    public static <A> Function<A, A> performSideEffect(Consumer<A> sideEffect) {
-        return a -> {
-            sideEffect.accept(a);
-            return a;
-        };
-    }
-
     public static <A, B> A uncheckedCast(B b) {
         return (A) b;
     }
