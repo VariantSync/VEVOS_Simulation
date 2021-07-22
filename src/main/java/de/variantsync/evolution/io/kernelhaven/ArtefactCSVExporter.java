@@ -27,7 +27,7 @@ public class ArtefactCSVExporter implements ArtefactVisitor {
      * @return A new csv row.
      */
     private static String[] makeRow() {
-        return new String[ColumnCount];
+        return new String[COLUMN_COUNT];
     }
 
     public ArtefactCSVExporter() {
