@@ -130,6 +130,8 @@ public class Resources {
                 }
             }
         }
+
+        throw new ResourceIOException("All ResourceWriters failed in writing resource " + p + " as type " + type + "!");
     }
 
     public static Resources Instance() {
