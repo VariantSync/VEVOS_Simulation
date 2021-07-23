@@ -36,8 +36,7 @@ public class CompositeException extends Exception implements Monoid<CompositeExc
         this.inner.addAll(Arrays.asList(others));
     }
 
-    @Override
-    public CompositeException mEmpty() {
+    public static CompositeException mEmpty() {
         return new CompositeException();
     }
 

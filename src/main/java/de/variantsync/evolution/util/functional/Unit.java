@@ -27,8 +27,7 @@ public class Unit implements Monoid<Unit> {
         return "()";
     }
 
-    @Override
-    public Unit mEmpty() {
+    public static Unit mEmpty() {
         return Instance();
     }
 
