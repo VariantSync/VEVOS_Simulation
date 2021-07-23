@@ -71,41 +71,30 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
      */
     public List<LineBasedAnnotation> getLinesToGenerateFor(Variant variant, Node partialPC) {
         final List<LineBasedAnnotation> chunksToWrite = new ArrayList<>();
-        final int firstCodeLine = lineFrom + 1;
-        final int lastCodeLine = lineTo - 1;
+        final int firstCodeLine = lineFrom + 1; // ignore #if
+        final int lastCodeLine = lineTo - 1; // ignore #endif
         final Node myFeatureMapping = FormulaUtils.AndSimplified(partialPC, getFeatureMapping());
 
-        if (subtrees.size() == 0) {
-            // just copy entire file content
-            chunksToWrite.add(new LineBasedAnnotation(myFeatureMapping, firstCodeLine, lastCodeLine));
-        } else {
-            int currentLine = firstCodeLine;
-            int currentChildIndex = 0;
-            LineBasedAnnotation currentChild;
-            while (currentChildIndex < subtrees.size()) {
-                currentChild = subtrees.get(currentChildIndex);
-
-                // 1.) Copy all lines of code between currentLine and begin of child.
-                int linesToWrite = currentChild.lineFrom - currentLine;
-                if (linesToWrite > 0) {
-                    chunksToWrite.add(new LineBasedAnnotation(myFeatureMapping, currentLine, currentChild.lineFrom - 1));
-                }
-
-                // 2.) handle child
-                // TODO: An incremental sat solver would pay off here.
-                //       Push and pop the feature mappings.
-                if (variant.isImplementing(currentChild.getPresenceCondition())) {
-                    chunksToWrite.addAll(currentChild.getLinesToGenerateFor(variant, myFeatureMapping));
-                } // else skip child as its lines have to be excluded
-
-                // 3.) go to next child and repeat
-                currentLine = currentChild.lineTo + 1;
-                ++currentChildIndex;
+        int currentLine = firstCodeLine;
+        for (LineBasedAnnotation subtree : subtrees) {
+            // 1.) Copy all lines of code between currentLine and begin of child.
+            if (currentLine < subtree.lineFrom) {
+                chunksToWrite.add(new LineBasedAnnotation(myFeatureMapping, currentLine, subtree.lineFrom - 1));
             }
 
-            if (currentLine <= lastCodeLine) {
-                chunksToWrite.add(new LineBasedAnnotation(myFeatureMapping, currentLine, lastCodeLine));
-            }
+            // 2.) handle child
+            // TODO: An incremental sat solver would pay off here.
+            //       Push and pop the feature mappings.
+            if (variant.isImplementing(subtree.getPresenceCondition())) {
+                chunksToWrite.addAll(subtree.getLinesToGenerateFor(variant, myFeatureMapping));
+            } // else skip child as its lines have to be excluded
+
+            // 3.) go to next child and repeat
+            currentLine = subtree.lineTo + 1;
+        }
+
+        if (currentLine <= lastCodeLine) {
+            chunksToWrite.add(new LineBasedAnnotation(myFeatureMapping, currentLine, lastCodeLine));
         }
 
         return chunksToWrite;
