@@ -1,16 +1,10 @@
 package de.variantsync.evolution;
 
-import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import de.ovgu.featureide.fm.core.base.impl.*;
 import de.ovgu.featureide.fm.core.configuration.*;
 import de.ovgu.featureide.fm.core.io.sxfm.SXFMFormat;
 import de.ovgu.featureide.fm.core.io.xml.XmlFeatureModelFormat;
-import de.variantsync.evolution.io.Resources;
-import de.variantsync.evolution.io.data.CSV;
-import de.variantsync.evolution.io.data.CSVIO;
-import de.variantsync.evolution.io.data.DimacsFeatureModelLoader;
 import de.variantsync.evolution.io.data.VariabilityDatasetLoader;
-import de.variantsync.evolution.io.kernelhaven.KernelHavenPCIO;
 import de.variantsync.evolution.repository.AbstractSPLRepository;
 import de.variantsync.evolution.variability.VariabilityHistory;
 import de.variantsync.evolution.util.Logger;
@@ -23,7 +17,6 @@ import de.variantsync.evolution.variability.CommitPair;
 import de.variantsync.evolution.variability.SPLCommit;
 import de.variantsync.evolution.variability.SequenceExtractors;
 import de.variantsync.evolution.variability.VariabilityDataset;
-import de.variantsync.evolution.variability.pc.Artefact;
 import de.variantsync.evolution.variants.VariantsRepository;
 import de.variantsync.evolution.variants.VariantsRevision;
 
