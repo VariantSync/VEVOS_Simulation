@@ -53,15 +53,23 @@ public class KernelHavenPCIO implements ResourceLoader<Artefact>, ResourceWriter
             final Node blockCondition = FixTrueFalse.On(nodeReader.stringToNode(row[2]));
             // We don't need the actual presenceCondition (lol) as it is a value computed from row[1] and row[2]
             // final Node presenceCondition = nodeReader.stringToNode(row[3]);
-            int startLine = Integer.parseInt(row[4]);
-            final int endLine = Integer.parseInt(row[5]) + 1 /* to include #endif */;
+            final int startLine = Integer.parseInt(row[4]);
+            int endLine = Integer.parseInt(row[5]);
 
             /// If a block starts at 1 in KernelHaven files, it does not denote an #if but the entire file.
             /// Thus, there is no #if at line 1 but LineBasedAnnotation expects a macro at startLine.
-            /// Thus, imagine a macro at line 0, that does not exist.
-            // TODO: Check if this is really correct.
-            if (startLine == 1) {
-                startLine = 0;
+            final boolean isVirtualSurroundingTrue = startLine == 1;
+
+            /*
+            Line numbers for the all surrounding true are given in [1, last line of file + 1] format.
+            Line numbers for macros are given in [#if, #endif) format.
+             */
+            if (isVirtualSurroundingTrue) {
+                // If we find the all-surrounding "true" macro:
+                // We know that it always points behind one line behind the last line.
+                endLine -= 1;
+            } else {
+                endLine += 1 /* to include #endif */;
             }
 
             /*
@@ -72,7 +80,7 @@ public class KernelHavenPCIO implements ResourceLoader<Artefact>, ResourceWriter
                 files.computeIfAbsent(
                         pathOfSourceFile,
                         p -> new SourceCodeFile(fileCondition, p))
-                        .addTrace(new LineBasedAnnotation(blockCondition, startLine, endLine));
+                        .addTrace(new LineBasedAnnotation(blockCondition, startLine, endLine, !isVirtualSurroundingTrue));
             } catch (Exception e) {
                 return Result.Failure(e);
             }
