@@ -1,4 +1,4 @@
-package de.variantsync.evolution.repository;
+package de.variantsync.evolution.variability;
 
 import de.variantsync.evolution.variability.SPLCommit;
 import de.variantsync.evolution.variants.blueprints.VariantsRevisionBlueprint;

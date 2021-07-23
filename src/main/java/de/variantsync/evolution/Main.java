@@ -12,7 +12,7 @@ import de.variantsync.evolution.io.data.DimacsFeatureModelLoader;
 import de.variantsync.evolution.io.data.VariabilityDatasetLoader;
 import de.variantsync.evolution.io.kernelhaven.KernelHavenPCIO;
 import de.variantsync.evolution.repository.AbstractSPLRepository;
-import de.variantsync.evolution.repository.VariabilityHistory;
+import de.variantsync.evolution.variability.VariabilityHistory;
 import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.functional.Functional;
 import de.variantsync.evolution.util.functional.Lazy;

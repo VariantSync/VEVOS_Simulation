@@ -1,6 +1,5 @@
 package de.variantsync.evolution.variability;
 
-import de.variantsync.evolution.repository.VariabilityHistory;
 import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.list.NonEmptyList;
 import org.jetbrains.annotations.NotNull;

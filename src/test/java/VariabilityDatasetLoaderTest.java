@@ -4,7 +4,7 @@ import de.variantsync.evolution.variability.SequenceExtractors;
 import de.variantsync.evolution.variability.VariabilityDataset;
 import de.variantsync.evolution.io.data.VariabilityDatasetLoader;
 import de.variantsync.evolution.repository.Commit;
-import de.variantsync.evolution.repository.VariabilityHistory;
+import de.variantsync.evolution.variability.VariabilityHistory;
 import de.variantsync.evolution.util.GitUtil;
 import de.variantsync.evolution.variability.SPLCommit;
 import de.variantsync.evolution.variability.pc.Artefact;
