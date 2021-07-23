@@ -64,6 +64,7 @@ public class FormulaUtils {
         final NodeWriter writer = new NodeWriter(formula);
         writer.setNotation(NodeWriter.Notation.INFIX);
         writer.setEnquoteWhitespace(false);
+        writer.setEnforceBrackets(true);
         writer.setSymbols(symbols);
         return writer.nodeToString();
     }
