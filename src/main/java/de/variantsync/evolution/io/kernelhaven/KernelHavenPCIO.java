@@ -59,6 +59,7 @@ public class KernelHavenPCIO implements ResourceLoader<Artefact>, ResourceWriter
             /// If a block starts at 1 in KernelHaven files, it does not denote an #if but the entire file.
             /// Thus, there is no #if at line 1 but LineBasedAnnotation expects a macro at startLine.
             /// Thus, imagine a macro at line 0, that does not exist.
+            // TODO: Check if this is really correct.
             if (startLine == 1) {
                 startLine = 0;
             }
