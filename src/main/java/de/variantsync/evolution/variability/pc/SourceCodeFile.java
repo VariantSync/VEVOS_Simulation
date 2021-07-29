@@ -31,7 +31,7 @@ public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
         rootAnnotation = root;
     }
 
-    private static SourceCodeFile fromGroundTruth(SourceCodeFile other, Optional<GroundTruth> root) {
+    private static SourceCodeFile fromGroundTruth(SourceCodeFile other, Optional<GroundTruth<LineBasedAnnotation>> root) {
         return root
                 .map(r -> new SourceCodeFile(other.getFeatureMapping(), other.getFile(), r.variantArtefact()))
                 .orElseGet(() -> new SourceCodeFile(other.getFeatureMapping(), other.getFile()));
@@ -45,7 +45,7 @@ public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
     @Override
     public Result<SourceCodeFile, Exception> generateVariant(Variant variant, CaseSensitivePath sourceDir, CaseSensitivePath targetDir) {
         final CaseSensitivePath targetFile = targetDir.resolve(getFile());
-        final Result<Optional<GroundTruth>, IOException> groundTruth =
+        final Result<Optional<GroundTruth<LineBasedAnnotation>>, IOException> groundTruth =
                 // 1. Create the target file.
                 PathUtils.createEmptyAsResult(targetFile.path())
                 // 2. Write to target file.
