@@ -1,11 +1,24 @@
 package de.variantsync.evolution.util.functional;
 
-/**
- * Interfaces for class that support monoidal composition.
- * Implementing classes are expected to also supply a
- * public static M mEmpty();
- * @param <M> Deriving class.
- */
+import java.util.function.BiFunction;
+import java.util.function.Supplier;
+
 public interface Monoid<M> {
-    M mAppend(M other);
+    M mEmpty();
+    M mAppend(final M a, final M b);
+
+    static <N> Monoid<N> Create(
+            final Supplier<N> empty, final BiFunction<N, N, N> compose) {
+        return new Monoid<N>() {
+            @Override
+            public N mEmpty() {
+                return empty.get();
+            }
+
+            @Override
+            public N mAppend(final N a, final N b) {
+                return compose.apply(a, b);
+            }
+        };
+    }
 }
