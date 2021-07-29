@@ -10,7 +10,7 @@ public class KernelHavenSPLPCIO extends KernelHavenPCIO {
 
 
     @Override
-    protected LineBasedAnnotation createAnnotation(Node blockCondition, int startLine, int endLine) {
+    protected LineBasedAnnotation createAnnotation(final Node blockCondition, final int startLine, int endLine) {
         /// If a block starts at 1 in KernelHaven files, it does not denote an #if but the entire file.
         /// Thus, there is no #if at line 1 but LineBasedAnnotation expects a macro at startLine.
         final boolean isVirtualSurroundingTrue = startLine == 1;

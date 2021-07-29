@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 
 /**
  * Type to capture results of computations that might fail.
- * A result reflects either the return valure of a successful computation or a failure state.
+ * A result reflects either the return value of a successful computation or a failure state.
  * @param <SuccessType> Type for values in case of success.
  * @param <FailureType> Type for values in case of failure.
  */
@@ -19,13 +19,13 @@ public class Result<SuccessType, FailureType> {
      * Combines two results over monoidal values.
      * Returns failure if at least one of the given results is a failure.
      */
-    public static <S, F> Monoid<Result<S, F>> MONOID(Monoid<S> sm, Monoid<F> fm) {
+    public static <S, F> Monoid<Result<S, F>> MONOID(final Monoid<S> sm, final Monoid<F> fm) {
         return Monoid.Create(
                 () -> Result.Success(sm.mEmpty()),
                 (a, b) -> {
-                    final Result<S, F> prec = a.isFailure() ? a : b;
+                    final Result<S, F> resultWithPotentialFailure = a.isFailure() ? a : b;
                     final Result<S, F> other = a.isFailure() ? b : a;
-                    return prec.bimap(
+                    return resultWithPotentialFailure.bimap(
                             s -> other.isSuccess() ? sm.mAppend(s, other.getSuccess()) : s,
                             f -> other.isFailure() ? fm.mAppend(f, other.getFailure()) : f
                     );
@@ -33,7 +33,7 @@ public class Result<SuccessType, FailureType> {
         );
     }
 
-    public static boolean HARD_CRASH_ON_TRY = true;
+    public static final boolean HARD_CRASH_ON_TRY = true;
 
     private final SuccessType result;
     private final FailureType failure;
@@ -43,7 +43,7 @@ public class Result<SuccessType, FailureType> {
      * @param result Success value or null
      * @param failure Failure value or null
      */
-    protected Result(SuccessType result, FailureType failure) {
+    protected Result(final SuccessType result, final FailureType failure) {
         this.result = result;
         this.failure = failure;
     }
@@ -55,7 +55,7 @@ public class Result<SuccessType, FailureType> {
      * @param s Return value of the result.
      * @return Success value.
      */
-    public static <S, F> Result<S, F> Success(S s) {
+    public static <S, F> Result<S, F> Success(final S s) {
         return new Result<>(s, null);
     }
 
@@ -65,7 +65,7 @@ public class Result<SuccessType, FailureType> {
      * @param f Value indicating failure.
      * @return Failure result.
      */
-    public static <S, F> Result<S, F> Failure(F f) {
+    public static <S, F> Result<S, F> Failure(final F f) {
         return new Result<>(null, f);
     }
 
@@ -78,7 +78,7 @@ public class Result<SuccessType, FailureType> {
      * @param failure Factory for failure message in case f returned false.
      * @return Success iff f returned true, Failure otherwise.
      */
-    public static <F> Result<Unit, F> FromFlag(Supplier<Boolean> f, Supplier<F> failure) {
+    public static <F> Result<Unit, F> FromFlag(final Supplier<Boolean> f, final Supplier<F> failure) {
         if (f.get()) {
             return Success(Unit.Instance());
         } else {
@@ -95,7 +95,7 @@ public class Result<SuccessType, FailureType> {
      * @param failure Factory for failure message in case f returned false.
      * @return Success iff f returned true and did not throw an exception, Failure otherwise.
      */
-    public static <E extends Exception> Result<Unit, E> FromFlag(FragileSupplier<Boolean, E> f, Supplier<E> failure) {
+    public static <E extends Exception> Result<Unit, E> FromFlag(final FragileSupplier<Boolean, E> f, final Supplier<E> failure) {
         return Try(f).bibind(
                 Functional.when(
                         () -> Success(Unit.Instance()),
@@ -112,11 +112,11 @@ public class Result<SuccessType, FailureType> {
      * @return A result containing the result of the given computation or the exception in case it was thrown.
      */
     @SuppressWarnings("unchecked")
-    public static <S, E extends Exception> Result<S, E> Try(FragileSupplier<S, E> s) {
+    public static <S, E extends Exception> Result<S, E> Try(final FragileSupplier<S, E> s) {
         try {
             final S result = s.get();
             return Result.Success(result);
-        } catch (Exception e) { // We cannot catch E directly.
+        } catch (final Exception e) { // We cannot catch E directly.
             if (HARD_CRASH_ON_TRY) {
                 throw new RuntimeException(e);
             } else {
@@ -132,7 +132,7 @@ public class Result<SuccessType, FailureType> {
      * @param <E> The type of exception that may be thrown by s.
      * @return A result containing the result of the given computation or the exception in case it was thrown.
      */
-    public static <E extends Exception> Result<Unit, E> Try(FragileProcedure<E> s) {
+    public static <E extends Exception> Result<Unit, E> Try(final FragileProcedure<E> s) {
         return Try(Functional.LiftFragile(s));
     }
 
@@ -141,21 +141,21 @@ public class Result<SuccessType, FailureType> {
     /**
      * Map over success type.
      */
-    public <S2> Result<S2, FailureType> map(Function<SuccessType, S2> successCase) {
+    public <S2> Result<S2, FailureType> map(final Function<SuccessType, S2> successCase) {
         return bimap(successCase, Function.identity());
     }
 
     /**
      * Map over failure type.
      */
-    public <F2> Result<SuccessType, F2> mapFail(Function<FailureType, F2> failureCase) {
+    public <F2> Result<SuccessType, F2> mapFail(final Function<FailureType, F2> failureCase) {
         return bimap(Function.identity(), failureCase);
     }
 
     /**
      * Result is a bifunctor.
      */
-    public <S2, F2> Result<S2, F2> bimap(Function<SuccessType, S2> successCase, Function<FailureType, F2> failureCase) {
+    public <S2, F2> Result<S2, F2> bimap(final Function<SuccessType, S2> successCase, final Function<FailureType, F2> failureCase) {
         if (isSuccess()) {
             return Success(successCase.apply(result));
         } else {
@@ -163,7 +163,7 @@ public class Result<SuccessType, FailureType> {
         }
     }
 
-    public <S2> Result<S2, FailureType> bind(Function<SuccessType, Result<S2, FailureType>> successCase) {
+    public <S2> Result<S2, FailureType> bind(final Function<SuccessType, Result<S2, FailureType>> successCase) {
         if (isSuccess()) {
             return successCase.apply(result);
         } else {
@@ -171,7 +171,7 @@ public class Result<SuccessType, FailureType> {
         }
     }
 
-    public <S2, F2> Result<S2, F2> bibind(Function<SuccessType, Result<S2, F2>> successCase, Function<FailureType, Result<S2, F2>> failureCase) {
+    public <S2, F2> Result<S2, F2> bibind(final Function<SuccessType, Result<S2, F2>> successCase, final Function<FailureType, Result<S2, F2>> failureCase) {
         if (isSuccess()) {
             return successCase.apply(result);
         } else {
@@ -191,7 +191,7 @@ public class Result<SuccessType, FailureType> {
         return expect("Tried to retrieve the success value of a Failure result!");
     }
 
-    public SuccessType expect(String message) {
+    public SuccessType expect(final String message) {
         if (isFailure()) {
             Logger.error(message);
             throw new RuntimeException(message);
@@ -210,13 +210,13 @@ public class Result<SuccessType, FailureType> {
         assert isSuccess();
     }
 
-    public void ifSuccess(Consumer<SuccessType> f) {
+    public void ifSuccess(final Consumer<SuccessType> f) {
         if (isSuccess()) {
             f.accept(getSuccess());
         }
     }
 
-    public void ifFailure(Consumer<FailureType> f) {
+    public void ifFailure(final Consumer<FailureType> f) {
         if (isFailure()) {
             f.accept(getFailure());
         }

@@ -31,14 +31,14 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
      * 6 #endif    <-- lineTo
      * is reflected by LineBasedAnnotation(X, 3, 6);
      */
-    public LineBasedAnnotation(Node featureMapping, int lineFrom, int lineTo, boolean withMacroLines) {
+    public LineBasedAnnotation(final Node featureMapping, final int lineFrom, final int lineTo, final boolean withMacroLines) {
         super(featureMapping);
         this.lineFrom = lineFrom;
         this.lineTo = lineTo;
         this.withMacroLines = withMacroLines ? 1 : 0;
     }
 
-    public LineBasedAnnotation(LineBasedAnnotation other) {
+    public LineBasedAnnotation(final LineBasedAnnotation other) {
         super(other.getFeatureMapping());
         this.lineFrom = other.lineFrom;
         this.lineTo = other.lineTo;
@@ -75,7 +75,7 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
     }
 
     @Override
-    public Result<LineBasedAnnotation, Exception> generateVariant(Variant variant, CaseSensitivePath sourceDir, CaseSensitivePath targetDir) {
+    public Result<LineBasedAnnotation, Exception> generateVariant(final Variant variant, final CaseSensitivePath sourceDir, final CaseSensitivePath targetDir) {
         throw new UnsupportedOperationException();
     }
 
@@ -148,7 +148,7 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
         return chunksToWrite;
     }
 
-    private static void addRange(List<Integer> list, int fromInclusive, int toInclusive) {
+    private static void addRange(final List<Integer> list, final int fromInclusive, final int toInclusive) {
         for (int i = fromInclusive; i <= toInclusive; ++i) {
             list.add(i);
         }
@@ -274,11 +274,11 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        LineBasedAnnotation that = (LineBasedAnnotation) o;
+        final LineBasedAnnotation that = (LineBasedAnnotation) o;
         return lineFrom == that.lineFrom && lineTo == that.lineTo;
     }
 

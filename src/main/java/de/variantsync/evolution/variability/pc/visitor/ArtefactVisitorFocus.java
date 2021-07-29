@@ -11,7 +11,7 @@ import de.variantsync.evolution.variability.pc.Artefact;
 public abstract class ArtefactVisitorFocus<A extends Artefact> {
     protected final A value;
 
-    public ArtefactVisitorFocus(A artefact) {
+    public ArtefactVisitorFocus(final A artefact) {
         this.value = artefact;
     }
 

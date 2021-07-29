@@ -14,24 +14,24 @@ import java.util.function.Consumer;
  * 3.) invoke onEnd
  */
 public record CallbackArtefactVisitor(Consumer<Artefact> onEnter, Consumer<Artefact> onLeave) implements ArtefactVisitor {
-    private void callback(ArtefactTreeVisitorFocus<? extends Artefact> focus) {
+    private void callback(final ArtefactTreeVisitorFocus<? extends Artefact> focus) {
         onEnter.accept(focus.getValue());
         focus.visitAllSubtrees(this);
         onLeave.accept(focus.getValue());
     }
 
     @Override
-    public <T extends ArtefactTree<?>> void visitGenericArtefactTreeNode(SyntheticArtefactTreeNodeVisitorFocus<T> focus) {
+    public <T extends ArtefactTree<?>> void visitGenericArtefactTreeNode(final SyntheticArtefactTreeNodeVisitorFocus<T> focus) {
         callback(focus);
     }
 
     @Override
-    public void visitSourceCodeFile(SourceCodeFileVisitorFocus focus) {
+    public void visitSourceCodeFile(final SourceCodeFileVisitorFocus focus) {
         callback(focus);
     }
 
     @Override
-    public void visitLineBasedAnnotation(LineBasedAnnotationVisitorFocus focus) {
+    public void visitLineBasedAnnotation(final LineBasedAnnotationVisitorFocus focus) {
         callback(focus);
     }
 }

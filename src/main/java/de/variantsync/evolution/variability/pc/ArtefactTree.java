@@ -24,14 +24,14 @@ public abstract class ArtefactTree<Child extends ArtefactTree<?>> implements Art
     /**
      * Creates a new empty tree (node) with the given feature mapping.
      */
-    public ArtefactTree(Node featureMapping) {
+    public ArtefactTree(final Node featureMapping) {
         this(featureMapping, new ArrayList<>(), null);
     }
 
     /**
      * Creates a new tree (node) with the given feature mapping and subtrees representing (content of) the given file.
      */
-    public ArtefactTree(Node featureMapping, List<Child> subtrees, CaseSensitivePath file) {
+    public ArtefactTree(final Node featureMapping, final List<Child> subtrees, final CaseSensitivePath file) {
         Objects.requireNonNull(featureMapping);
         Objects.requireNonNull(subtrees);
 
@@ -40,7 +40,7 @@ public abstract class ArtefactTree<Child extends ArtefactTree<?>> implements Art
         this.file = file;
     }
 
-    protected void setFeatureMapping(Node featureMapping) {
+    protected void setFeatureMapping(final Node featureMapping) {
         this.featureMapping = featureMapping;
     }
 
@@ -88,8 +88,8 @@ public abstract class ArtefactTree<Child extends ArtefactTree<?>> implements Art
      * Replaces this trees subtrees with the given subtrees.
      * Previous subtrees will have their parent set to null.
      */
-    protected void setSubtrees(List<Child> subtrees) {
-        for (Child c : this.subtrees) {
+    protected void setSubtrees(final List<Child> subtrees) {
+        for (final Child c : this.subtrees) {
             c.setParent(null);
         }
         this.subtrees = subtrees;
@@ -104,7 +104,7 @@ public abstract class ArtefactTree<Child extends ArtefactTree<?>> implements Art
     }
 
     public void addTraces(final Collection<Child> annotations) {
-        for (Child b : annotations) {
+        for (final Child b : annotations) {
             addTrace(b);
         }
     }
@@ -123,7 +123,7 @@ public abstract class ArtefactTree<Child extends ArtefactTree<?>> implements Art
      * Removes all subtrees.
      */
     public void clear() {
-        for (Child c : subtrees) {
+        for (final Child c : subtrees) {
             c.setParent(null);
         }
         subtrees.clear();
@@ -135,16 +135,16 @@ public abstract class ArtefactTree<Child extends ArtefactTree<?>> implements Art
 
     @Override
     public void simplify() {
-        for (Child c : subtrees) {
+        for (final Child c : subtrees) {
             c.simplify();
         }
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ArtefactTree<?> that = (ArtefactTree<?>) o;
+        final ArtefactTree<?> that = (ArtefactTree<?>) o;
         // don't compare parents so we only compare subtrees
         return featureMapping.equals(that.featureMapping) && subtrees.equals(that.subtrees);
     }

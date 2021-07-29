@@ -33,8 +33,8 @@ public record VariabilityHistory(NonEmptyList<NonEmptyList<SPLCommit>> commitSeq
         final ArrayList<VariantsRevisionBlueprint> blueprints = new ArrayList<>(lengthOfList);
         VariantsRevisionFromVariabilityBlueprint lastVariabilityBlueprint = null;
 
-        for (NonEmptyList<SPLCommit> coherentSubHistory : commitSequences) {
-            for (SPLCommit splCommit : coherentSubHistory) {
+        for (final NonEmptyList<SPLCommit> coherentSubHistory : commitSequences) {
+            for (final SPLCommit splCommit : coherentSubHistory) {
                 lastVariabilityBlueprint = new VariantsRevisionFromVariabilityBlueprint(splCommit, lastVariabilityBlueprint);
                 blueprints.add(lastVariabilityBlueprint);
             }

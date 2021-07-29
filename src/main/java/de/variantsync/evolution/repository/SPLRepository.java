@@ -7,7 +7,7 @@ import java.nio.file.Path;
  */
 
 public class SPLRepository extends AbstractSPLRepository {
-    public SPLRepository(Path path){
+    public SPLRepository(final Path path){
         super(path);
     }
 }

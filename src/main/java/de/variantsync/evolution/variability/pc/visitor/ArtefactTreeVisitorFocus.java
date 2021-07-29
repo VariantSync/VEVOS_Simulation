@@ -9,14 +9,14 @@ import java.util.Collection;
  * @param <A> A subtype of ArtefactTree this focus should be specialized to.
  */
 public abstract class ArtefactTreeVisitorFocus<A extends ArtefactTree<?>> extends ArtefactVisitorFocus<A> {
-    public ArtefactTreeVisitorFocus(A artefact) {
+    public ArtefactTreeVisitorFocus(final A artefact) {
         super(artefact);
     }
 
     /**
      * Visits the subtree at the given index with the given visitor.
      */
-    public void visitSubtree(int index, ArtefactVisitor visitor) {
+    public void visitSubtree(final int index, final ArtefactVisitor visitor) {
         value.getSubtrees().get(index).createVisitorFocus().accept(visitor);
     }
 
@@ -25,7 +25,7 @@ public abstract class ArtefactTreeVisitorFocus<A extends ArtefactTree<?>> extend
      * The caller is responsible for ensuring that the given subtree is indeed a subtree of the value of this focus
      * (@see ArtefactVisitorFocus::getValue).
      */
-    public void visitSubtree(ArtefactTree<?> subtree, ArtefactVisitor visitor) {
+    public void visitSubtree(final ArtefactTree<?> subtree, final ArtefactVisitor visitor) {
         // We could check here that subtree is indeed a child of value.
         subtree.createVisitorFocus().accept(visitor);
     }

@@ -23,7 +23,7 @@ import java.util.Map;
  */
 public class Resources {
     public static class ResourceIOException extends Exception {
-        private ResourceIOException(String msg) {
+        private ResourceIOException(final String msg) {
             super(msg);
         }
     }
@@ -38,11 +38,11 @@ public class Resources {
         registerDefaultIOAt(this);
     }
 
-    private static <T, U> List<U> lookup(Class<T> type, Map<Class<?>, List<U>> map) {
+    private static <T, U> List<U> lookup(final Class<T> type, final Map<Class<?>, List<U>> map) {
         return map.computeIfAbsent(type, k -> new ArrayList<>());
     }
 
-    private static void registerDefaultIOAt(Resources r) {
+    private static void registerDefaultIOAt(final Resources r) {
         r.registerLoader(IFeatureModel.class, new DimacsFeatureModelLoader());
 
         final CSVIO CSVIO = new CSVIO();
@@ -62,7 +62,7 @@ public class Resources {
      * @return Returns a list of all resource loaders that are registered for loading the given type of resource T.
      */
     @SuppressWarnings("unchecked")
-    private <T> List<ResourceLoader<T>> getLoaders(Class<T> type) {
+    private <T> List<ResourceLoader<T>> getLoaders(final Class<T> type) {
         return (List<ResourceLoader<T>>) (Object) lookup(type, loaders);
     }
 
@@ -70,7 +70,7 @@ public class Resources {
      * @return Returns a list of all resource writers that are registered for writing the given type of resource T.
      */
     @SuppressWarnings("unchecked")
-    private <T> List<ResourceWriter<T>> getWriters(Class<T> type) {
+    private <T> List<ResourceWriter<T>> getWriters(final Class<T> type) {
         return (List<ResourceWriter<T>>) (Object) lookup(type, writers);
     }
 
@@ -78,7 +78,7 @@ public class Resources {
      * Adds the given loader to this manager such that it will be queried for
      * resource loading when a resource of the given type T is requested by the user via @load.
      */
-    public <T> void registerLoader(Class<T> type, ResourceLoader<T> loader) {
+    public <T> void registerLoader(final Class<T> type, final ResourceLoader<T> loader) {
         getLoaders(type).add(loader);
     }
 
@@ -86,7 +86,7 @@ public class Resources {
      * Adds the given writer to this manager such that it will be queried for
      * resource writing when a resource of the given type T is given by the user via @write.
      */
-    public <T> void registerWriter(Class<T> type, ResourceWriter<T> writer) {
+    public <T> void registerWriter(final Class<T> type, final ResourceWriter<T> writer) {
         getWriters(type).add(writer);
     }
 
@@ -96,16 +96,16 @@ public class Resources {
      * @throws ResourceIOException if no resource loader is registered for loading objects of type T
      *                                or if all resource loaders failed in loading.
      */
-    public <T> T load(Class<T> type, Path p) throws ResourceIOException {
+    public <T> T load(final Class<T> type, final Path p) throws ResourceIOException {
         final List<ResourceLoader<T>> loadersForT = getLoaders(type);
 
         if (loadersForT.isEmpty()) {
             throw new ResourceIOException("No ResourceLoader registered for type " + type + " that can parse " + p);
         }
 
-        for (ResourceLoader<T> loader : loadersForT) {
+        for (final ResourceLoader<T> loader : loadersForT) {
             if (loader.canLoad(p)) {
-                Result<T, ? extends Exception> result = loader.load(p);
+                final Result<T, ? extends Exception> result = loader.load(p);
                 if (result.isSuccess()) {
                     return result.getSuccess();
                 } else {
@@ -117,16 +117,16 @@ public class Resources {
         throw new ResourceIOException("All ResourceLoaders failed in loading resource " + p + " as type " + type + "!");
     }
 
-    public <T> void write(Class<T> type, T object, Path p) throws ResourceIOException {
+    public <T> void write(final Class<T> type, final T object, final Path p) throws ResourceIOException {
         final List<ResourceWriter<T>> writersForT = getWriters(type);
 
         if (writersForT.isEmpty()) {
             throw new ResourceIOException("No ResourceWriter registered for type " + type + " that can write " + p);
         }
 
-        for (ResourceWriter<T> writer : writersForT) {
+        for (final ResourceWriter<T> writer : writersForT) {
             if (writer.canWrite(p)) {
-                Result<Unit, ? extends Exception> result = writer.write(object, p);
+                final Result<Unit, ? extends Exception> result = writer.write(object, p);
                 if (result.isSuccess()) {
                     return;
                 } else {

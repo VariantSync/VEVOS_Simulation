@@ -9,7 +9,7 @@ public class KernelHavenVariantPCIO extends KernelHavenPCIO {
     }
 
     @Override
-    protected LineBasedAnnotation createAnnotation(Node blockCondition, int startLine, int endLine) {
+    protected LineBasedAnnotation createAnnotation(final Node blockCondition, final int startLine, final int endLine) {
         return new LineBasedAnnotation(blockCondition, startLine, endLine, false);
     }
 }

@@ -63,25 +63,25 @@ public class ArtefactCSVExporter implements ArtefactVisitor {
         row[2] = FormulaUtils.toString(annotation.getFeatureMapping(), NodeWriter.javaSymbols);
         row[3] = FormulaUtils.toString(annotation.getPresenceCondition(), NodeWriter.javaSymbols);
         row[4] = "" + annotation.getLineFrom();
-        // -1 because kernelhaven stores annotations as [#if, #endif) intervals, so we have to point one line before the annotation end (#endif).
+        // -1 because Kernelhaven stores annotations as [#if, #endif) intervals, so we have to point one line before the annotation end (#endif).
         row[5] = "" + (annotation.getLineTo() - (annotation.isMacro() ? 1 : 0));
         return row;
     }
 
     @Override
-    public <T extends ArtefactTree<?>> void visitGenericArtefactTreeNode(SyntheticArtefactTreeNodeVisitorFocus<T> focus) {
+    public <T extends ArtefactTree<?>> void visitGenericArtefactTreeNode(final SyntheticArtefactTreeNodeVisitorFocus<T> focus) {
         focus.visitAllSubtrees(this);
     }
 
     @Override
-    public void visitSourceCodeFile(SourceCodeFileVisitorFocus focus) {
+    public void visitSourceCodeFile(final SourceCodeFileVisitorFocus focus) {
         currentFile = focus.getValue();
         focus.skipRootAnnotationButVisitItsSubtrees(this);
         currentFile = null;
     }
 
     @Override
-    public void visitLineBasedAnnotation(LineBasedAnnotationVisitorFocus focus) {
+    public void visitLineBasedAnnotation(final LineBasedAnnotationVisitorFocus focus) {
         final LineBasedAnnotation annotation = focus.getValue();
         csv.add(toRow(annotation));
         focus.visitAllSubtrees(this);

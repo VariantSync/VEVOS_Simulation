@@ -49,7 +49,7 @@ public class PCQuery implements ArtefactVisitor {
     }
 
     @Override
-    public <C extends ArtefactTree<?>> void visitGenericArtefactTreeNode(SyntheticArtefactTreeNodeVisitorFocus<C> focus) {
+    public <C extends ArtefactTree<?>> void visitGenericArtefactTreeNode(final SyntheticArtefactTreeNodeVisitorFocus<C> focus) {
 //        Logger.info("visitGenericArtefactTreeNode(" + focus.getValue() + ")");
         if (foundFile == null) {
             focus.visitAllSubtrees(this);
@@ -57,7 +57,7 @@ public class PCQuery implements ArtefactVisitor {
     }
 
     @Override
-    public void visitSourceCodeFile(SourceCodeFileVisitorFocus focus) {
+    public void visitSourceCodeFile(final SourceCodeFileVisitorFocus focus) {
 //        Logger.info("visitSourceCodeFile(" + focus.getValue() + ")");
         if (foundFile == null && focus.getValue().getFile().equals(path)) {
             foundFile = focus.getValue();
@@ -66,7 +66,7 @@ public class PCQuery implements ArtefactVisitor {
     }
 
     @Override
-    public void visitLineBasedAnnotation(LineBasedAnnotationVisitorFocus focus) {
+    public void visitLineBasedAnnotation(final LineBasedAnnotationVisitorFocus focus) {
 //        Logger.info("visitLineBasedAnnotation(" + focus.getValue() + ")");
         final LineBasedAnnotation val = focus.getValue();
         if (!lineFound && val.annotates(lineNumber)) {

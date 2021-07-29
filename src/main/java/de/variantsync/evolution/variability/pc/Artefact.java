@@ -47,7 +47,7 @@ public interface Artefact {
     /**
      * Accepts the given visitor to traverse this artefact (see visitor pattern).
      */
-    default void accept(ArtefactVisitor visitor) {
+    default void accept(final ArtefactVisitor visitor) {
         createVisitorFocus().accept(visitor);
     }
 
@@ -58,13 +58,13 @@ public interface Artefact {
      */
     ArtefactVisitorFocus<? extends Artefact> createVisitorFocus();
 
-    /// Convenience methods for certainvisitors
+    /// Convenience methods for certain visitors
 
     default String prettyPrint() {
         return new PrettyPrinter().prettyPrint(this);
     }
 
-    default Result<Node, Exception> getPresenceConditionOf(CaseSensitivePath path, int lineNumber) {
+    default Result<Node, Exception> getPresenceConditionOf(final CaseSensitivePath path, final int lineNumber) {
         final PCQuery query = new PCQuery(path, lineNumber);
         accept(query);
         return query.getResult();

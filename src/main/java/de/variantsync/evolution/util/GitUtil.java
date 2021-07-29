@@ -97,26 +97,26 @@ public class GitUtil {
      * @param repositoryName Name of the repository. Sets the directory name in the default repositories directory where this repository is cloned to
      * @return A Git object of the repository
      */
-    public static Git fromRemote(String remoteUri, String repositoryName, String repoParentDir) throws GitAPIException {
+    public static Git fromRemote(final String remoteUri, final String repositoryName, final String repoParentDir) throws GitAPIException {
         try {
             return Git.cloneRepository()
                     .setURI(remoteUri)
                     .setDirectory(Paths.get(repoParentDir, repositoryName).toFile())
                     .call();
-        } catch (GitAPIException e) {
+        } catch (final GitAPIException e) {
             Logger.error("Failed to load git repo from " + remoteUri, e);
             throw e;
         }
     }
 
-    public static Git loadGitRepo(File repoDir) throws IOException {
+    public static Git loadGitRepo(final File repoDir) throws IOException {
         try {
-            Repository repository = new FileRepositoryBuilder()
+            final Repository repository = new FileRepositoryBuilder()
                     .setGitDir(new File(repoDir, ".git"))
                     .build();
 
             return new Git(repository);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             Logger.error("Was not able to load git repo: ", e);
             throw e;
         }

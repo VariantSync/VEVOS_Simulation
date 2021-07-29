@@ -22,16 +22,16 @@ import java.util.Optional;
 public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
     private final LineBasedAnnotation rootAnnotation;
 
-    public SourceCodeFile(Node featureMapping, CaseSensitivePath relativePath) {
+    public SourceCodeFile(final Node featureMapping, final CaseSensitivePath relativePath) {
         this(featureMapping, relativePath, new LineBasedAnnotation(FixTrueFalse.True, 1, 1, false));
     }
 
-    private SourceCodeFile(Node featureMapping, CaseSensitivePath relativePath, LineBasedAnnotation root) {
+    private SourceCodeFile(final Node featureMapping, final CaseSensitivePath relativePath, final LineBasedAnnotation root) {
         super(featureMapping, Collections.singletonList(root), relativePath);
         rootAnnotation = root;
     }
 
-    private static SourceCodeFile fromGroundTruth(SourceCodeFile other, Optional<GroundTruth<LineBasedAnnotation>> root) {
+    private static SourceCodeFile fromGroundTruth(final SourceCodeFile other, final Optional<GroundTruth<LineBasedAnnotation>> root) {
         return root
                 .map(r -> new SourceCodeFile(other.getFeatureMapping(), other.getFile(), r.variantArtefact()))
                 .orElseGet(() -> new SourceCodeFile(other.getFeatureMapping(), other.getFile()));
@@ -43,7 +43,7 @@ public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
     }
 
     @Override
-    public Result<SourceCodeFile, Exception> generateVariant(Variant variant, CaseSensitivePath sourceDir, CaseSensitivePath targetDir) {
+    public Result<SourceCodeFile, Exception> generateVariant(final Variant variant, final CaseSensitivePath sourceDir, final CaseSensitivePath targetDir) {
         final CaseSensitivePath targetFile = targetDir.resolve(getFile());
         final Result<Optional<GroundTruth<LineBasedAnnotation>>, IOException> groundTruth =
                 // 1. Create the target file.
@@ -80,7 +80,7 @@ public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
     }
 
     @Override
-    public void addTrace(LineBasedAnnotation lineBasedAnnotation) {
+    public void addTrace(final LineBasedAnnotation lineBasedAnnotation) {
         rootAnnotation.addTrace(lineBasedAnnotation);
         rootAnnotation.setLineTo(Math.max(rootAnnotation.getLineTo(), lineBasedAnnotation.getLineTo()));
     }
@@ -94,11 +94,11 @@ public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        SourceCodeFile that = (SourceCodeFile) o;
+        final SourceCodeFile that = (SourceCodeFile) o;
         return getFile().equals(that.getFile());
     }
 }

@@ -31,17 +31,17 @@ public abstract class KernelHavenPCIO implements ResourceLoader<Artefact>, Resou
     }
 
     @Override
-    public boolean canLoad(Path p) {
+    public boolean canLoad(final Path p) {
         return PathUtils.hasExtension(p, extension);
     }
 
     @Override
-    public boolean canWrite(Path p) {
+    public boolean canWrite(final Path p) {
         return canLoad(p);
     }
 
     @Override
-    public Result<Artefact, Exception> load(Path csvPath) {
+    public Result<Artefact, Exception> load(final Path csvPath) {
         final Map<CaseSensitivePath, SourceCodeFile> files = new HashMap<>();
         final CSV csv;
         try {
@@ -86,7 +86,7 @@ public abstract class KernelHavenPCIO implements ResourceLoader<Artefact>, Resou
     }
 
     @Override
-    public Result<Unit, ? extends Exception> write(Artefact object, Path p) {
+    public Result<Unit, ? extends Exception> write(final Artefact object, final Path p) {
         /*
         // if (DEBUG) {
             System.out.println(object.prettyPrint());

@@ -14,19 +14,19 @@ public class DimacsFeatureModelLoader implements ResourceLoader<IFeatureModel> {
     private static final String EXTENSION = ".dimacs";
 
     @Override
-    public boolean canLoad(Path p) {
-        File f = p.toFile();
+    public boolean canLoad(final Path p) {
+        final File f = p.toFile();
         return f.exists() && f.getName().endsWith(EXTENSION);
     }
 
     @Override
-    public Result<IFeatureModel, Exception> load(Path p) {
-        Result<IFeatureModel, ProblemList> featureModelResult = FeatureModelUtils.FromDIMACSFile(p);
+    public Result<IFeatureModel, Exception> load(final Path p) {
+        final Result<IFeatureModel, ProblemList> featureModelResult = FeatureModelUtils.FromDIMACSFile(p);
         if (featureModelResult.isSuccess()) {
             return Result.Success(featureModelResult.getSuccess());
         } else {
-            ProblemList problemList = featureModelResult.getFailure();
-            StringBuilder sb = new StringBuilder();
+            final ProblemList problemList = featureModelResult.getFailure();
+            final StringBuilder sb = new StringBuilder();
             problemList.stream().map(Problem::toString).forEach(s -> sb.append(s).append(" "));
             return Result.Failure(new Exception(sb.toString()));
         }

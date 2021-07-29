@@ -35,8 +35,8 @@ public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBl
      *                    the revision of this blueprint. May be null, if this is the first blueprint to generate.
      */
     public VariantsRevisionFromVariabilityBlueprint(
-            SPLCommit splCommit,
-            VariantsRevisionFromVariabilityBlueprint predecessor)
+            final SPLCommit splCommit,
+            final VariantsRevisionFromVariabilityBlueprint predecessor)
     {
         this.splCommit = splCommit;
         this.predecessor = Optional.ofNullable(predecessor);
@@ -60,7 +60,7 @@ public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBl
     }
 
     @Override
-    public Lazy<VariantsRevision.Branches> generateArtefactsFor(VariantsRevision revision) {
+    public Lazy<VariantsRevision.Branches> generateArtefactsFor(final VariantsRevision revision) {
         return splCommit.presenceConditions().and(getSample()).map(ts -> {
             // TODO: Should we implement handling of an empty optional, or do we consider this to be a fundamental error?
             final Artefact traces = ts.getKey().orElseThrow();
@@ -69,18 +69,18 @@ public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBl
             final AbstractVariantsRepository variantsRepo = revision.getVariantsRepo();
 
             final Map<Branch, VariantCommit> commits = new HashMap<>(sample.size());
-            for (Variant variant : sample.variants()) {
+            for (final Variant variant : sample.variants()) {
                 final Branch branch = variantsRepo.getBranchByName(variant.getName());
 
                 try {
                     variantsRepo.checkoutBranch(branch);
-                } catch (IOException | GitAPIException e) {
+                } catch (final IOException | GitAPIException e) {
                     throw new RuntimeException("Failed checkout of branch " + branch + " in variants repository.");
                 }
 
                 try {
                     splRepo.checkoutCommit(splCommit);
-                } catch (IOException | GitAPIException e) {
+                } catch (final IOException | GitAPIException e) {
                     throw new RuntimeException("Failed checkout of commit " + splCommit.id() + " in SPL Repository.");
                 }
 
@@ -97,7 +97,7 @@ public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBl
 
                 try {
                     variantCommit = variantsRepo.commit(commitMessage);
-                } catch (GitAPIException | IOException e) {
+                } catch (final GitAPIException | IOException e) {
                     throw new RuntimeException("Failed to commit " + commitMessage + " to VariantsRepository.");
                 }
 

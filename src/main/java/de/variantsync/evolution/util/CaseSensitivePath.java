@@ -13,32 +13,32 @@ public record CaseSensitivePath(Path path) implements Comparable<CaseSensitivePa
     /**
      * @see Path::of
      */
-    public static CaseSensitivePath of(String first, String... levels) {
+    public static CaseSensitivePath of(final String first, final String... levels) {
         return new CaseSensitivePath(Path.of(first, levels));
     }
 
     /**
      * @see Path::resolve
      */
-    public CaseSensitivePath resolve(CaseSensitivePath other) {
+    public CaseSensitivePath resolve(final CaseSensitivePath other) {
         return new CaseSensitivePath(this.path.resolve(other.path));
     }
 
     /**
      * @see Path::resolve
      */
-    public CaseSensitivePath resolve(String other) {
+    public CaseSensitivePath resolve(final String other) {
         return new CaseSensitivePath(this.path.resolve(other));
     }
 
     /**
      * @see Path::resolve but with extra arguments as a shortcut with Path::of
      */
-    public CaseSensitivePath resolve(String first, String... levels) {
+    public CaseSensitivePath resolve(final String first, final String... levels) {
         return new CaseSensitivePath(this.path.resolve(Path.of(first, levels)));
     }
 
-    public CaseSensitivePath resolve(Path fileName) {
+    public CaseSensitivePath resolve(final Path fileName) {
         return new CaseSensitivePath(this.path.resolve(fileName));
     }
 
@@ -50,10 +50,10 @@ public record CaseSensitivePath(Path path) implements Comparable<CaseSensitivePa
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        CaseSensitivePath that = (CaseSensitivePath) o;
+        final CaseSensitivePath that = (CaseSensitivePath) o;
         return path.equals(that.path) && path.toString().equals(that.path.toString());
     }
 
@@ -63,7 +63,7 @@ public record CaseSensitivePath(Path path) implements Comparable<CaseSensitivePa
     }
 
     @Override
-    public int compareTo(CaseSensitivePath o) {
+    public int compareTo(final CaseSensitivePath o) {
         return path.compareTo(o.path);
     }
 

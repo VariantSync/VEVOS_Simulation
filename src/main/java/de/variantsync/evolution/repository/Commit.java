@@ -5,7 +5,6 @@ import java.util.Objects;
 
 /**
  * Represents a commit for a certain repository.
- * @param The repository type to instances of which the commit can be made / was made.
  */
 public abstract class Commit {
     private final String commitId;
@@ -14,7 +13,7 @@ public abstract class Commit {
      * Creates a new commit with the given id.
      * @param commitId The hashcode of the commit in the git repository history.
      */
-    public Commit(String commitId) {
+    public Commit(final String commitId) {
         Objects.requireNonNull(commitId);
         this.commitId = commitId;
     }
@@ -27,10 +26,10 @@ public abstract class Commit {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Commit commit = (Commit) o;
+        final Commit commit = (Commit) o;
         return commitId.equals(commit.commitId);
     }
 
@@ -51,7 +50,7 @@ public abstract class Commit {
      * @param id Hashcode to be searched.
      * @return True, iff there exists at least one commit on the given collection with the given id.
      */
-    public static boolean contains(Collection<? extends Commit> commits, String id) {
+    public static boolean contains(final Collection<? extends Commit> commits, final String id) {
         return commits.stream().anyMatch(c -> c.id().equals(id));
     }
 }

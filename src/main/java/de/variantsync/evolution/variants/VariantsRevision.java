@@ -36,10 +36,10 @@ public class VariantsRevision {
      *                         VariantsRevision was generated.
      */
     VariantsRevision(
-            AbstractSPLRepository splRepo,
-            AbstractVariantsRepository variantsRepo,
-            VariantsRevisionBlueprint blueprint,
-            ListHeadTailView<VariantsRevisionBlueprint> remainingHistory)
+            final AbstractSPLRepository splRepo,
+            final AbstractVariantsRepository variantsRepo,
+            final VariantsRevisionBlueprint blueprint,
+            final ListHeadTailView<VariantsRevisionBlueprint> remainingHistory)
     {
         this.splRepo = splRepo;
         this.variantsRepo = variantsRepo;
@@ -93,7 +93,7 @@ public class VariantsRevision {
      * @param firstRevision The revision that denotes the start of the history to generate.
      * @return A lazy that will generate all VariantsRevisions once run.
      */
-    private static Lazy<Optional<VariantsRevision>> evolveAll(Lazy<Optional<VariantsRevision>> firstRevision) {
+    private static Lazy<Optional<VariantsRevision>> evolveAll(final Lazy<Optional<VariantsRevision>> firstRevision) {
         return MonadTransformer.bind(firstRevision, r  -> evolveAll(r.evolve()));
     }
 

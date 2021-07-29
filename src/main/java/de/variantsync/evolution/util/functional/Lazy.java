@@ -20,6 +20,7 @@ import java.util.function.Supplier;
  *
  * @param <A> The return type of this lazy computation.
  */
+@SuppressWarnings("rawtypes")
 public class Lazy<A> implements Functor<Lazy, A> {
     /**
      * Lazy is a monoid if the lazy values are monoidal.
@@ -37,13 +38,13 @@ public class Lazy<A> implements Functor<Lazy, A> {
     private final Supplier<? extends A> get;
     private A val = null;
 
-    private Lazy(A val) {
+    private Lazy(final A val) {
         Objects.requireNonNull(val);
         this.val = val;
         this.get = null;
     }
 
-    private Lazy(Supplier<? extends A> get) {
+    private Lazy(final Supplier<? extends A> get) {
         Objects.requireNonNull(get);
         this.get = get;
     }
@@ -53,7 +54,7 @@ public class Lazy<A> implements Functor<Lazy, A> {
      * @param f The computation that produces the value of the lazy when accessed.
      * @return A lazy object encapsulating the given computation.
      */
-    public static <B> Lazy<B> of(Supplier<? extends B> f) {
+    public static <B> Lazy<B> of(final Supplier<? extends B> f) {
         return new Lazy<>(f);
     }
 
@@ -68,7 +69,7 @@ public class Lazy<A> implements Functor<Lazy, A> {
      * @param b The value to cache.
      * @return A lazy caching the given value.
      */
-    public static <B> Lazy<B> pure(B b) {
+    public static <B> Lazy<B> pure(final B b) {
         return new Lazy<>(b);
     }
 
@@ -90,7 +91,7 @@ public class Lazy<A> implements Functor<Lazy, A> {
      * @param f Function to apply to the result of this Lazy when it is computed.
      * @return Composed Lazy that applies f to the result of this Lazy after computation.
      */
-    public <B> Lazy<B> map(Function<? super A, ? extends B> f) {
+    public <B> Lazy<B> map(final Function<? super A, ? extends B> f) {
         return new Lazy<>(() -> f.apply(run()));
     }
 
@@ -103,7 +104,7 @@ public class Lazy<A> implements Functor<Lazy, A> {
      * @param s The new computation to run after this one.
      * @return A new Lazy that runs this Lazy but returns the result of s.
      */
-    public <B> Lazy<B> then(Supplier<? extends B> s) {
+    public <B> Lazy<B> then(final Supplier<? extends B> s) {
         // Inlined version of: map(a -> f.get())
         return new Lazy<>(() -> {
             this.run();
@@ -116,7 +117,7 @@ public class Lazy<A> implements Functor<Lazy, A> {
      * @param lf Lazy that holds a function to apply to this Lazy's result after computation (similar to map).
      * @return Composed Lazy that applies the function computed by lf to the result of this Lazy after computation.
      */
-    public <B> Lazy<B> splat(Lazy<Function<? super A, ? extends B>> lf) {
+    public <B> Lazy<B> splat(final Lazy<Function<? super A, ? extends B>> lf) {
         return new Lazy<>(() -> lf.run().apply(run()));
     }
 
@@ -127,7 +128,7 @@ public class Lazy<A> implements Functor<Lazy, A> {
      * @param f A lazy computation to chain to this one.
      * @return Returns a new lazy computation composed of this and the given Lazy.
      */
-    public <B> Lazy<B> bind(Function<A, Lazy<B>> f) {
+    public <B> Lazy<B> bind(final Function<A, Lazy<B>> f) {
         // This is the inlined version of `join(map(f))` for performance reasons.
         return new Lazy<>(() -> f.apply(run()).run()); // == join(map(f))
     }
@@ -137,7 +138,7 @@ public class Lazy<A> implements Functor<Lazy, A> {
      * @param l A nested Lazy that should be flattened to a single Lazy.
      * @return A new Lazy that returns the result of the innermost Lazy.
      */
-    public static <B> Lazy<B> join(Lazy<Lazy<B>> l) {
+    public static <B> Lazy<B> join(final Lazy<Lazy<B>> l) {
         return new Lazy<>(() -> l.run().run());
     }
 
@@ -146,7 +147,7 @@ public class Lazy<A> implements Functor<Lazy, A> {
      * @param other The lazy to run together with this Lazy.
      * @return A new Lazy running "this" and "other" and returning the results in a pair.
      */
-    public <B> Lazy<Pair<A, B>> and(Lazy<? extends B> other) {
+    public <B> Lazy<Pair<A, B>> and(final Lazy<? extends B> other) {
         return new Lazy<>(() -> new Pair<>(run(), other.run()));
     }
 }

@@ -27,7 +27,7 @@ public class SyntheticArtefactTreeNode<Child extends ArtefactTree<?>> extends Ar
     /**
      * Creates a new tree (node) with feature mapping True and the given subtrees.
      */
-    public SyntheticArtefactTreeNode(List<Child> subtrees) {
+    public SyntheticArtefactTreeNode(final List<Child> subtrees) {
         super(FixTrueFalse.True, subtrees, null);
     }
 
@@ -35,7 +35,7 @@ public class SyntheticArtefactTreeNode<Child extends ArtefactTree<?>> extends Ar
      * Plain copy constructor.
      * @param other Object to create a plain copy of (without copying children).
      */
-    public SyntheticArtefactTreeNode(ArtefactTree<Child> other) {
+    public SyntheticArtefactTreeNode(final ArtefactTree<Child> other) {
         super(other.getFeatureMapping(), new ArrayList<>(), other.getFile());
     }
 
@@ -45,14 +45,14 @@ public class SyntheticArtefactTreeNode<Child extends ArtefactTree<?>> extends Ar
     }
 
     @Override
-    public Result<? extends Artefact, Exception> generateVariant(Variant variant, CaseSensitivePath sourceDir, CaseSensitivePath targetDir) {
+    public Result<? extends Artefact, Exception> generateVariant(final Variant variant, final CaseSensitivePath sourceDir, final CaseSensitivePath targetDir) {
         final CaseSensitivePath f = getFile();
         final ArtefactTree<Child> copy = plainCopy();
 
         if (f != null && !sourceDir.resolve(f).exists()) {
             Logger.error("Skipping file " + f + " as it does not exist!");
         } else {
-            for (Child subtree : subtrees) {
+            for (final Child subtree : subtrees) {
                 if (variant.isImplementing(subtree.getPresenceCondition())) {
                     final Result<Child, Exception> result = subtree
                             .generateVariant(variant, sourceDir, targetDir)

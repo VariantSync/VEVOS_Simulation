@@ -64,14 +64,14 @@ public class Main {
         }
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(final String[] args) throws IOException {
         Initialize();
 
         // Debug variability repo
-        Properties properties = new Properties();
-        try (FileInputStream inputStream = new FileInputStream(PROPERTIES_FILE)) {
+        final Properties properties = new Properties();
+        try (final FileInputStream inputStream = new FileInputStream(PROPERTIES_FILE)) {
             properties.load(inputStream);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             Logger.error("Failed to open properties file: ", e);
             return;
         }
@@ -97,24 +97,24 @@ public class Main {
 
         Logger.info("variabilityDatasetDir: " + variabilityDatasetDir);
         Logger.info("splRepoDir: " + splRepoDir);
-        VariabilityDataset variabilityDataset;
+        final VariabilityDataset variabilityDataset;
 
-        VariabilityDatasetLoader datasetLoader = new VariabilityDatasetLoader();
+        final VariabilityDatasetLoader datasetLoader = new VariabilityDatasetLoader();
         assert datasetLoader.canLoad(variabilityDatasetDir);
         variabilityDataset = datasetLoader.load(variabilityDatasetDir).getSuccess();
-        Set<CommitPair<SPLCommit>> commitPairs = variabilityDataset.getCommitPairsForEvolutionStudy();
+        final Set<CommitPair<SPLCommit>> commitPairs = variabilityDataset.getCommitPairsForEvolutionStudy();
         Logger.info("The dataset contains " + variabilityDataset.getSuccessCommits().size() + " commits for which the variability extraction succeeded.");
         Logger.info("The dataset contains " + variabilityDataset.getErrorCommits().size() + " commits for which the variability extraction failed.");
         Logger.info("The dataset contains " + variabilityDataset.getPartialSuccessCommits().size() + " commits that for which the file presence conditions are missing.");
         Logger.info("The dataset contains " + commitPairs.size() + " usable pairs.");
-        for (CommitPair<SPLCommit> pair : commitPairs) {
+        for (final CommitPair<SPLCommit> pair : commitPairs) {
             Logger.debug("<<CHILD> " + pair.child().id() + "> -- <<PARENT> " + pair.parent().id() + ">");
             Logger.debug("<<CHILD> " + pair.child().id() + "> -- <<SPL_COMMIT> " + pair.child().id() + ">");
             Logger.debug("<<PARENT> " + pair.parent().id() + "> -- <<SPL_COMMIT> " + pair.parent().id() + ">");
             Logger.debug("");
         }
-        VariabilityHistory history = variabilityDataset.getVariabilityHistory(SequenceExtractors.longestNonOverlappingSequences());
-        NonEmptyList<NonEmptyList<SPLCommit>> sequencesInHistory = history.commitSequences();
+        final VariabilityHistory history = variabilityDataset.getVariabilityHistory(SequenceExtractors.longestNonOverlappingSequences());
+        final NonEmptyList<NonEmptyList<SPLCommit>> sequencesInHistory = history.commitSequences();
         Logger.info("The dataset contains " + sequencesInHistory.size() + " sequences.");
         for (int i = 0; i < sequencesInHistory.size(); i++) {
             Logger.info("Sequence " + i + " has " + sequencesInHistory.get(i).size() + " commits.");
@@ -158,7 +158,7 @@ public class Main {
                 genRevision1.run(); // This would generate revision0 and then revision1.
                 // This would generate revision0 and then revision1 and then revision2.
                 // This returns a handle for revision3 which is not yet generated.
-                Optional<VariantsRevision> revision3 = genRevision2.run();
+                final Optional<VariantsRevision> revision3 = genRevision2.run();
                 // Because Lazy caches intermediate results, revision0 and revision1 have only been generated exactly once.
             }
         }

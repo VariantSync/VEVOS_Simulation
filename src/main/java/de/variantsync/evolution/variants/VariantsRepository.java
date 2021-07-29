@@ -24,7 +24,7 @@ import java.util.Optional;
  */
 public class VariantsRepository extends AbstractVariantsRepository {
     private Map<String, Branch> branchesByName;
-    public Optional<VariantsRevision> revision0;
+    public final Optional<VariantsRevision> revision0;
 
     /**
      * Creates a new VariantsRepository that will generate to the given directory.
@@ -34,9 +34,9 @@ public class VariantsRepository extends AbstractVariantsRepository {
      *                         The variants revisions will be generated in the order the blueprints appear in the list.
      */
     public VariantsRepository(
-            Path localPath,
-            AbstractSPLRepository splRepo,
-            NonEmptyList<VariantsRevisionBlueprint> blueprintHistory)
+            final Path localPath,
+            final AbstractSPLRepository splRepo,
+            final NonEmptyList<VariantsRevisionBlueprint> blueprintHistory)
     {
         super(localPath);
         parseRepoMetadata();
@@ -61,7 +61,7 @@ public class VariantsRepository extends AbstractVariantsRepository {
      * @param history The history to filter already generated revisions from.
      * @return A list of blueprints that still have to be generated.
      */
-    private ListHeadTailView<VariantsRevisionBlueprint> filterExistingRevisions(ListHeadTailView<VariantsRevisionBlueprint> history) {
+    private ListHeadTailView<VariantsRevisionBlueprint> filterExistingRevisions(final ListHeadTailView<VariantsRevisionBlueprint> history) {
         // TODO: Implement Issue 11 here.
         // E.g. if we see that the first blueprint was already processed then we could return history.tail().
         // 1.) Find the last valid revision.
@@ -78,7 +78,7 @@ public class VariantsRepository extends AbstractVariantsRepository {
     }
 
     @Override
-    public Branch getBranchByName(String name) {
+    public Branch getBranchByName(final String name) {
         return branchesByName.computeIfAbsent(name, Branch::new);
     }
 
@@ -86,11 +86,11 @@ public class VariantsRepository extends AbstractVariantsRepository {
     //  (At the moment it uses the current branch because it is only used for getCurrentCommit)
 
     @Override
-    public VariantCommit idToCommit(String id) throws IOException {
+    public VariantCommit idToCommit(final String id) throws IOException {
         try {
-            Branch branch = getCurrentBranch();
+            final Branch branch = getCurrentBranch();
             return new VariantCommit(id, branch);
-        } catch(IOException e){
+        } catch(final IOException e){
             Logger.error("Failed get variant commit for id " + id, e);
             close();
             throw e;
@@ -100,18 +100,18 @@ public class VariantsRepository extends AbstractVariantsRepository {
     // TODO: Make sure that commit() behaves correctly.
     // At the moment, it returns null in the case of an empty commit, and the VariantCommit otherwise (as described in AbstractVariantRepository)
     // But in VariantsRevisionFromErrorBluePrint, an empty commit would lead to throwing a RuntimeException. Is that wanted?
-    // If empty commits should be possible, commit() could be adapted to allow those. (referring to TODOnote in VariantsRevisionFromErrorBlueprint)
+    // If empty commits should be possible, commit() could be adapted to allow those. (referring to TODO note in VariantsRevisionFromErrorBlueprint)
 
     @Override
-    public Optional<VariantCommit> commit(String message) throws GitAPIException, IOException {
+    public Optional<VariantCommit> commit(final String message) throws GitAPIException, IOException {
         Optional<VariantCommit> result = Optional.empty();
 
         try {
-            VariantCommit commit= commit(".", message);
+            final VariantCommit commit= commit(".", message);
             if(commit != null){
                 result = Optional.of(commit);
             }
-        } catch (IOException | GitAPIException e) {
+        } catch (final IOException | GitAPIException e) {
             Logger.error("Failed to commit with message: " + message, e);
             close();
             throw e;
@@ -122,22 +122,22 @@ public class VariantsRepository extends AbstractVariantsRepository {
 
     private Branch getCurrentBranch() throws IOException {
         try {
-            String branch = git().getRepository().getBranch();
+            final String branch = git().getRepository().getBranch();
             return new Branch(branch);
-        } catch(IOException e){
+        } catch(final IOException e){
             Logger.error("Failed to get current branch", e);
             throw e;
         }
     }
 
-    private VariantCommit commit(String pattern, String message) throws IOException, GitAPIException {
+    private VariantCommit commit(final String pattern, final String message) throws IOException, GitAPIException {
         git().add().addFilepattern(pattern).call();
 
         try{
-            RevCommit rev = git().commit().setMessage(message).setAllowEmpty(false).call();
-            String commitId = rev.getId().toString();
+            final RevCommit rev = git().commit().setMessage(message).setAllowEmpty(false).call();
+            final String commitId = rev.getId().toString();
             return idToCommit(commitId);
-        } catch(EmptyCommitException e){
+        } catch(final EmptyCommitException e){
             return null;
         }
     }

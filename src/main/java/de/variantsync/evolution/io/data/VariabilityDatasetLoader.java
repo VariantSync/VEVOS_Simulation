@@ -29,15 +29,15 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
 
 
     @Override
-    public boolean canLoad(Path p) {
+    public boolean canLoad(final Path p) {
         try {
             return Files.list(p)
                     .map(Path::toFile)
                     .anyMatch(f -> {
-                        String name = f.getName();
+                        final String name = f.getName();
                         return name.equals(SUCCESS_COMMIT_FILE) || name.equals(ERROR_COMMIT_FILE) || name.equals(PARTIAL_SUCCESS_COMMIT_FILE);
                     });
-        } catch (IOException e) {
+        } catch (final IOException e) {
             Logger.error("Was not able to check the file(s) under " + p, e);
             return false;
         }
@@ -58,39 +58,39 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
      * @return The fully-loaded dataset if loading is successful, otherwise an Exception.
      */
     @Override
-    public Result<VariabilityDataset, Exception> load(Path p) {
+    public Result<VariabilityDataset, Exception> load(final Path p) {
         // Read the metadata
         List<String> successIds = new ArrayList<>();
         List<String> errorIds = new ArrayList<>();
         List<String> partialSuccessIds = new ArrayList<>();
 
-        Path successFile = p.resolve(SUCCESS_COMMIT_FILE);
+        final Path successFile = p.resolve(SUCCESS_COMMIT_FILE);
         if (Files.exists(successFile)) {
             successIds = TextIO.readLinesTrimmed(successFile).expect("Success-commit file exists but could not be loaded.");
         }
 
-        Path errorFile = p.resolve(ERROR_COMMIT_FILE);
+        final Path errorFile = p.resolve(ERROR_COMMIT_FILE);
         if (Files.exists(errorFile)) {
             errorIds = TextIO.readLinesTrimmed(errorFile).expect("Error-commit file exists but could not be loaded.");
         }
 
-        Path partialSuccessFile = p.resolve(PARTIAL_SUCCESS_COMMIT_FILE);
+        final Path partialSuccessFile = p.resolve(PARTIAL_SUCCESS_COMMIT_FILE);
         if (Files.exists(partialSuccessFile)) {
             partialSuccessIds = TextIO.readLinesTrimmed(partialSuccessFile).expect("Partial-success-commit file exists but could not be loaded.");
         }
 
         // Create SPLCommit objects for each commit
-        List<SPLCommit> successCommits = initializeSPLCommits(p, successIds);
-        List<SPLCommit> errorCommits = initializeSPLCommits(p, errorIds);
-        List<SPLCommit> partialSuccessCommits = initializeSPLCommits(p, partialSuccessIds);
+        final List<SPLCommit> successCommits = initializeSPLCommits(p, successIds);
+        final List<SPLCommit> errorCommits = initializeSPLCommits(p, errorIds);
+        final List<SPLCommit> partialSuccessCommits = initializeSPLCommits(p, partialSuccessIds);
 
         // Retrieve the SPLCommit objects for the parents of each commit
-        Map<String, SPLCommit> idToCommitMap = new HashMap<>();
+        final Map<String, SPLCommit> idToCommitMap = new HashMap<>();
         successCommits.forEach(c -> idToCommitMap.put(c.id(), c));
         errorCommits.forEach(c -> idToCommitMap.put(c.id(), c));
         partialSuccessCommits.forEach(c -> idToCommitMap.put(c.id(), c));
-        for (Map.Entry<String, SPLCommit> entry : idToCommitMap.entrySet()) {
-            String[] parentIds = loadParentIds(p, entry.getKey());
+        for (final Map.Entry<String, SPLCommit> entry : idToCommitMap.entrySet()) {
+            final String[] parentIds = loadParentIds(p, entry.getKey());
             if (parentIds == null || parentIds.length == 0) {
                 entry.getValue().setParents(null);
             } else {
@@ -102,51 +102,51 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
         return Result.Success(new VariabilityDataset(successCommits, errorCommits, partialSuccessCommits));
     }
 
-    private List<SPLCommit> initializeSPLCommits(Path p, List<String> commitIds) {
-        List<SPLCommit> splCommits = new ArrayList<>(commitIds.size());
-        for (String id : commitIds) {
+    private List<SPLCommit> initializeSPLCommits(final Path p, final List<String> commitIds) {
+        final List<SPLCommit> splCommits = new ArrayList<>(commitIds.size());
+        for (final String id : commitIds) {
             // Initialize a SPLCommit object for each commit id by resolving all paths to files with data about the commit
-            SPLCommit splCommit = new SPLCommit(id, resolvePathToLogFile(p, id), resolvePathToFeatureModel(p, id), resolvePathToPresenceConditions(p, id), resolvePathToMessageFile(p, id));
+            final SPLCommit splCommit = new SPLCommit(id, resolvePathToLogFile(p, id), resolvePathToFeatureModel(p, id), resolvePathToPresenceConditions(p, id), resolvePathToMessageFile(p, id));
             splCommits.add(splCommit);
         }
         return splCommits;
     }
 
-    private Path resolvePathToCommitOutputDir(Path rootDir, String commitId) {
+    private Path resolvePathToCommitOutputDir(final Path rootDir, final String commitId) {
         return rootDir.resolve(DATA_DIR_NAME).resolve(commitId);
     }
 
-    private FeatureModelPath resolvePathToFeatureModel(Path rootDir, String commitId) {
-        Path p = resolvePathToCommitOutputDir(rootDir, commitId).resolve(FEATURE_MODEL_FILE);
+    private FeatureModelPath resolvePathToFeatureModel(final Path rootDir, final String commitId) {
+        final Path p = resolvePathToCommitOutputDir(rootDir, commitId).resolve(FEATURE_MODEL_FILE);
         return p.toFile().exists() ? new FeatureModelPath(p) : null;
     }
 
-    private PresenceConditionPath resolvePathToPresenceConditions(Path rootDir, String commitId) {
-        Path p = resolvePathToCommitOutputDir(rootDir, commitId).resolve(PRESENCE_CONDITIONS_FILE);
+    private PresenceConditionPath resolvePathToPresenceConditions(final Path rootDir, final String commitId) {
+        final Path p = resolvePathToCommitOutputDir(rootDir, commitId).resolve(PRESENCE_CONDITIONS_FILE);
         return p.toFile().exists() ? new PresenceConditionPath(p) : null;
     }
 
-    private Path resolvePathToParentsFile(Path rootDir, String commitId) {
-        Path p = resolvePathToCommitOutputDir(rootDir, commitId).resolve(PARENTS_FILE);
+    private Path resolvePathToParentsFile(final Path rootDir, final String commitId) {
+        final Path p = resolvePathToCommitOutputDir(rootDir, commitId).resolve(PARENTS_FILE);
         return p.toFile().exists() ? p : null;
     }
 
-    private CommitMessagePath resolvePathToMessageFile(Path rootDir, String commitId) {
-        Path p = resolvePathToCommitOutputDir(rootDir, commitId).resolve(MESSAGE_FILE);
+    private CommitMessagePath resolvePathToMessageFile(final Path rootDir, final String commitId) {
+        final Path p = resolvePathToCommitOutputDir(rootDir, commitId).resolve(MESSAGE_FILE);
         return p.toFile().exists() ? new CommitMessagePath(p) : null;
     }
 
-    private KernelHavenLogPath resolvePathToLogFile(Path rootDir, String commitId) {
-        Path p = rootDir.resolve(LOG_DIR_NAME).resolve(commitId + ".log");
+    private KernelHavenLogPath resolvePathToLogFile(final Path rootDir, final String commitId) {
+        final Path p = rootDir.resolve(LOG_DIR_NAME).resolve(commitId + ".log");
         return p.toFile().exists() ? new KernelHavenLogPath(p) : null;
     }
 
-    private String[] loadParentIds(Path p, String commitId) {
-        Path parentsFile = resolvePathToParentsFile(p, commitId);
+    private String[] loadParentIds(final Path p, final String commitId) {
+        final Path parentsFile = resolvePathToParentsFile(p, commitId);
         if (parentsFile != null && Files.exists(parentsFile)) {
             try {
                 return Files.readString(parentsFile).split("\\s");
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 Logger.error("Was not able to load PARENTS.txt " + parentsFile + " even though it exists:", e);
                 return null;
             }

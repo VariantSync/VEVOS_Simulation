@@ -13,7 +13,7 @@ public class Debug {
      * Creates a visitor that prints trees in a simplistic way.
      */
     public static ArtefactVisitor createSimpleTreePrinter() {
-        AtomicInteger indent = new AtomicInteger();
+        final AtomicInteger indent = new AtomicInteger();
         return new CallbackArtefactVisitor(
                 artefact -> {
                     System.out.println(StringUtils.genIndent(indent.get()) + artefact);
