@@ -18,31 +18,33 @@ import java.util.function.Predicate;
 public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
     private int lineFrom;
     private int lineTo;
-    private final int withMacroLines;
+    private final AnnotationStyle style;
 
     /**
      * Creates a new annotation starting at lineFrom and ending at lineTo including both
      * (i.e., [lineFrom, lineTo]).
      * Indexing is 1-based (i.e., the first line in a file is indexed by 1).
-     * Example for a preprocessor block
-     * 3 #if X     <-- lineFrom
-     * 4   foo();
-     * 5   bar();
-     * 6 #endif    <-- lineTo
-     * is reflected by LineBasedAnnotation(X, 3, 6);
+     *
+     * The style determines whether the annotations is considered to be within the source code (i.e., c macros) or external.
+     * Example for a preprocessor block:
+     *   3 #if X     <-- lineFrom
+     *   4   foo();
+     *   5   bar();
+     *   6 #endif    <-- lineTo
+     * is reflected by LineBasedAnnotation(X, 3, 6, Internal);
      */
-    public LineBasedAnnotation(final Node featureMapping, final int lineFrom, final int lineTo, final boolean withMacroLines) {
+    public LineBasedAnnotation(final Node featureMapping, final int lineFrom, final int lineTo, final AnnotationStyle style) {
         super(featureMapping);
         this.lineFrom = lineFrom;
         this.lineTo = lineTo;
-        this.withMacroLines = withMacroLines ? 1 : 0;
+        this.style = style;
     }
 
     public LineBasedAnnotation(final LineBasedAnnotation other) {
         super(other.getFeatureMapping());
         this.lineFrom = other.lineFrom;
         this.lineTo = other.lineTo;
-        this.withMacroLines = other.withMacroLines;
+        this.style = other.style;
     }
 
     public int getLineFrom() {
@@ -66,7 +68,7 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
     }
 
     public boolean isMacro() {
-        return withMacroLines > 0;
+        return style == AnnotationStyle.Internal;
     }
 
     @Override
@@ -88,7 +90,7 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
         // TODO: It should be sufficient to check the feature mapping here.
         if (variant.isImplementing(getPresenceCondition())) {
             final int firstCodeLine = getLineFrom() + offset;
-            offset -= withMacroLines; // ignore #if
+            offset -= style.offset; // ignore #if
 
             /// convert all subtrees to variants
             final List<LineBasedAnnotation> newSubtrees = new ArrayList<>(getNumberOfSubtrees());
@@ -107,8 +109,8 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
                 }
             }
 
-            final int lastCodeLine = getLineTo() + offset - withMacroLines; // ignore #endif
-            final LineBasedAnnotation meAsVariant = new LineBasedAnnotation(getFeatureMapping(), firstCodeLine, lastCodeLine, false);
+            final int lastCodeLine = getLineTo() + offset - style.offset; // ignore #endif
+            final LineBasedAnnotation meAsVariant = new LineBasedAnnotation(getFeatureMapping(), firstCodeLine, lastCodeLine, AnnotationStyle.External);
             meAsVariant.setSubtrees(newSubtrees);
             matching.put(this, meAsVariant);
             return Optional.of(meAsVariant);
@@ -125,8 +127,8 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
     public List<Integer> getAllLinesFor(final Predicate<LineBasedAnnotation> isIncluded)
     {
         final List<Integer> chunksToWrite = new ArrayList<>();
-        final int firstCodeLine = lineFrom + withMacroLines; // ignore #if
-        final int lastCodeLine = lineTo - withMacroLines; // ignore #endif
+        final int firstCodeLine = lineFrom + style.offset; // ignore #if
+        final int lastCodeLine = lineTo - style.offset; // ignore #endif
 
         int currentLine = firstCodeLine;
         for (final LineBasedAnnotation subtree : subtrees) {

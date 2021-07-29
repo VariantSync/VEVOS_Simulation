@@ -1,13 +1,21 @@
 package de.variantsync.evolution.io.kernelhaven;
 
+import de.variantsync.evolution.variability.pc.AnnotationStyle;
 import de.variantsync.evolution.variability.pc.LineBasedAnnotation;
 import org.prop4j.Node;
 
+/**
+ * IO for presence condition of source code of software product lines.
+ * The annotated code will be considered to have inline annotations (in CPP style):
+ * #if
+ * foo();
+ * #endif
+ * This importer specifically expects the imported files to be produced by KernelHaven to adjust for its quirks.
+ */
 public class KernelHavenSPLPCIO extends KernelHavenPCIO {
     public KernelHavenSPLPCIO() {
         super(".spl.csv");
     }
-
 
     @Override
     protected LineBasedAnnotation createAnnotation(final Node blockCondition, final int startLine, int endLine) {
@@ -35,6 +43,10 @@ public class KernelHavenSPLPCIO extends KernelHavenPCIO {
             endLine += 1 /* to include #endif */;
         }
 
-        return new LineBasedAnnotation(blockCondition, startLine, endLine, !isVirtualSurroundingTrue);
+        return new LineBasedAnnotation(
+                blockCondition,
+                startLine,
+                endLine,
+                isVirtualSurroundingTrue ? AnnotationStyle.External : AnnotationStyle.Internal);
     }
 }

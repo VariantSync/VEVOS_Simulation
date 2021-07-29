@@ -23,7 +23,7 @@ public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
     private final LineBasedAnnotation rootAnnotation;
 
     public SourceCodeFile(final Node featureMapping, final CaseSensitivePath relativePath) {
-        this(featureMapping, relativePath, new LineBasedAnnotation(FixTrueFalse.True, 1, 1, false));
+        this(featureMapping, relativePath, new LineBasedAnnotation(FixTrueFalse.True, 1, 1, AnnotationStyle.External));
     }
 
     private SourceCodeFile(final Node featureMapping, final CaseSensitivePath relativePath, final LineBasedAnnotation root) {
