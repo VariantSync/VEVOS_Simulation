@@ -159,6 +159,43 @@ public class VariantGenerationTest {
         assert illPcTest.traces.isFailure();
         assert illPcTest.traces.getFailure() instanceof IllegalFeatureTraceSpecification;
     }
+    private static void readFromAndDirectlyWriteTo(CaseSensitivePath inputPath, CaseSensitivePath outputPath) throws Resources.ResourceIOException {
+        // load pcs
+        Logger.info("Reading " + inputPath);
+        final Artefact pcs = Resources.Instance().load(Artefact.class, inputPath.path());
+
+        pcs.accept(Debug.createSimpleTreePrinter());
+
+        // write pcs unmodified
+        Logger.info("Writing " + outputPath);
+        Resources.Instance().write(Artefact.class, pcs, outputPath.path());
+    }
+
+    @Test
+    public void idempotentReadWriteOfPCFiles() throws Resources.ResourceIOException {
+        final List<TestCaseData> testCases = Arrays.asList(pcTest1, linuxSample);
+        for (final TestCaseData testCase : testCases) {
+            final CaseSensitivePath sourcePath = testCase.pcs;
+            final CaseSensitivePath intermediatePath = genDir.resolve(sourcePath.path().getFileName());
+            final CaseSensitivePath outputPath = genDir.resolve(sourcePath.path().getFileName() + ".idem.csv");
+
+            PathUtils.deleteDirectory(intermediatePath.path());
+            PathUtils.deleteDirectory(outputPath.path());
+
+            readFromAndDirectlyWriteTo(sourcePath, intermediatePath);
+            readFromAndDirectlyWriteTo(intermediatePath, outputPath);
+        }
+    }
+
+    @Test
+    public void testPCQuery() {
+        assert pcTest1.traces.isSuccess();
+        final Result<Node, Exception> result =
+                pcTest1.traces.getSuccess().getPresenceConditionOf(CaseSensitivePath.of("src", "Alex.cpp"), 7);
+        Logger.log(result);
+        assert result.isSuccess();
+        assert SAT.equivalent(result.getSuccess(), new And(new Literal("A"), new Literal("B")));
+    }
 
     @Test
     public void testGeneration() {
