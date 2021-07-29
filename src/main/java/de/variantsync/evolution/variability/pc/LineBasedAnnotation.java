@@ -65,6 +65,10 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
         this.lineTo = lineTo;
     }
 
+    public boolean isMacro() {
+        return withMacroLines > 0;
+    }
+
     @Override
     public LineBasedAnnotationVisitorFocus createVisitorFocus() {
         return new LineBasedAnnotationVisitorFocus(this);

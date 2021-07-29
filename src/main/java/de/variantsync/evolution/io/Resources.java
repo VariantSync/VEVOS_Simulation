@@ -5,7 +5,8 @@ import de.variantsync.evolution.io.data.CSV;
 import de.variantsync.evolution.io.data.CSVIO;
 import de.variantsync.evolution.io.data.DimacsFeatureModelLoader;
 import de.variantsync.evolution.io.kernelhaven.KernelHavenPCIO;
-import de.variantsync.evolution.util.CaseSensitivePath;
+import de.variantsync.evolution.io.kernelhaven.KernelHavenSPLPCIO;
+import de.variantsync.evolution.io.kernelhaven.KernelHavenVariantPCIO;
 import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.functional.Result;
 import de.variantsync.evolution.util.functional.Unit;
@@ -49,9 +50,13 @@ public class Resources {
         r.registerLoader(CSV.class, CSVIO);
         r.registerWriter(CSV.class, CSVIO);
 
-        final KernelHavenPCIO kernelHavenPCIO = new KernelHavenPCIO();
-        r.registerLoader(Artefact.class, kernelHavenPCIO);
-        r.registerWriter(Artefact.class, kernelHavenPCIO);
+        final KernelHavenSPLPCIO splPCIO = new KernelHavenSPLPCIO();
+        r.registerLoader(Artefact.class, splPCIO);
+        r.registerWriter(Artefact.class, splPCIO);
+
+        final KernelHavenVariantPCIO variantSPLIO = new KernelHavenVariantPCIO();
+        r.registerLoader(Artefact.class, variantSPLIO);
+        r.registerWriter(Artefact.class, variantSPLIO);
     }
 
     /**

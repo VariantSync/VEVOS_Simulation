@@ -1,5 +1,6 @@
 package de.variantsync.evolution.io;
 
+import de.variantsync.evolution.util.CaseSensitivePath;
 import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.functional.Result;
 import de.variantsync.evolution.variability.pc.LineBasedAnnotation;
@@ -69,11 +70,26 @@ public class TextIO {
             final StringBuilder linesToWrite = new StringBuilder();
 
             for (final Integer lineNo : linesToTake) {
-                    // The list read_lines is 0-based.
-                    // Given lines are 1-based because line numbers are typically given 1-based.
-                    // Thus, we have to -1 here because line numbers are 1-indexed
-                    // but we want to look them up in read_lines, which is 0-based.
-                    linesToWrite.append(read_lines.get(lineNo - 1)).append(System.lineSeparator());
+                // skip lines that exceed the content
+                if (lineNo - 1 >= read_lines.size()) {
+                    Logger.warning("Skipped copying line "
+                            + lineNo
+                            + " from \""
+                            + sourceFile
+                            + "\" to \""
+                            + targetFile
+                            + "\" as it is out of bounds [1, "
+                            + (read_lines.size() - 1)
+                            + "]!"
+                    );
+                    continue;
+                }
+
+                // The list read_lines is 0-based.
+                // Given lines are 1-based because line numbers are typically given 1-based.
+                // Thus, we have to -1 here because line numbers are 1-indexed
+                // but we want to look them up in read_lines, which is 0-based.
+                linesToWrite.append(read_lines.get(lineNo - 1)).append(System.lineSeparator());
             }
 
             Files.write(
@@ -93,5 +109,14 @@ public class TextIO {
      */
     public static void write(Path p, String text) throws IOException {
         Files.writeString(p, text, StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
+    }
+
+    public static String readAsString(final Path p) throws IOException {
+        try (final BufferedReader reader = new BufferedReader(new FileReader(p.toFile()))) {
+            return reader.lines().collect(Collectors.joining());
+        } catch (final IOException e) {
+            Logger.error("Failed to read lines from file: ", e);
+            throw e;
+        }
     }
 }
