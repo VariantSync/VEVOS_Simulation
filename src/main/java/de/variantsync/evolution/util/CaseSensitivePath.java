@@ -38,6 +38,10 @@ public record CaseSensitivePath(Path path) implements Comparable<CaseSensitivePa
         return new CaseSensitivePath(this.path.resolve(Path.of(first, levels)));
     }
 
+    public CaseSensitivePath resolve(Path fileName) {
+        return new CaseSensitivePath(this.path.resolve(fileName));
+    }
+
     /**
      * @return True iff the file or directory this path points to exists.
      */
