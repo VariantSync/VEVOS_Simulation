@@ -31,15 +31,6 @@ public class TextIO {
         return lines.toArray(new String[0]);
     }
 
-    public static Stream<String> readLinesAsStream(File file) throws IOException {
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            return reader.lines();
-        } catch (IOException e) {
-            Logger.error("Failed to read lines from file: ", e);
-            throw e;
-        }
-    }
-
     public static String readLastLine(File file) throws IOException {
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line = "";
