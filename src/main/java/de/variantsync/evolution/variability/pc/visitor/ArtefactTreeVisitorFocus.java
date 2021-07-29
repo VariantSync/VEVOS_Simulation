@@ -35,13 +35,22 @@ public abstract class ArtefactTreeVisitorFocus<A extends ArtefactTree<?>> extend
         return value.getSubtrees().size();
     }
 
+    protected <R> R visitTrees(
+            final Collection<? extends ArtefactTree<?>> trees,
+            final ArtefactVisitor<R> visitor,
+            final Monoid<R> monoid) {
+        R val = monoid.mEmpty();
+        for (final ArtefactTree<?> subtree : trees) {
+            val = monoid.mAppend(val, visitSubtree(subtree, visitor));
+        }
+        return val;
+    }
+
     /**
      * Visits all subtrees recursively with the given visitor.
      * The trees will be visited in the order that is given by the tree in focus.
      */
-    public void visitAllSubtrees(ArtefactVisitor visitor) {
-        for (ArtefactTree<?> subtree : value.getSubtrees()) {
-            visitSubtree(subtree, visitor);
-        }
+    public <R extends Monoidal<R>> R visitAllSubtrees(final ArtefactVisitor<R> visitor, final Monoid<R> monoid) {
+        return visitTrees(value.getSubtrees(), visitor, monoid);
     }
 }

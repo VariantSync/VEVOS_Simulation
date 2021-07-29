@@ -23,10 +23,7 @@ public class SourceCodeFileVisitorFocus extends ArtefactTreeVisitorFocus<SourceC
         value.getRootAnnotation().createVisitorFocus().accept(visitor);
     }
 
-    public void skipRootAnnotationButVisitItsSubtrees(ArtefactVisitor visitor) {
-        final List<LineBasedAnnotation> lineBasedAnnotations = value.getRootAnnotation().getSubtrees();
-        for (LineBasedAnnotation l : lineBasedAnnotations) {
-            l.createVisitorFocus().accept(visitor);
-        }
+    public <R extends Monoidal<R>> R skipRootAnnotationButVisitItsSubtrees(final ArtefactVisitor<R> visitor, final Monoid<R> monoid) {
+        return super.visitTrees(value.getRootAnnotation().getSubtrees(), visitor, monoid);
     }
 }
