@@ -43,7 +43,11 @@ public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
     }
 
     @Override
-    public Result<SourceCodeFile, Exception> generateVariant(final Variant variant, final CaseSensitivePath sourceDir, final CaseSensitivePath targetDir) {
+    public Result<SourceCodeFile, Exception> generateVariant(
+            final Variant variant,
+            final CaseSensitivePath sourceDir,
+            final CaseSensitivePath targetDir,
+            final VariantGenerationOptions strategy) {
         final CaseSensitivePath targetFile = targetDir.resolve(getFile());
         final Result<Optional<GroundTruth<LineBasedAnnotation>>, IOException> groundTruth =
                 // 1. Create the target file.

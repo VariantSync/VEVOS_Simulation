@@ -77,7 +77,11 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
     }
 
     @Override
-    public Result<LineBasedAnnotation, Exception> generateVariant(final Variant variant, final CaseSensitivePath sourceDir, final CaseSensitivePath targetDir) {
+    public Result<LineBasedAnnotation, Exception> generateVariant(
+            final Variant variant,
+            final CaseSensitivePath sourceDir,
+            final CaseSensitivePath targetDir,
+            final VariantGenerationOptions strategy) {
         throw new UnsupportedOperationException();
     }
 

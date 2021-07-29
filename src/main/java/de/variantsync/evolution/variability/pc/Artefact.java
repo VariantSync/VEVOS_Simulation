@@ -41,8 +41,9 @@ public interface Artefact {
      * @param variant The variant for which the feature traces should be reduced.
      * @param sourceDir The directory of the product line from which variants should be build.
      * @param targetDir Output directory the variant will be generated into.
+     * @param strategy Strategy describing how to deal with errors.
      */
-    Result<? extends Artefact, Exception> generateVariant(Variant variant, CaseSensitivePath sourceDir, CaseSensitivePath targetDir);
+    Result<? extends Artefact, Exception> generateVariant(Variant variant, CaseSensitivePath sourceDir, CaseSensitivePath targetDir, VariantGenerationOptions strategy);
 
     /**
      * Accepts the given visitor to traverse this artefact (see visitor pattern).

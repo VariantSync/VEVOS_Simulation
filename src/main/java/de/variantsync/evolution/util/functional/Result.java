@@ -33,7 +33,7 @@ public class Result<SuccessType, FailureType> {
         );
     }
 
-    public static final boolean HARD_CRASH_ON_TRY = true;
+    public static final boolean HARD_CRASH_ON_TRY = false;
 
     private final SuccessType result;
     private final FailureType failure;

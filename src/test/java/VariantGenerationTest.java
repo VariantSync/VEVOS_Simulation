@@ -65,7 +65,7 @@ public class VariantGenerationTest {
 
             for (final Variant v : variantsToTest) {
                 traceToTest
-                        .generateVariant(v, splDir, variantsDir.resolve(v.getName()))
+                        .generateVariant(v, splDir, variantsDir.resolve(v.getName()), VariantGenerationOptions.ExitOnError)
                         .bind(groundTruth -> {
 //                            System.out.println("=== [Ground Truth for " + v + "] ===");
 //                            System.out.println(groundTruth.prettyPrint());
@@ -128,7 +128,7 @@ public class VariantGenerationTest {
             {
                 final LineBasedAnnotation a = new LineBasedAnnotation(new Literal("A"), 4, 11, AnnotationStyle.Internal);
                 a.addTrace(new LineBasedAnnotation(new Literal("B"), 6, 8, AnnotationStyle.Internal));
-                final LineBasedAnnotation tru = new LineBasedAnnotation(FixTrueFalse.True, 0, 22, AnnotationStyle.External);
+                final LineBasedAnnotation tru = new LineBasedAnnotation(FixTrueFalse.True, 1, 21, AnnotationStyle.External);
                 tru.addTrace(a);
                 tru.addTrace(new LineBasedAnnotation(new Or(new And(new Literal("C"), new Literal("D")), new Literal("E")), 16, 18, AnnotationStyle.Internal));
                 alex.addTrace(tru);
@@ -136,7 +136,9 @@ public class VariantGenerationTest {
 
             final SourceCodeFile bar = new SourceCodeFile(new Literal("A"), CaseSensitivePath.of("src", "foo", "bar.cpp"));
             {
-                bar.addTrace(new LineBasedAnnotation(FixTrueFalse.False, 0, 5, AnnotationStyle.Internal));
+                // This is a challenging case for the importer.
+                // We can not differentiate if a block starting at line 1 is an external annotation by Kernelhaven or an actual macro.
+                bar.addTrace(new LineBasedAnnotation(FixTrueFalse.False, 1, 4, AnnotationStyle.Internal));
             }
 
             expectedTrace = new SyntheticArtefactTreeNode<>(Arrays.asList(alex, bar));

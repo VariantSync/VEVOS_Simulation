@@ -9,6 +9,7 @@ import de.variantsync.evolution.util.functional.Result;
 import de.variantsync.evolution.variability.pc.visitor.ArtefactVisitorFocus;
 import de.variantsync.evolution.variability.pc.visitor.SyntheticArtefactTreeNodeVisitorFocus;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,21 +46,32 @@ public class SyntheticArtefactTreeNode<Child extends ArtefactTree<?>> extends Ar
     }
 
     @Override
-    public Result<? extends Artefact, Exception> generateVariant(final Variant variant, final CaseSensitivePath sourceDir, final CaseSensitivePath targetDir) {
+    public Result<? extends Artefact, Exception> generateVariant(final Variant variant, final CaseSensitivePath sourceDir, final CaseSensitivePath targetDir, final VariantGenerationOptions strategy) {
         final CaseSensitivePath f = getFile();
         final ArtefactTree<Child> copy = plainCopy();
 
         if (f != null && !sourceDir.resolve(f).exists()) {
             Logger.error("Skipping file " + f + " as it does not exist!");
+            if (strategy.exitOnError() && !strategy.ignoreNonExistentSPLFiles()) {
+                return Result.Failure(new FileNotFoundException(f + " does not exist!"));
+            }
         } else {
             for (final Child subtree : subtrees) {
                 if (variant.isImplementing(subtree.getPresenceCondition())) {
                     final Result<Child, Exception> result = subtree
-                            .generateVariant(variant, sourceDir, targetDir)
+                            .generateVariant(variant, sourceDir, targetDir, strategy)
                             .map(Functional::uncheckedCast);
                     result.ifSuccess(copy::addTrace);
+
                     if (result.isFailure()) {
-                        return result;
+                        if (
+                                strategy.exitOnError()
+                                && !(strategy.ignoreNonExistentSPLFiles() && result.getFailure() instanceof FileNotFoundException)
+                        ) {
+                            return result;
+                        } else {
+                            Logger.error(result.getFailure().getMessage());
+                        }
                     }
                 }
             }

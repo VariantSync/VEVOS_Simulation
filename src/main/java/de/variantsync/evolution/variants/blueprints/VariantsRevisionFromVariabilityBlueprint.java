@@ -11,6 +11,7 @@ import de.variantsync.evolution.util.functional.Lazy;
 import de.variantsync.evolution.util.functional.Result;
 import de.variantsync.evolution.variability.SPLCommit;
 import de.variantsync.evolution.variability.pc.Artefact;
+import de.variantsync.evolution.variability.pc.VariantGenerationOptions;
 import de.variantsync.evolution.variants.VariantCommit;
 import de.variantsync.evolution.variants.VariantsRevision;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -88,7 +89,8 @@ public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBl
                 final Result<? extends Artefact, Exception> result = traces.generateVariant(
                         variant,
                         new CaseSensitivePath(splRepo.getPath()),
-                        new CaseSensitivePath(variantsRepo.getPath()));
+                        new CaseSensitivePath(variantsRepo.getPath()),
+                        VariantGenerationOptions.ExitOnErrorButAllowNonExistentFiles);
                 Logger.log(result.map(u -> "Generating variant " + variant + " was successful!"));
 
                 // Commit the generated variant with the corresponding spl commit has as message.
