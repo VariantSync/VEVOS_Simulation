@@ -5,6 +5,7 @@ import de.variantsync.evolution.util.CaseSensitivePath;
 import de.variantsync.evolution.util.functional.Result;
 import de.variantsync.evolution.variability.pc.visitor.ArtefactVisitor;
 import de.variantsync.evolution.variability.pc.visitor.ArtefactVisitorFocus;
+import de.variantsync.evolution.variability.pc.visitor.common.PCQuery;
 import de.variantsync.evolution.variability.pc.visitor.common.PrettyPrinter;
 import org.prop4j.Node;
 
@@ -57,7 +58,15 @@ public interface Artefact {
      */
     ArtefactVisitorFocus<? extends Artefact> createVisitorFocus();
 
+    /// Convenience methods for certainvisitors
+
     default String prettyPrint() {
         return new PrettyPrinter().prettyPrint(this);
+    }
+
+    default Result<Node, Exception> getPresenceConditionOf(CaseSensitivePath path, int lineNumber) {
+        final PCQuery query = new PCQuery(path, lineNumber);
+        accept(query);
+        return query.getResult();
     }
 }

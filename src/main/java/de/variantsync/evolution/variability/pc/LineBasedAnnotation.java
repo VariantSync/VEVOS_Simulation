@@ -54,6 +54,9 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
     public int getLineCount() {
         return lineTo - lineFrom + 1;
     }
+    public boolean annotates(final int lineNumber) {
+        return lineFrom <= lineNumber && lineNumber <= lineTo;
+    }
 
     protected void setLineFrom(final int lineFrom) {
         this.lineFrom = lineFrom;
