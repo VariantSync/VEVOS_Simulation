@@ -71,7 +71,7 @@ public class VariantGenerationTest {
 //                            System.out.println(groundTruth.prettyPrint());
                             return Result.Try(() -> Resources.Instance().write(
                                     Artefact.class,
-                                    groundTruth,
+                                    groundTruth.artefact(),
                                     variantsDir.resolve(v.getName()).resolve("ground_truth.variant.csv").path()));
                         })
                         .assertSuccess();

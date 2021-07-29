@@ -12,6 +12,7 @@ import de.variantsync.evolution.util.functional.Result;
 import de.variantsync.evolution.variability.SPLCommit;
 import de.variantsync.evolution.variability.pc.Artefact;
 import de.variantsync.evolution.variability.pc.VariantGenerationOptions;
+import de.variantsync.evolution.variability.pc.groundtruth.GroundTruth;
 import de.variantsync.evolution.variants.VariantCommit;
 import de.variantsync.evolution.variants.VariantsRevision;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -86,7 +87,7 @@ public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBl
                 }
 
                 // Generate the code
-                final Result<? extends Artefact, Exception> result = traces.generateVariant(
+                final Result<GroundTruth, Exception> result = traces.generateVariant(
                         variant,
                         new CaseSensitivePath(splRepo.getPath()),
                         new CaseSensitivePath(variantsRepo.getPath()),

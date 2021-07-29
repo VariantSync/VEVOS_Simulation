@@ -1,6 +1,7 @@
-package de.variantsync.evolution.variability.pc;
+package de.variantsync.evolution.variability.pc.groundtruth;
 
 import de.variantsync.evolution.util.functional.Monoid;
+import de.variantsync.evolution.variability.pc.LineBasedAnnotation;
 
 import java.util.HashMap;
 import java.util.Map;

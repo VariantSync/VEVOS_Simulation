@@ -3,6 +3,8 @@ package de.variantsync.evolution.variability.pc;
 import de.variantsync.evolution.feature.Variant;
 import de.variantsync.evolution.util.CaseSensitivePath;
 import de.variantsync.evolution.util.functional.Result;
+import de.variantsync.evolution.variability.pc.groundtruth.AnnotationGroundTruth;
+import de.variantsync.evolution.variability.pc.groundtruth.GroundTruth;
 import de.variantsync.evolution.variability.pc.visitor.ArtefactVisitor;
 import de.variantsync.evolution.variability.pc.visitor.ArtefactVisitorFocus;
 import de.variantsync.evolution.variability.pc.visitor.common.PCQuery;
@@ -43,7 +45,7 @@ public interface Artefact {
      * @param targetDir Output directory the variant will be generated into.
      * @param strategy Strategy describing how to deal with errors.
      */
-    Result<? extends Artefact, Exception> generateVariant(Variant variant, CaseSensitivePath sourceDir, CaseSensitivePath targetDir, VariantGenerationOptions strategy);
+    Result<GroundTruth, Exception> generateVariant(Variant variant, CaseSensitivePath sourceDir, CaseSensitivePath targetDir, VariantGenerationOptions strategy);
 
     /**
      * Accepts the given visitor to traverse this artefact (see visitor pattern).

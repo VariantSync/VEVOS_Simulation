@@ -6,6 +6,7 @@ import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.fide.bugfix.FixTrueFalse;
 import de.variantsync.evolution.util.functional.Functional;
 import de.variantsync.evolution.util.functional.Result;
+import de.variantsync.evolution.variability.pc.groundtruth.GroundTruth;
 import de.variantsync.evolution.variability.pc.visitor.ArtefactVisitorFocus;
 import de.variantsync.evolution.variability.pc.visitor.SyntheticArtefactTreeNodeVisitorFocus;
 
@@ -46,9 +47,10 @@ public class SyntheticArtefactTreeNode<Child extends ArtefactTree<?>> extends Ar
     }
 
     @Override
-    public Result<? extends Artefact, Exception> generateVariant(final Variant variant, final CaseSensitivePath sourceDir, final CaseSensitivePath targetDir, final VariantGenerationOptions strategy) {
+    public Result<GroundTruth, Exception> generateVariant(final Variant variant, final CaseSensitivePath sourceDir, final CaseSensitivePath targetDir, final VariantGenerationOptions strategy) {
         final CaseSensitivePath f = getFile();
-        final ArtefactTree<Child> copy = plainCopy();
+        final SyntheticArtefactTreeNode<Child> copy = plainCopy();
+        final GroundTruth groundTruth = GroundTruth.withoutAnnotations(copy);
 
         if (f != null && !sourceDir.resolve(f).exists()) {
             Logger.error("Skipping file " + f + " as it does not exist!");
@@ -58,10 +60,13 @@ public class SyntheticArtefactTreeNode<Child extends ArtefactTree<?>> extends Ar
         } else {
             for (final Child subtree : subtrees) {
                 if (variant.isImplementing(subtree.getPresenceCondition())) {
-                    final Result<Child, Exception> result = subtree
-                            .generateVariant(variant, sourceDir, targetDir, strategy)
-                            .map(Functional::uncheckedCast);
-                    result.ifSuccess(copy::addTrace);
+                    final Result<GroundTruth, Exception> result = subtree
+                            .generateVariant(variant, sourceDir, targetDir, strategy);
+
+                    result.ifSuccess(childGroundTruth -> {
+                        copy.addTrace(Functional.uncheckedCast(childGroundTruth.artefact()));
+                        groundTruth.add(childGroundTruth);
+                    });
 
                     if (result.isFailure()) {
                         if (
@@ -77,7 +82,7 @@ public class SyntheticArtefactTreeNode<Child extends ArtefactTree<?>> extends Ar
             }
         }
 
-        return Result.Success(copy);
+        return Result.Success(groundTruth);
     }
 
     @Override

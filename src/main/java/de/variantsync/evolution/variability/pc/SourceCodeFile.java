@@ -6,13 +6,18 @@ import de.variantsync.evolution.util.CaseSensitivePath;
 import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.PathUtils;
 import de.variantsync.evolution.util.fide.bugfix.FixTrueFalse;
+import de.variantsync.evolution.util.functional.Functional;
 import de.variantsync.evolution.util.functional.Result;
 import de.variantsync.evolution.util.functional.Traversable;
+import de.variantsync.evolution.variability.pc.groundtruth.AnnotationGroundTruth;
+import de.variantsync.evolution.variability.pc.groundtruth.BlockMatching;
+import de.variantsync.evolution.variability.pc.groundtruth.GroundTruth;
 import de.variantsync.evolution.variability.pc.visitor.SourceCodeFileVisitorFocus;
 import org.prop4j.Node;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,42 +36,42 @@ public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
         rootAnnotation = root;
     }
 
-    private static SourceCodeFile fromGroundTruth(final SourceCodeFile other, final Optional<GroundTruth<LineBasedAnnotation>> root) {
-        return root
-                .map(r -> new SourceCodeFile(other.getFeatureMapping(), other.getFile(), r.variantArtefact()))
-                .orElseGet(() -> new SourceCodeFile(other.getFeatureMapping(), other.getFile()));
-    }
-
     @Override
     public SourceCodeFileVisitorFocus createVisitorFocus() {
         return new SourceCodeFileVisitorFocus(this);
     }
 
     @Override
-    public Result<SourceCodeFile, Exception> generateVariant(
+    public Result<GroundTruth, Exception> generateVariant(
             final Variant variant,
             final CaseSensitivePath sourceDir,
             final CaseSensitivePath targetDir,
             final VariantGenerationOptions strategy) {
         final CaseSensitivePath targetFile = targetDir.resolve(getFile());
-        final Result<Optional<GroundTruth<LineBasedAnnotation>>, IOException> groundTruth =
+        final Result<Optional<AnnotationGroundTruth>, IOException> groundTruth =
                 // 1. Create the target file.
                 PathUtils.createEmptyAsResult(targetFile.path())
                 // 2. Write to target file.
-                .bind(unit -> Traversable.sequence(rootAnnotation.toVariant(variant).map(splGroundTruth -> {
-                    final BlockMatching lineMatching = splGroundTruth.matching();
+                .bind(unit -> Traversable.sequence(rootAnnotation.toVariant(variant).map(splAnnotationGroundTruth -> {
+                    final BlockMatching lineMatching = splAnnotationGroundTruth.matching();
                     // only write lines of blocks that are part of our variant
                     final List<Integer> lines = rootAnnotation.getAllLinesFor(lineMatching::isPresentInVariant);
                     final CaseSensitivePath sourceFile = sourceDir.resolve(getFile());
                     return Result.Try(
                             () -> {
                                 TextIO.copyTextLines(sourceFile.path(), targetFile.path(), lines);
-                                return splGroundTruth;
+                                return splAnnotationGroundTruth;
                             });
                 })));
         return groundTruth.bimap(
                 // 3. In case of success, return ground truth.
-                maybeGroundTruth -> fromGroundTruth(this, maybeGroundTruth),
+                Functional.match(
+                        splAnnotationGroundTruth -> GroundTruth.forSourceCodeFile(
+                                new SourceCodeFile(getFeatureMapping(), getFile(), splAnnotationGroundTruth.variantArtefact()),
+                                splAnnotationGroundTruth
+                        ),
+                        () -> GroundTruth.withoutAnnotations(new SourceCodeFile(getFeatureMapping(), getFile()))
+                ),
                 // 4. In case of failure, log it (and implicitly transform IOException to Exception).
                 ioexception -> {
                     Logger.error("Could not create variant file " + targetFile + " because ", ioexception);

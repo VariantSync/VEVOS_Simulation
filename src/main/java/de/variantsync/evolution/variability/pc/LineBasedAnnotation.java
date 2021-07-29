@@ -3,6 +3,9 @@ package de.variantsync.evolution.variability.pc;
 import de.variantsync.evolution.feature.Variant;
 import de.variantsync.evolution.util.CaseSensitivePath;
 import de.variantsync.evolution.util.functional.Result;
+import de.variantsync.evolution.variability.pc.groundtruth.AnnotationGroundTruth;
+import de.variantsync.evolution.variability.pc.groundtruth.BlockMatching;
+import de.variantsync.evolution.variability.pc.groundtruth.GroundTruth;
 import de.variantsync.evolution.variability.pc.visitor.LineBasedAnnotationVisitorFocus;
 import org.prop4j.Node;
 
@@ -77,7 +80,7 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
     }
 
     @Override
-    public Result<LineBasedAnnotation, Exception> generateVariant(
+    public Result<GroundTruth, Exception> generateVariant(
             final Variant variant,
             final CaseSensitivePath sourceDir,
             final CaseSensitivePath targetDir,
@@ -85,9 +88,9 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
         throw new UnsupportedOperationException();
     }
 
-    public Optional<GroundTruth<LineBasedAnnotation>> toVariant(final Variant variant) {
+    public Optional<AnnotationGroundTruth> toVariant(final Variant variant) {
         final BlockMatching matching = BlockMatching.MONOID.mEmpty();
-        return toVariant(variant, 0, matching).map(l -> new GroundTruth<>(l, matching));
+        return toVariant(variant, 0, matching).map(l -> new AnnotationGroundTruth(this, l, matching));
     }
 
     private Optional<LineBasedAnnotation> toVariant(final Variant variant, int offset, final BlockMatching matching) {
