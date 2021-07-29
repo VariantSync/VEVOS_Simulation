@@ -15,6 +15,24 @@ import java.util.function.Supplier;
  * @param <FailureType> Type for values in case of failure.
  */
 public class Result<SuccessType, FailureType> {
+    /**
+     * Combines two results over monoidal values.
+     * Returns failure if at least one of the given results is a failure.
+     */
+    public static <S, F> Monoid<Result<S, F>> MONOID(Monoid<S> sm, Monoid<F> fm) {
+        return Monoid.Create(
+                () -> Result.Success(sm.mEmpty()),
+                (a, b) -> {
+                    final Result<S, F> prec = a.isFailure() ? a : b;
+                    final Result<S, F> other = a.isFailure() ? b : a;
+                    return prec.bimap(
+                            s -> other.isSuccess() ? sm.mAppend(s, other.getSuccess()) : s,
+                            f -> other.isFailure() ? fm.mAppend(f, other.getFailure()) : f
+                    );
+                }
+        );
+    }
+
     public static boolean HARD_CRASH_ON_TRY = true;
 
     private final SuccessType result;
@@ -202,18 +220,5 @@ public class Result<SuccessType, FailureType> {
         if (isFailure()) {
             f.accept(getFailure());
         }
-    }
-
-    /**
-     * Combines two results over monoidal values.
-     * Returns failure if at least one of the given results is a failure.
-     */
-    public static <S extends Monoid<S>, F extends Monoid<F>> Result<S, F> mappend(Result<S, F> a, Result<S, F> b) {
-        final Result<S, F> prec = a.isFailure() ? a : b;
-        final Result<S, F> other = a.isFailure() ? b : a;
-        return prec.bimap(
-                s -> other.isSuccess() ? s.mAppend(other.getSuccess()) : s,
-                f -> other.isFailure() ? f.mAppend(other.getFailure()) : f
-        );
     }
 }

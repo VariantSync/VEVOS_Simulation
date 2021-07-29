@@ -9,7 +9,7 @@ public interface Monoid<M> {
 
     static <N> Monoid<N> Create(
             final Supplier<N> empty, final BiFunction<N, N, N> compose) {
-        return new Monoid<N>() {
+        return new Monoid<>() {
             @Override
             public N mEmpty() {
                 return empty.get();

@@ -8,7 +8,11 @@ import java.util.stream.Collectors;
 /**
  * Exception that can group exceptions as a list.
  */
-public class CompositeException extends Exception implements Monoid<CompositeException> {
+public class CompositeException extends Exception {
+    public static final Monoid<CompositeException> MONOID = Monoid.Create(
+            CompositeException::new,
+            CompositeException::new
+    );
     private final List<Exception> inner;
 
     /**
@@ -38,11 +42,6 @@ public class CompositeException extends Exception implements Monoid<CompositeExc
 
     public static CompositeException mEmpty() {
         return new CompositeException();
-    }
-
-    @Override
-    public CompositeException mAppend(CompositeException other) {
-        return new CompositeException(this, other);
     }
 
     @Override

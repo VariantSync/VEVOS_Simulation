@@ -21,6 +21,19 @@ import java.util.function.Supplier;
  * @param <A> The return type of this lazy computation.
  */
 public class Lazy<A> implements Functor<Lazy, A> {
+    /**
+     * Lazy is a monoid if the lazy values are monoidal.
+     * Creates a Monoid for Lazy<A> from the monoid of the value type A.
+     * @param m Monoid over values.
+     * @return a Monoid for Lazy<A>.
+     */
+    public static <A> Monoid<Lazy<A>> MONOID(final Monoid<A> m) {
+        return Monoid.Create(
+                () -> Lazy.pure(m.mEmpty()),
+                (a, b) -> Lazy.of(() -> m.mAppend(a.run(), b.run()))
+        );
+    }
+
     private final Supplier<? extends A> get;
     private A val = null;
 
@@ -135,16 +148,5 @@ public class Lazy<A> implements Functor<Lazy, A> {
      */
     public <B> Lazy<Pair<A, B>> and(Lazy<? extends B> other) {
         return new Lazy<>(() -> new Pair<>(run(), other.run()));
-    }
-
-    /**
-     * Combine two monoidal values once they were computed.
-     * @param a First lazy to evaluate.
-     * @param b Second lazy to evaluate.
-     * @param <A> Monoidal value type
-     * @return Lazy computation that is a combination of the given computations.
-     */
-    public static <A extends Monoid<A>> Lazy<A> mappend(Lazy<A> a, Lazy<A> b) {
-        return a.and(b).map(p -> p.getKey().mAppend(p.getValue()));
     }
 }

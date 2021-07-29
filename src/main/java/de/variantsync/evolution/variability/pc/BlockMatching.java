@@ -4,7 +4,19 @@ import de.variantsync.evolution.util.functional.Monoid;
 
 import java.util.*;
 
-public class BlockMatching implements Monoid<BlockMatching> {
+public class BlockMatching {
+    public static final Monoid<BlockMatching> MONOID = Monoid.Create(
+            BlockMatching::new,
+            (a, b) -> {
+                final BlockMatching result = new BlockMatching();
+                result.splToVariant.putAll(a.splToVariant);
+                result.splToVariant.putAll(b.splToVariant);
+                result.variantToSPL.putAll(a.variantToSPL);
+                result.variantToSPL.putAll(b.variantToSPL);
+                return result;
+            }
+    );
+
     private final Map<LineBasedAnnotation, LineBasedAnnotation> splToVariant;
     private final Map<LineBasedAnnotation, LineBasedAnnotation> variantToSPL;
 
@@ -28,17 +40,5 @@ public class BlockMatching implements Monoid<BlockMatching> {
 
     public boolean isPresentInVariant(final LineBasedAnnotation splAnnotation) {
         return splToVariant.containsKey(splAnnotation);
-    }
-
-    public static BlockMatching mEmpty() {
-        return new BlockMatching();
-    }
-
-    @Override
-    public BlockMatching mAppend(BlockMatching other) {
-        final BlockMatching result = mEmpty();
-        result.splToVariant.putAll(other.splToVariant);
-        result.variantToSPL.putAll(other.variantToSPL);
-        return result;
     }
 }

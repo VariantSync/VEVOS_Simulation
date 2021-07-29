@@ -72,9 +72,9 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
         throw new UnsupportedOperationException();
     }
 
-    public Optional<GroundTruth> toVariant(final Variant variant) {
-        final BlockMatching matching = BlockMatching.mEmpty();
-        return toVariant(variant, 0, matching).map(l -> new GroundTruth(l, matching));
+    public Optional<GroundTruth<LineBasedAnnotation>> toVariant(final Variant variant) {
+        final BlockMatching matching = BlockMatching.MONOID.mEmpty();
+        return toVariant(variant, 0, matching).map(l -> new GroundTruth<>(l, matching));
     }
 
     private Optional<LineBasedAnnotation> toVariant(final Variant variant, int offset, final BlockMatching matching) {

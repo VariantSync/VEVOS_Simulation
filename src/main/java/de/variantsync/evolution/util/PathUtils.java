@@ -1,6 +1,7 @@
 package de.variantsync.evolution.util;
 
 import de.variantsync.evolution.util.functional.CompositeException;
+import de.variantsync.evolution.util.functional.Monoid;
 import de.variantsync.evolution.util.functional.Result;
 import de.variantsync.evolution.util.functional.Unit;
 
@@ -63,10 +64,11 @@ public class PathUtils {
         // read java doc, Files.walk need close the resources.
         // try-with-resources to ensure that the stream's open directories are closed
         try (Stream<Path> walk = Files.walk(path)) {
+            final Monoid<Result<Unit, CompositeException>> resultReducer = Result.MONOID(Unit.MONOID, CompositeException.MONOID);
             return walk
                     .sorted(Comparator.reverseOrder())
-                    .map(f -> Result.<IOException>Try(() -> Files.delete(f)).mapFail(CompositeException::new))
-                    .reduce(Result::mappend)
+                    .map(f -> Result.Try(() -> Files.delete(f)).mapFail(CompositeException::new))
+                    .reduce(resultReducer::mAppend)
                     .orElseGet(() -> Result.Success(Unit.Instance()));
         } catch (NoSuchFileException e) {
             // If the given path does not exist, then there was nothing to delete.
