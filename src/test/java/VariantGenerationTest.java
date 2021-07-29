@@ -38,19 +38,19 @@ public class VariantGenerationTest {
         IFeatureModel features;
         Result<Artefact, ?> traces;
 
-        public TestCaseData(CaseSensitivePath pcs) {
+        public TestCaseData(final CaseSensitivePath pcs) {
             this.pcs = pcs;
             assert splPCLoader.canLoad(pcs.path());
             traces = splPCLoader.load(pcs.path());
         }
 
-        public TestCaseData(CaseSensitivePath pcs, CaseSensitivePath splDir, CaseSensitivePath variantsDir) {
+        public TestCaseData(final CaseSensitivePath pcs, final CaseSensitivePath splDir, final CaseSensitivePath variantsDir) {
             this(pcs);
             this.splDir = splDir;
             this.variantsDir = variantsDir;
         }
 
-        public TestCaseData(CaseSensitivePath pcs, CaseSensitivePath splDir, CaseSensitivePath variantsDir, IFeatureModel fm) {
+        public TestCaseData(final CaseSensitivePath pcs, final CaseSensitivePath splDir, final CaseSensitivePath variantsDir, final IFeatureModel fm) {
             this(pcs, splDir, variantsDir);
             this.features = fm;
         }
@@ -60,17 +60,14 @@ public class VariantGenerationTest {
             PathUtils.deleteDirectory(variantsDir.path()).assertSuccess();
             final Artefact traceToTest = traces.getSuccess();
 
-            System.out.println("=== [SPL] ===");
-            System.out.println(traceToTest.prettyPrint());
+//            System.out.println("=== [SPL] ===");
+//            System.out.println(traceToTest.prettyPrint());
 
             for (final Variant v : variantsToTest) {
                 traceToTest
                         .generateVariant(v, splDir, variantsDir.resolve(v.getName()))
                         .bind(groundTruth -> {
-                            System.out.println("=== [Ground Truth for " + v + "] ===");
-                            System.out.println(groundTruth.prettyPrint());
-//                            System.out.println("=== [Ground Truth Simplified] ===");
-//                            groundTruth.simplify(); // do not simplify here as this would destroy matching
+//                            System.out.println("=== [Ground Truth for " + v + "] ===");
 //                            System.out.println(groundTruth.prettyPrint());
                             return Result.Try(() -> Resources.Instance().write(
                                     Artefact.class,
@@ -125,21 +122,21 @@ public class VariantGenerationTest {
         final TestCaseData dataToCheck = pcTest1;
         dataToCheck.traces.assertSuccess();
 
-        Artefact expectedTrace;
+        final Artefact expectedTrace;
         { // Build the expected result by hand.
             final SourceCodeFile alex = new SourceCodeFile(FixTrueFalse.True, CaseSensitivePath.of("src", "Alex.cpp"));
             {
-                LineBasedAnnotation a = new LineBasedAnnotation(new Literal("A"), 4, 11, true);
-                a.addTrace(new LineBasedAnnotation(new Literal("B"), 6, 8, true));
-                LineBasedAnnotation tru = new LineBasedAnnotation(FixTrueFalse.True, 0, 22, false);
+                final LineBasedAnnotation a = new LineBasedAnnotation(new Literal("A"), 4, 11, AnnotationStyle.Internal);
+                a.addTrace(new LineBasedAnnotation(new Literal("B"), 6, 8, AnnotationStyle.Internal));
+                final LineBasedAnnotation tru = new LineBasedAnnotation(FixTrueFalse.True, 0, 22, AnnotationStyle.External);
                 tru.addTrace(a);
-                tru.addTrace(new LineBasedAnnotation(new Or(new And(new Literal("C"), new Literal("D")), new Literal("E")), 16, 18, true));
+                tru.addTrace(new LineBasedAnnotation(new Or(new And(new Literal("C"), new Literal("D")), new Literal("E")), 16, 18, AnnotationStyle.Internal));
                 alex.addTrace(tru);
             }
 
             final SourceCodeFile bar = new SourceCodeFile(new Literal("A"), CaseSensitivePath.of("src", "foo", "bar.cpp"));
             {
-                bar.addTrace(new LineBasedAnnotation(FixTrueFalse.False, 0, 5, true));
+                bar.addTrace(new LineBasedAnnotation(FixTrueFalse.False, 0, 5, AnnotationStyle.Internal));
             }
 
             expectedTrace = new SyntheticArtefactTreeNode<>(Arrays.asList(alex, bar));
