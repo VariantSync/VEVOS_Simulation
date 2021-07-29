@@ -2,7 +2,6 @@ package de.variantsync.evolution.variability.pc;
 
 import de.variantsync.evolution.util.CaseSensitivePath;
 import de.variantsync.evolution.util.fide.FormulaUtils;
-import de.variantsync.evolution.util.fide.bugfix.FixTrueFalse;
 import org.prop4j.Node;
 
 import java.util.ArrayList;

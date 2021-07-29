@@ -1,9 +1,6 @@
 package de.variantsync.evolution.variability.pc.visitor;
 
-import de.variantsync.evolution.variability.pc.LineBasedAnnotation;
 import de.variantsync.evolution.variability.pc.SourceCodeFile;
-
-import java.util.List;
 
 public class SourceCodeFileVisitorFocus extends ArtefactTreeVisitorFocus<SourceCodeFile> {
     public SourceCodeFileVisitorFocus(SourceCodeFile artefact) {

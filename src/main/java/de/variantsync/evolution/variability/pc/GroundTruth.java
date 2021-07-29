@@ -1,7 +1,5 @@
 package de.variantsync.evolution.variability.pc;
 
-import de.variantsync.evolution.util.functional.Functor;
-
 import java.util.function.Function;
 
 public record GroundTruth<A extends Artefact>(A variantArtefact, BlockMatching matching) {

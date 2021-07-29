@@ -1,19 +1,18 @@
 package de.variantsync.evolution.variants.blueprints;
 
+import de.variantsync.evolution.feature.Sample;
+import de.variantsync.evolution.feature.Variant;
+import de.variantsync.evolution.repository.AbstractSPLRepository;
+import de.variantsync.evolution.repository.AbstractVariantsRepository;
+import de.variantsync.evolution.repository.Branch;
 import de.variantsync.evolution.util.CaseSensitivePath;
 import de.variantsync.evolution.util.Logger;
+import de.variantsync.evolution.util.functional.Lazy;
 import de.variantsync.evolution.util.functional.Result;
-import de.variantsync.evolution.util.functional.Unit;
+import de.variantsync.evolution.variability.SPLCommit;
 import de.variantsync.evolution.variability.pc.Artefact;
 import de.variantsync.evolution.variants.VariantCommit;
 import de.variantsync.evolution.variants.VariantsRevision;
-import de.variantsync.evolution.feature.Sample;
-import de.variantsync.evolution.feature.Variant;
-import de.variantsync.evolution.repository.Branch;
-import de.variantsync.evolution.repository.AbstractSPLRepository;
-import de.variantsync.evolution.repository.AbstractVariantsRepository;
-import de.variantsync.evolution.variability.SPLCommit;
-import de.variantsync.evolution.util.functional.Lazy;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
 import java.io.IOException;

@@ -1,13 +1,13 @@
 package de.variantsync.evolution.variants;
 
-import de.variantsync.evolution.repository.AbstractVariantsRepository;
-import de.variantsync.evolution.variants.blueprints.VariantsRevisionBlueprint;
-import de.variantsync.evolution.repository.Branch;
 import de.variantsync.evolution.repository.AbstractSPLRepository;
+import de.variantsync.evolution.repository.AbstractVariantsRepository;
+import de.variantsync.evolution.repository.Branch;
 import de.variantsync.evolution.util.functional.Lazy;
-import de.variantsync.evolution.util.list.ListHeadTailView;
 import de.variantsync.evolution.util.functional.MonadTransformer;
 import de.variantsync.evolution.util.functional.Unit;
+import de.variantsync.evolution.util.list.ListHeadTailView;
+import de.variantsync.evolution.variants.blueprints.VariantsRevisionBlueprint;
 
 import java.util.Map;
 import java.util.Optional;

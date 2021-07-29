@@ -6,17 +6,13 @@ import de.ovgu.featureide.fm.core.io.sxfm.SXFMFormat;
 import de.ovgu.featureide.fm.core.io.xml.XmlFeatureModelFormat;
 import de.variantsync.evolution.io.data.VariabilityDatasetLoader;
 import de.variantsync.evolution.repository.AbstractSPLRepository;
-import de.variantsync.evolution.variability.VariabilityHistory;
 import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.functional.Functional;
 import de.variantsync.evolution.util.functional.Lazy;
 import de.variantsync.evolution.util.functional.MonadTransformer;
 import de.variantsync.evolution.util.functional.Unit;
 import de.variantsync.evolution.util.list.NonEmptyList;
-import de.variantsync.evolution.variability.CommitPair;
-import de.variantsync.evolution.variability.SPLCommit;
-import de.variantsync.evolution.variability.SequenceExtractors;
-import de.variantsync.evolution.variability.VariabilityDataset;
+import de.variantsync.evolution.variability.*;
 import de.variantsync.evolution.variants.VariantsRepository;
 import de.variantsync.evolution.variants.VariantsRevision;
 

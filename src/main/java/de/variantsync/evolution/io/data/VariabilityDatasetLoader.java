@@ -5,10 +5,10 @@ import de.variantsync.evolution.io.TextIO;
 import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.functional.Result;
 import de.variantsync.evolution.variability.SPLCommit;
-import de.variantsync.evolution.variability.SPLCommit.KernelHavenLogPath;
-import de.variantsync.evolution.variability.SPLCommit.FeatureModelPath;
-import de.variantsync.evolution.variability.SPLCommit.PresenceConditionPath;
 import de.variantsync.evolution.variability.SPLCommit.CommitMessagePath;
+import de.variantsync.evolution.variability.SPLCommit.FeatureModelPath;
+import de.variantsync.evolution.variability.SPLCommit.KernelHavenLogPath;
+import de.variantsync.evolution.variability.SPLCommit.PresenceConditionPath;
 import de.variantsync.evolution.variability.VariabilityDataset;
 
 import java.io.IOException;

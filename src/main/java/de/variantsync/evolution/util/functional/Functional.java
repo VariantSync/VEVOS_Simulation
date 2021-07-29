@@ -4,7 +4,6 @@ import de.variantsync.evolution.util.functional.interfaces.FragileProcedure;
 import de.variantsync.evolution.util.functional.interfaces.FragileSupplier;
 import de.variantsync.evolution.util.functional.interfaces.Procedure;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;

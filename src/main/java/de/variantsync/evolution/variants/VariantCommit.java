@@ -2,7 +2,6 @@ package de.variantsync.evolution.variants;
 
 import de.variantsync.evolution.repository.Branch;
 import de.variantsync.evolution.repository.Commit;
-import de.variantsync.evolution.repository.AbstractVariantsRepository;
 
 /**
  * Represents a commit to an AbstractVariantsRepository.

@@ -10,7 +10,10 @@ import de.variantsync.evolution.util.fide.bugfix.FixTrueFalse;
 import de.variantsync.evolution.util.functional.Result;
 import de.variantsync.evolution.util.functional.Unit;
 import de.variantsync.evolution.util.list.ListHeadTailView;
-import de.variantsync.evolution.variability.pc.*;
+import de.variantsync.evolution.variability.pc.Artefact;
+import de.variantsync.evolution.variability.pc.LineBasedAnnotation;
+import de.variantsync.evolution.variability.pc.SourceCodeFile;
+import de.variantsync.evolution.variability.pc.SyntheticArtefactTreeNode;
 import org.prop4j.Node;
 import org.prop4j.NodeReader;
 

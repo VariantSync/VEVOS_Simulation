@@ -2,15 +2,13 @@ package de.variantsync.evolution.repository;
 
 import de.variantsync.evolution.Main;
 import de.variantsync.evolution.util.GitUtil;
-import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.variability.SPLCommit;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.revwalk.RevWalk;
-import org.eclipse.jgit.transport.FetchResult;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;

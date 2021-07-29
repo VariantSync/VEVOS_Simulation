@@ -4,7 +4,6 @@ import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import de.variantsync.evolution.io.data.CSV;
 import de.variantsync.evolution.io.data.CSVIO;
 import de.variantsync.evolution.io.data.DimacsFeatureModelLoader;
-import de.variantsync.evolution.io.kernelhaven.KernelHavenPCIO;
 import de.variantsync.evolution.io.kernelhaven.KernelHavenSPLPCIO;
 import de.variantsync.evolution.io.kernelhaven.KernelHavenVariantPCIO;
 import de.variantsync.evolution.util.Logger;

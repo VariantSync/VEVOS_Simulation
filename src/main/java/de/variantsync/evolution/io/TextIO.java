@@ -1,9 +1,7 @@
 package de.variantsync.evolution.io;
 
-import de.variantsync.evolution.util.CaseSensitivePath;
 import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.functional.Result;
-import de.variantsync.evolution.variability.pc.LineBasedAnnotation;
 
 import java.io.BufferedReader;
 import java.io.File;

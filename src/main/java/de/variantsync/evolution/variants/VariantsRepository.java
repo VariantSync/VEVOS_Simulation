@@ -1,12 +1,12 @@
 package de.variantsync.evolution.variants;
 
-import de.variantsync.evolution.repository.AbstractVariantsRepository;
-import de.variantsync.evolution.util.list.ListHeadTailView;
-import de.variantsync.evolution.variants.blueprints.VariantsRevisionBlueprint;
-import de.variantsync.evolution.repository.Branch;
 import de.variantsync.evolution.repository.AbstractSPLRepository;
-import de.variantsync.evolution.util.*;
+import de.variantsync.evolution.repository.AbstractVariantsRepository;
+import de.variantsync.evolution.repository.Branch;
+import de.variantsync.evolution.util.Logger;
+import de.variantsync.evolution.util.list.ListHeadTailView;
 import de.variantsync.evolution.util.list.NonEmptyList;
+import de.variantsync.evolution.variants.blueprints.VariantsRevisionBlueprint;
 import org.eclipse.jgit.api.errors.EmptyCommitException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.revwalk.RevCommit;

@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static de.variantsync.evolution.util.LogLevel.*;
-import static de.variantsync.evolution.util.LogLevel.ERROR;
 
 
 public class Logger {

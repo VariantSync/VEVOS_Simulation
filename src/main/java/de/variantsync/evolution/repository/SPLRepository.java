@@ -1,7 +1,5 @@
 package de.variantsync.evolution.repository;
 
-import de.variantsync.evolution.variability.SPLCommit;
-
 import java.nio.file.Path;
 
 /**

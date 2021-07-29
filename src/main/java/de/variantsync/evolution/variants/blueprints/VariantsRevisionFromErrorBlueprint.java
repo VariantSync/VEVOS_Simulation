@@ -1,12 +1,12 @@
 package de.variantsync.evolution.variants.blueprints;
 
-import de.variantsync.evolution.variants.VariantCommit;
-import de.variantsync.evolution.variants.VariantsRevision;
 import de.variantsync.evolution.feature.Sample;
 import de.variantsync.evolution.feature.Variant;
-import de.variantsync.evolution.repository.Branch;
 import de.variantsync.evolution.repository.AbstractVariantsRepository;
+import de.variantsync.evolution.repository.Branch;
 import de.variantsync.evolution.util.functional.Lazy;
+import de.variantsync.evolution.variants.VariantCommit;
+import de.variantsync.evolution.variants.VariantsRevision;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
 import java.io.IOException;

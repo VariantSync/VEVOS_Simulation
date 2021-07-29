@@ -1,7 +1,8 @@
 package de.variantsync.evolution.util.fide.bugfix;
 
 import de.ovgu.featureide.fm.core.editing.NodeCreator;
-import org.prop4j.*;
+import org.prop4j.Literal;
+import org.prop4j.Node;
 
 import java.util.Arrays;
 import java.util.List;

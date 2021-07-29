@@ -2,7 +2,8 @@ package de.variantsync.evolution.variability.pc;
 
 import de.variantsync.evolution.util.functional.Monoid;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class BlockMatching {
     public static final Monoid<BlockMatching> MONOID = Monoid.Create(
