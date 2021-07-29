@@ -2,6 +2,8 @@ package de.variantsync.evolution.variability.pc.visitor;
 
 import de.variantsync.evolution.variability.pc.ArtefactTree;
 
+import java.util.Collection;
+
 /**
  * Abstract focus for subclasses of ArtefactTree. Offers methods for visiting subtrees.
  * @param <A> A subtype of ArtefactTree this focus should be specialized to.
@@ -35,22 +37,19 @@ public abstract class ArtefactTreeVisitorFocus<A extends ArtefactTree<?>> extend
         return value.getSubtrees().size();
     }
 
-    protected <R> R visitTrees(
+    protected void visitTrees(
             final Collection<? extends ArtefactTree<?>> trees,
-            final ArtefactVisitor<R> visitor,
-            final Monoid<R> monoid) {
-        R val = monoid.mEmpty();
+            final ArtefactVisitor visitor) {
         for (final ArtefactTree<?> subtree : trees) {
-            val = monoid.mAppend(val, visitSubtree(subtree, visitor));
+            visitSubtree(subtree, visitor);
         }
-        return val;
     }
 
     /**
      * Visits all subtrees recursively with the given visitor.
      * The trees will be visited in the order that is given by the tree in focus.
      */
-    public <R extends Monoidal<R>> R visitAllSubtrees(final ArtefactVisitor<R> visitor, final Monoid<R> monoid) {
-        return visitTrees(value.getSubtrees(), visitor, monoid);
+    public void visitAllSubtrees(final ArtefactVisitor visitor) {
+        visitTrees(value.getSubtrees(), visitor);
     }
 }
