@@ -1,12 +1,12 @@
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import de.variantsync.evolution.Main;
-import de.variantsync.evolution.variability.SequenceExtractors;
-import de.variantsync.evolution.variability.VariabilityDataset;
 import de.variantsync.evolution.io.data.VariabilityDatasetLoader;
 import de.variantsync.evolution.repository.Commit;
-import de.variantsync.evolution.repository.VariabilityHistory;
 import de.variantsync.evolution.util.GitUtil;
 import de.variantsync.evolution.variability.SPLCommit;
+import de.variantsync.evolution.variability.SequenceExtractors;
+import de.variantsync.evolution.variability.VariabilityDataset;
+import de.variantsync.evolution.variability.VariabilityHistory;
 import de.variantsync.evolution.variability.pc.Artefact;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.Before;

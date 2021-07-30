@@ -26,9 +26,9 @@ public class SequenceExtractors {
      */
     public static Function<Collection<SPLCommit>, List<NonEmptyList<SPLCommit>>> longestNonOverlappingSequences() {
         return (Collection<SPLCommit> commits) -> {
-            Map<SPLCommit, Set<SPLCommit>> parentChildMap = new HashMap<>();
-            Set<SPLCommit> commitSet = new HashSet<>(commits);
-            Set<SPLCommit> sequenceStartCommits = new HashSet<>();
+            final Map<SPLCommit, Set<SPLCommit>> parentChildMap = new HashMap<>();
+            final Set<SPLCommit> commitSet = new HashSet<>(commits);
+            final Set<SPLCommit> sequenceStartCommits = new HashSet<>();
             // Filter commits and map each parent to all of its children. Additionally, determine sequence starts.
             // Hereby we can handle splits later on
             commits.forEach(c -> c.parents()
@@ -49,23 +49,23 @@ public class SequenceExtractors {
                     // Add the commit as mapping for the parent
                     .ifPresent(parents -> parentChildMap.computeIfAbsent(parents[0], k -> new HashSet<>()).add(c)));
 
-            List<NonEmptyList<SPLCommit>> commitSequences = new LinkedList<>();
+            final List<NonEmptyList<SPLCommit>> commitSequences = new LinkedList<>();
             // Retrieve the longest non-overlapping sequences for each start commit
             // Start commits are all commits that have no valid ancestor in the given commit.
             // Therefore, no two start commits can be part of the same sequence
-            for (SPLCommit startCommit : sequenceStartCommits) {
+            for (final SPLCommit startCommit : sequenceStartCommits) {
                 // We now retrieve sequences starting from the sequenceStartCommit and sort the sequences
                 // descending by size, iterate over them, and remove all commits from a sequence that are already part
                 // of a longer sequence
-                List<LinkedList<SPLCommit>> orderedSequences = new ArrayList<>(retrieveSequencesForStart(parentChildMap, startCommit));
+                final List<LinkedList<SPLCommit>> orderedSequences = new ArrayList<>(retrieveSequencesForStart(parentChildMap, startCommit));
                 orderedSequences.sort((o1, o2) -> Integer.compare(o2.size(), o1.size()));
                 for (int i = 0; i < orderedSequences.size(); i++) {
                     if (i > 0) {
-                        LinkedList<SPLCommit> largerSequence = orderedSequences.get(i - 1);
+                        final LinkedList<SPLCommit> largerSequence = orderedSequences.get(i - 1);
                         for (int j = i; j < orderedSequences.size(); j++) {
-                            LinkedList<SPLCommit> shorterSequence = orderedSequences.get(j);
+                            final LinkedList<SPLCommit> shorterSequence = orderedSequences.get(j);
                             // Remove all commits from the shorter sequence that are contained in the larger sequence
-                            for (SPLCommit commit : largerSequence) {
+                            for (final SPLCommit commit : largerSequence) {
                                 // We only have to consider the first element
                                 if (shorterSequence.getFirst() == commit) {
                                     shorterSequence.removeFirst();
@@ -86,20 +86,20 @@ public class SequenceExtractors {
     }
 
     // Recursively build sequences
-    private static Set<LinkedList<SPLCommit>> retrieveSequencesForStart(Map<SPLCommit, Set<SPLCommit>> parentChildMap, SPLCommit start) {
+    private static Set<LinkedList<SPLCommit>> retrieveSequencesForStart(final Map<SPLCommit, Set<SPLCommit>> parentChildMap, final SPLCommit start) {
         if (!parentChildMap.containsKey(start)) {
             // Create a new sequence that contains the start commit
-            Set<LinkedList<SPLCommit>> sequenceSet = new HashSet<>();
-            LinkedList<SPLCommit> sequence = new LinkedList<>();
+            final Set<LinkedList<SPLCommit>> sequenceSet = new HashSet<>();
+            final LinkedList<SPLCommit> sequence = new LinkedList<>();
             sequence.add(start);
             sequenceSet.add(sequence);
             return sequenceSet;
         } else {
             // Collect the sequences of the children and prepend the commit to each of them as parent
-            Set<LinkedList<SPLCommit>> sequences = new HashSet<>();
-            for (SPLCommit child : parentChildMap.get(start)) {
-                Set<LinkedList<SPLCommit>> childSequences = retrieveSequencesForStart(parentChildMap, child);
-                for (LinkedList<SPLCommit> childSequence : childSequences) {
+            final Set<LinkedList<SPLCommit>> sequences = new HashSet<>();
+            for (final SPLCommit child : parentChildMap.get(start)) {
+                final Set<LinkedList<SPLCommit>> childSequences = retrieveSequencesForStart(parentChildMap, child);
+                for (final LinkedList<SPLCommit> childSequence : childSequences) {
                     childSequence.addFirst(start);
                     sequences.add(childSequence);
                 }

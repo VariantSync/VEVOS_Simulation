@@ -13,7 +13,7 @@ import java.util.Optional;
  */
 public abstract class AbstractVariantsRepository extends Repository<VariantCommit> {
 
-    public AbstractVariantsRepository(Path path){
+    public AbstractVariantsRepository(final Path path){
         super(path);
     }
     /**

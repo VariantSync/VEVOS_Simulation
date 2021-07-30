@@ -1,10 +1,9 @@
-package de.variantsync.evolution.repository;
+package de.variantsync.evolution.variability;
 
-import de.variantsync.evolution.variability.SPLCommit;
+import de.variantsync.evolution.util.list.NonEmptyList;
 import de.variantsync.evolution.variants.blueprints.VariantsRevisionBlueprint;
 import de.variantsync.evolution.variants.blueprints.VariantsRevisionFromErrorBlueprint;
 import de.variantsync.evolution.variants.blueprints.VariantsRevisionFromVariabilityBlueprint;
-import de.variantsync.evolution.util.list.NonEmptyList;
 import de.variantsync.evolution.variants.sampling.SamplingStrategy;
 
 import java.util.ArrayList;
@@ -35,8 +34,8 @@ public record VariabilityHistory(NonEmptyList<NonEmptyList<SPLCommit>> commitSeq
         final ArrayList<VariantsRevisionBlueprint> blueprints = new ArrayList<>(lengthOfList);
         VariantsRevisionFromVariabilityBlueprint lastVariabilityBlueprint = null;
 
-        for (NonEmptyList<SPLCommit> coherentSubHistory : commitSequences) {
-            for (SPLCommit splCommit : coherentSubHistory) {
+        for (final NonEmptyList<SPLCommit> coherentSubHistory : commitSequences) {
+            for (final SPLCommit splCommit : coherentSubHistory) {
                 lastVariabilityBlueprint = new VariantsRevisionFromVariabilityBlueprint(splCommit, lastVariabilityBlueprint, samplingStrategy);
                 blueprints.add(lastVariabilityBlueprint);
             }

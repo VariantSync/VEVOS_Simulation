@@ -1,5 +1,7 @@
 package de.variantsync.evolution.util.list;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Collection;
 import java.util.List;
 
@@ -12,7 +14,7 @@ import java.util.List;
 public class NonEmptyList<T> extends ListDecorator<T> {
     private final static String ERROR_MESSAGE = "Operation disallowed as it could make this list become empty!";
 
-    public NonEmptyList(List<T> list) {
+    public NonEmptyList(final List<T> list) {
         super(list);
         if (list.isEmpty()) {
             throw new IllegalArgumentException("Given list cannot be empty!");
@@ -24,17 +26,17 @@ public class NonEmptyList<T> extends ListDecorator<T> {
     }
 
     @Override
-    public boolean remove(Object o) {
+    public boolean remove(final Object o) {
         throw new UnsupportedOperationException(ERROR_MESSAGE);
     }
 
     @Override
-    public boolean removeAll(Collection<?> c) {
+    public boolean removeAll(final @NotNull Collection<?> c) {
         throw new UnsupportedOperationException(ERROR_MESSAGE);
     }
 
     @Override
-    public boolean retainAll(Collection<?> c) {
+    public boolean retainAll(final @NotNull Collection<?> c) {
         throw new UnsupportedOperationException(ERROR_MESSAGE);
     }
 
@@ -44,7 +46,7 @@ public class NonEmptyList<T> extends ListDecorator<T> {
     }
 
     @Override
-    public T remove(int index) {
+    public T remove(final int index) {
         throw new UnsupportedOperationException(ERROR_MESSAGE);
     }
 }

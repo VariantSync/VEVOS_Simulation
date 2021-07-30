@@ -1,6 +1,5 @@
 package de.variantsync.evolution;
 
-import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import de.ovgu.featureide.fm.core.base.impl.*;
 import de.ovgu.featureide.fm.core.configuration.*;
 import de.ovgu.featureide.fm.core.io.sxfm.SXFMFormat;
@@ -8,24 +7,15 @@ import de.ovgu.featureide.fm.core.io.xml.XmlFeatureModelFormat;
 import de.variantsync.evolution.feature.sampling.ConstSampler;
 import de.variantsync.evolution.feature.sampling.UniformRandomSampling;
 import de.variantsync.evolution.io.Resources;
-import de.variantsync.evolution.io.data.CSV;
-import de.variantsync.evolution.io.data.CSVIO;
-import de.variantsync.evolution.io.data.DimacsFeatureModelLoader;
 import de.variantsync.evolution.io.data.VariabilityDatasetLoader;
-import de.variantsync.evolution.io.kernelhaven.KernelHavenPCIO;
 import de.variantsync.evolution.repository.AbstractSPLRepository;
-import de.variantsync.evolution.repository.VariabilityHistory;
 import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.functional.Functional;
 import de.variantsync.evolution.util.functional.Lazy;
 import de.variantsync.evolution.util.functional.MonadTransformer;
 import de.variantsync.evolution.util.functional.Unit;
 import de.variantsync.evolution.util.list.NonEmptyList;
-import de.variantsync.evolution.variability.CommitPair;
-import de.variantsync.evolution.variability.SPLCommit;
-import de.variantsync.evolution.variability.SequenceExtractors;
-import de.variantsync.evolution.variability.VariabilityDataset;
-import de.variantsync.evolution.variability.pc.Artefact;
+import de.variantsync.evolution.variability.*;
 import de.variantsync.evolution.variants.VariantsRepository;
 import de.variantsync.evolution.variants.VariantsRevision;
 import de.variantsync.evolution.variants.sampling.SampleOnceAtBeginStrategy;
@@ -79,14 +69,14 @@ public class Main {
         }
     }
 
-    public static void main(String[] args) throws IOException, Resources.ResourceIOException {
+    public static void main(final String[] args) throws IOException, Resources.ResourceIOException {
         Initialize();
 
         // Debug variability repo
-        Properties properties = new Properties();
-        try (FileInputStream inputStream = new FileInputStream(PROPERTIES_FILE)) {
+        final Properties properties = new Properties();
+        try (final FileInputStream inputStream = new FileInputStream(PROPERTIES_FILE)) {
             properties.load(inputStream);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             Logger.error("Failed to open properties file: ", e);
             return;
         }
@@ -112,24 +102,24 @@ public class Main {
 
         Logger.info("variabilityDatasetDir: " + variabilityDatasetDir);
         Logger.info("splRepoDir: " + splRepoDir);
-        VariabilityDataset variabilityDataset;
+        final VariabilityDataset variabilityDataset;
 
-        VariabilityDatasetLoader datasetLoader = new VariabilityDatasetLoader();
+        final VariabilityDatasetLoader datasetLoader = new VariabilityDatasetLoader();
         assert datasetLoader.canLoad(variabilityDatasetDir);
         variabilityDataset = datasetLoader.load(variabilityDatasetDir).getSuccess();
-        Set<CommitPair<SPLCommit>> commitPairs = variabilityDataset.getCommitPairsForEvolutionStudy();
+        final Set<CommitPair<SPLCommit>> commitPairs = variabilityDataset.getCommitPairsForEvolutionStudy();
         Logger.info("The dataset contains " + variabilityDataset.getSuccessCommits().size() + " commits for which the variability extraction succeeded.");
         Logger.info("The dataset contains " + variabilityDataset.getErrorCommits().size() + " commits for which the variability extraction failed.");
         Logger.info("The dataset contains " + variabilityDataset.getPartialSuccessCommits().size() + " commits that for which the file presence conditions are missing.");
         Logger.info("The dataset contains " + commitPairs.size() + " usable pairs.");
-        for (CommitPair<SPLCommit> pair : commitPairs) {
+        for (final CommitPair<SPLCommit> pair : commitPairs) {
             Logger.debug("<<CHILD> " + pair.child().id() + "> -- <<PARENT> " + pair.parent().id() + ">");
             Logger.debug("<<CHILD> " + pair.child().id() + "> -- <<SPL_COMMIT> " + pair.child().id() + ">");
             Logger.debug("<<PARENT> " + pair.parent().id() + "> -- <<SPL_COMMIT> " + pair.parent().id() + ">");
             Logger.debug("");
         }
-        VariabilityHistory history = variabilityDataset.getVariabilityHistory(SequenceExtractors.longestNonOverlappingSequences());
-        NonEmptyList<NonEmptyList<SPLCommit>> sequencesInHistory = history.commitSequences();
+        final VariabilityHistory history = variabilityDataset.getVariabilityHistory(SequenceExtractors.longestNonOverlappingSequences());
+        final NonEmptyList<NonEmptyList<SPLCommit>> sequencesInHistory = history.commitSequences();
         Logger.info("The dataset contains " + sequencesInHistory.size() + " sequences.");
         for (int i = 0; i < sequencesInHistory.size(); i++) {
             Logger.info("Sequence " + i + " has " + sequencesInHistory.get(i).size() + " commits.");
@@ -180,7 +170,7 @@ public class Main {
                 genRevision1.run(); // This would generate revision0 and then revision1.
                 // This would generate revision0 and then revision1 and then revision2.
                 // This returns a handle for revision3 which is not yet generated.
-                Optional<VariantsRevision> revision3 = genRevision2.run();
+                final Optional<VariantsRevision> revision3 = genRevision2.run();
                 // Because Lazy caches intermediate results, revision0 and revision1 have only been generated exactly once.
             }
         }

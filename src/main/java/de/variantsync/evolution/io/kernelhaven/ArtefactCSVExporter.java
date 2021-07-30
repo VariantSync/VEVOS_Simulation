@@ -1,13 +1,15 @@
 package de.variantsync.evolution.io.kernelhaven;
 
 import de.variantsync.evolution.io.data.CSV;
+import de.variantsync.evolution.util.fide.FormulaUtils;
 import de.variantsync.evolution.variability.pc.ArtefactTree;
-import de.variantsync.evolution.variability.pc.visitor.ArtefactVisitor;
 import de.variantsync.evolution.variability.pc.LineBasedAnnotation;
 import de.variantsync.evolution.variability.pc.SourceCodeFile;
+import de.variantsync.evolution.variability.pc.visitor.ArtefactVisitor;
 import de.variantsync.evolution.variability.pc.visitor.LineBasedAnnotationVisitorFocus;
 import de.variantsync.evolution.variability.pc.visitor.SourceCodeFileVisitorFocus;
 import de.variantsync.evolution.variability.pc.visitor.SyntheticArtefactTreeNodeVisitorFocus;
+import org.prop4j.NodeWriter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,69 +54,36 @@ public class ArtefactCSVExporter implements ArtefactVisitor {
 
     /**
      * Creates a CSV row for the given annotation but uses the given start and end lines.
-     * @param annotation The annotation to create a row for.
-     * @param start The first line in which this annotation is at least valid.
-     * @param end The last line in which this annotation is at least valid. All lines between [start, end] will be
-     *            considered annotated with the given annotation.
      * @return The CSV row.
      */
-    private String[] toRow(LineBasedAnnotation annotation, int start, int end) {
+    private String[] toRow(final LineBasedAnnotation annotation) {
         final String[] row = makeRow();
         row[0] = currentFile.getFile().toString();
-        row[1] = currentFile.getPresenceCondition().toString();
-        row[2] = annotation.getFeatureMapping().toString();
-        row[3] = annotation.getPresenceCondition().toString();
-        row[4] = "" + start;
-        row[5] = "" + end;
+        row[1] = FormulaUtils.toString(currentFile.getPresenceCondition(), NodeWriter.javaSymbols);
+        row[2] = FormulaUtils.toString(annotation.getFeatureMapping(), NodeWriter.javaSymbols);
+        row[3] = FormulaUtils.toString(annotation.getPresenceCondition(), NodeWriter.javaSymbols);
+        row[4] = "" + annotation.getLineFrom();
+        // -1 because Kernelhaven stores annotations as [#if, #endif) intervals, so we have to point one line before the annotation end (#endif).
+        row[5] = "" + (annotation.getLineTo() - (annotation.isMacro() ? 1 : 0));
         return row;
     }
 
     @Override
-    public <T extends ArtefactTree<?>> void visitGenericArtefactTreeNode(SyntheticArtefactTreeNodeVisitorFocus<T> focus) {
+    public <T extends ArtefactTree<?>> void visitGenericArtefactTreeNode(final SyntheticArtefactTreeNodeVisitorFocus<T> focus) {
         focus.visitAllSubtrees(this);
     }
 
     @Override
-    public void visitSourceCodeFile(SourceCodeFileVisitorFocus focus) {
+    public void visitSourceCodeFile(final SourceCodeFileVisitorFocus focus) {
         currentFile = focus.getValue();
-        focus.visitRootAnnotation(this);
+        focus.skipRootAnnotationButVisitItsSubtrees(this);
         currentFile = null;
     }
 
     @Override
-    public void visitLineBasedAnnotation(LineBasedAnnotationVisitorFocus focus) {
+    public void visitLineBasedAnnotation(final LineBasedAnnotationVisitorFocus focus) {
         final LineBasedAnnotation annotation = focus.getValue();
-
-        /*
-        Check if there are lines that are annotated by the current annotation but not a nested application.
-        Such lines may occur before, between, or after nested annotations. For example, in the following code
-        fragment, all lines marked with (*) have to be treated manually.
-
-        # if A
-        (*)
-          #if B
-          #endif
-        (*)
-          #if C
-          #endif
-        (*)
-        #endif
-
-        Thus, check if there are some lines between the current annotation start and the inner annotations.
-        */
-        int currentLine = annotation.getLineFrom();
-        for (LineBasedAnnotation subtree : annotation.getSubtrees()) {
-            if (currentLine < subtree.getLineFrom()) {
-                csv.add(toRow(annotation, currentLine, subtree.getLineFrom() - 1));
-            }
-            focus.visitSubtree(subtree, this);
-            currentLine = subtree.getLineTo() + 1;
-        }
-
-        /// If there were no children or there are lines annotated after the last nested annotation (see example above)
-        /// export these lines.
-        if (currentLine <= annotation.getLineTo()) {
-            csv.add(toRow(annotation, currentLine, annotation.getLineTo()));
-        }
+        csv.add(toRow(annotation));
+        focus.visitAllSubtrees(this);
     }
 }

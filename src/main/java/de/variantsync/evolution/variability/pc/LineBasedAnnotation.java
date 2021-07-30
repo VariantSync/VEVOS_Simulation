@@ -2,14 +2,18 @@ package de.variantsync.evolution.variability.pc;
 
 import de.variantsync.evolution.feature.Variant;
 import de.variantsync.evolution.util.CaseSensitivePath;
-import de.variantsync.evolution.util.fide.FormulaUtils;
 import de.variantsync.evolution.util.functional.Result;
+import de.variantsync.evolution.variability.pc.groundtruth.AnnotationGroundTruth;
+import de.variantsync.evolution.variability.pc.groundtruth.BlockMatching;
+import de.variantsync.evolution.variability.pc.groundtruth.GroundTruth;
 import de.variantsync.evolution.variability.pc.visitor.LineBasedAnnotationVisitorFocus;
 import org.prop4j.Node;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * A line-based annotation of source code, such as preprocessor annotations (#ifdef)
@@ -17,22 +21,33 @@ import java.util.Objects;
 public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
     private int lineFrom;
     private int lineTo;
+    private final AnnotationStyle style;
 
     /**
      * Creates a new annotation starting at lineFrom and ending at lineTo including both
      * (i.e., [lineFrom, lineTo]).
      * Indexing is 1-based (i.e., the first line in a file is indexed by 1).
-     * Example for a preprocessor block
-     * 3 #if X     <-- lineFrom
-     * 4   foo();
-     * 5   bar();
-     * 6 #endif    <-- lineTo
-     * is reflected by LineBasedAnnotation(X, 3, 6);
+     *
+     * The style determines whether the annotations is considered to be within the source code (i.e., c macros) or external.
+     * Example for a preprocessor block:
+     *   3 #if X     <-- lineFrom
+     *   4   foo();
+     *   5   bar();
+     *   6 #endif    <-- lineTo
+     * is reflected by LineBasedAnnotation(X, 3, 6, Internal);
      */
-    public LineBasedAnnotation(Node featureMapping, int lineFrom, int lineTo) {
+    public LineBasedAnnotation(final Node featureMapping, final int lineFrom, final int lineTo, final AnnotationStyle style) {
         super(featureMapping);
         this.lineFrom = lineFrom;
         this.lineTo = lineTo;
+        this.style = style;
+    }
+
+    public LineBasedAnnotation(final LineBasedAnnotation other) {
+        super(other.getFeatureMapping());
+        this.lineFrom = other.lineFrom;
+        this.lineTo = other.lineTo;
+        this.style = other.style;
     }
 
     public int getLineFrom() {
@@ -44,12 +59,19 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
     public int getLineCount() {
         return lineTo - lineFrom + 1;
     }
+    public boolean annotates(final int lineNumber) {
+        return lineFrom <= lineNumber && lineNumber <= lineTo;
+    }
 
-    protected void setLineFrom(int lineFrom) {
+    protected void setLineFrom(final int lineFrom) {
         this.lineFrom = lineFrom;
     }
-    protected void setLineTo(int lineTo) {
+    protected void setLineTo(final int lineTo) {
         this.lineTo = lineTo;
+    }
+
+    public boolean isMacro() {
+        return style == AnnotationStyle.Internal;
     }
 
     @Override
@@ -58,78 +80,86 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
     }
 
     @Override
-    public Result<LineBasedAnnotation, Exception> generateVariant(Variant variant, CaseSensitivePath sourceDir, CaseSensitivePath targetDir) {
+    public Result<GroundTruth, Exception> generateVariant(
+            final Variant variant,
+            final CaseSensitivePath sourceDir,
+            final CaseSensitivePath targetDir,
+            final VariantGenerationOptions strategy) {
         throw new UnsupportedOperationException();
     }
 
-    /**
-     * Computes all continuous blocks of lines that should be included in the given variant when evaluating the
-     * annotations in this artefact.
-     * @param variant The variant to get the corresponding lines of code for.
-     * @return A set S of intervals where all lines in the given intervals should be included in the given variant.
-     *         For any interval [a, b] the lines a, a+1, a+2, ..., b-1, b should be included.
-     */
-    public List<LineBasedAnnotation> getLinesToGenerateFor(Variant variant, Node partialPC) {
-        final List<LineBasedAnnotation> chunksToWrite = new ArrayList<>();
-        final int firstCodeLine = lineFrom + 1;
-        final int lastCodeLine = lineTo - 1;
-        final Node myFeatureMapping = FormulaUtils.AndSimplified(partialPC, getFeatureMapping());
+    public Optional<AnnotationGroundTruth> deriveForVariant(final Variant variant) {
+        final BlockMatching matching = BlockMatching.MONOID.mEmpty();
+        return deriveForVariant(variant, 0, matching).map(l -> new AnnotationGroundTruth(this, l, matching));
+    }
 
-        if (subtrees.size() == 0) {
-            // just copy entire file content
-            chunksToWrite.add(new LineBasedAnnotation(myFeatureMapping, firstCodeLine, lastCodeLine));
-        } else {
-            int currentLine = firstCodeLine;
-            int currentChildIndex = 0;
-            LineBasedAnnotation currentChild;
-            while (currentChildIndex < subtrees.size()) {
-                currentChild = subtrees.get(currentChildIndex);
+    private Optional<LineBasedAnnotation> deriveForVariant(final Variant variant, int offset, final BlockMatching matching) {
+        // TODO: It should be sufficient to check the feature mapping here.
+        if (variant.isImplementing(getPresenceCondition())) {
+            final int firstCodeLine = getLineFrom() + offset;
+            offset -= style.offset; // ignore #if
 
-                // 1.) Copy all lines of code between currentLine and begin of child.
-                int linesToWrite = currentChild.lineFrom - currentLine;
-                if (linesToWrite > 0) {
-                    chunksToWrite.add(new LineBasedAnnotation(myFeatureMapping, currentLine, currentChild.lineFrom - 1));
+            /// convert all subtrees to variants
+            final List<LineBasedAnnotation> newSubtrees = new ArrayList<>(getNumberOfSubtrees());
+            for (final LineBasedAnnotation splAnnotation : subtrees) {
+                final Optional<LineBasedAnnotation> mVariantAnnotation = splAnnotation.deriveForVariant(variant, offset, matching);
+                // If the subtree is still present in the variant, it might have shrunk.
+                // That can happen when the subtree as nested annotations inside it that code removed.
+                if (mVariantAnnotation.isPresent()) {
+                    final LineBasedAnnotation variantAnnotation = mVariantAnnotation.get();
+                    newSubtrees.add(variantAnnotation);
+                    // Check how much the subtree shrunk.
+                    offset -= splAnnotation.getLineCount() - variantAnnotation.getLineCount();
+                } else {
+                    // We removed the subtree entirely so its lines won't take any space in the variant.
+                    offset -= splAnnotation.getLineCount();
                 }
-
-                // 2.) handle child
-                // TODO: An incremental sat solver would pay off here.
-                //       Push and pop the feature mappings.
-                if (variant.isImplementing(currentChild.getPresenceCondition())) {
-                    chunksToWrite.addAll(currentChild.getLinesToGenerateFor(variant, myFeatureMapping));
-                } // else skip child as its lines have to be excluded
-
-                // 3.) go to next child and repeat
-                currentLine = currentChild.lineTo + 1;
-                ++currentChildIndex;
             }
 
-            if (currentLine <= lastCodeLine) {
-                chunksToWrite.add(new LineBasedAnnotation(myFeatureMapping, currentLine, lastCodeLine));
+            final int lastCodeLine = getLineTo() + offset - style.offset; // ignore #endif
+            final LineBasedAnnotation meAsVariant = new LineBasedAnnotation(getFeatureMapping(), firstCodeLine, lastCodeLine, AnnotationStyle.External);
+            meAsVariant.setSubtrees(newSubtrees);
+            matching.put(this, meAsVariant);
+            return Optional.of(meAsVariant);
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * Computes all lines that should be included in the given variant when evaluating the annotations in this artefact.
+     * @param isIncluded A predicate to select subtrees. A subtree will be considered if isIncluded returns true for it.
+     * @return All line numbers that should be copied from the SPL file to the variant file. 1-based.
+     */
+    public List<Integer> getAllLinesFor(final Predicate<LineBasedAnnotation> isIncluded)
+    {
+        final List<Integer> chunksToWrite = new ArrayList<>();
+        final int firstCodeLine = getLineFrom() + style.offset; // ignore #if
+        final int lastCodeLine = getLineTo() - style.offset; // ignore #endif
+
+        int currentLine = firstCodeLine;
+        for (final LineBasedAnnotation subtree : subtrees) {
+            if (currentLine < subtree.getLineFrom()) {
+                addRange(chunksToWrite, currentLine, subtree.getLineFrom() - 1);
             }
+
+            if (isIncluded.test(subtree)) {
+                chunksToWrite.addAll(subtree.getAllLinesFor(isIncluded));
+            }
+
+            currentLine = subtree.getLineTo() + 1;
+        }
+
+        if (currentLine <= lastCodeLine) {
+            addRange(chunksToWrite, currentLine, lastCodeLine);
         }
 
         return chunksToWrite;
     }
 
-    /**
-     * Makes all line numbers in the given annotations consecutive.
-     * For example, given the following annotations as input
-     * [ [3, 4], [8, 13], [20, 21] ]
-     * would be reduced to
-     * [ [1, 2] [3, 8], [9, 10] ].
-     * When the given annotations are complete for a specific variant,
-     * this reduction corresponds to turning line numbers in the product line to line numbers in a variant.
-     *
-     * @param annotations Annotations in an SPL that should be reduced to a variant.
-     */
-    public static void convertSPLLineNumbersToVariantLineNumbers(List<LineBasedAnnotation> annotations) {
-        int currentLine = 1;
-        int chunkLength;
-        for (LineBasedAnnotation chunk : annotations) {
-            chunkLength = chunk.getLineCount();
-            chunk.setLineFrom(currentLine);
-            currentLine += chunkLength;
-            chunk.setLineTo(currentLine - 1);
+    private static void addRange(final List<Integer> list, final int fromInclusive, final int toInclusive) {
+        for (int i = fromInclusive; i <= toInclusive; ++i) {
+            list.add(i);
         }
     }
 
@@ -239,6 +269,10 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
         b.setParent(this);
     }
 
+    public LineBasedAnnotation plainCopy() {
+        return new LineBasedAnnotation(this);
+    }
+
     @Override
     public String toString() {
         return "LineBasedAnnotation{" +
@@ -249,11 +283,11 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        LineBasedAnnotation that = (LineBasedAnnotation) o;
+        final LineBasedAnnotation that = (LineBasedAnnotation) o;
         return lineFrom == that.lineFrom && lineTo == that.lineTo;
     }
 

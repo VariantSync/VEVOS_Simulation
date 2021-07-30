@@ -1,7 +1,8 @@
 package de.variantsync.evolution.util.fide.bugfix;
 
 import de.ovgu.featureide.fm.core.editing.NodeCreator;
-import org.prop4j.*;
+import org.prop4j.Literal;
+import org.prop4j.Node;
 
 import java.util.Arrays;
 import java.util.List;
@@ -28,7 +29,7 @@ public class FixTrueFalse {
      * @return True iff the given formula is a true literal.
      * @see FixTrueFalse::isTrueLiteral
      */
-    public static boolean isTrue(Node n) {
+    public static boolean isTrue(final Node n) {
         return n instanceof Literal l && isTrueLiteral(l);
     }
 
@@ -36,21 +37,21 @@ public class FixTrueFalse {
      * @return True iff the given formula is a false literal.
      * @see FixTrueFalse::isFalseLiteral
      */
-    public static boolean isFalse(Node n) {
+    public static boolean isFalse(final Node n) {
         return n instanceof Literal l && isFalseLiteral(l);
     }
 
     /**
      * @return True iff the given name represents the atomic value true w.r.t. the constant TrueNames.
      */
-    public static boolean isTrueLiteral(Literal l) {
+    public static boolean isTrueLiteral(final Literal l) {
         return TrueNames.stream().anyMatch(t -> t.equals(l.var.toString().toLowerCase()));
     }
 
     /**
      * @return True iff the given name represents the atomic value false w.r.t. the constant FalseNames.
      */
-    public static boolean isFalseLiteral(Literal l) {
+    public static boolean isFalseLiteral(final Literal l) {
         return FalseNames.stream().anyMatch(f -> f.equals(l.var.toString().toLowerCase()));
     }
 
@@ -63,7 +64,7 @@ public class FixTrueFalse {
      * Instead, the returned node should be used.
      * @return A formula with a consistent representation of true and false values.
      */
-    public static Node On(Node formula) {
+    public static Node On(final Node formula) {
         if (formula instanceof Literal l) {
             if (isTrueLiteral(l)) {
                 return l.positive ? True : False;
@@ -81,7 +82,7 @@ public class FixTrueFalse {
         }
 
         // else we have an operator (Not, And, Or, ...)
-        Node[] children = formula.getChildren();
+        final Node[] children = formula.getChildren();
         for (int i = 0; i < children.length; ++i) {
             children[i] = On(children[i]);
         }

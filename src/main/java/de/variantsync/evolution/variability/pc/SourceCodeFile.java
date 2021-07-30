@@ -6,13 +6,19 @@ import de.variantsync.evolution.util.CaseSensitivePath;
 import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.PathUtils;
 import de.variantsync.evolution.util.fide.bugfix.FixTrueFalse;
+import de.variantsync.evolution.util.functional.Functional;
 import de.variantsync.evolution.util.functional.Result;
+import de.variantsync.evolution.util.functional.Traversable;
+import de.variantsync.evolution.variability.pc.groundtruth.AnnotationGroundTruth;
+import de.variantsync.evolution.variability.pc.groundtruth.BlockMatching;
+import de.variantsync.evolution.variability.pc.groundtruth.GroundTruth;
 import de.variantsync.evolution.variability.pc.visitor.SourceCodeFileVisitorFocus;
 import org.prop4j.Node;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Represents a variable source code file (e.g., because part of a plugin or only conditionally included).
@@ -20,13 +26,13 @@ import java.util.List;
 public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
     private final LineBasedAnnotation rootAnnotation;
 
-    public SourceCodeFile(Node featureMapping, CaseSensitivePath relativePath) {
-        super(featureMapping, Collections.singletonList(new LineBasedAnnotation(FixTrueFalse.True, 1, 1)), relativePath);
-        rootAnnotation = getSubtrees().get(0);
+    public SourceCodeFile(final Node featureMapping, final CaseSensitivePath relativePath) {
+        this(featureMapping, relativePath, new LineBasedAnnotation(FixTrueFalse.True, 1, 1, AnnotationStyle.External));
     }
 
-    public SourceCodeFile(SourceCodeFile other) {
-        this(other.getFeatureMapping(), other.getFile());
+    private SourceCodeFile(final Node featureMapping, final CaseSensitivePath relativePath, final LineBasedAnnotation root) {
+        super(featureMapping, Collections.singletonList(root), relativePath);
+        rootAnnotation = root;
     }
 
     @Override
@@ -35,26 +41,36 @@ public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
     }
 
     @Override
-    public Result<SourceCodeFile, Exception> generateVariant(Variant variant, CaseSensitivePath sourceDir, CaseSensitivePath targetDir) {
+    public Result<GroundTruth, Exception> generateVariant(
+            final Variant variant,
+            final CaseSensitivePath sourceDir,
+            final CaseSensitivePath targetDir,
+            final VariantGenerationOptions strategy) {
         final CaseSensitivePath targetFile = targetDir.resolve(getFile());
-        // 1. Create the target file.
-        return PathUtils.createEmptyAsResult(targetFile.path())
-        // 2. Write to target file.
-        .bind(unit -> {
-            final CaseSensitivePath sourceFile = sourceDir.resolve(getFile());
-            final List<LineBasedAnnotation> splGroundTruth = rootAnnotation.getLinesToGenerateFor(variant, FixTrueFalse.True);
-            return Result.<IOException>Try(() -> TextIO.copyTextLines(sourceFile.path(), targetFile.path(), splGroundTruth)).map(u -> splGroundTruth);
-        })
-        .bimap(
-                // 3. In case of success, translate line numbers from SPL to variant and return ground truth.
-                splGroundTruth -> {
-                    // We can mutate the splGroundTruth here as we do not need it anymore. So we can reuse the object for speeeeed.
-                    LineBasedAnnotation.convertSPLLineNumbersToVariantLineNumbers(splGroundTruth);
-                    // Return a copy of this subtree as ground truth.
-                    final SourceCodeFile variantGroundTruth = plainCopy();
-                    variantGroundTruth.addTraces(splGroundTruth);
-                    return variantGroundTruth;
-                },
+        final Result<Optional<AnnotationGroundTruth>, IOException> groundTruth =
+                // 1. Create the target file.
+                PathUtils.createEmptyAsResult(targetFile.path())
+                // 2. Write to target file.
+                .bind(unit -> Traversable.sequence(rootAnnotation.deriveForVariant(variant).map(splAnnotationGroundTruth -> {
+                    final BlockMatching lineMatching = splAnnotationGroundTruth.matching();
+                    // only write lines of blocks that are part of our variant
+                    final List<Integer> lines = rootAnnotation.getAllLinesFor(lineMatching::isPresentInVariant);
+                    final CaseSensitivePath sourceFile = sourceDir.resolve(getFile());
+                    return Result.Try(
+                            () -> {
+                                TextIO.copyTextLines(sourceFile.path(), targetFile.path(), lines);
+                                return splAnnotationGroundTruth;
+                            });
+                })));
+        return groundTruth.bimap(
+                // 3. In case of success, return ground truth.
+                Functional.match(
+                        splAnnotationGroundTruth -> GroundTruth.forSourceCodeFile(
+                                new SourceCodeFile(getFeatureMapping(), getFile(), splAnnotationGroundTruth.variantArtefact()),
+                                splAnnotationGroundTruth
+                        ),
+                        () -> GroundTruth.withoutAnnotations(new SourceCodeFile(getFeatureMapping(), getFile()))
+                ),
                 // 4. In case of failure, log it (and implicitly transform IOException to Exception).
                 ioexception -> {
                     Logger.error("Could not create variant file " + targetFile + " because ", ioexception);
@@ -72,13 +88,9 @@ public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
     }
 
     @Override
-    public void addTrace(LineBasedAnnotation lineBasedAnnotation) {
+    public void addTrace(final LineBasedAnnotation lineBasedAnnotation) {
         rootAnnotation.addTrace(lineBasedAnnotation);
         rootAnnotation.setLineTo(Math.max(rootAnnotation.getLineTo(), lineBasedAnnotation.getLineTo()));
-    }
-
-    public SourceCodeFile plainCopy() {
-        return new SourceCodeFile(this);
     }
 
     @Override
@@ -90,11 +102,11 @@ public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        SourceCodeFile that = (SourceCodeFile) o;
+        final SourceCodeFile that = (SourceCodeFile) o;
         return getFile().equals(that.getFile());
     }
 }

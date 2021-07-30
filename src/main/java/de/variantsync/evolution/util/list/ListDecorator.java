@@ -1,5 +1,7 @@
 package de.variantsync.evolution.util.list;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -8,7 +10,7 @@ import java.util.ListIterator;
 public class ListDecorator<T> implements List<T> {
     protected final List<T> wrappee;
 
-    public ListDecorator(List<T> list) {
+    public ListDecorator(final List<T> list) {
         if (list == null) {
             throw new IllegalArgumentException("Given list cannot be null!");
         }
@@ -36,7 +38,7 @@ public class ListDecorator<T> implements List<T> {
     }
 
     @Override
-    public boolean contains(Object o) {
+    public boolean contains(final Object o) {
         return wrappee.contains(o);
     }
 
@@ -51,42 +53,42 @@ public class ListDecorator<T> implements List<T> {
     }
 
     @Override
-    public <T1> T1[] toArray(T1[] a) {
+    public <T1> T1[] toArray(final T1 @NotNull [] a) {
         return wrappee.toArray(a);
     }
 
     @Override
-    public boolean add(T t) {
+    public boolean add(final T t) {
         return wrappee.add(t);
     }
 
     @Override
-    public boolean remove(Object o) {
+    public boolean remove(final Object o) {
         return wrappee.remove(o);
     }
 
     @Override
-    public boolean containsAll(Collection<?> c) {
+    public boolean containsAll(final @NotNull Collection<?> c) {
         return wrappee.containsAll(c);
     }
 
     @Override
-    public boolean addAll(Collection<? extends T> c) {
+    public boolean addAll(final @NotNull Collection<? extends T> c) {
         return wrappee.addAll(c);
     }
 
     @Override
-    public boolean addAll(int index, Collection<? extends T> c) {
+    public boolean addAll(final int index, final @NotNull Collection<? extends T> c) {
         return wrappee.addAll(c);
     }
 
     @Override
-    public boolean removeAll(Collection<?> c) {
+    public boolean removeAll(final @NotNull Collection<?> c) {
         return wrappee.removeAll(c);
     }
 
     @Override
-    public boolean retainAll(Collection<?> c) {
+    public boolean retainAll(final @NotNull Collection<?> c) {
         return wrappee.retainAll(c);
     }
 
@@ -96,32 +98,32 @@ public class ListDecorator<T> implements List<T> {
     }
 
     @Override
-    public T get(int index) {
+    public T get(final int index) {
         return wrappee.get(index);
     }
 
     @Override
-    public T set(int index, T element) {
+    public T set(final int index, final T element) {
         return wrappee.set(index, element);
     }
 
     @Override
-    public void add(int index, T element) {
+    public void add(final int index, final T element) {
         wrappee.add(index, element);
     }
 
     @Override
-    public T remove(int index) {
+    public T remove(final int index) {
         return wrappee.remove(index);
     }
 
     @Override
-    public int indexOf(Object o) {
+    public int indexOf(final Object o) {
         return wrappee.indexOf(o);
     }
 
     @Override
-    public int lastIndexOf(Object o) {
+    public int lastIndexOf(final Object o) {
         return wrappee.lastIndexOf(o);
     }
 
@@ -131,12 +133,12 @@ public class ListDecorator<T> implements List<T> {
     }
 
     @Override
-    public ListIterator<T> listIterator(int index) {
+    public ListIterator<T> listIterator(final int index) {
         return wrappee.listIterator(index);
     }
 
     @Override
-    public List<T> subList(int fromIndex, int toIndex) {
+    public List<T> subList(final int fromIndex, final int toIndex) {
         return wrappee.subList(fromIndex, toIndex);
     }
 }

@@ -9,7 +9,7 @@ public class Variant {
     private final String name;
     private final IConfiguration configuration;
 
-    public Variant(String name, IConfiguration configuration) {
+    public Variant(final String name, final IConfiguration configuration) {
         this.name = name;
         this.configuration = configuration;
     }

@@ -13,11 +13,11 @@ import java.util.Optional;
 public class ListHeadTailView<T> extends ListDecorator<T> {
     private final int headIndex;
 
-    public ListHeadTailView(List<T> list) {
+    public ListHeadTailView(final List<T> list) {
         this(list, 0);
     }
 
-    public ListHeadTailView(List<T> list, int headIndex) {
+    public ListHeadTailView(final List<T> list, final int headIndex) {
         super(list);
         this.headIndex = headIndex;
     }
@@ -53,9 +53,9 @@ public class ListHeadTailView<T> extends ListDecorator<T> {
     }
 
     @Override
-    public ListIterator<T> listIterator(int index) {
+    public ListIterator<T> listIterator(final int index) {
         int jumpsToDo = headIndex + index;
-        ListIterator<T> i = wrappee.listIterator();
+        final ListIterator<T> i = wrappee.listIterator();
         while (jumpsToDo > 0) {
             i.next();
             --jumpsToDo;

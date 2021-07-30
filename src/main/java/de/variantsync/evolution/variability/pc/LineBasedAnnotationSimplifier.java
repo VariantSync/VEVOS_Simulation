@@ -15,7 +15,7 @@ public class LineBasedAnnotationSimplifier {
     /**
      * @return A simplified formula of the given annotation's feature mapping.
      */
-    public static Node simplifiedMapping(LineBasedAnnotation root) {
+    public static Node simplifiedMapping(final LineBasedAnnotation root) {
         // Actually we could employ presence condition simplification by Rhein et al. here.
         return root.getFeatureMapping().simplifyTree();
     }
@@ -45,7 +45,7 @@ public class LineBasedAnnotationSimplifier {
      *
      * @return All non-redundant subtrees that should become the subtrees of root after simplification.
      */
-    public static List<LineBasedAnnotation> flattenedSubtrees(LineBasedAnnotation root) {
+    public static List<LineBasedAnnotation> flattenedSubtrees(final LineBasedAnnotation root) {
         final Queue<LineBasedAnnotation> subtreesToCheck = new LinkedList<>(root.getSubtrees());
         final List<LineBasedAnnotation> nonRedundantSubtrees = new ArrayList<>(subtreesToCheck.size());
 
@@ -88,7 +88,7 @@ public class LineBasedAnnotationSimplifier {
         if (mappings.isEmpty()) return mappings;
 
         // Merge similar neighbouring children
-        List<LineBasedAnnotation> simplifiedSubtrees = new ArrayList<>(mappings.size());
+        final List<LineBasedAnnotation> simplifiedSubtrees = new ArrayList<>(mappings.size());
         LineBasedAnnotation currentSubtree = mappings.get(0);
         simplifiedSubtrees.add(currentSubtree);
 
@@ -106,19 +106,16 @@ public class LineBasedAnnotationSimplifier {
             }
         }
 
-//        System.out.println(mappings);
-//        System.out.println(simplifiedSubtrees);
-
         return simplifiedSubtrees;
     }
 
     /**
      * Simplifies the given annotations using all other simplification methods in this class.
      */
-    public static void simplify(LineBasedAnnotation root) {
+    public static void simplify(final LineBasedAnnotation root) {
         root.setFeatureMapping(simplifiedMapping(root));
-        List<LineBasedAnnotation> flattenedSubtrees = mergedEqualNeighbours(flattenedSubtrees(root));
-        for (LineBasedAnnotation child : flattenedSubtrees) {
+        final List<LineBasedAnnotation> flattenedSubtrees = mergedEqualNeighbours(flattenedSubtrees(root));
+        for (final LineBasedAnnotation child : flattenedSubtrees) {
             simplify(child);
         }
         root.setSubtrees(flattenedSubtrees);
