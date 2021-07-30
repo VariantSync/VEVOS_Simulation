@@ -88,12 +88,12 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
         throw new UnsupportedOperationException();
     }
 
-    public Optional<AnnotationGroundTruth> toVariant(final Variant variant) {
+    public Optional<AnnotationGroundTruth> deriveForVariant(final Variant variant) {
         final BlockMatching matching = BlockMatching.MONOID.mEmpty();
-        return toVariant(variant, 0, matching).map(l -> new AnnotationGroundTruth(this, l, matching));
+        return deriveForVariant(variant, 0, matching).map(l -> new AnnotationGroundTruth(this, l, matching));
     }
 
-    private Optional<LineBasedAnnotation> toVariant(final Variant variant, int offset, final BlockMatching matching) {
+    private Optional<LineBasedAnnotation> deriveForVariant(final Variant variant, int offset, final BlockMatching matching) {
         // TODO: It should be sufficient to check the feature mapping here.
         if (variant.isImplementing(getPresenceCondition())) {
             final int firstCodeLine = getLineFrom() + offset;
@@ -102,7 +102,7 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
             /// convert all subtrees to variants
             final List<LineBasedAnnotation> newSubtrees = new ArrayList<>(getNumberOfSubtrees());
             for (final LineBasedAnnotation splAnnotation : subtrees) {
-                final Optional<LineBasedAnnotation> mVariantAnnotation = splAnnotation.toVariant(variant, offset, matching);
+                final Optional<LineBasedAnnotation> mVariantAnnotation = splAnnotation.deriveForVariant(variant, offset, matching);
                 // If the subtree is still present in the variant, it might have shrunk.
                 // That can happen when the subtree as nested annotations inside it that code removed.
                 if (mVariantAnnotation.isPresent()) {

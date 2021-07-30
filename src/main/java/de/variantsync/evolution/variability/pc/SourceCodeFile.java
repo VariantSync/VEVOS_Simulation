@@ -17,7 +17,6 @@ import org.prop4j.Node;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,7 +51,7 @@ public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
                 // 1. Create the target file.
                 PathUtils.createEmptyAsResult(targetFile.path())
                 // 2. Write to target file.
-                .bind(unit -> Traversable.sequence(rootAnnotation.toVariant(variant).map(splAnnotationGroundTruth -> {
+                .bind(unit -> Traversable.sequence(rootAnnotation.deriveForVariant(variant).map(splAnnotationGroundTruth -> {
                     final BlockMatching lineMatching = splAnnotationGroundTruth.matching();
                     // only write lines of blocks that are part of our variant
                     final List<Integer> lines = rootAnnotation.getAllLinesFor(lineMatching::isPresentInVariant);
