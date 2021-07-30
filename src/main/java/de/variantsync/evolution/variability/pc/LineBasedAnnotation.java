@@ -134,20 +134,20 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
     public List<Integer> getAllLinesFor(final Predicate<LineBasedAnnotation> isIncluded)
     {
         final List<Integer> chunksToWrite = new ArrayList<>();
-        final int firstCodeLine = lineFrom + style.offset; // ignore #if
-        final int lastCodeLine = lineTo - style.offset; // ignore #endif
+        final int firstCodeLine = getLineFrom() + style.offset; // ignore #if
+        final int lastCodeLine = getLineTo() - style.offset; // ignore #endif
 
         int currentLine = firstCodeLine;
         for (final LineBasedAnnotation subtree : subtrees) {
-            if (currentLine < subtree.lineFrom) {
-                addRange(chunksToWrite, currentLine, subtree.lineFrom - 1);
+            if (currentLine < subtree.getLineFrom()) {
+                addRange(chunksToWrite, currentLine, subtree.getLineFrom() - 1);
             }
 
             if (isIncluded.test(subtree)) {
                 chunksToWrite.addAll(subtree.getAllLinesFor(isIncluded));
             }
 
-            currentLine = subtree.lineTo + 1;
+            currentLine = subtree.getLineTo() + 1;
         }
 
         if (currentLine <= lastCodeLine) {
