@@ -36,8 +36,9 @@ public abstract class ArtefactTree<Child extends ArtefactTree<?>> implements Art
         Objects.requireNonNull(subtrees);
 
         this.featureMapping = featureMapping;
-        this.subtrees = subtrees;
         this.file = file;
+
+        setSubtrees(subtrees);
     }
 
     protected void setFeatureMapping(final Node featureMapping) {
@@ -89,10 +90,21 @@ public abstract class ArtefactTree<Child extends ArtefactTree<?>> implements Art
      * Previous subtrees will have their parent set to null.
      */
     protected void setSubtrees(final List<Child> subtrees) {
-        for (final Child c : this.subtrees) {
-            c.setParent(null);
+        // let all previous children forget their parent
+        if (this.subtrees != null) {
+            for (final Child c : this.subtrees) {
+                c.setParent(null);
+            }
         }
+
         this.subtrees = subtrees;
+
+        // update the parent of the new children
+        if (this.subtrees != null) {
+            for (final Child c : this.subtrees) {
+                c.setParent(this);
+            }
+        }
     }
 
     public List<Child> getSubtrees() {
