@@ -59,7 +59,7 @@ public class FeatureIDESampler implements Sampler {
         final AtomicInteger variantNo = new AtomicInteger();
         return new Sample(result.stream().map(literalSet -> new Variant(
                 variantNameGenerator.getNameAtIndex(variantNo.getAndIncrement()),
-                new FeatureIDEConfiguration(literalSet, featureModelFormula, cnf.getVariables())
+                new FeatureIDEConfiguration(literalSet, featureModelFormula)
         )).collect(Collectors.toList()));
     }
 }

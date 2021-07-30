@@ -51,12 +51,10 @@ public class FeatureIDEConfiguration implements IConfiguration {
         this.featureIDEConfig = featureIDEConfig;
     }
 
-    public FeatureIDEConfiguration(final LiteralSet literalSet, final FeatureModelFormula featureModel, final IVariables vars) {
-        if (featureModel == null) {
-            featureIDEConfig = new Configuration();
-        } else {
-            featureIDEConfig = new Configuration(featureModel);
-        }
+    public FeatureIDEConfiguration(final LiteralSet literalSet, final FeatureModelFormula featureModel) {
+        featureIDEConfig = new Configuration(featureModel);
+
+        final IVariables vars = featureModel.getVariables();
 
         // TODO: Untested
         final int[] trueVariables = literalSet.getPositive().getLiterals();
