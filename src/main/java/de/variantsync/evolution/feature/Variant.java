@@ -1,6 +1,6 @@
 package de.variantsync.evolution.feature;
 
-import de.variantsync.evolution.variability.config.IConfiguration;
+import de.variantsync.evolution.feature.config.IConfiguration;
 import org.prop4j.Node;
 
 import java.util.Arrays;

@@ -1,9 +1,14 @@
 package de.variantsync.evolution.io;
 
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
+import de.ovgu.featureide.fm.core.configuration.XMLConfFormat;
+import de.ovgu.featureide.fm.core.io.dimacs.DIMACSFormat;
+import de.ovgu.featureide.fm.core.io.xml.XmlFeatureModelFormat;
+import de.variantsync.evolution.feature.config.IConfiguration;
 import de.variantsync.evolution.io.data.CSV;
 import de.variantsync.evolution.io.data.CSVIO;
-import de.variantsync.evolution.io.data.DimacsFeatureModelLoader;
+import de.variantsync.evolution.io.featureide.FeatureIDEConfigurationIO;
+import de.variantsync.evolution.io.featureide.FeatureModelIO;
 import de.variantsync.evolution.io.kernelhaven.KernelHavenSPLPCIO;
 import de.variantsync.evolution.io.kernelhaven.KernelHavenVariantPCIO;
 import de.variantsync.evolution.util.Logger;
@@ -23,7 +28,7 @@ import java.util.Map;
  */
 public class Resources {
     public static class ResourceIOException extends Exception {
-        private ResourceIOException(final String msg) {
+        public ResourceIOException(final String msg) {
             super(msg);
         }
     }
@@ -43,11 +48,11 @@ public class Resources {
     }
 
     private static void registerDefaultIOAt(final Resources r) {
-        r.registerLoader(IFeatureModel.class, new DimacsFeatureModelLoader());
-
         final CSVIO CSVIO = new CSVIO();
         r.registerLoader(CSV.class, CSVIO);
         r.registerWriter(CSV.class, CSVIO);
+
+        // Presence Conditions
 
         final KernelHavenSPLPCIO splPCIO = new KernelHavenSPLPCIO();
         r.registerLoader(Artefact.class, splPCIO);
@@ -56,6 +61,21 @@ public class Resources {
         final KernelHavenVariantPCIO variantSPLIO = new KernelHavenVariantPCIO();
         r.registerLoader(Artefact.class, variantSPLIO);
         r.registerWriter(Artefact.class, variantSPLIO);
+
+        // Feature Models
+
+        final FeatureModelIO dimacsFMIO = new FeatureModelIO(new DIMACSFormat());
+        r.registerLoader(IFeatureModel.class, dimacsFMIO);
+        r.registerWriter(IFeatureModel.class, dimacsFMIO);
+
+        final FeatureModelIO xmlFMIO = new FeatureModelIO(new XmlFeatureModelFormat());
+        r.registerLoader(IFeatureModel.class, xmlFMIO);
+        r.registerWriter(IFeatureModel.class, xmlFMIO);
+
+        // Configurations
+        final FeatureIDEConfigurationIO xmlConfigIO = new FeatureIDEConfigurationIO(new XMLConfFormat());
+        r.registerLoader(IConfiguration.class, xmlConfigIO);
+        r.registerWriter(IConfiguration.class, xmlConfigIO);
     }
 
     /**

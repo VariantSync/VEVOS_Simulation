@@ -1,4 +1,4 @@
-package de.variantsync.evolution.variability.config;
+package de.variantsync.evolution.feature.config;
 
 import de.ovgu.featureide.fm.core.ExtensionManager;
 import de.ovgu.featureide.fm.core.analysis.cnf.IVariables;
@@ -90,16 +90,6 @@ public class FeatureIDEConfiguration implements IConfiguration {
     }
 
     /**
-     * Load a configuration from the given path.
-     * UNTESTED!
-     * @param p Path to configuration to load.
-     * @throws ExtensionManager.NoSuchExtensionException If no loader for the given file type is registered in FeatureIDE.
-     */
-    public FeatureIDEConfiguration(final Path p) throws ExtensionManager.NoSuchExtensionException {
-        this(ConfigurationFactoryManager.getInstance().getFactory(p, ConfigFormatManager.getDefaultFormat()).create());
-    }
-
-    /**
      * Converts this configuration to an assignment from variables to values.
      * @return An assignment from variables to values.
      */
@@ -110,5 +100,9 @@ public class FeatureIDEConfiguration implements IConfiguration {
     @Override
     public boolean satisfies(final Node formula) {
         return formula.getValue(toAssignment());
+    }
+
+    public Configuration getConfiguration() {
+        return featureIDEConfig;
     }
 }

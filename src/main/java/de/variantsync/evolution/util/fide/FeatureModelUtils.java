@@ -39,21 +39,4 @@ public class FeatureModelUtils {
     public static IFeatureModel FromOptionalFeatures(final String... featureNames) {
         return FromOptionalFeatures(Arrays.asList(featureNames));
     }
-
-    public static Result<IFeatureModel, ProblemList> FromDIMACSFile(final Path pathToDIMACSFile) {
-        final DefaultFeatureModelFactory factory = DefaultFeatureModelFactory.getInstance();
-        final IFeatureModel featureModel = factory.create();
-        final DIMACSFormat dimacsFormat = new DIMACSFormat();
-        try {
-            final ProblemList problemList = dimacsFormat.read(featureModel, Files.readString(pathToDIMACSFile));
-            if (problemList.size() > 0) {
-                // The feature model is empty if there was a problem during parsing, hence, we return a Failure
-                return Result.Failure(problemList);
-            } else {
-                return Result.Success(featureModel);
-            }
-        } catch (final IOException e) {
-            return Result.Failure(new ProblemList(Collections.singleton(new Problem(e))));
-        }
-    }
 }

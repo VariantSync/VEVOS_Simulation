@@ -13,7 +13,7 @@ import de.variantsync.evolution.feature.Sampler;
 import de.variantsync.evolution.feature.Variant;
 import de.variantsync.evolution.util.names.NameGenerator;
 import de.variantsync.evolution.util.names.NumericNameGenerator;
-import de.variantsync.evolution.variability.config.FeatureIDEConfiguration;
+import de.variantsync.evolution.feature.config.FeatureIDEConfiguration;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
