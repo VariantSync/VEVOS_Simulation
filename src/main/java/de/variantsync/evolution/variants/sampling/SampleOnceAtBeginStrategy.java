@@ -12,20 +12,25 @@ import org.prop4j.Node;
 
 import java.util.Optional;
 
-public class SampleOnceAtBeginStrategy implements SamplingStrategy {
+public class SampleOnceAtBeginStrategy implements Sampler, SamplingStrategy {
     private final Sampler sampler;
 
-    public SampleOnceAtBeginStrategy(Sampler sampler) {
+    public SampleOnceAtBeginStrategy(final Sampler sampler) {
         this.sampler = sampler;
     }
 
     @Override
-    public Sample sample(IFeatureModel model) {
+    public int size() {
+        return sampler.size();
+    }
+
+    @Override
+    public Sample sample(final IFeatureModel model) {
         return sampler.sample(model);
     }
 
     @Override
-    public Sample sampleForRevision(Optional<IFeatureModel> model, VariantsRevisionBlueprint blueprint) {
+    public Sample sampleForRevision(final Optional<IFeatureModel> model, final VariantsRevisionBlueprint blueprint) {
         return Functional.match(blueprint.getPredecessor(),
                 // Use the sample we already computed.
                 p -> {
@@ -34,7 +39,7 @@ public class SampleOnceAtBeginStrategy implements SamplingStrategy {
                     // If we have a feature model, validate that the previous sample is still valid.
                     model.ifPresent(fm -> {
                         final Node featureModelFormula = new FeatureModelFormula(fm).getPropositionalNode();
-                        for (Variant variant : previousSample.variants()) {
+                        for (final Variant variant : previousSample.variants()) {
                             if (!variant.getConfiguration().satisfies(featureModelFormula)) {
                                 throw new IllegalSampleException("Sampled " + variant + " is not valid anymore for feature model " + model + "!");
                             }

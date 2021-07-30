@@ -5,9 +5,13 @@ import de.variantsync.evolution.feature.Sample;
 import de.variantsync.evolution.feature.Sampler;
 import de.variantsync.evolution.util.NotImplementedException;
 
-public class UniformRandomSampling implements Sampler {
+public class UniformRandomSampling extends ResizableSampler {
+    public UniformRandomSampling(final int size) {
+        super(size);
+    }
+
     @Override
-    public Sample sample(IFeatureModel model) {
+    public Sample sample(final IFeatureModel model) {
         throw new NotImplementedException();
     }
 }

@@ -131,7 +131,7 @@ public class Main {
             // Setup
             final AbstractSPLRepository splRepository = null;
             final SamplingStrategy samplingForBusybox = new SampleOnceAtBeginStrategy(
-                    new UniformRandomSampling()
+                    new UniformRandomSampling(5)
             );
             final SamplingStrategy samplingForLinux = new SampleOnceAtBeginStrategy(
                             Resources.Instance().load(ConstSampler.class, Path.of("linuxConfigs.txt"))

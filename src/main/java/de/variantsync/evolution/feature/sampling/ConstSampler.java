@@ -6,7 +6,12 @@ import de.variantsync.evolution.feature.Sampler;
 
 public final record ConstSampler(Sample sample) implements Sampler {
     @Override
-    public Sample sample(IFeatureModel model) {
+    public int size() {
+        return sample.size();
+    }
+
+    @Override
+    public Sample sample(final IFeatureModel model) {
         return sample;
     }
 }
