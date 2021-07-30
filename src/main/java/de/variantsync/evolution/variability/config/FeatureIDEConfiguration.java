@@ -1,6 +1,8 @@
 package de.variantsync.evolution.variability.config;
 
 import de.ovgu.featureide.fm.core.ExtensionManager;
+import de.ovgu.featureide.fm.core.analysis.cnf.IVariables;
+import de.ovgu.featureide.fm.core.analysis.cnf.LiteralSet;
 import de.ovgu.featureide.fm.core.analysis.cnf.formula.FeatureModelFormula;
 import de.ovgu.featureide.fm.core.base.IFeature;
 import de.ovgu.featureide.fm.core.base.impl.ConfigFormatManager;
@@ -49,7 +51,28 @@ public class FeatureIDEConfiguration implements IConfiguration {
         this.featureIDEConfig = featureIDEConfig;
     }
 
-    /**
+    public FeatureIDEConfiguration(final LiteralSet literalSet, final FeatureModelFormula featureModel, final IVariables vars) {
+        if (featureModel == null) {
+            featureIDEConfig = new Configuration();
+        } else {
+            featureIDEConfig = new Configuration(featureModel);
+        }
+
+        // TODO: Untested
+        final int[] trueVariables = literalSet.getPositive().getLiterals();
+        final int[] falseVariables = literalSet.getNegative().getLiterals();
+        for (final int trueVar : trueVariables) {
+            featureIDEConfig.setManual(vars.getName(trueVar), Selection.SELECTED);
+        }
+        for (final int falseVar : falseVariables) {
+            featureIDEConfig.setManual(vars.getName(falseVar), Selection.UNSELECTED);
+        }
+
+        // Selection should be complete as the given literalSet should be total.
+        // So we do not have to analyze and complete configurations.
+    }
+
+                                   /**
      * Create a minimal viable configuration such that all features in the given selection are active.
      * @param fm Feature model to satisfy.
      * @param activeFeatures Features to select.
