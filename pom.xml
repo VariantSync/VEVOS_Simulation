@@ -103,7 +103,7 @@
         <dependency>
             <groupId>de.ovgu</groupId>
             <artifactId>featureide.lib.fm</artifactId>
-            <version>3.7.0</version>
+            <version>3.7.2</version>
         </dependency>
 
         <dependency>
