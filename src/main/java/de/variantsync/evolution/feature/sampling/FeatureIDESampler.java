@@ -9,6 +9,7 @@ import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import de.ovgu.featureide.fm.core.job.LongRunningWrapper;
 import de.ovgu.featureide.fm.core.job.monitor.NullMonitor;
 import de.variantsync.evolution.feature.Sample;
+import de.variantsync.evolution.feature.Sampler;
 import de.variantsync.evolution.feature.Variant;
 import de.variantsync.evolution.util.names.NameGenerator;
 import de.variantsync.evolution.util.names.NumericNameGenerator;
@@ -19,7 +20,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class FeatureIDESampler extends ResizableSampler {
+public class FeatureIDESampler implements Sampler {
+    private final int size;
     private final Function<CNF, IConfigurationGenerator> generatorFactory;
     private NameGenerator variantNameGenerator;
 
@@ -31,13 +33,18 @@ public class FeatureIDESampler extends ResizableSampler {
     }
 
     public FeatureIDESampler(final int size, final Function<CNF, IConfigurationGenerator> generatorFactory) {
-        super(size);
+        this.size = size;
         this.generatorFactory = generatorFactory;
         variantNameGenerator = new NumericNameGenerator("Variant");
     }
 
     public void setNameGenerator(final NameGenerator variantNameGenerator) {
         this.variantNameGenerator = variantNameGenerator;
+    }
+
+    @Override
+    public int size() {
+        return size;
     }
 
     @Override
