@@ -10,7 +10,7 @@ temporary-test-repos/
 
 target/
 bin/
-data/
+./data/
 __pycache__
 
 */latex/*.aux
@@ -19,4 +19,5 @@ __pycache__
 */latex/*.log
 */latex/*.out
 */latex/*.synctex.gz
-/src/main/resources/test/gen/
+
+/src/test/resources/variantgeneration/gen/

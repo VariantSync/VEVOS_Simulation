@@ -1,17 +1,11 @@
 package de.variantsync.evolution.variability.pc;
 
-import de.variantsync.evolution.feature.Variant;
 import de.variantsync.evolution.util.CaseSensitivePath;
-import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.fide.FormulaUtils;
-import de.variantsync.evolution.util.fide.bugfix.FixTrueFalse;
-import de.variantsync.evolution.util.functional.Result;
-import de.variantsync.evolution.util.functional.Unit;
 import org.prop4j.Node;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -21,47 +15,33 @@ import java.util.Objects;
  * @param <Child> The type of children that can be added to this tree. Only affects direct children, meaning
  *               that it is not transitive and grandchildren could be of another type.
  */
-public class ArtefactTree<Child extends ArtefactTree<?>> implements Artefact {
-    private final Node featureMapping;
+public abstract class ArtefactTree<Child extends ArtefactTree<?>> implements Artefact {
+    private Node featureMapping;
     private final CaseSensitivePath file;
     private ArtefactTree<?> parent;
-    protected final List<Child> subtrees;
-
-    /**
-     * Creates a new empty tree (node) with feature mapping True.
-     */
-    public ArtefactTree() {
-        this(FixTrueFalse.True);
-    }
+    protected List<Child> subtrees;
 
     /**
      * Creates a new empty tree (node) with the given feature mapping.
      */
-    public ArtefactTree(Node featureMapping) {
-        this(featureMapping, null);
+    public ArtefactTree(final Node featureMapping) {
+        this(featureMapping, new ArrayList<>(), null);
     }
 
     /**
-     * Creates a new tree (node) with feature mapping True and the given subtrees.
+     * Creates a new tree (node) with the given feature mapping and subtrees representing (content of) the given file.
      */
-    public ArtefactTree(List<Child> subtrees) {
-        this(FixTrueFalse.True, subtrees, null);
-    }
+    public ArtefactTree(final Node featureMapping, final List<Child> subtrees, final CaseSensitivePath file) {
+        Objects.requireNonNull(featureMapping);
+        Objects.requireNonNull(subtrees);
 
-    /**
-     * Creates a new tree (node) with feature mapping True and the given subtrees.
-     */
-    public ArtefactTree(Node featureMapping, CaseSensitivePath file) {
-        this(featureMapping, new ArrayList<>(), file);
-    }
-
-    /**
-     * Creates a new tree (node) with the given feature mapping and subtrees.
-     */
-    public ArtefactTree(Node featureMapping, List<Child> subtrees, CaseSensitivePath file) {
         this.featureMapping = featureMapping;
         this.subtrees = subtrees;
         this.file = file;
+    }
+
+    protected void setFeatureMapping(final Node featureMapping) {
+        this.featureMapping = featureMapping;
     }
 
     @Override
@@ -88,25 +68,6 @@ public class ArtefactTree<Child extends ArtefactTree<?>> implements Artefact {
         return null;
     }
 
-    @Override
-    public Result<Unit, Exception> generateVariant(Variant variant, CaseSensitivePath sourceDir, CaseSensitivePath targetDir) {
-        final CaseSensitivePath f = getFile();
-        if (f != null && !sourceDir.resolve(f).exists()) {
-            Logger.error("Skipping file " + f + " as it does not exist!");
-        } else {
-            for (Child subtree : subtrees) {
-                if (variant.isImplementing(subtree.getPresenceCondition())) {
-                    var result = subtree.generateVariant(variant, sourceDir, targetDir);
-                    if (result.isFailure()) {
-                        return result;
-                    }
-                }
-            }
-        }
-
-        return Result.Success(Unit.Instance());
-    }
-
     /**
      * Sets the parent of this (sub-)tree.
      * Does not perform relocations and is only used for internal use after other tree operations.
@@ -124,8 +85,33 @@ public class ArtefactTree<Child extends ArtefactTree<?>> implements Artefact {
     }
 
     /**
+     * Replaces this trees subtrees with the given subtrees.
+     * Previous subtrees will have their parent set to null.
+     */
+    protected void setSubtrees(final List<Child> subtrees) {
+        for (final Child c : this.subtrees) {
+            c.setParent(null);
+        }
+        this.subtrees = subtrees;
+    }
+
+    public List<Child> getSubtrees() {
+        return subtrees;
+    }
+
+    public int getNumberOfSubtrees() {
+        return subtrees.size();
+    }
+
+    public void addTraces(final Collection<Child> annotations) {
+        for (final Child b : annotations) {
+            addTrace(b);
+        }
+    }
+
+    /**
      * Adds the given subtree to this tree.
-     * Behaviour might change based on subclasses (e.g., for Annotated).
+     * Behaviour might change based on subclasses (e.g., for LineBasedAnnotation).
      * @param child The subtree to add.
      */
     public void addTrace(final Child child) {
@@ -134,55 +120,37 @@ public class ArtefactTree<Child extends ArtefactTree<?>> implements Artefact {
     }
 
     /**
-     * Prints meta information to the given builder that should be displayed before printing all children.
-     * @param indent The current indent of the output string to show the tree in a convenient way.
+     * Removes all subtrees.
      */
-    protected void prettyPrintHeader(String indent, StringBuilder builder) {
-        builder.append(indent).append("[");
-    }
-
-    /**
-     * Prints meta information to the given builder that should be displayed after printing all children.
-     * @param indent The current indent of the output string to show the tree in a convenient way.
-     */
-    protected void prettyPrintFooter(String indent, StringBuilder builder) {
-        builder.append(indent).append("]");
-    }
-
-    @Override
-    public String prettyPrint(String indent) {
-        final StringBuilder builder = new StringBuilder();
-        prettyPrint(indent, builder);
-        return builder.toString();
-    }
-
-    protected void prettyPrint(String indent, StringBuilder builder) {
-        // print node info (e.g., "[")
-        prettyPrintHeader(indent, builder);
-        builder.append(System.lineSeparator());
-        // print all subtrees
-        {
-            final String childIndent = indent + "  ";
-            for (Child child : subtrees) {
-                child.prettyPrint(childIndent, builder);
-            }
+    public void clear() {
+        for (final Child c : subtrees) {
+            c.setParent(null);
         }
-        // print end (e.g., "]")
-        prettyPrintFooter(indent, builder);
-        builder.append(System.lineSeparator());
+        subtrees.clear();
+    }
+
+    public boolean isLeaf() {
+        return subtrees.isEmpty();
     }
 
     @Override
-    public boolean equals(Object o) {
+    public void simplify() {
+        for (final Child c : subtrees) {
+            c.simplify();
+        }
+    }
+
+    @Override
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ArtefactTree<?> that = (ArtefactTree<?>) o;
+        final ArtefactTree<?> that = (ArtefactTree<?>) o;
         // don't compare parents so we only compare subtrees
         return featureMapping.equals(that.featureMapping) && subtrees.equals(that.subtrees);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(featureMapping, parent, subtrees);
+        return Objects.hash(featureMapping, file /*, parent , subtrees*/);
     }
 }

@@ -8,7 +8,7 @@ import org.prop4j.Node;
  */
 public class SayYesToAllConfiguration implements IConfiguration {
     @Override
-    public boolean satisfies(Node formula) {
+    public boolean satisfies(final Node formula) {
         return true;
     }
 }

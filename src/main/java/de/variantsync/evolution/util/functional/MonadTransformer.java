@@ -14,14 +14,14 @@ public class MonadTransformer {
 
     /// Lazy<Optional<T>>
 
-    public static <A, B> Lazy<Optional<B>> bind(Lazy<Optional<A>> m, Function<A, Lazy<Optional<B>>> f) {
+    public static <A, B> Lazy<Optional<B>> bind(final Lazy<Optional<A>> m, final Function<A, Lazy<Optional<B>>> f) {
         return m.bind(Functional.match(
                 /* Just a  */ f,
                 /* Nothing */ () -> Lazy.of(Optional::empty)
             ));
     }
 
-    public static <A> Lazy<Optional<A>> pure(A a) {
+    public static <A> Lazy<Optional<A>> pure(final A a) {
         return Lazy.pure(Optional.ofNullable(a));
     }
 }

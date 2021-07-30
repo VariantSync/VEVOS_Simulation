@@ -1,37 +1,53 @@
 package de.variantsync.evolution.variability.pc;
 
 import de.variantsync.evolution.feature.Variant;
-import de.variantsync.evolution.io.TextIO;
 import de.variantsync.evolution.util.CaseSensitivePath;
 import de.variantsync.evolution.util.functional.Result;
-import de.variantsync.evolution.util.functional.Unit;
-import de.variantsync.evolution.util.math.IntervalSet;
+import de.variantsync.evolution.variability.pc.groundtruth.AnnotationGroundTruth;
+import de.variantsync.evolution.variability.pc.groundtruth.BlockMatching;
+import de.variantsync.evolution.variability.pc.groundtruth.GroundTruth;
+import de.variantsync.evolution.variability.pc.visitor.LineBasedAnnotationVisitorFocus;
 import org.prop4j.Node;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * A line-based annotation of source code, such as preprocessor annotations (#ifdef)
  */
-public class LineBasedAnnotation extends Annotated {
-    private final int lineFrom;
-    private final int lineTo;
+public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
+    private int lineFrom;
+    private int lineTo;
+    private final AnnotationStyle style;
 
     /**
      * Creates a new annotation starting at lineFrom and ending at lineTo including both
      * (i.e., [lineFrom, lineTo]).
      * Indexing is 1-based (i.e., the first line in a file is indexed by 1).
-     * Example for a preprocessor block
-     * 3 #if X     <-- lineFrom
-     * 4   foo();
-     * 5   bar();
-     * 6 #endif    <-- lineTo
-     * is reflected by LineBasedAnnotation(X, 3, 6);
+     *
+     * The style determines whether the annotations is considered to be within the source code (i.e., c macros) or external.
+     * Example for a preprocessor block:
+     *   3 #if X     <-- lineFrom
+     *   4   foo();
+     *   5   bar();
+     *   6 #endif    <-- lineTo
+     * is reflected by LineBasedAnnotation(X, 3, 6, Internal);
      */
-    public LineBasedAnnotation(Node featureMapping, int lineFrom, int lineTo) {
+    public LineBasedAnnotation(final Node featureMapping, final int lineFrom, final int lineTo, final AnnotationStyle style) {
         super(featureMapping);
         this.lineFrom = lineFrom;
         this.lineTo = lineTo;
+        this.style = style;
+    }
+
+    public LineBasedAnnotation(final LineBasedAnnotation other) {
+        super(other.getFeatureMapping());
+        this.lineFrom = other.lineFrom;
+        this.lineTo = other.lineTo;
+        this.style = other.style;
     }
 
     public int getLineFrom() {
@@ -40,64 +56,226 @@ public class LineBasedAnnotation extends Annotated {
     public int getLineTo() {
         return lineTo;
     }
+    public int getLineCount() {
+        return lineTo - lineFrom + 1;
+    }
+    public boolean annotates(final int lineNumber) {
+        return lineFrom <= lineNumber && lineNumber <= lineTo;
+    }
+
+    protected void setLineFrom(final int lineFrom) {
+        this.lineFrom = lineFrom;
+    }
+    protected void setLineTo(final int lineTo) {
+        this.lineTo = lineTo;
+    }
+
+    public boolean isMacro() {
+        return style == AnnotationStyle.Internal;
+    }
 
     @Override
-    public Result<Unit, Exception> generateVariant(Variant variant, CaseSensitivePath sourceDir, CaseSensitivePath targetDir) {
-        final CaseSensitivePath sourceFile = sourceDir.resolve(getFile());
-        final CaseSensitivePath targetFile = targetDir.resolve(getFile());
-        final IntervalSet chunksToWrite    = getLinesToGenerateFor(variant);
-        return Result.Try(() -> TextIO.copyTextLines(sourceFile.path(), targetFile.path(), chunksToWrite));
+    public LineBasedAnnotationVisitorFocus createVisitorFocus() {
+        return new LineBasedAnnotationVisitorFocus(this);
+    }
+
+    @Override
+    public Result<GroundTruth, Exception> generateVariant(
+            final Variant variant,
+            final CaseSensitivePath sourceDir,
+            final CaseSensitivePath targetDir,
+            final VariantGenerationOptions strategy) {
+        throw new UnsupportedOperationException();
+    }
+
+    public Optional<AnnotationGroundTruth> deriveForVariant(final Variant variant) {
+        final BlockMatching matching = BlockMatching.MONOID.mEmpty();
+        return deriveForVariant(variant, 0, matching).map(l -> new AnnotationGroundTruth(this, l, matching));
+    }
+
+    private Optional<LineBasedAnnotation> deriveForVariant(final Variant variant, int offset, final BlockMatching matching) {
+        // TODO: It should be sufficient to check the feature mapping here.
+        if (variant.isImplementing(getPresenceCondition())) {
+            final int firstCodeLine = getLineFrom() + offset;
+            offset -= style.offset; // ignore #if
+
+            /// convert all subtrees to variants
+            final List<LineBasedAnnotation> newSubtrees = new ArrayList<>(getNumberOfSubtrees());
+            for (final LineBasedAnnotation splAnnotation : subtrees) {
+                final Optional<LineBasedAnnotation> mVariantAnnotation = splAnnotation.deriveForVariant(variant, offset, matching);
+                // If the subtree is still present in the variant, it might have shrunk.
+                // That can happen when the subtree as nested annotations inside it that code removed.
+                if (mVariantAnnotation.isPresent()) {
+                    final LineBasedAnnotation variantAnnotation = mVariantAnnotation.get();
+                    newSubtrees.add(variantAnnotation);
+                    // Check how much the subtree shrunk.
+                    offset -= splAnnotation.getLineCount() - variantAnnotation.getLineCount();
+                } else {
+                    // We removed the subtree entirely so its lines won't take any space in the variant.
+                    offset -= splAnnotation.getLineCount();
+                }
+            }
+
+            final int lastCodeLine = getLineTo() + offset - style.offset; // ignore #endif
+            final LineBasedAnnotation meAsVariant = new LineBasedAnnotation(getFeatureMapping(), firstCodeLine, lastCodeLine, AnnotationStyle.External);
+            meAsVariant.setSubtrees(newSubtrees);
+            matching.put(this, meAsVariant);
+            return Optional.of(meAsVariant);
+        } else {
+            return Optional.empty();
+        }
     }
 
     /**
-     * Computes all continuous blocks of lines that should be included in the given variant when evaluating the
-     * annotations in this artefact.
-     * @param variant The variant to get the corresponding lines of code for.
-     * @return A set S of intervals where all lines in the given intervals should be included in the given variant.
-     *         For any interval [a, b] the lines a, a+1, a+2, ..., b-1, b should be included.
+     * Computes all lines that should be included in the given variant when evaluating the annotations in this artefact.
+     * @param isIncluded A predicate to select subtrees. A subtree will be considered if isIncluded returns true for it.
+     * @return All line numbers that should be copied from the SPL file to the variant file. 1-based.
      */
-    public IntervalSet getLinesToGenerateFor(Variant variant) {
-        final IntervalSet chunksToWrite = new IntervalSet();
-        final int firstCodeLine = lineFrom + 1;
-        final int lastCodeLine = lineTo - 1;
+    public List<Integer> getAllLinesFor(final Predicate<LineBasedAnnotation> isIncluded)
+    {
+        final List<Integer> chunksToWrite = new ArrayList<>();
+        final int firstCodeLine = getLineFrom() + style.offset; // ignore #if
+        final int lastCodeLine = getLineTo() - style.offset; // ignore #endif
 
-        if (subtrees.size() == 0) {
-            // just copy entire file content
-            chunksToWrite.add(firstCodeLine, lastCodeLine);
-        } else {
-            int currentLine = firstCodeLine;
-            int currentChildIndex = 0;
-            LineBasedAnnotation currentChild;
-            while (currentChildIndex < subtrees.size()) {
-                currentChild = subtrees.get(currentChildIndex);
-
-                // 1.) Copy all lines of code between currentLine and begin of child.
-                int linesToWrite = currentChild.lineFrom - currentLine;
-                if (linesToWrite > 0) {
-                    chunksToWrite.add(currentLine, currentChild.lineFrom - 1);
-                }
-
-                // 2.) handle child
-                if (variant.isImplementing(currentChild.getPresenceCondition())) {
-                    chunksToWrite.mappendInline(currentChild.getLinesToGenerateFor(variant));
-                } // else skip child as its lines have to be exluded
-
-                // 3.) go to next child and repeat
-                currentLine = currentChild.lineTo + 1;
-                ++currentChildIndex;
+        int currentLine = firstCodeLine;
+        for (final LineBasedAnnotation subtree : subtrees) {
+            if (currentLine < subtree.getLineFrom()) {
+                addRange(chunksToWrite, currentLine, subtree.getLineFrom() - 1);
             }
 
-            if (currentLine <= lastCodeLine) {
-                chunksToWrite.add(currentLine, lastCodeLine);
+            if (isIncluded.test(subtree)) {
+                chunksToWrite.addAll(subtree.getAllLinesFor(isIncluded));
             }
+
+            currentLine = subtree.getLineTo() + 1;
+        }
+
+        if (currentLine <= lastCodeLine) {
+            addRange(chunksToWrite, currentLine, lastCodeLine);
         }
 
         return chunksToWrite;
     }
 
+    private static void addRange(final List<Integer> list, final int fromInclusive, final int toInclusive) {
+        for (int i = fromInclusive; i <= toInclusive; ++i) {
+            list.add(i);
+        }
+    }
+
+    public void simplify() {
+        LineBasedAnnotationSimplifier.simplify(this);
+    }
+
+    /**
+     * Merges the given FeatureAnnotation to this artefact in a sorted way.
+     * Containment within FeatureAnnotations will be solved recursively, creating a tree structure.
+     */
+    @Override
+    public void addTrace(final LineBasedAnnotation b) {
+        int left = 0;
+        int right = subtrees.size();
+        int pos = (left + right) / 2;
+        while (left < right) {
+            final LineBasedAnnotation a = subtrees.get(pos);
+
+            /*
+            #if A
+            #endif
+
+            #if B
+            #endif
+
+            ==> Insert b after a.
+             */
+            if (a.getLineTo() <= b.getLineFrom()) {
+                left = pos + 1;
+            }
+            /*
+            #if B
+            #endif
+
+            #if A
+            #endif
+
+            ==> Insert b before a.
+             */
+            else if (b.getLineTo() < a.getLineFrom()) {
+                right = pos - 1;
+            }
+            // Otherwise, there is an overlap.
+            else {
+                final boolean bStartsAfterCurrent = a.getLineFrom() <= b.getLineFrom();
+                final boolean bEndsBeforeCurrent = b.getLineTo() <= a.getLineTo();
+                /*
+                #if A
+                  #if B
+                  #endif
+                #endif
+
+                ==> b is surrounded by (at least) a.
+                ==> Insert b to the subtree of a.
+                 */
+                if (bStartsAfterCurrent && bEndsBeforeCurrent) {
+                    a.addTrace(b);
+                    return;
+                }
+                /*
+                #if B
+                  #if A
+                  #endif
+                #endif
+
+                ==> b is surrounds at (at least) a.
+                ==> Replace the subtree a with b and add a as subtree to b.
+                 */
+                else if (!bStartsAfterCurrent && !bEndsBeforeCurrent) {
+                    // Swap A with B
+                    subtrees.set(pos, b);
+                    b.setParent(this);
+                    b.addTrace(a);
+                    return;
+                }
+                /*
+                Illegal State: Blocks are overlapping but not nested into each other such as
+                #ifdef A
+                  #ifdef B
+                #endif // A
+                  #endif // B
+                or vice versa.
+                This is not possible to specify in practice.
+                Yet it could happen result from an ill-formed or buggy parsing process that we
+                should report by throwing an exception.
+                 */
+                else {
+                    throw new IllegalFeatureTraceSpecification(
+                            "Illegal Definition of Preprocessor Block! Given block \""
+                                    + b
+                                    + "\" overlaps block \""
+                                    + a
+                                    + "\" in "
+                                    + this.getFile()
+                                    + " but is not contained in it!");
+                }
+            }
+
+            pos = (left + right) / 2;
+        }
+
+        /*
+        We found the location in the list at which to insert b.
+         */
+        subtrees.add(pos, b);
+        b.setParent(this);
+    }
+
+    public LineBasedAnnotation plainCopy() {
+        return new LineBasedAnnotation(this);
+    }
+
     @Override
     public String toString() {
-        return "Annotation{" +
+        return "LineBasedAnnotation{" +
                 "featureMapping=" + getFeatureMapping() +
                 ", from " + lineFrom +
                 " to " + lineTo +
@@ -105,26 +283,16 @@ public class LineBasedAnnotation extends Annotated {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        LineBasedAnnotation that = (LineBasedAnnotation) o;
+        final LineBasedAnnotation that = (LineBasedAnnotation) o;
         return lineFrom == that.lineFrom && lineTo == that.lineTo;
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), lineFrom, lineTo);
-    }
-
-    @Override
-    protected void prettyPrintHeader(String indent, StringBuilder builder) {
-        builder.append(indent).append("#if ").append(getFeatureMapping()).append(" @").append(getLineFrom());
-    }
-
-    @Override
-    protected void prettyPrintFooter(String indent, StringBuilder builder) {
-        builder.append(indent).append("#endif @").append(getLineTo());
     }
 }

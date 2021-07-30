@@ -2,8 +2,6 @@ package de.variantsync.evolution.variability.config;
 
 import org.prop4j.Node;
 
-import java.util.Map;
-
 /**
  * A configuration is an assignment of features to values.
  * This is a total configuration.

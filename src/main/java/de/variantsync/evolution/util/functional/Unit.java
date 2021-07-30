@@ -3,8 +3,9 @@ package de.variantsync.evolution.util.functional;
 /**
  * Unit represents a type that has exactly one value (Instance()).
  */
-public class Unit implements Monoid<Unit> {
+public class Unit {
     private static final Unit instance = new Unit();
+    public static final Monoid<Unit> MONOID = Monoid.Create(() -> instance, (a, b) -> instance);
 
     private Unit() {}
 
@@ -13,7 +14,7 @@ public class Unit implements Monoid<Unit> {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         return obj instanceof Unit;
     }
 
@@ -25,15 +26,5 @@ public class Unit implements Monoid<Unit> {
     @Override
     public String toString() {
         return "()";
-    }
-
-    @Override
-    public Unit mEmpty() {
-        return Instance();
-    }
-
-    @Override
-    public Unit mAppend(Unit other) {
-        return mEmpty();
     }
 }

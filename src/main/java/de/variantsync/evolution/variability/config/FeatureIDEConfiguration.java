@@ -9,7 +9,6 @@ import de.ovgu.featureide.fm.core.configuration.Configuration;
 import de.ovgu.featureide.fm.core.configuration.ConfigurationAnalyzer;
 import de.ovgu.featureide.fm.core.configuration.ConfigurationPropagator;
 import de.ovgu.featureide.fm.core.configuration.Selection;
-import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.fide.bugfix.FixTrueFalse;
 import de.variantsync.evolution.util.functional.Lazy;
 import org.prop4j.Node;
@@ -46,7 +45,7 @@ public class FeatureIDEConfiguration implements IConfiguration {
      * Wrap the given FeatureIDE configuration.
      * @param featureIDEConfig Configuration in FeatureIDE format.
      */
-    public FeatureIDEConfiguration(Configuration featureIDEConfig) {
+    public FeatureIDEConfiguration(final Configuration featureIDEConfig) {
         this.featureIDEConfig = featureIDEConfig;
     }
 
@@ -55,10 +54,10 @@ public class FeatureIDEConfiguration implements IConfiguration {
      * @param fm Feature model to satisfy.
      * @param activeFeatures Features to select.
      */
-    public FeatureIDEConfiguration(FeatureModelFormula fm, List<String> activeFeatures) {
+    public FeatureIDEConfiguration(final FeatureModelFormula fm, final List<String> activeFeatures) {
         this(new Configuration(fm));
 
-        for (String activeFeature : activeFeatures) {
+        for (final String activeFeature : activeFeatures) {
             featureIDEConfig.setManual(activeFeature, Selection.SELECTED);
         }
 
@@ -70,10 +69,10 @@ public class FeatureIDEConfiguration implements IConfiguration {
     /**
      * Load a configuration from the given path.
      * UNTESTED!
-     * @param p Path to configuraton to load.
+     * @param p Path to configuration to load.
      * @throws ExtensionManager.NoSuchExtensionException If no loader for the given file type is registered in FeatureIDE.
      */
-    public FeatureIDEConfiguration(Path p) throws ExtensionManager.NoSuchExtensionException {
+    public FeatureIDEConfiguration(final Path p) throws ExtensionManager.NoSuchExtensionException {
         this(ConfigurationFactoryManager.getInstance().getFactory(p, ConfigFormatManager.getDefaultFormat()).create());
     }
 
@@ -86,7 +85,7 @@ public class FeatureIDEConfiguration implements IConfiguration {
     }
 
     @Override
-    public boolean satisfies(Node formula) {
+    public boolean satisfies(final Node formula) {
         return formula.getValue(toAssignment());
     }
 }

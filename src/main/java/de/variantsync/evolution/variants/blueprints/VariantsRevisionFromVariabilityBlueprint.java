@@ -1,19 +1,20 @@
 package de.variantsync.evolution.variants.blueprints;
 
-import de.variantsync.evolution.util.CaseSensitivePath;
-import de.variantsync.evolution.util.Logger;
-import de.variantsync.evolution.util.functional.Result;
-import de.variantsync.evolution.util.functional.Unit;
-import de.variantsync.evolution.variability.pc.Artefact;
-import de.variantsync.evolution.variants.VariantCommit;
-import de.variantsync.evolution.variants.VariantsRevision;
 import de.variantsync.evolution.feature.Sample;
 import de.variantsync.evolution.feature.Variant;
-import de.variantsync.evolution.repository.Branch;
 import de.variantsync.evolution.repository.AbstractSPLRepository;
 import de.variantsync.evolution.repository.AbstractVariantsRepository;
-import de.variantsync.evolution.variability.SPLCommit;
+import de.variantsync.evolution.repository.Branch;
+import de.variantsync.evolution.util.CaseSensitivePath;
+import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.functional.Lazy;
+import de.variantsync.evolution.util.functional.Result;
+import de.variantsync.evolution.variability.SPLCommit;
+import de.variantsync.evolution.variability.pc.Artefact;
+import de.variantsync.evolution.variability.pc.VariantGenerationOptions;
+import de.variantsync.evolution.variability.pc.groundtruth.GroundTruth;
+import de.variantsync.evolution.variants.VariantCommit;
+import de.variantsync.evolution.variants.VariantsRevision;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
 import java.io.IOException;
@@ -36,8 +37,8 @@ public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBl
      *                    the revision of this blueprint. May be null, if this is the first blueprint to generate.
      */
     public VariantsRevisionFromVariabilityBlueprint(
-            SPLCommit splCommit,
-            VariantsRevisionFromVariabilityBlueprint predecessor)
+            final SPLCommit splCommit,
+            final VariantsRevisionFromVariabilityBlueprint predecessor)
     {
         this.splCommit = splCommit;
         this.predecessor = Optional.ofNullable(predecessor);
@@ -61,7 +62,7 @@ public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBl
     }
 
     @Override
-    public Lazy<VariantsRevision.Branches> generateArtefactsFor(VariantsRevision revision) {
+    public Lazy<VariantsRevision.Branches> generateArtefactsFor(final VariantsRevision revision) {
         return splCommit.presenceConditions().and(getSample()).map(ts -> {
             // TODO: Should we implement handling of an empty optional, or do we consider this to be a fundamental error?
             final Artefact traces = ts.getKey().orElseThrow();
@@ -70,26 +71,27 @@ public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBl
             final AbstractVariantsRepository variantsRepo = revision.getVariantsRepo();
 
             final Map<Branch, VariantCommit> commits = new HashMap<>(sample.size());
-            for (Variant variant : sample.variants()) {
+            for (final Variant variant : sample.variants()) {
                 final Branch branch = variantsRepo.getBranchByName(variant.getName());
 
                 try {
                     variantsRepo.checkoutBranch(branch);
-                } catch (IOException | GitAPIException e) {
+                } catch (final IOException | GitAPIException e) {
                     throw new RuntimeException("Failed checkout of branch " + branch + " in variants repository.");
                 }
 
                 try {
                     splRepo.checkoutCommit(splCommit);
-                } catch (IOException | GitAPIException e) {
+                } catch (final IOException | GitAPIException e) {
                     throw new RuntimeException("Failed checkout of commit " + splCommit.id() + " in SPL Repository.");
                 }
 
                 // Generate the code
-                final Result<Unit, Exception> result = traces.generateVariant(
+                final Result<GroundTruth, Exception> result = traces.generateVariant(
                         variant,
                         new CaseSensitivePath(splRepo.getPath()),
-                        new CaseSensitivePath(variantsRepo.getPath()));
+                        new CaseSensitivePath(variantsRepo.getPath()),
+                        VariantGenerationOptions.ExitOnErrorButAllowNonExistentFiles);
                 Logger.log(result.map(u -> "Generating variant " + variant + " was successful!"));
 
                 // Commit the generated variant with the corresponding spl commit has as message.
@@ -98,7 +100,7 @@ public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBl
 
                 try {
                     variantCommit = variantsRepo.commit(commitMessage);
-                } catch (GitAPIException | IOException e) {
+                } catch (final GitAPIException | IOException e) {
                     throw new RuntimeException("Failed to commit " + commitMessage + " to VariantsRepository.");
                 }
 

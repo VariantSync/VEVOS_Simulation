@@ -19,7 +19,7 @@ public interface IRepository<C extends Commit> extends AutoCloseable {
     C checkoutCommit(C c) throws GitAPIException, IOException;
 
     /**
-     * Check out the given branch (`git checkout <branchname>`).
+     * Check out the given branch (`git checkout <branch name>`).
      * Afterwards, the contents of the given branch will be on disk.
      * @param branch The branch to check out.
      */

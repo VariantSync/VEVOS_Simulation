@@ -14,17 +14,17 @@ public abstract class Repository<C extends Commit> implements IRepository<C>{
     private final Path path;
     private Git git;
 
-    public Repository(Path path){
+    public Repository(final Path path){
         this.path = path;
     }
 
     @Override
-    public C checkoutCommit(C c) throws GitAPIException, IOException {
+    public C checkoutCommit(final C c) throws GitAPIException, IOException {
         try {
-            C previous = getCurrentCommit();
+            final C previous = getCurrentCommit();
             git().checkout().setName(c.id()).call();
             return previous;
-        } catch (GitAPIException | IOException e) {
+        } catch (final GitAPIException | IOException e) {
             Logger.error("Failed to checkout commit " + c, e);
             close();
             throw e;
@@ -32,10 +32,10 @@ public abstract class Repository<C extends Commit> implements IRepository<C>{
     }
 
     @Override
-    public void checkoutBranch(Branch branch) throws GitAPIException, IOException {
+    public void checkoutBranch(final Branch branch) throws GitAPIException, IOException {
         try {
             git().checkout().setName(branch.name()).call();
-        } catch (GitAPIException | IOException e) {
+        } catch (final GitAPIException | IOException e) {
             Logger.error("Failed to checkout branch " + branch.name(), e);
             close();
             throw e;
@@ -46,7 +46,7 @@ public abstract class Repository<C extends Commit> implements IRepository<C>{
     public C getCurrentCommit() throws IOException {
         try {
             return idToCommit(getCurrentCommitId());
-        } catch(IOException e) {
+        } catch(final IOException e) {
             Logger.error("Failed to get current commit.", e);
             close();
             throw e;
@@ -57,13 +57,13 @@ public abstract class Repository<C extends Commit> implements IRepository<C>{
 
 
     private String getCurrentCommitId() throws IOException {
-        String commitId = "";
+        final String commitId;
 
         try {
-            ObjectId head = git().getRepository().resolve(Constants.HEAD);
+            final ObjectId head = git().getRepository().resolve(Constants.HEAD);
             commitId = ObjectId.toString(head);
             return commitId;
-        } catch (IOException e) {
+        } catch (final IOException e) {
             Logger.error("Failed to get current commit ID", e);
             close();
             throw e;

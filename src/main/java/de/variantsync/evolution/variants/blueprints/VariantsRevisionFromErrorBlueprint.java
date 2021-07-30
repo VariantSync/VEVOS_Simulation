@@ -1,12 +1,12 @@
 package de.variantsync.evolution.variants.blueprints;
 
-import de.variantsync.evolution.variants.VariantCommit;
-import de.variantsync.evolution.variants.VariantsRevision;
 import de.variantsync.evolution.feature.Sample;
 import de.variantsync.evolution.feature.Variant;
-import de.variantsync.evolution.repository.Branch;
 import de.variantsync.evolution.repository.AbstractVariantsRepository;
+import de.variantsync.evolution.repository.Branch;
 import de.variantsync.evolution.util.functional.Lazy;
+import de.variantsync.evolution.variants.VariantCommit;
+import de.variantsync.evolution.variants.VariantsRevision;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
 import java.io.IOException;
@@ -34,24 +34,24 @@ public class VariantsRevisionFromErrorBlueprint extends VariantsRevisionBlueprin
      * (Otherwise the error blueprint would be pointless).
      * @param predecessor The blueprint for the previous revision. Cannot be null.
      */
-    public VariantsRevisionFromErrorBlueprint(VariantsRevisionFromVariabilityBlueprint predecessor) {
+    public VariantsRevisionFromErrorBlueprint(final VariantsRevisionFromVariabilityBlueprint predecessor) {
         this.predecessor = predecessor;
     }
 
     @Override
     protected Lazy<Sample> computeSample() {
-        // We don't have any variability information but instead want to introduce an artifical error commit.
+        // We don't have any variability information but instead want to introduce an artificial error commit.
         // Thus, we just have to operate on the variants already present.
         return predecessor.getSample();
     }
 
     @Override
-    public Lazy<VariantsRevision.Branches> generateArtefactsFor(VariantsRevision revision) {
+    public Lazy<VariantsRevision.Branches> generateArtefactsFor(final VariantsRevision revision) {
         return getSample().map(sample -> {
             final AbstractVariantsRepository variantsRepo = revision.getVariantsRepo();
             final Map<Branch, VariantCommit> commits = new HashMap<>(sample.size());
 
-            for (Variant variant : sample.variants()) {
+            for (final Variant variant : sample.variants()) {
                 final Branch branch = variantsRepo.getBranchByName(variant.getName());
                 final Optional<VariantCommit> variantCommit;
 
@@ -60,7 +60,7 @@ public class VariantsRevisionFromErrorBlueprint extends VariantsRevisionBlueprin
                     // TODO: We cannot commit no changes. So we have to change something. What could that be?
                     //       A simple text file might really be all we need here. Either an empty file or a file with the hashes of the associated commits.
                     variantCommit = variantsRepo.commit(COMMIT_MESSAGE);
-                } catch (GitAPIException | IOException e) {
+                } catch (final GitAPIException | IOException e) {
                     throw new RuntimeException("Failed when using the VariantsRepository.");
                 }
 

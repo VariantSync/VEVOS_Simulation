@@ -2,7 +2,6 @@ package de.variantsync.evolution.util.fide;
 
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import de.ovgu.featureide.fm.core.base.impl.DefaultFeatureModelFactory;
-import de.ovgu.featureide.fm.core.base.impl.FMFactoryManager;
 import de.ovgu.featureide.fm.core.base.impl.Feature;
 import de.ovgu.featureide.fm.core.io.Problem;
 import de.ovgu.featureide.fm.core.io.ProblemList;
@@ -21,7 +20,7 @@ public class FeatureModelUtils {
         return DefaultFeatureModelFactory.getInstance().create();
     }
 
-    public static IFeatureModel FromOptionalFeatures(Collection<String> featureNames) {
+    public static IFeatureModel FromOptionalFeatures(final Collection<String> featureNames) {
         final IFeatureModel fm = CreateEmptyFeatureModel();
 
         // create artificial root
@@ -29,7 +28,7 @@ public class FeatureModelUtils {
         fm.addFeature(root);
         fm.getStructure().setRoot(root.getStructure());
 
-        for (String featureName : featureNames) {
+        for (final String featureName : featureNames) {
             final Feature f = new Feature(fm, featureName);
             fm.addFeature(f);
             root.getStructure().addChild(f.getStructure());
@@ -37,23 +36,23 @@ public class FeatureModelUtils {
         return fm;
     }
 
-    public static IFeatureModel FromOptionalFeatures(String... featureNames) {
+    public static IFeatureModel FromOptionalFeatures(final String... featureNames) {
         return FromOptionalFeatures(Arrays.asList(featureNames));
     }
 
-    public static Result<IFeatureModel, ProblemList> FromDIMACSFile(Path pathToDIMACSFile) {
-        DefaultFeatureModelFactory factory = DefaultFeatureModelFactory.getInstance();
-        IFeatureModel featureModel = factory.create();
-        DIMACSFormat dimacsFormat = new DIMACSFormat();
+    public static Result<IFeatureModel, ProblemList> FromDIMACSFile(final Path pathToDIMACSFile) {
+        final DefaultFeatureModelFactory factory = DefaultFeatureModelFactory.getInstance();
+        final IFeatureModel featureModel = factory.create();
+        final DIMACSFormat dimacsFormat = new DIMACSFormat();
         try {
-            ProblemList problemList = dimacsFormat.read(featureModel, Files.readString(pathToDIMACSFile));
+            final ProblemList problemList = dimacsFormat.read(featureModel, Files.readString(pathToDIMACSFile));
             if (problemList.size() > 0) {
                 // The feature model is empty if there was a problem during parsing, hence, we return a Failure
                 return Result.Failure(problemList);
             } else {
                 return Result.Success(featureModel);
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             return Result.Failure(new ProblemList(Collections.singleton(new Problem(e))));
         }
     }

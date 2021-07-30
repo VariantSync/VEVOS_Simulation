@@ -1,6 +1,5 @@
 package de.variantsync.evolution.variability;
 
-import de.variantsync.evolution.repository.VariabilityHistory;
 import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.list.NonEmptyList;
 import org.jetbrains.annotations.NotNull;
@@ -15,7 +14,7 @@ public class VariabilityDataset {
     private final List<SPLCommit> errorCommits;
     private final List<SPLCommit> partialSuccessCommits;
 
-    public VariabilityDataset(@NotNull List<SPLCommit> successCommits, @NotNull List<SPLCommit> errorCommits, @NotNull List<SPLCommit> partialSuccessCommits) {
+    public VariabilityDataset(@NotNull final List<SPLCommit> successCommits, @NotNull final List<SPLCommit> errorCommits, @NotNull final List<SPLCommit> partialSuccessCommits) {
         this.successCommits = successCommits;
         this.errorCommits = errorCommits;
         this.partialSuccessCommits = partialSuccessCommits;
@@ -24,7 +23,7 @@ public class VariabilityDataset {
         this.allCommits.addAll(errorCommits);
         this.allCommits.addAll(partialSuccessCommits);
         if (allCommits.size() != successCommits.size() + errorCommits.size() + partialSuccessCommits.size()) {
-            String errorMessage = "Some of the dataset's commits belong to more than one category (SUCCESS | ERROR | INCOMPLETE_PC)";
+            final String errorMessage = "Some of the dataset's commits belong to more than one category (SUCCESS | ERROR | INCOMPLETE_PC)";
             Logger.error(errorMessage);
             throw new IllegalArgumentException(errorMessage);
         }
@@ -69,9 +68,9 @@ public class VariabilityDataset {
      *
      * @return All sequences of commits that are usable in our evolution study.
      */
-    public VariabilityHistory getVariabilityHistory(Function<Collection<SPLCommit>,  List<NonEmptyList<SPLCommit>>> sequenceExtractor) {
+    public VariabilityHistory getVariabilityHistory(final Function<Collection<SPLCommit>,  List<NonEmptyList<SPLCommit>>> sequenceExtractor) {
         // Build a VariabilityHistory instance by applying the provided function to the set of success commits
-        List<NonEmptyList<SPLCommit>> history = sequenceExtractor.apply(this.successCommits);
+        final List<NonEmptyList<SPLCommit>> history = sequenceExtractor.apply(this.successCommits);
 
         if (history.isEmpty()) {
             Logger.error("There is no valid sequence of commits from which a VariabilityHistory can be built!");
@@ -101,12 +100,12 @@ public class VariabilityDataset {
         return successCommits.stream()
                 .map(c -> {
                     if (c.parents().isPresent()) {
-                        SPLCommit[] parents = c.parents().get();
+                        final SPLCommit[] parents = c.parents().get();
                         // We only consider commits that did not process a merge
-                        boolean notAMerge = parents.length == 1;
-                        SPLCommit p = parents[0];
+                        final boolean notAMerge = parents.length == 1;
+                        final SPLCommit p = parents[0];
                         // We only consider commits that processed an SPL commit whose parent was also processed
-                        boolean parentSuccess = successCommits.contains(p);
+                        final boolean parentSuccess = successCommits.contains(p);
                         if (notAMerge && parentSuccess) {
                             return new CommitPair<>(p, c);
                         }

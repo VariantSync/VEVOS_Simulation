@@ -24,17 +24,17 @@ public class SPLCommit extends Commit {
      *
      * @param commitId The id of the commit
      */
-    public SPLCommit(String commitId) {
+    public SPLCommit(final String commitId) {
         this(commitId, null, null, null, null);
     }
 
-    public SPLCommit(String commitId, KernelHavenLogPath kernelHavenLog, FeatureModelPath featureModel, PresenceConditionPath presenceConditions, CommitMessagePath message) {
+    public SPLCommit(final String commitId, final KernelHavenLogPath kernelHavenLog, final FeatureModelPath featureModel, final PresenceConditionPath presenceConditions, final CommitMessagePath message) {
         super(commitId);
         // Lazy loading of log file
         this.kernelHavenLog = Lazy.of(() -> Optional.ofNullable(kernelHavenLog).flatMap(kernelHavenLogPath -> {
             try {
                 return Optional.of(Files.readString(kernelHavenLogPath.path));
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 Logger.error("Was not able to load KernelHaven log for commit " + commitId, e);
                 return Optional.empty();
             }
@@ -43,8 +43,8 @@ public class SPLCommit extends Commit {
         this.featureModel = Lazy.of(() -> Optional.ofNullable(featureModel).flatMap(featureModelPath -> {
             try {
                 return Optional.of(Resources.Instance().load(IFeatureModel.class, featureModelPath.path));
-            } catch (Resources.ResourceLoadingFailure resourceLoadingFailure) {
-                Logger.error("Was not able to load feature model for id " + commitId, resourceLoadingFailure);
+            } catch (final Resources.ResourceIOException resourceFailure) {
+                Logger.error("Was not able to load feature model for id " + commitId, resourceFailure);
                 return Optional.empty();
             }
         }));
@@ -52,8 +52,8 @@ public class SPLCommit extends Commit {
         this.presenceConditions = Lazy.of(() -> Optional.ofNullable(presenceConditions).flatMap(presenceConditionPath -> {
             try {
                 return Optional.of(Resources.Instance().load(Artefact.class, presenceConditionPath.path));
-            } catch (Resources.ResourceLoadingFailure resourceLoadingFailure) {
-                Logger.error("Was not able to load presence conditions for id " + commitId, resourceLoadingFailure);
+            } catch (final Resources.ResourceIOException resourceFailure) {
+                Logger.error("Was not able to load presence conditions for id " + commitId, resourceFailure);
                 return Optional.empty();
             }
         }));
@@ -61,7 +61,7 @@ public class SPLCommit extends Commit {
         this.message = Lazy.of(() -> Optional.ofNullable(message).flatMap(commitMessagePath -> {
             try {
                 return Optional.of(Files.readString(commitMessagePath.path));
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 Logger.error("Was not able to load commit message for id " + commitId, e);
                 return Optional.empty();
             }
@@ -78,7 +78,7 @@ public class SPLCommit extends Commit {
         return Optional.ofNullable(parents);
     }
 
-    public void setParents(SPLCommit[] parents) {
+    public void setParents(final SPLCommit[] parents) {
         this.parents = parents;
     }
 

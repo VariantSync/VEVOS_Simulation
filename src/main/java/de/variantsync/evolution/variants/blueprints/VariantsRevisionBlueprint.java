@@ -1,14 +1,14 @@
 package de.variantsync.evolution.variants.blueprints;
 
-import de.variantsync.evolution.variants.VariantsRevision;
 import de.variantsync.evolution.feature.Sample;
 import de.variantsync.evolution.util.functional.Lazy;
+import de.variantsync.evolution.variants.VariantsRevision;
 
 /**
  * A VariantsRevisionBlueprint holds instructions on how to generate variants and commits
  * for a VariantsRevision.
  * The main purpose of blueprints is to distinguish if variants should be generated as usual
- * (VariantsRevisionFormVariabilityBlueprint) or if we have to generate an artifical commit
+ * (VariantsRevisionFormVariabilityBlueprint) or if we have to generate an artificial commit
  * for each variant indicating that an evolution history ends (VariantsRevisionFromErrorBlueprint).
  */
 public abstract class VariantsRevisionBlueprint {

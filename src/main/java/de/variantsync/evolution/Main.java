@@ -1,29 +1,18 @@
 package de.variantsync.evolution;
 
-import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import de.ovgu.featureide.fm.core.base.impl.*;
 import de.ovgu.featureide.fm.core.configuration.*;
 import de.ovgu.featureide.fm.core.io.sxfm.SXFMFormat;
 import de.ovgu.featureide.fm.core.io.xml.XmlFeatureModelFormat;
-import de.variantsync.evolution.io.Resources;
-import de.variantsync.evolution.io.data.CSV;
-import de.variantsync.evolution.io.data.CSVLoader;
-import de.variantsync.evolution.io.data.DimacsFeatureModelLoader;
 import de.variantsync.evolution.io.data.VariabilityDatasetLoader;
-import de.variantsync.evolution.io.kernelhaven.KernelHavenPCLoader;
 import de.variantsync.evolution.repository.AbstractSPLRepository;
-import de.variantsync.evolution.repository.VariabilityHistory;
 import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.functional.Functional;
 import de.variantsync.evolution.util.functional.Lazy;
 import de.variantsync.evolution.util.functional.MonadTransformer;
 import de.variantsync.evolution.util.functional.Unit;
 import de.variantsync.evolution.util.list.NonEmptyList;
-import de.variantsync.evolution.variability.CommitPair;
-import de.variantsync.evolution.variability.SPLCommit;
-import de.variantsync.evolution.variability.SequenceExtractors;
-import de.variantsync.evolution.variability.VariabilityDataset;
-import de.variantsync.evolution.variability.pc.Artefact;
+import de.variantsync.evolution.variability.*;
 import de.variantsync.evolution.variants.VariantsRepository;
 import de.variantsync.evolution.variants.VariantsRevision;
 
@@ -43,13 +32,6 @@ public class Main {
     private static final String SPL_REPO = "spl_repo";
     private static final String VARIANTS_REPO = "variants_repo";
     private static boolean initialized = false;
-
-    private static void InitResources() {
-        final Resources r = Resources.Instance();
-        r.registerLoader(CSV.class, new CSVLoader());
-        r.registerLoader(Artefact.class, new KernelHavenPCLoader());
-        r.registerLoader(IFeatureModel.class, new DimacsFeatureModelLoader());
-    }
 
     private static void InitFeatureIDE() {
         /*
@@ -76,21 +58,20 @@ public class Main {
     public static void Initialize() {
         if (!initialized) {
             Logger.initConsoleLogger();
-            InitResources();
             InitFeatureIDE();
             initialized = true;
             Logger.debug("Finished initialization");
         }
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(final String[] args) throws IOException {
         Initialize();
 
         // Debug variability repo
-        Properties properties = new Properties();
-        try (FileInputStream inputStream = new FileInputStream(PROPERTIES_FILE)) {
+        final Properties properties = new Properties();
+        try (final FileInputStream inputStream = new FileInputStream(PROPERTIES_FILE)) {
             properties.load(inputStream);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             Logger.error("Failed to open properties file: ", e);
             return;
         }
@@ -116,24 +97,24 @@ public class Main {
 
         Logger.info("variabilityDatasetDir: " + variabilityDatasetDir);
         Logger.info("splRepoDir: " + splRepoDir);
-        VariabilityDataset variabilityDataset;
+        final VariabilityDataset variabilityDataset;
 
-        VariabilityDatasetLoader datasetLoader = new VariabilityDatasetLoader();
+        final VariabilityDatasetLoader datasetLoader = new VariabilityDatasetLoader();
         assert datasetLoader.canLoad(variabilityDatasetDir);
         variabilityDataset = datasetLoader.load(variabilityDatasetDir).getSuccess();
-        Set<CommitPair<SPLCommit>> commitPairs = variabilityDataset.getCommitPairsForEvolutionStudy();
+        final Set<CommitPair<SPLCommit>> commitPairs = variabilityDataset.getCommitPairsForEvolutionStudy();
         Logger.info("The dataset contains " + variabilityDataset.getSuccessCommits().size() + " commits for which the variability extraction succeeded.");
         Logger.info("The dataset contains " + variabilityDataset.getErrorCommits().size() + " commits for which the variability extraction failed.");
         Logger.info("The dataset contains " + variabilityDataset.getPartialSuccessCommits().size() + " commits that for which the file presence conditions are missing.");
         Logger.info("The dataset contains " + commitPairs.size() + " usable pairs.");
-        for (CommitPair<SPLCommit> pair : commitPairs) {
+        for (final CommitPair<SPLCommit> pair : commitPairs) {
             Logger.debug("<<CHILD> " + pair.child().id() + "> -- <<PARENT> " + pair.parent().id() + ">");
             Logger.debug("<<CHILD> " + pair.child().id() + "> -- <<SPL_COMMIT> " + pair.child().id() + ">");
             Logger.debug("<<PARENT> " + pair.parent().id() + "> -- <<SPL_COMMIT> " + pair.parent().id() + ">");
             Logger.debug("");
         }
-        VariabilityHistory history = variabilityDataset.getVariabilityHistory(SequenceExtractors.longestNonOverlappingSequences());
-        NonEmptyList<NonEmptyList<SPLCommit>> sequencesInHistory = history.commitSequences();
+        final VariabilityHistory history = variabilityDataset.getVariabilityHistory(SequenceExtractors.longestNonOverlappingSequences());
+        final NonEmptyList<NonEmptyList<SPLCommit>> sequencesInHistory = history.commitSequences();
         Logger.info("The dataset contains " + sequencesInHistory.size() + " sequences.");
         for (int i = 0; i < sequencesInHistory.size(); i++) {
             Logger.info("Sequence " + i + " has " + sequencesInHistory.get(i).size() + " commits.");
@@ -167,7 +148,7 @@ public class Main {
             // Alternatively, we can also generate just a few steps if we like.
             {
                 // First, let's build the necessary computations.
-                final Lazy<Optional<VariantsRevision>> revision0 = Lazy.pure(variantsRepo.getStartRevision());
+                final Lazy<Optional<VariantsRevision>> revision0 = Lazy.pure(firstRevisionToGenerate);
                 final Lazy<Optional<VariantsRevision>> genRevision0 = MonadTransformer.bind(revision0, VariantsRevision::evolve);
                 final Lazy<Optional<VariantsRevision>> genRevision1 = MonadTransformer.bind(genRevision0, VariantsRevision::evolve);
                 final Lazy<Optional<VariantsRevision>> genRevision2 = MonadTransformer.bind(genRevision1, VariantsRevision::evolve);
@@ -177,8 +158,8 @@ public class Main {
                 genRevision1.run(); // This would generate revision0 and then revision1.
                 // This would generate revision0 and then revision1 and then revision2.
                 // This returns a handle for revision3 which is not yet generated.
-                Optional<VariantsRevision> revision3 = genRevision2.run();
-                // Because Lazy caches intermediate results, revision0 and revision1 have only be generated exactly once.
+                final Optional<VariantsRevision> revision3 = genRevision2.run();
+                // Because Lazy caches intermediate results, revision0 and revision1 have only been generated exactly once.
             }
         }
     }

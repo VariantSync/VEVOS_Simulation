@@ -5,7 +5,7 @@ public class NotImplementedException extends RuntimeException {
         super();
     }
 
-    public NotImplementedException(String message) {
+    public NotImplementedException(final String message) {
         super(message);
     }
 }

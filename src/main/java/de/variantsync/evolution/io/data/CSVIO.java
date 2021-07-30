@@ -1,8 +1,11 @@
 package de.variantsync.evolution.io.data;
 
 import de.variantsync.evolution.io.ResourceLoader;
+import de.variantsync.evolution.io.ResourceWriter;
+import de.variantsync.evolution.io.TextIO;
 import de.variantsync.evolution.util.PathUtils;
 import de.variantsync.evolution.util.functional.Result;
+import de.variantsync.evolution.util.functional.Unit;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -14,42 +17,52 @@ import java.util.stream.Collectors;
 /**
  * Class to load CSV files.
  */
-public class CSVLoader implements ResourceLoader<CSV> {
+public class CSVIO implements ResourceLoader<CSV>, ResourceWriter<CSV> {
     public final static String DefaultSeparator = ";";
     private String separator;
     private String separatorWithWhiteSpace;
 
-    public CSVLoader() {
+    public CSVIO() {
         this(DefaultSeparator);
     }
 
     /**
      * Create a CSVLoader with the given separator.
-     * @param separator A string that will be interpreted as separater between elements in a row in the csv file.
+     * @param separator A string that will be interpreted as separator between elements in a row in the csv file.
      *                  The default value is ";".
      */
-    public CSVLoader(String separator) {
+    public CSVIO(final String separator) {
         setSeparator(separator);
     }
 
-    public void setSeparator(String separator) {
+    public void setSeparator(final String separator) {
         this.separator = separator;
         this.separatorWithWhiteSpace = "\\s*" + separator + "\\s*";
     }
 
     @Override
-    public boolean canLoad(Path p) {
+    public boolean canLoad(final Path p) {
         return PathUtils.hasExtension(p, ".csv");
     }
 
     @Override
-    public Result<CSV, Exception> load(Path p) {
-        try (BufferedReader reader = new BufferedReader(new FileReader(p.toFile()))) {
+    public boolean canWrite(final Path p) {
+        return canLoad(p);
+    }
+
+    @Override
+    public Result<CSV, Exception> load(final Path p) {
+        try (final BufferedReader reader = new BufferedReader(new FileReader(p.toFile()))) {
             final List<String[]> rows =
                     reader.lines().map(line -> line.trim().split(separatorWithWhiteSpace)).collect(Collectors.toList());
             return Result.Success(new CSV(rows));
-        } catch (IOException e) {
+        } catch (final IOException e) {
             return Result.Failure(e);
         }
+    }
+
+    @Override
+    public Result<Unit, ? extends Exception> write(final CSV object, final Path p) {
+        return Result.Try(() -> TextIO.write(p, object.toString(separator)));
     }
 }
