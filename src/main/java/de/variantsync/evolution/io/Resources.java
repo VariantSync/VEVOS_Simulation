@@ -7,6 +7,7 @@ import de.ovgu.featureide.fm.core.io.xml.XmlFeatureModelFormat;
 import de.variantsync.evolution.feature.config.IConfiguration;
 import de.variantsync.evolution.io.data.CSV;
 import de.variantsync.evolution.io.data.CSVIO;
+import de.variantsync.evolution.io.data.VariabilityDatasetLoader;
 import de.variantsync.evolution.io.featureide.FeatureIDEConfigurationIO;
 import de.variantsync.evolution.io.featureide.FeatureModelIO;
 import de.variantsync.evolution.io.kernelhaven.KernelHavenSPLPCIO;
@@ -14,6 +15,7 @@ import de.variantsync.evolution.io.kernelhaven.KernelHavenVariantPCIO;
 import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.functional.Result;
 import de.variantsync.evolution.util.functional.Unit;
+import de.variantsync.evolution.variability.VariabilityDataset;
 import de.variantsync.evolution.variability.pc.Artefact;
 
 import java.nio.file.Path;
@@ -51,6 +53,10 @@ public class Resources {
         final CSVIO CSVIO = new CSVIO();
         r.registerLoader(CSV.class, CSVIO);
         r.registerWriter(CSV.class, CSVIO);
+        
+        // Variability Dataset
+        final VariabilityDatasetLoader datasetLoader = new VariabilityDatasetLoader();
+        r.registerLoader(VariabilityDataset.class, datasetLoader);
 
         // Presence Conditions
 

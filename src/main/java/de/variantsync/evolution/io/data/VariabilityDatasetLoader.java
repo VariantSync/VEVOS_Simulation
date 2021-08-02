@@ -64,6 +64,7 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
         List<String> errorIds = new ArrayList<>();
         List<String> partialSuccessIds = new ArrayList<>();
 
+        Logger.status("Started loading of dataset under " + p);
         final Path successFile = p.resolve(SUCCESS_COMMIT_FILE);
         if (Files.exists(successFile)) {
             successIds = TextIO.readLinesTrimmed(successFile).expect("Success-commit file exists but could not be loaded.");
@@ -78,17 +79,25 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
         if (Files.exists(partialSuccessFile)) {
             partialSuccessIds = TextIO.readLinesTrimmed(partialSuccessFile).expect("Partial-success-commit file exists but could not be loaded.");
         }
+        
+        Logger.info("Read commit ids.");
 
         // Create SPLCommit objects for each commit
         final List<SPLCommit> successCommits = initializeSPLCommits(p, successIds);
         final List<SPLCommit> errorCommits = initializeSPLCommits(p, errorIds);
         final List<SPLCommit> partialSuccessCommits = initializeSPLCommits(p, partialSuccessIds);
-
+        Logger.info("Initialized SPL commits.");
+        
         // Retrieve the SPLCommit objects for the parents of each commit
         final Map<String, SPLCommit> idToCommitMap = new HashMap<>();
         successCommits.forEach(c -> idToCommitMap.put(c.id(), c));
+        Logger.info("Mapped success commits.");
         errorCommits.forEach(c -> idToCommitMap.put(c.id(), c));
+        Logger.info("Mapped error commits.");
         partialSuccessCommits.forEach(c -> idToCommitMap.put(c.id(), c));
+        Logger.info("Mapped partial success commits.");
+
+        Logger.info("Mapping commits to parents...");
         for (final Map.Entry<String, SPLCommit> entry : idToCommitMap.entrySet()) {
             final String[] parentIds = loadParentIds(p, entry.getKey());
             if (parentIds == null || parentIds.length == 0) {
@@ -97,7 +106,7 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
                 entry.getValue().setParents(Arrays.stream(parentIds).map(idToCommitMap::get).toArray(SPLCommit[]::new));
             }
         }
-
+        Logger.info("Done.");
         // Return the fully-loaded dataset
         return Result.Success(new VariabilityDataset(successCommits, errorCommits, partialSuccessCommits));
     }
