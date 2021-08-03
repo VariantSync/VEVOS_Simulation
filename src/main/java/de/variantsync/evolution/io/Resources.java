@@ -10,6 +10,7 @@ import de.variantsync.evolution.io.data.CSVIO;
 import de.variantsync.evolution.io.data.VariabilityDatasetLoader;
 import de.variantsync.evolution.io.featureide.FeatureIDEConfigurationIO;
 import de.variantsync.evolution.io.featureide.FeatureModelIO;
+import de.variantsync.evolution.io.kernelhaven.FeatureModelFromVariabilityModelLoader;
 import de.variantsync.evolution.io.kernelhaven.KernelHavenSPLPCIO;
 import de.variantsync.evolution.io.kernelhaven.KernelHavenVariantPCIO;
 import de.variantsync.evolution.util.Logger;
@@ -29,12 +30,6 @@ import java.util.Map;
  * ResourceLoaders can be registered here to be used upon resource loading.
  */
 public class Resources {
-    public static class ResourceIOException extends Exception {
-        public ResourceIOException(final String msg) {
-            super(msg);
-        }
-    }
-
     private final static Resources instance = new Resources();
     private final Map<Class<?>, List<ResourceLoader<?>>> loaders;
     private final Map<Class<?>, List<ResourceWriter<?>>> writers;
@@ -53,13 +48,12 @@ public class Resources {
         final CSVIO CSVIO = new CSVIO();
         r.registerLoader(CSV.class, CSVIO);
         r.registerWriter(CSV.class, CSVIO);
-        
+
         // Variability Dataset
         final VariabilityDatasetLoader datasetLoader = new VariabilityDatasetLoader();
         r.registerLoader(VariabilityDataset.class, datasetLoader);
 
         // Presence Conditions
-
         final KernelHavenSPLPCIO splPCIO = new KernelHavenSPLPCIO();
         r.registerLoader(Artefact.class, splPCIO);
         r.registerWriter(Artefact.class, splPCIO);
@@ -69,7 +63,6 @@ public class Resources {
         r.registerWriter(Artefact.class, variantSPLIO);
 
         // Feature Models
-
         final FeatureModelIO dimacsFMIO = new FeatureModelIO(new DIMACSFormat());
         r.registerLoader(IFeatureModel.class, dimacsFMIO);
         r.registerWriter(IFeatureModel.class, dimacsFMIO);
@@ -78,10 +71,17 @@ public class Resources {
         r.registerLoader(IFeatureModel.class, xmlFMIO);
         r.registerWriter(IFeatureModel.class, xmlFMIO);
 
+        final FeatureModelFromVariabilityModelLoader fmFromVm = new FeatureModelFromVariabilityModelLoader();
+        r.registerLoader(IFeatureModel.class, fmFromVm);
+
         // Configurations
         final FeatureIDEConfigurationIO xmlConfigIO = new FeatureIDEConfigurationIO(new XMLConfFormat());
         r.registerLoader(IConfiguration.class, xmlConfigIO);
         r.registerWriter(IConfiguration.class, xmlConfigIO);
+    }
+
+    public static Resources Instance() {
+        return instance;
     }
 
     /**
@@ -118,9 +118,10 @@ public class Resources {
 
     /**
      * Loads the resource at path p as the given type T.
+     *
      * @return The loaded resource.
      * @throws ResourceIOException if no resource loader is registered for loading objects of type T
-     *                                or if all resource loaders failed in loading.
+     *                             or if all resource loaders failed in loading.
      */
     public <T> T load(final Class<T> type, final Path p) throws ResourceIOException {
         final List<ResourceLoader<T>> loadersForT = getLoaders(type);
@@ -164,7 +165,9 @@ public class Resources {
         throw new ResourceIOException("All ResourceWriters failed in writing resource " + p + " as type " + type + "!");
     }
 
-    public static Resources Instance() {
-        return instance;
+    public static class ResourceIOException extends Exception {
+        public ResourceIOException(final String msg) {
+            super(msg);
+        }
     }
 }

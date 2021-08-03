@@ -147,7 +147,26 @@ public class SPLCommit extends Commit {
         return filterCounts;
     }
 
-    
+    public Path getKernelHavenLogPath() {
+        return kernelHavenLogPath;
+    }
+
+    public Path getFeatureModelPath() {
+        return featureModelPath;
+    }
+
+    public Path getPresenceConditionsPath() {
+        return presenceConditionsPath;
+    }
+
+    public Path getCommitMessagePath() {
+        return commitMessagePath;
+    }
+
+    public Path getFilterCountsPath() {
+        return filterCountsPath;
+    }
+
     public record KernelHavenLogPath(Path path) {
     }
 

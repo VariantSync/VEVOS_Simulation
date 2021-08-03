@@ -117,5 +117,10 @@
             <version>21.0.1</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>net.ssehub</groupId>
+            <artifactId>kernel_haven</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
 </project>
