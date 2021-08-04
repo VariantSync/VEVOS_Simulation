@@ -31,7 +31,7 @@ public class Functional {
 
     /// Pattern matching
 
-    public static <A, B> B match(final Optional<A> ma, final Function<A, B> just, final Supplier<? extends B> nothing) {
+    public static <A, B> B match(final Optional<A> ma, final Function<A, ? extends B> just, final Supplier<? extends B> nothing) {
         final Optional<B> x = ma.map(just);
         return x.orElseGet(nothing);
     }

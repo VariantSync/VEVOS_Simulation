@@ -1,10 +1,9 @@
-package de.variantsync.evolution.variability.config;
+package de.variantsync.evolution.feature.config;
 
-import de.ovgu.featureide.fm.core.ExtensionManager;
+import de.ovgu.featureide.fm.core.analysis.cnf.IVariables;
+import de.ovgu.featureide.fm.core.analysis.cnf.LiteralSet;
 import de.ovgu.featureide.fm.core.analysis.cnf.formula.FeatureModelFormula;
 import de.ovgu.featureide.fm.core.base.IFeature;
-import de.ovgu.featureide.fm.core.base.impl.ConfigFormatManager;
-import de.ovgu.featureide.fm.core.base.impl.ConfigurationFactoryManager;
 import de.ovgu.featureide.fm.core.configuration.Configuration;
 import de.ovgu.featureide.fm.core.configuration.ConfigurationAnalyzer;
 import de.ovgu.featureide.fm.core.configuration.ConfigurationPropagator;
@@ -13,7 +12,6 @@ import de.variantsync.evolution.util.fide.bugfix.FixTrueFalse;
 import de.variantsync.evolution.util.functional.Lazy;
 import org.prop4j.Node;
 
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +47,26 @@ public class FeatureIDEConfiguration implements IConfiguration {
         this.featureIDEConfig = featureIDEConfig;
     }
 
-    /**
+    public FeatureIDEConfiguration(final LiteralSet literalSet, final FeatureModelFormula featureModel) {
+        featureIDEConfig = new Configuration(featureModel);
+
+        final IVariables vars = featureModel.getVariables();
+
+        // TODO: Untested
+        final int[] trueVariables = literalSet.getPositive().getLiterals();
+        final int[] falseVariables = literalSet.getNegative().getLiterals();
+        for (final int trueVar : trueVariables) {
+            featureIDEConfig.setManual(vars.getName(trueVar), Selection.SELECTED);
+        }
+        for (final int falseVar : falseVariables) {
+            featureIDEConfig.setManual(vars.getName(falseVar), Selection.UNSELECTED);
+        }
+
+        // Selection should be complete as the given literalSet should be total.
+        // So we do not have to analyze and complete configurations.
+    }
+
+                                   /**
      * Create a minimal viable configuration such that all features in the given selection are active.
      * @param fm Feature model to satisfy.
      * @param activeFeatures Features to select.
@@ -67,16 +84,6 @@ public class FeatureIDEConfiguration implements IConfiguration {
     }
 
     /**
-     * Load a configuration from the given path.
-     * UNTESTED!
-     * @param p Path to configuration to load.
-     * @throws ExtensionManager.NoSuchExtensionException If no loader for the given file type is registered in FeatureIDE.
-     */
-    public FeatureIDEConfiguration(final Path p) throws ExtensionManager.NoSuchExtensionException {
-        this(ConfigurationFactoryManager.getInstance().getFactory(p, ConfigFormatManager.getDefaultFormat()).create());
-    }
-
-    /**
      * Converts this configuration to an assignment from variables to values.
      * @return An assignment from variables to values.
      */
@@ -87,5 +94,9 @@ public class FeatureIDEConfiguration implements IConfiguration {
     @Override
     public boolean satisfies(final Node formula) {
         return formula.getValue(toAssignment());
+    }
+
+    public Configuration getConfiguration() {
+        return featureIDEConfig;
     }
 }

@@ -97,7 +97,8 @@ public class VariabilityDataset {
      * @return Set of commit pairs that can be used in a variability evolution study
      */
     public Set<CommitPair<SPLCommit>> getCommitPairsForEvolutionStudy() {
-        return successCommits.stream()
+        Logger.info("Retrieving commit pairs for study...");
+        var set = successCommits.stream()
                 .map(c -> {
                     if (c.parents().isPresent()) {
                         final SPLCommit[] parents = c.parents().get();
@@ -114,6 +115,8 @@ public class VariabilityDataset {
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
+        Logger.info("Done.");
+        return set;
     }
 
 }

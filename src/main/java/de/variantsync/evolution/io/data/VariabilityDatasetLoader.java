@@ -5,10 +5,7 @@ import de.variantsync.evolution.io.TextIO;
 import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.functional.Result;
 import de.variantsync.evolution.variability.SPLCommit;
-import de.variantsync.evolution.variability.SPLCommit.CommitMessagePath;
-import de.variantsync.evolution.variability.SPLCommit.FeatureModelPath;
-import de.variantsync.evolution.variability.SPLCommit.KernelHavenLogPath;
-import de.variantsync.evolution.variability.SPLCommit.PresenceConditionPath;
+import de.variantsync.evolution.variability.SPLCommit.*;
 import de.variantsync.evolution.variability.VariabilityDataset;
 
 import java.io.IOException;
@@ -20,13 +17,13 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
     private final static String SUCCESS_COMMIT_FILE = "SUCCESS_COMMITS.txt";
     private final static String ERROR_COMMIT_FILE = "ERROR_COMMITS.txt";
     private final static String PARTIAL_SUCCESS_COMMIT_FILE = "PARTIAL_SUCCESS_COMMITS.txt";
-    private final static String FEATURE_MODEL_FILE = "feature-model.dimacs";
+    private final static String FEATURE_MODEL_FILE = "variability-model.json";
     private final static String PRESENCE_CONDITIONS_FILE = "code-variability.csv";
     private final static String PARENTS_FILE = "PARENTS.txt";
     private final static String MESSAGE_FILE = "MESSAGE.txt";
     private static final String DATA_DIR_NAME = "data";
     private static final String LOG_DIR_NAME = "log";
-
+    private static final String FILTER_COUNTS_FILE = "FILTERED.txt";
 
     @Override
     public boolean canLoad(final Path p) {
@@ -64,6 +61,7 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
         List<String> errorIds = new ArrayList<>();
         List<String> partialSuccessIds = new ArrayList<>();
 
+        Logger.status("Started loading of dataset under " + p);
         final Path successFile = p.resolve(SUCCESS_COMMIT_FILE);
         if (Files.exists(successFile)) {
             successIds = TextIO.readLinesTrimmed(successFile).expect("Success-commit file exists but could not be loaded.");
@@ -79,16 +77,24 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
             partialSuccessIds = TextIO.readLinesTrimmed(partialSuccessFile).expect("Partial-success-commit file exists but could not be loaded.");
         }
 
+        Logger.info("Read commit ids.");
+
         // Create SPLCommit objects for each commit
         final List<SPLCommit> successCommits = initializeSPLCommits(p, successIds);
         final List<SPLCommit> errorCommits = initializeSPLCommits(p, errorIds);
         final List<SPLCommit> partialSuccessCommits = initializeSPLCommits(p, partialSuccessIds);
+        Logger.info("Initialized SPL commits.");
 
         // Retrieve the SPLCommit objects for the parents of each commit
         final Map<String, SPLCommit> idToCommitMap = new HashMap<>();
         successCommits.forEach(c -> idToCommitMap.put(c.id(), c));
+        Logger.info("Mapped success commits.");
         errorCommits.forEach(c -> idToCommitMap.put(c.id(), c));
+        Logger.info("Mapped error commits.");
         partialSuccessCommits.forEach(c -> idToCommitMap.put(c.id(), c));
+        Logger.info("Mapped partial success commits.");
+
+        Logger.info("Mapping commits to parents...");
         for (final Map.Entry<String, SPLCommit> entry : idToCommitMap.entrySet()) {
             final String[] parentIds = loadParentIds(p, entry.getKey());
             if (parentIds == null || parentIds.length == 0) {
@@ -97,7 +103,7 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
                 entry.getValue().setParents(Arrays.stream(parentIds).map(idToCommitMap::get).toArray(SPLCommit[]::new));
             }
         }
-
+        Logger.info("Done.");
         // Return the fully-loaded dataset
         return Result.Success(new VariabilityDataset(successCommits, errorCommits, partialSuccessCommits));
     }
@@ -106,7 +112,7 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
         final List<SPLCommit> splCommits = new ArrayList<>(commitIds.size());
         for (final String id : commitIds) {
             // Initialize a SPLCommit object for each commit id by resolving all paths to files with data about the commit
-            final SPLCommit splCommit = new SPLCommit(id, resolvePathToLogFile(p, id), resolvePathToFeatureModel(p, id), resolvePathToPresenceConditions(p, id), resolvePathToMessageFile(p, id));
+            final SPLCommit splCommit = new SPLCommit(id, resolvePathToLogFile(p, id), resolvePathToFeatureModel(p, id), resolvePathToPresenceConditions(p, id), resolvePathToMessageFile(p, id), resolvePathToFilterCountsFile(p, id));
             splCommits.add(splCommit);
         }
         return splCommits;
@@ -139,6 +145,11 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
     private KernelHavenLogPath resolvePathToLogFile(final Path rootDir, final String commitId) {
         final Path p = rootDir.resolve(LOG_DIR_NAME).resolve(commitId + ".log");
         return p.toFile().exists() ? new KernelHavenLogPath(p) : null;
+    }
+
+    private FilterCountsPath resolvePathToFilterCountsFile(final Path rootDir, final String commitId) {
+        final Path p = resolvePathToCommitOutputDir(rootDir, commitId).resolve(FILTER_COUNTS_FILE);
+        return p.toFile().exists() ? new FilterCountsPath(p) : null;
     }
 
     private String[] loadParentIds(final Path p, final String commitId) {

@@ -12,6 +12,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -26,7 +27,6 @@ import java.util.Optional;
  */
 public class VariantsRevisionFromErrorBlueprint extends VariantsRevisionBlueprint {
     public final String COMMIT_MESSAGE = "SUB_HISTORY_END";
-    private final VariantsRevisionFromVariabilityBlueprint predecessor;
 
     /**
      * Creates a new error blueprint for a VariantsRevision.
@@ -35,14 +35,16 @@ public class VariantsRevisionFromErrorBlueprint extends VariantsRevisionBlueprin
      * @param predecessor The blueprint for the previous revision. Cannot be null.
      */
     public VariantsRevisionFromErrorBlueprint(final VariantsRevisionFromVariabilityBlueprint predecessor) {
-        this.predecessor = predecessor;
+        super(predecessor);
+        Objects.requireNonNull(predecessor);
     }
 
     @Override
     protected Lazy<Sample> computeSample() {
         // We don't have any variability information but instead want to introduce an artificial error commit.
         // Thus, we just have to operate on the variants already present.
-        return predecessor.getSample();
+        // We know that we have a predecessor because it is necessary to have one in the constructor.
+        return getPredecessor().orElseThrow().getSample();
     }
 
     @Override
@@ -59,6 +61,8 @@ public class VariantsRevisionFromErrorBlueprint extends VariantsRevisionBlueprin
                     variantsRepo.checkoutBranch(branch);
                     // TODO: We cannot commit no changes. So we have to change something. What could that be?
                     //       A simple text file might really be all we need here. Either an empty file or a file with the hashes of the associated commits.
+                    //       Idea: Remember in the error blueprint the number of the sub-history it ends. As initial commit to each branch,
+                    //             add that file and change its content to the remembered number here.
                     variantCommit = variantsRepo.commit(COMMIT_MESSAGE);
                 } catch (final GitAPIException | IOException e) {
                     throw new RuntimeException("Failed when using the VariantsRepository.");

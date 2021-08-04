@@ -1,4 +1,4 @@
-package de.variantsync.evolution.variability.config;
+package de.variantsync.evolution.feature.config;
 
 import org.prop4j.Node;
 

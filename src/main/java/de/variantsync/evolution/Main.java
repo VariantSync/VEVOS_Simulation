@@ -4,6 +4,9 @@ import de.ovgu.featureide.fm.core.base.impl.*;
 import de.ovgu.featureide.fm.core.configuration.*;
 import de.ovgu.featureide.fm.core.io.sxfm.SXFMFormat;
 import de.ovgu.featureide.fm.core.io.xml.XmlFeatureModelFormat;
+import de.variantsync.evolution.feature.sampling.ConstSampler;
+import de.variantsync.evolution.feature.sampling.FeatureIDESampler;
+import de.variantsync.evolution.io.Resources;
 import de.variantsync.evolution.io.data.VariabilityDatasetLoader;
 import de.variantsync.evolution.repository.AbstractSPLRepository;
 import de.variantsync.evolution.util.Logger;
@@ -15,6 +18,8 @@ import de.variantsync.evolution.util.list.NonEmptyList;
 import de.variantsync.evolution.variability.*;
 import de.variantsync.evolution.variants.VariantsRepository;
 import de.variantsync.evolution.variants.VariantsRevision;
+import de.variantsync.evolution.variants.sampling.SampleOnceAtBeginStrategy;
+import de.variantsync.evolution.variants.sampling.SamplingStrategy;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -64,7 +69,7 @@ public class Main {
         }
     }
 
-    public static void main(final String[] args) throws IOException {
+    public static void main(final String[] args) throws IOException, Resources.ResourceIOException {
         Initialize();
 
         // Debug variability repo
@@ -124,11 +129,18 @@ public class Main {
         // How to use variant generator
         {
             // Setup
-            final AbstractSPLRepository splRepository = null; /* Get SPL Repo from somewhere. Integrate it into variabilityDataset?*/
+            final AbstractSPLRepository splRepository = null;
+            final SamplingStrategy samplingForBusybox = new SampleOnceAtBeginStrategy(
+                    FeatureIDESampler.CreateRandomSampler(5)
+            );
+            final SamplingStrategy samplingForLinux = new SampleOnceAtBeginStrategy(
+                            Resources.Instance().load(ConstSampler.class, Path.of("linuxConfigs.txt"))
+            );
             final VariantsRepository variantsRepo = new VariantsRepository(
                     Path.of(properties.getProperty(VARIANTS_REPO)),
                     splRepository,
-                    history.toBlueprints());
+                    history.toBlueprints(samplingForBusybox)
+                    );
 
             // Let's generate revisions for all variability commits here ...
             final Optional<VariantsRevision> firstRevisionToGenerate = variantsRepo.getStartRevision();

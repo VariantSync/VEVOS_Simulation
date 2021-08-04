@@ -1,7 +1,10 @@
 import de.ovgu.featureide.fm.core.analysis.cnf.formula.FeatureModelFormula;
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import de.variantsync.evolution.Main;
+import de.variantsync.evolution.feature.Sampler;
 import de.variantsync.evolution.feature.Variant;
+import de.variantsync.evolution.feature.config.IConfiguration;
+import de.variantsync.evolution.feature.sampling.FeatureIDESampler;
 import de.variantsync.evolution.io.ResourceLoader;
 import de.variantsync.evolution.io.Resources;
 import de.variantsync.evolution.io.TextIO;
@@ -13,8 +16,8 @@ import de.variantsync.evolution.util.PathUtils;
 import de.variantsync.evolution.util.fide.FeatureModelUtils;
 import de.variantsync.evolution.util.fide.bugfix.FixTrueFalse;
 import de.variantsync.evolution.util.functional.Result;
-import de.variantsync.evolution.variability.config.FeatureIDEConfiguration;
-import de.variantsync.evolution.variability.config.SayYesToAllConfiguration;
+import de.variantsync.evolution.feature.config.FeatureIDEConfiguration;
+import de.variantsync.evolution.feature.config.SayYesToAllConfiguration;
 import de.variantsync.evolution.variability.pc.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -66,14 +69,16 @@ public class VariantGenerationTest {
             for (final Variant v : variantsToTest) {
                 traceToTest
                         .generateVariant(v, splDir, variantsDir.resolve(v.getName()), VariantGenerationOptions.ExitOnError)
-                        .bind(groundTruth -> {
-//                            System.out.println("=== [Ground Truth for " + v + "] ===");
-//                            System.out.println(groundTruth.prettyPrint());
-                            return Result.Try(() -> Resources.Instance().write(
-                                    Artefact.class,
-                                    groundTruth.artefact(),
-                                    variantsDir.resolve(v.getName()).resolve("ground_truth.variant.csv").path()));
-                        })
+                        // Write ground truth
+                        .bind(groundTruth -> Result.Try(() -> Resources.Instance().write(
+                                Artefact.class,
+                                groundTruth.artefact(),
+                                variantsDir.resolve(v.getName()).resolve("ground_truth.variant.csv").path())))
+                        // Write configuration
+                        .bind(unit -> Result.Try(() -> Resources.Instance().write(
+                                IConfiguration.class,
+                                v.getConfiguration(),
+                                variantsDir.resolve(v.getName()).resolve("configuration.xml").path())))
                         .assertSuccess();
             }
 
@@ -206,6 +211,12 @@ public class VariantGenerationTest {
                 new Variant("justB", new FeatureIDEConfiguration(fmf, Collections.singletonList("B"))),
                 new Variant("all", new FeatureIDEConfiguration(fmf, Arrays.asList("A", "B", "C", "D", "E")))
         ));
+    }
+
+    @Test
+    public void testGenerationWithCustomSample() {
+        final Sampler sampler = FeatureIDESampler.CreateRandomSampler(5);
+        assert pcTest1.generate(sampler.sample(pcTest1.features).variants());
     }
 
     @Test

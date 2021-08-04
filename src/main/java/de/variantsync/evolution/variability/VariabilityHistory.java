@@ -4,6 +4,7 @@ import de.variantsync.evolution.util.list.NonEmptyList;
 import de.variantsync.evolution.variants.blueprints.VariantsRevisionBlueprint;
 import de.variantsync.evolution.variants.blueprints.VariantsRevisionFromErrorBlueprint;
 import de.variantsync.evolution.variants.blueprints.VariantsRevisionFromVariabilityBlueprint;
+import de.variantsync.evolution.variants.sampling.SamplingStrategy;
 
 import java.util.ArrayList;
 
@@ -25,7 +26,7 @@ public record VariabilityHistory(NonEmptyList<NonEmptyList<SPLCommit>> commitSeq
      *         After each continuous sub-history an explicit error commit will be introduced via a
      *         VariantsRevisionFromErrorBlueprint.
      */
-    public NonEmptyList<VariantsRevisionBlueprint> toBlueprints()
+    public NonEmptyList<VariantsRevisionBlueprint> toBlueprints(SamplingStrategy samplingStrategy)
     {
         final int lengthOfList = commitSequences.stream()
                 .map(subHistory -> subHistory.size() + 1 /* because of error blueprints*/)
@@ -35,7 +36,7 @@ public record VariabilityHistory(NonEmptyList<NonEmptyList<SPLCommit>> commitSeq
 
         for (final NonEmptyList<SPLCommit> coherentSubHistory : commitSequences) {
             for (final SPLCommit splCommit : coherentSubHistory) {
-                lastVariabilityBlueprint = new VariantsRevisionFromVariabilityBlueprint(splCommit, lastVariabilityBlueprint);
+                lastVariabilityBlueprint = new VariantsRevisionFromVariabilityBlueprint(splCommit, lastVariabilityBlueprint, samplingStrategy);
                 blueprints.add(lastVariabilityBlueprint);
             }
 

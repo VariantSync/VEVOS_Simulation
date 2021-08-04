@@ -3,11 +3,11 @@ package de.variantsync.evolution.variability.pc;
 import de.variantsync.evolution.feature.Variant;
 import de.variantsync.evolution.util.CaseSensitivePath;
 import de.variantsync.evolution.util.functional.Result;
-import de.variantsync.evolution.variability.pc.groundtruth.AnnotationGroundTruth;
 import de.variantsync.evolution.variability.pc.groundtruth.GroundTruth;
 import de.variantsync.evolution.variability.pc.visitor.ArtefactVisitor;
 import de.variantsync.evolution.variability.pc.visitor.ArtefactVisitorFocus;
-import de.variantsync.evolution.variability.pc.visitor.common.PCQuery;
+import de.variantsync.evolution.variability.pc.visitor.common.FilePCQuery;
+import de.variantsync.evolution.variability.pc.visitor.common.LinePCQuery;
 import de.variantsync.evolution.variability.pc.visitor.common.PrettyPrinter;
 import org.prop4j.Node;
 
@@ -68,7 +68,13 @@ public interface Artefact {
     }
 
     default Result<Node, Exception> getPresenceConditionOf(final CaseSensitivePath path, final int lineNumber) {
-        final PCQuery query = new PCQuery(path, lineNumber);
+        final LinePCQuery query = new LinePCQuery(path, lineNumber);
+        accept(query);
+        return query.getResult();
+    }
+
+    default Result<Node, Exception> getPresenceConditionOf(final CaseSensitivePath path) {
+        final FilePCQuery query = new FilePCQuery(path);
         accept(query);
         return query.getResult();
     }

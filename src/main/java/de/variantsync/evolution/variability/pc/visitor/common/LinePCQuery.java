@@ -13,7 +13,7 @@ import org.prop4j.Node;
 
 import java.io.FileNotFoundException;
 
-public class PCQuery implements ArtefactVisitor {
+public class LinePCQuery implements ArtefactVisitor {
     private final CaseSensitivePath path;
     private final int lineNumber;
 
@@ -21,7 +21,7 @@ public class PCQuery implements ArtefactVisitor {
     private boolean lineFound = false;
     private Node result = null;
 
-    public PCQuery(final CaseSensitivePath path, final int lineNumber) {
+    public LinePCQuery(final CaseSensitivePath path, final int lineNumber) {
         this.path = path;
         this.lineNumber = lineNumber;
     }
@@ -51,8 +51,8 @@ public class PCQuery implements ArtefactVisitor {
     @Override
     public <C extends ArtefactTree<?>> void visitGenericArtefactTreeNode(final SyntheticArtefactTreeNodeVisitorFocus<C> focus) {
 //        Logger.info("visitGenericArtefactTreeNode(" + focus.getValue() + ")");
-        if (foundFile == null) {
-            focus.visitAllSubtrees(this);
+        for (int i = 0; foundFile == null && i < focus.getValue().getNumberOfSubtrees(); ++i) {
+            focus.visitSubtree(i, this);
         }
     }
 

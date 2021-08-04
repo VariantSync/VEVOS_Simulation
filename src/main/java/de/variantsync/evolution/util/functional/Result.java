@@ -171,6 +171,14 @@ public class Result<SuccessType, FailureType> {
         }
     }
 
+    public <F2> Result<SuccessType, F2> bindFail(final Function<FailureType, Result<SuccessType, F2>> failureCase) {
+        if (isFailure()) {
+            return failureCase.apply(failure);
+        } else {
+            return Success(getSuccess());
+        }
+    }
+
     public <S2, F2> Result<S2, F2> bibind(final Function<SuccessType, Result<S2, F2>> successCase, final Function<FailureType, Result<S2, F2>> failureCase) {
         if (isSuccess()) {
             return successCase.apply(result);

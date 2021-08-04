@@ -64,7 +64,7 @@ public class VariantsRepositoryTest extends TestCase {
     public void setUp() throws Exception {
         super.setUp();
         List<VariantsRevisionBlueprint> list = new ArrayList<VariantsRevisionBlueprint>();
-        list.add(new VariantsRevisionFromVariabilityBlueprint(null, null));
+        list.add(new VariantsRevisionFromVariabilityBlueprint(null, null, null));
         repo = new VariantsRepository(exampleRepoPath, null, new NonEmptyList<>(list));
     }
 

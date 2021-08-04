@@ -1,5 +1,7 @@
 package de.variantsync.evolution.util.list;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Collection;
 import java.util.List;
 
@@ -29,12 +31,12 @@ public class NonEmptyList<T> extends ListDecorator<T> {
     }
 
     @Override
-    public boolean removeAll(final Collection<?> c) {
+    public boolean removeAll(final @NotNull Collection<?> c) {
         throw new UnsupportedOperationException(ERROR_MESSAGE);
     }
 
     @Override
-    public boolean retainAll(final Collection<?> c) {
+    public boolean retainAll(final @NotNull Collection<?> c) {
         throw new UnsupportedOperationException(ERROR_MESSAGE);
     }
 

@@ -28,17 +28,17 @@ public class ImmutableList<T> extends ListDecorator<T> {
     }
 
     @Override
-    public boolean addAll(final int index, final Collection<? extends T> c) {
+    public boolean addAll(final int index, final @NotNull Collection<? extends T> c) {
         throw new UnsupportedOperationException(ERROR_MESSAGE);
     }
 
     @Override
-    public boolean removeAll(final Collection<?> c) {
+    public boolean removeAll(final @NotNull Collection<?> c) {
         throw new UnsupportedOperationException(ERROR_MESSAGE);
     }
 
     @Override
-    public boolean retainAll(final Collection<?> c) {
+    public boolean retainAll(final @NotNull Collection<?> c) {
         throw new UnsupportedOperationException(ERROR_MESSAGE);
     }
 
