@@ -14,8 +14,7 @@ import org.prop4j.Node;
  */
 public class KernelHavenSPLPCIO extends KernelHavenPCIO {
     public KernelHavenSPLPCIO() {
-        // TODO: Change back to "spl.csv" as soon as it is implemented in VariabilityExtraction project
-        super(".csv");
+        super(".spl.csv");
     }
 
     @Override

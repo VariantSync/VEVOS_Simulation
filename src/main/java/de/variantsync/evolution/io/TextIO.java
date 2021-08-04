@@ -69,6 +69,7 @@ public class TextIO {
 
             for (final Integer lineNo : linesToTake) {
                 // skip lines that exceed the content
+                // TODO: Do something about this warning. The warning is shown even if everything is done correctly.
                 if (lineNo - 1 >= read_lines.size()) {
                     Logger.warning("Skipped copying line "
                             + lineNo

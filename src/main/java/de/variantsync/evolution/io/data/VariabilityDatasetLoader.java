@@ -18,7 +18,7 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
     private final static String ERROR_COMMIT_FILE = "ERROR_COMMITS.txt";
     private final static String PARTIAL_SUCCESS_COMMIT_FILE = "PARTIAL_SUCCESS_COMMITS.txt";
     private final static String FEATURE_MODEL_FILE = "variability-model.json";
-    private final static String PRESENCE_CONDITIONS_FILE = "code-variability.csv";
+    private final static String PRESENCE_CONDITIONS_FILE = "code-variability.spl.csv";
     private final static String PARENTS_FILE = "PARENTS.txt";
     private final static String MESSAGE_FILE = "MESSAGE.txt";
     private static final String DATA_DIR_NAME = "data";
