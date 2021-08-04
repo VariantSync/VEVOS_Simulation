@@ -10,7 +10,7 @@ import de.variantsync.evolution.io.data.CSVIO;
 import de.variantsync.evolution.io.data.VariabilityDatasetLoader;
 import de.variantsync.evolution.io.featureide.FeatureIDEConfigurationIO;
 import de.variantsync.evolution.io.featureide.FeatureModelIO;
-import de.variantsync.evolution.io.kernelhaven.FeatureModelFromVariabilityModelLoader;
+import de.variantsync.evolution.io.kernelhaven.VariabilityModelLoader;
 import de.variantsync.evolution.io.kernelhaven.KernelHavenSPLPCIO;
 import de.variantsync.evolution.io.kernelhaven.KernelHavenVariantPCIO;
 import de.variantsync.evolution.util.Logger;
@@ -71,7 +71,7 @@ public class Resources {
         r.registerLoader(IFeatureModel.class, xmlFMIO);
         r.registerWriter(IFeatureModel.class, xmlFMIO);
 
-        final FeatureModelFromVariabilityModelLoader fmFromVm = new FeatureModelFromVariabilityModelLoader();
+        final VariabilityModelLoader fmFromVm = new VariabilityModelLoader();
         r.registerLoader(IFeatureModel.class, fmFromVm);
 
         // Configurations

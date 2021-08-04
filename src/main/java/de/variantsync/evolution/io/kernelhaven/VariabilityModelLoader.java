@@ -9,7 +9,7 @@ import net.ssehub.kernel_haven.variability_model.JsonVariabilityModelCache;
 
 import java.nio.file.Path;
 
-public class FeatureModelFromVariabilityModelLoader implements ResourceLoader<IFeatureModel> {
+public class VariabilityModelLoader implements ResourceLoader<IFeatureModel> {
     
     @Override
     public boolean canLoad(Path p) {
