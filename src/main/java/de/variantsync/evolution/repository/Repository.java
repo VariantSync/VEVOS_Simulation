@@ -19,10 +19,10 @@ public abstract class Repository<C extends Commit> implements IRepository<C>{
     }
 
     @Override
-    public C checkoutCommit(final C c) throws GitAPIException, IOException {
+    public C checkoutCommit(final C c, boolean forced) throws GitAPIException, IOException {
         try {
             final C previous = getCurrentCommit();
-            git().checkout().setName(c.id()).call();
+            git().checkout().setName(c.id()).setForced(forced).call();
             return previous;
         } catch (final GitAPIException | IOException e) {
             Logger.error("Failed to checkout commit " + c, e);

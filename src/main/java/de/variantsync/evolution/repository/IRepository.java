@@ -16,7 +16,18 @@ public interface IRepository<C extends Commit> extends AutoCloseable {
      * @param c The commit to check out. Will be the @see getCurrentCommitAfterwards.
      * @return The commit that was previously the current commit.
      */
-    C checkoutCommit(C c) throws GitAPIException, IOException;
+    default C checkoutCommit(C c) throws GitAPIException, IOException {
+        return checkoutCommit(c, false);
+    }
+
+    /**
+     * Check out the given commit in the local copy of the repository.
+     * (Method is designed for operating on a single branch only).
+     * @param c The commit to check out. Will be the @see getCurrentCommitAfterwards.
+     * @param forced If true, allow a checkout even if the workingtree or index differs from HEAD.
+     * @return The commit that was previously the current commit.
+     */
+    C checkoutCommit(C c, boolean forced) throws GitAPIException, IOException;
 
     /**
      * Check out the given branch (`git checkout <branch name>`).
