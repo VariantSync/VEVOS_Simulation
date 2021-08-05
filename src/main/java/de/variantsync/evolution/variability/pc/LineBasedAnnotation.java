@@ -19,21 +19,21 @@ import java.util.function.Predicate;
  * A line-based annotation of source code, such as preprocessor annotations (#ifdef)
  */
 public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
+    private final AnnotationStyle style;
     private int lineFrom;
     private int lineTo;
-    private final AnnotationStyle style;
 
     /**
      * Creates a new annotation starting at lineFrom and ending at lineTo including both
      * (i.e., [lineFrom, lineTo]).
      * Indexing is 1-based (i.e., the first line in a file is indexed by 1).
-     *
+     * <p>
      * The style determines whether the annotations is considered to be within the source code (i.e., c macros) or external.
      * Example for a preprocessor block:
-     *   3 #if X     <-- lineFrom
-     *   4   foo();
-     *   5   bar();
-     *   6 #endif    <-- lineTo
+     * 3 #if X     <-- lineFrom
+     * 4   foo();
+     * 5   bar();
+     * 6 #endif    <-- lineTo
      * is reflected by LineBasedAnnotation(X, 3, 6, Internal);
      */
     public LineBasedAnnotation(final Node featureMapping, final int lineFrom, final int lineTo, final AnnotationStyle style) {
@@ -50,24 +50,34 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
         this.style = other.style;
     }
 
+    private static void addRange(final List<Integer> list, final int fromInclusive, final int toInclusive) {
+        for (int i = fromInclusive; i <= toInclusive; ++i) {
+            list.add(i);
+        }
+    }
+
     public int getLineFrom() {
         return lineFrom;
-    }
-    public int getLineTo() {
-        return lineTo;
-    }
-    public int getLineCount() {
-        return lineTo - lineFrom + 1;
-    }
-    public boolean annotates(final int lineNumber) {
-        return lineFrom <= lineNumber && lineNumber <= lineTo;
     }
 
     protected void setLineFrom(final int lineFrom) {
         this.lineFrom = lineFrom;
     }
+
+    public int getLineTo() {
+        return lineTo;
+    }
+
     protected void setLineTo(final int lineTo) {
         this.lineTo = lineTo;
+    }
+
+    public int getLineCount() {
+        return lineTo - lineFrom + 1;
+    }
+
+    public boolean annotates(final int lineNumber) {
+        return lineFrom <= lineNumber && lineNumber <= lineTo;
     }
 
     public boolean isMacro() {
@@ -99,9 +109,17 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
             final int firstCodeLine = getLineFrom() + offset;
             offset -= style.offset; // ignore #if
 
+            int lastAnnotationEnd = 0;
             /// convert all subtrees to variants
             final List<LineBasedAnnotation> newSubtrees = new ArrayList<>(getNumberOfSubtrees());
             for (final LineBasedAnnotation splAnnotation : subtrees) {
+                // We have to increase the offset for each subtree overlap (i.e., in the case of #else), because overlapping subtrees
+                // share the same #endif, which should only be counted once.
+                if (splAnnotation.lineFrom == lastAnnotationEnd) {
+                    offset++;
+                }
+                lastAnnotationEnd = splAnnotation.lineTo;
+
                 final Optional<LineBasedAnnotation> mVariantAnnotation = splAnnotation.deriveForVariant(variant, offset, matching);
                 // If the subtree is still present in the variant, it might have shrunk.
                 // That can happen when the subtree as nested annotations inside it that code removed.
@@ -128,11 +146,11 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
 
     /**
      * Computes all lines that should be included in the given variant when evaluating the annotations in this artefact.
+     *
      * @param isIncluded A predicate to select subtrees. A subtree will be considered if isIncluded returns true for it.
      * @return All line numbers that should be copied from the SPL file to the variant file. 1-based.
      */
-    public List<Integer> getAllLinesFor(final Predicate<LineBasedAnnotation> isIncluded)
-    {
+    public List<Integer> getAllLinesFor(final Predicate<LineBasedAnnotation> isIncluded) {
         final List<Integer> chunksToWrite = new ArrayList<>();
         final int firstCodeLine = getLineFrom() + style.offset; // ignore #if
         final int lastCodeLine = getLineTo() - style.offset; // ignore #endif
@@ -155,12 +173,6 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
         }
 
         return chunksToWrite;
-    }
-
-    private static void addRange(final List<Integer> list, final int fromInclusive, final int toInclusive) {
-        for (int i = fromInclusive; i <= toInclusive; ++i) {
-            list.add(i);
-        }
     }
 
     public void simplify() {

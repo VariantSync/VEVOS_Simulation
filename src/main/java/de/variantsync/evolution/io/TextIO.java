@@ -69,9 +69,11 @@ public class TextIO {
 
             for (final Integer lineNo : linesToTake) {
                 // skip lines that exceed the content
-                // TODO: Do something about this warning. The warning is shown even if everything is done correctly.
                 if (lineNo - 1 >= read_lines.size()) {
-                    Logger.warning("Skipped copying line "
+                    // TODO: This is logged frequently and is caused by https://bugs.openjdk.java.net/browse/JDK-8199413
+                    // Skipping the line really is the best solution, as the empty line is created by appending a line separator
+                    // to the previous line. 
+                    Logger.debug("Skipped copying line "
                             + lineNo
                             + " from \""
                             + sourceFile
@@ -81,14 +83,13 @@ public class TextIO {
                             + (read_lines.size() - 1)
                             + "]!"
                     );
-                    continue;
+                } else {
+                    // The list read_lines is 0-based.
+                    // Given lines are 1-based because line numbers are typically given 1-based.
+                    // Thus, we have to -1 here because line numbers are 1-indexed
+                    // but we want to look them up in read_lines, which is 0-based.
+                    linesToWrite.append(read_lines.get(lineNo - 1)).append(System.lineSeparator());
                 }
-
-                // The list read_lines is 0-based.
-                // Given lines are 1-based because line numbers are typically given 1-based.
-                // Thus, we have to -1 here because line numbers are 1-indexed
-                // but we want to look them up in read_lines, which is 0-based.
-                linesToWrite.append(read_lines.get(lineNo - 1)).append(System.lineSeparator());
             }
 
             Files.write(
