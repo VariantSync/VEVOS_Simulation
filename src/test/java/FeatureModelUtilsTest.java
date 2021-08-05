@@ -5,6 +5,7 @@ import de.variantsync.evolution.Main;
 import de.variantsync.evolution.util.fide.FeatureModelUtils;
 import org.junit.Test;
 
+import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -37,14 +38,25 @@ public class FeatureModelUtilsTest {
         IFeatureModel modelA = FeatureModelUtils.FromOptionalFeatures("A", "B", "C", "D", "E");
         IFeatureModel modelB = FeatureModelUtils.FromOptionalFeatures("B", "C", "E", "F", "G");
 
-        Set<String> difference = FeatureModelUtils.getFeatureDifference(modelA, modelB);
+        Collection<String> difference = FeatureModelUtils.getFeaturesNotInB(modelA, modelB).stream().map(IFeatureModelElement::getName).collect(Collectors.toSet());
+        assert !difference.contains("B");
+        assert !difference.contains("C");
+        assert !difference.contains("E");
+        
+        assert !difference.contains("F");
+        assert !difference.contains("G");
 
+        assert difference.contains("A");
+        assert difference.contains("D");
+
+        difference = FeatureModelUtils.getFeaturesNotInB(modelB, modelA).stream().map(IFeatureModelElement::getName).collect(Collectors.toSet());
         assert !difference.contains("B");
         assert !difference.contains("C");
         assert !difference.contains("E");
 
-        assert difference.contains("A");
-        assert difference.contains("D");
+        assert !difference.contains("A");
+        assert !difference.contains("D");
+        
         assert difference.contains("F");
         assert difference.contains("G");
     }

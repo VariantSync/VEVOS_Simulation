@@ -63,14 +63,9 @@ public class FeatureModelUtils {
         return intersectionModel;
     }
 
-    public static Set<String> getFeatureDifference(final IFeatureModel modelA, final IFeatureModel modelB) {
-        final Set<String> featureDifference = new HashSet<>();
-        
-        // Collect all features in the difference of modelA and modelB
-        getFeaturesFiltered(modelA, f -> !getFeatureNames(modelB).contains(f.getName())).forEach(f -> featureDifference.add(f.getName()));
-        getFeaturesFiltered(modelB, f -> !getFeatureNames(modelA).contains(f.getName())).forEach(f -> featureDifference.add(f.getName()));
-        
-        return featureDifference;
+    public static Collection<IFeature> getFeaturesNotInB(final IFeatureModel modelA, final IFeatureModel modelB) {
+        // Collect all features that are in modelA, but not modelB
+        return new HashSet<>(getFeaturesFiltered(modelA, f -> !getFeatureNames(modelB).contains(f.getName())));
     }
     
     private static Collection<IFeature> getFeaturesFiltered(final IFeatureModel model, Function<IFeature, Boolean> filter) {
