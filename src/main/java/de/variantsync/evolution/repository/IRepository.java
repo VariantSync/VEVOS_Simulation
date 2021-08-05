@@ -4,6 +4,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Optional;
 
 /**
  * Models a repository of a version control system such as Git.
@@ -40,6 +41,24 @@ public interface IRepository<C extends Commit> extends AutoCloseable {
      * @return The commit HEAD is currently pointing to (i.e., the commit whose state of the repository we see on disk currently).
      */
     C getCurrentCommit() throws IOException;
+
+    /**
+     * Stash changes in the working directory and index in a commit.
+     * @param includeUntracked Whether to include untracked files in the stash.
+     * @return The current commit after stashing
+     */
+    Optional<C> stashCreate(boolean includeUntracked) throws IOException, GitAPIException;
+
+    /**
+     * Delete a stashed commit by reference
+     * @param refID the stash reference to drop (0-based)
+     */
+    void dropStash(int refID) throws GitAPIException, IOException;
+
+    /**
+     * Drop all stashed commits.
+     */
+    void dropStash() throws GitAPIException, IOException;
 
     /**
      * @return The path in the file system to a local copy of this repository.

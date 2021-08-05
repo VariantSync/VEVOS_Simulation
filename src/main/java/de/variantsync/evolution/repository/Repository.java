@@ -6,15 +6,17 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.revwalk.RevCommit;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Optional;
 
-public abstract class Repository<C extends Commit> implements IRepository<C>{
+public abstract class Repository<C extends Commit> implements IRepository<C> {
     private final Path path;
     private Git git;
 
-    public Repository(final Path path){
+    public Repository(final Path path) {
         this.path = path;
     }
 
@@ -46,8 +48,39 @@ public abstract class Repository<C extends Commit> implements IRepository<C>{
     public C getCurrentCommit() throws IOException {
         try {
             return idToCommit(getCurrentCommitId());
-        } catch(final IOException e) {
+        } catch (final IOException e) {
             Logger.error("Failed to get current commit.", e);
+            close();
+            throw e;
+        }
+    }
+
+    public Optional<C> stashCreate(boolean includeUntracked) throws IOException, GitAPIException {
+        try {
+            RevCommit commit = git().stashCreate().setIncludeUntracked(includeUntracked).call();
+            return Optional.ofNullable(commit == null ? null : idToCommit(commit.getName()));
+        } catch (GitAPIException | IOException e) {
+            Logger.error("Failed to stash changes.", e);
+            close();
+            throw e;
+        }
+    }
+
+    public void dropStash(int refID) throws GitAPIException, IOException {
+        try {
+            git().stashDrop().setStashRef(refID).call();
+        } catch (GitAPIException | IOException e) {
+            Logger.error("Failed to drop stash with id " + refID, e);
+            close();
+            throw e;
+        }
+    }
+    
+    public void dropStash() throws GitAPIException, IOException {
+        try {
+            git().stashDrop().setAll(true).call();
+        } catch (GitAPIException | IOException e) {
+            Logger.error("Failed to drop stash.", e);
             close();
             throw e;
         }
@@ -76,7 +109,7 @@ public abstract class Repository<C extends Commit> implements IRepository<C>{
     }
 
     protected Git git() throws IOException {
-        if(git == null){
+        if (git == null) {
             git = GitUtil.loadGitRepo(path.toFile());
         }
 
@@ -84,7 +117,7 @@ public abstract class Repository<C extends Commit> implements IRepository<C>{
     }
 
     public void close() {
-        if(git != null){
+        if (git != null) {
             git.getRepository().close();
             git.close();
             git = null;
