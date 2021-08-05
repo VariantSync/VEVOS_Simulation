@@ -1,4 +1,3 @@
-import de.ovgu.featureide.fm.core.base.IFeature;
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import de.ovgu.featureide.fm.core.base.IFeatureModelElement;
 import de.variantsync.evolution.Main;
@@ -38,7 +37,7 @@ public class FeatureModelUtilsTest {
         IFeatureModel modelA = FeatureModelUtils.FromOptionalFeatures("A", "B", "C", "D", "E");
         IFeatureModel modelB = FeatureModelUtils.FromOptionalFeatures("B", "C", "E", "F", "G");
 
-        Collection<String> difference = FeatureModelUtils.getFeaturesNotInB(modelA, modelB).stream().map(IFeatureModelElement::getName).collect(Collectors.toSet());
+        Collection<String> difference = FeatureModelUtils.getFeaturesOnlyInFirstModel(modelA, modelB).stream().map(IFeatureModelElement::getName).collect(Collectors.toSet());
         assert !difference.contains("B");
         assert !difference.contains("C");
         assert !difference.contains("E");
@@ -49,7 +48,7 @@ public class FeatureModelUtilsTest {
         assert difference.contains("A");
         assert difference.contains("D");
 
-        difference = FeatureModelUtils.getFeaturesNotInB(modelB, modelA).stream().map(IFeatureModelElement::getName).collect(Collectors.toSet());
+        difference = FeatureModelUtils.getFeaturesOnlyInFirstModel(modelB, modelA).stream().map(IFeatureModelElement::getName).collect(Collectors.toSet());
         assert !difference.contains("B");
         assert !difference.contains("C");
         assert !difference.contains("E");

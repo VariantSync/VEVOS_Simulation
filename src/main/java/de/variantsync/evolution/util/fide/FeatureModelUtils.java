@@ -63,7 +63,7 @@ public class FeatureModelUtils {
         return intersectionModel;
     }
 
-    public static Collection<IFeature> getFeaturesNotInB(final IFeatureModel modelA, final IFeatureModel modelB) {
+    public static Collection<IFeature> getFeaturesOnlyInFirstModel(final IFeatureModel modelA, final IFeatureModel modelB) {
         // Collect all features that are in modelA, but not modelB
         return new HashSet<>(getFeaturesFiltered(modelA, f -> !getFeatureNames(modelB).contains(f.getName())));
     }
