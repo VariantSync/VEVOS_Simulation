@@ -48,12 +48,11 @@ public class FeatureIDEConfiguration implements IConfiguration {
         this.featureIDEConfig = featureIDEConfig;
     }
 
-    public FeatureIDEConfiguration(final LiteralSet literalSet, final FeatureModelFormula featureModel) {
+    public FeatureIDEConfiguration(final LiteralSet literalSet, final FeatureModelFormula featureModel, Map<String, Boolean> fixedAssignment) {
         featureIDEConfig = new Configuration(featureModel);
 
         final IVariables vars = featureModel.getVariables();
 
-        // TODO: Untested
         final int[] trueVariables = literalSet.getPositive().getLiterals();
         final int[] falseVariables = literalSet.getNegative().getLiterals();
         for (final int trueVar : trueVariables) {
@@ -63,6 +62,14 @@ public class FeatureIDEConfiguration implements IConfiguration {
             featureIDEConfig.setManual(vars.getName(falseVar), Selection.UNSELECTED);
         }
 
+        // Assign the fixed values
+        fixedAssignment.forEach((key, value) -> {
+            if (value) {
+                featureIDEConfig.setManual(key, Selection.SELECTED);
+            } else {
+                featureIDEConfig.setManual(key, Selection.UNSELECTED);
+            }
+        });
         // Selection should be complete as the given literalSet should be total.
         // So we do not have to analyze and complete configurations.
     }

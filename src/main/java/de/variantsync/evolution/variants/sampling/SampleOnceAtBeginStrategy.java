@@ -10,6 +10,7 @@ import de.variantsync.evolution.util.functional.Functional;
 import de.variantsync.evolution.variants.blueprints.VariantsRevisionBlueprint;
 import org.prop4j.Node;
 
+import java.util.Map;
 import java.util.Optional;
 
 public class SampleOnceAtBeginStrategy implements Sampler, SamplingStrategy {
@@ -27,6 +28,11 @@ public class SampleOnceAtBeginStrategy implements Sampler, SamplingStrategy {
     @Override
     public Sample sample(final IFeatureModel model) {
         return sampler.sample(model);
+    }
+
+    @Override
+    public Sample sample(final IFeatureModel model, Map<String, Boolean> fixedAssignment) {
+        return sampler.sample(model, fixedAssignment);
     }
 
     @Override

@@ -15,7 +15,9 @@ import de.variantsync.evolution.util.names.NameGenerator;
 import de.variantsync.evolution.util.names.NumericNameGenerator;
 import de.variantsync.evolution.feature.config.FeatureIDEConfiguration;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -49,6 +51,11 @@ public class FeatureIDESampler implements Sampler {
 
     @Override
     public Sample sample(final IFeatureModel model) {
+        return sample(model, new HashMap<>());
+    }
+
+    @Override
+    public Sample sample(final IFeatureModel model, Map<String, Boolean> fixedAssignment) {
         final FeatureModelFormula featureModelFormula = new FeatureModelFormula(model);
         final CNF cnf = featureModelFormula.getCNF();
         final IConfigurationGenerator generator = generatorFactory.apply(cnf);
@@ -59,7 +66,7 @@ public class FeatureIDESampler implements Sampler {
         final AtomicInteger variantNo = new AtomicInteger();
         return new Sample(result.stream().map(literalSet -> new Variant(
                 variantNameGenerator.getNameAtIndex(variantNo.getAndIncrement()),
-                new FeatureIDEConfiguration(literalSet, featureModelFormula)
+                new FeatureIDEConfiguration(literalSet, featureModelFormula, fixedAssignment)
         )).collect(Collectors.toList()));
     }
 }
