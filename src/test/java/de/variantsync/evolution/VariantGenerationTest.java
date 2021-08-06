@@ -1,3 +1,5 @@
+package de.variantsync.evolution;
+
 import de.ovgu.featureide.fm.core.analysis.cnf.formula.FeatureModelFormula;
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import de.variantsync.evolution.Main;

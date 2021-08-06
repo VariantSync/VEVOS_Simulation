@@ -1,6 +1,7 @@
+package de.variantsync.evolution;
+
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import de.ovgu.featureide.fm.core.base.IFeatureModelElement;
-import de.variantsync.evolution.Main;
 import de.variantsync.evolution.util.fide.FeatureModelUtils;
 import org.junit.Test;
 
