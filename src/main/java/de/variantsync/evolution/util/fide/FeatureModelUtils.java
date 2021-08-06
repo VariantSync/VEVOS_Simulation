@@ -40,34 +40,63 @@ public class FeatureModelUtils {
         return FromOptionalFeatures(Arrays.asList(featureNames));
     }
 
-    public static IFeatureModel IntersectModels(final IFeatureModel modelA, final IFeatureModel modelB) {
+    public static IFeatureModel IntersectionModel(final IFeatureModel modelA, final IFeatureModel modelB) {
         // Collect all features in the intersection of modelA and modelB
         // We have to rely on the equality of names, as the equality of objects does not seem to work as needed for this task
         final Set<IFeature> featureIntersection = new HashSet<>(getFeaturesFiltered(modelA, f -> getFeatureNames(modelB).contains(f.getName())));
 
         // Collect all constraints that only describe features in the intersection
-        final List<IConstraint> constraintIntersection = modelA
-                .getConstraints()
-                .stream()
-                .filter(c -> featureIntersection.containsAll(c.getContainedFeatures()))
-                .collect(Collectors.toList());
+        final Collection<IConstraint> constraintIntersection = getConstraintsFiltered(modelA, c -> featureIntersection.containsAll(c.getContainedFeatures()));
+
+        constraintIntersection.addAll(getConstraintsFiltered(modelB, c -> featureIntersection.containsAll(c.getContainedFeatures())));
 
         final IFeatureModelFactory factory = FMFactoryManager.getInstance().getFactory(modelA);
-        final IFeatureModel intersectionModel = factory.create();
+        return createModel(factory, featureIntersection, constraintIntersection);
+    }
+
+    public static IFeatureModel createModel(IFeatureModelFactory factory,
+                                            Collection<IFeature> features,
+                                            Collection<IConstraint> constraints) {
+        final IFeatureModel model = factory.create();
 
         // Add all features and constraints to the model
-        featureIntersection.forEach(intersectionModel::addFeature);
-        constraintIntersection.forEach(intersectionModel::addConstraint);
+        features.stream().map(f -> factory.createFeature(model, f.getName())).forEach(model::addFeature);
+        constraints.stream().map(c -> factory.createConstraint(model, c.getNode())).forEach(model::addConstraint);
 
-        Logger.debug("Added all feature from VariabilityModel to FeatureModel.");
-        return intersectionModel;
+        return model;
     }
 
-    public static Collection<IFeature> getFeaturesOnlyInFirstModel(final IFeatureModel modelA, final IFeatureModel modelB) {
-        // Collect all features that are in modelA, but not modelB
-        return new HashSet<>(getFeaturesFiltered(modelA, f -> !getFeatureNames(modelB).contains(f.getName())));
+    public static IFeatureModel UnionModel(final IFeatureModel modelA, final IFeatureModel modelB) {
+        final Set<String> featureNames = new HashSet<>();
+
+        final ArrayList<IFeature> featureUnion = new ArrayList<>(modelA.getFeatures().size() + modelB.getFeatures().size());
+        // Add all features of modelA
+        modelA.getFeatures().forEach(f -> {
+            featureUnion.add(f);
+            featureNames.add(f.getName());
+        });
+        // Add all features of modelB that are not in A
+        modelB.getFeatures().stream().filter(f -> !featureNames.contains(f.getName())).forEach(featureUnion::add);
+        featureUnion.trimToSize();
+
+        // Collect the constraints
+        ArrayList<IConstraint> constraintUnion = new ArrayList<>(modelA.getConstraints().size() + modelB.getConstraints().size());
+        constraintUnion.addAll(modelA.getConstraints());
+        constraintUnion.addAll(modelB.getConstraints());
+
+        final IFeatureModelFactory factory = FMFactoryManager.getInstance().getFactory(modelA);
+        return createModel(factory, featureUnion, constraintUnion);
     }
-    
+
+    public static Collection<String> getSymmetricFeatureDifference(final IFeatureModel modelA, final IFeatureModel modelB) {
+        final Set<String> featureNames = new HashSet<>();
+
+        getFeaturesFiltered(modelA, f -> !getFeatureNames(modelB).contains(f.getName())).stream().map(IFeatureModelElement::getName).forEach(featureNames::add);
+        getFeaturesFiltered(modelB, f -> !getFeatureNames(modelA).contains(f.getName())).stream().map(IFeatureModelElement::getName).forEach(featureNames::add);
+
+        return featureNames;
+    }
+
     private static Collection<IFeature> getFeaturesFiltered(final IFeatureModel model, Function<IFeature, Boolean> filter) {
         return model
                 .getFeatures()
@@ -75,7 +104,15 @@ public class FeatureModelUtils {
                 .filter(filter::apply)
                 .collect(Collectors.toList());
     }
-    
+
+    private static Collection<IConstraint> getConstraintsFiltered(final IFeatureModel model, Function<IConstraint, Boolean> filter) {
+        return model
+                .getConstraints()
+                .stream()
+                .filter(filter::apply)
+                .collect(Collectors.toList());
+    }
+
     private static Set<String> getFeatureNames(final IFeatureModel model) {
         return model.getFeatures()
                 .stream()

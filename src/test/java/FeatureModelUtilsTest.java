@@ -19,7 +19,7 @@ public class FeatureModelUtilsTest {
         IFeatureModel modelA = FeatureModelUtils.FromOptionalFeatures("A", "B", "C", "D", "E");
         IFeatureModel modelB = FeatureModelUtils.FromOptionalFeatures("B", "C", "E", "F", "G");
         
-        IFeatureModel intersection = FeatureModelUtils.IntersectModels(modelA, modelB);
+        IFeatureModel intersection = FeatureModelUtils.IntersectionModel(modelA, modelB);
         
         Set<String> featureIntersection = intersection.getFeatures().stream().map(IFeatureModelElement::getName).collect(Collectors.toSet());
         assert featureIntersection.contains("B");
@@ -33,29 +33,31 @@ public class FeatureModelUtilsTest {
     }
 
     @Test
-    public void simpleModelDifference() {
+    public void simpleModelUnion() {
         IFeatureModel modelA = FeatureModelUtils.FromOptionalFeatures("A", "B", "C", "D", "E");
         IFeatureModel modelB = FeatureModelUtils.FromOptionalFeatures("B", "C", "E", "F", "G");
 
-        Collection<String> difference = FeatureModelUtils.getFeaturesOnlyInFirstModel(modelA, modelB).stream().map(IFeatureModelElement::getName).collect(Collectors.toSet());
-        assert !difference.contains("B");
-        assert !difference.contains("C");
-        assert !difference.contains("E");
-        
-        assert !difference.contains("F");
-        assert !difference.contains("G");
+        Collection<String> union = FeatureModelUtils.UnionModel(modelA, modelB).getFeatures().stream().map(IFeatureModelElement::getName).collect(Collectors.toSet());
+        assert union.contains("A");
+        assert union.contains("B");
+        assert union.contains("C");
+        assert union.contains("D");
+        assert union.contains("E");
+        assert union.contains("F");
+        assert union.contains("G");
+    }
 
+    @Test
+    public void simpleFeatureDifference() {
+        IFeatureModel modelA = FeatureModelUtils.FromOptionalFeatures("A", "B", "C", "D", "E");
+        IFeatureModel modelB = FeatureModelUtils.FromOptionalFeatures("B", "C", "E", "F", "G");
+
+        Collection<String> difference = FeatureModelUtils.getSymmetricFeatureDifference(modelA, modelB);
         assert difference.contains("A");
-        assert difference.contains("D");
-
-        difference = FeatureModelUtils.getFeaturesOnlyInFirstModel(modelB, modelA).stream().map(IFeatureModelElement::getName).collect(Collectors.toSet());
         assert !difference.contains("B");
         assert !difference.contains("C");
+        assert difference.contains("D");
         assert !difference.contains("E");
-
-        assert !difference.contains("A");
-        assert !difference.contains("D");
-        
         assert difference.contains("F");
         assert difference.contains("G");
     }

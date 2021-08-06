@@ -41,6 +41,7 @@ public class FeatureIDEConfiguration implements IConfiguration {
 
     /**
      * Wrap the given FeatureIDE configuration.
+     *
      * @param featureIDEConfig Configuration in FeatureIDE format.
      */
     public FeatureIDEConfiguration(final Configuration featureIDEConfig) {
@@ -66,9 +67,10 @@ public class FeatureIDEConfiguration implements IConfiguration {
         // So we do not have to analyze and complete configurations.
     }
 
-                                   /**
+    /**
      * Create a minimal viable configuration such that all features in the given selection are active.
-     * @param fm Feature model to satisfy.
+     *
+     * @param fm             Feature model to satisfy.
      * @param activeFeatures Features to select.
      */
     public FeatureIDEConfiguration(final FeatureModelFormula fm, final List<String> activeFeatures) {
@@ -85,6 +87,7 @@ public class FeatureIDEConfiguration implements IConfiguration {
 
     /**
      * Converts this configuration to an assignment from variables to values.
+     *
      * @return An assignment from variables to values.
      */
     public Map<Object, Boolean> toAssignment() {
