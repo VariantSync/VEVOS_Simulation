@@ -58,9 +58,17 @@ public class FeatureModelUtils {
                                             Collection<IFeature> features,
                                             Collection<IConstraint> constraints) {
         final IFeatureModel model = factory.create();
+        final IFeature root = factory.createFeature(model, "__Root__");
+        FeatureUtils.setRoot(model, root);
+        // TODO: How can we keep structural information about feature models?
 
         // Add all features and constraints to the model
-        features.stream().map(f -> factory.createFeature(model, f.getName())).forEach(model::addFeature);
+        features.stream().map(f -> factory.createFeature(model, f.getName())).forEach(f -> {
+            FeatureUtils.addFeature(model, f);
+            if (!f.getName().equals("__Root__")) {
+                FeatureUtils.addChild(root, f);
+            }
+        });
         constraints.stream().map(c -> factory.createConstraint(model, c.getNode())).forEach(model::addConstraint);
 
         return model;
