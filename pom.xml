@@ -67,9 +67,6 @@
                     </descriptorRefs>
                 </configuration>
             </plugin>
-            <plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
-            </plugin>
         </plugins>
     </build>
 
@@ -120,6 +117,11 @@
         <dependency>
             <groupId>net.ssehub</groupId>
             <artifactId>kernel_haven</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>net.ssehub.kernel_haven</groupId>
+            <artifactId>kconfigreader</artifactId>
             <version>1.0.0</version>
         </dependency>
     </dependencies>
