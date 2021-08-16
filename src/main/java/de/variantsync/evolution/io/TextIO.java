@@ -63,7 +63,10 @@ public class TextIO {
      */
     public static void copyTextLines(final Path sourceFile, final Path targetFile, final List<Integer> linesToTake) throws IOException {
         /// Do not use Files.readAllLines(sourceFile) as it assumes the files to be in UTF-8 and crashes otherwise.
-        try (final Stream<String> linesStream = new BufferedReader(new FileReader(sourceFile.toFile())).lines()) {
+        //  Do also not use try (final Stream<String> linesStream = new BufferedReader(new FileReader(sourceFile.toFile())).lines()) {
+        // Apparently, Java is stupid and the BufferedReader is not closed by the try-with-resources if it is anonymous.
+        try (BufferedReader br = new BufferedReader(new FileReader(sourceFile.toFile()));
+             Stream<String> linesStream = br.lines()) {
             final List<String> read_lines = linesStream.collect(Collectors.toList());
             final StringBuilder linesToWrite = new StringBuilder();
 
