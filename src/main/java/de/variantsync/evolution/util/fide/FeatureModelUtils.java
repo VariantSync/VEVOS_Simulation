@@ -129,6 +129,7 @@ public class FeatureModelUtils {
     }
 
     public static IFeatureModel FromVariabilityModel(VariabilityModel vm) throws Resources.ResourceIOException, IOException {
+        // 1. Load DIMACS model which contains all constraints and the associated variables
         Logger.debug("Converting VariabilityModel to FeatureModel.");
         // The DIMACS file is missing the 'CONFIG_' prefix for every feature, while the VariabilityModel and the PCs are
         // with prefix. We amend the DIMACS file by adding the prefix to each feature.
@@ -138,12 +139,13 @@ public class FeatureModelUtils {
         final IFeatureModel fm = Resources.Instance().load(IFeatureModel.class, vm.getConstraintModel().toPath());
         Logger.debug("Read FeatureModel from DIMACS");
 
-        // Add all missing features
+        // 2. Add all missing features that are only in the variability model, but not the constraint model. That is, features
+        // not part of a constraint
         final Set<String> featureNames = new HashSet<>(vm.getVariableMap().keySet());
         // We only want to add features that are not part of the model yet
         fm.getFeatures().stream().map(IFeatureModelElement::getName).forEach(featureNames::remove);
         final IFeatureModelFactory factory = FMFactoryManager.getInstance().getFactory(fm);
-        final IFeature root = fm.getFeature("__Root__");
+        final IFeature root = FeatureUtils.getRoot(fm);
         // Add all remaining feature from the variability model to the feature model
         featureNames.stream().map(name -> factory.createFeature(fm, name)).forEach(feature -> {
             FeatureUtils.addFeature(fm, feature);
