@@ -31,11 +31,6 @@ public class SampleOnceAtBeginStrategy implements Sampler, SamplingStrategy {
     }
 
     @Override
-    public Sample sample(final IFeatureModel model, Map<String, Boolean> fixedAssignment) {
-        return sampler.sample(model, fixedAssignment);
-    }
-
-    @Override
     public Sample sampleForRevision(final Optional<IFeatureModel> model, final VariantsRevisionBlueprint blueprint) {
         return Functional.match(blueprint.getPredecessor(),
                 // Use the sample we already computed.

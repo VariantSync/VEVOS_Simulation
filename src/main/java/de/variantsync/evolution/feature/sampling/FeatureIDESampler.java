@@ -51,11 +51,6 @@ public class FeatureIDESampler implements Sampler {
 
     @Override
     public Sample sample(final IFeatureModel model) {
-        return sample(model, new HashMap<>());
-    }
-
-    @Override
-    public Sample sample(final IFeatureModel model, Map<String, Boolean> fixedAssignment) {
         final FeatureModelFormula featureModelFormula = new FeatureModelFormula(model);
         final CNF cnf = featureModelFormula.getCNF();
         final IConfigurationGenerator generator = generatorFactory.apply(cnf);
@@ -66,7 +61,7 @@ public class FeatureIDESampler implements Sampler {
         final AtomicInteger variantNo = new AtomicInteger();
         return new Sample(result.stream().map(literalSet -> new Variant(
                 variantNameGenerator.getNameAtIndex(variantNo.getAndIncrement()),
-                new FeatureIDEConfiguration(literalSet, featureModelFormula, fixedAssignment)
+                new FeatureIDEConfiguration(literalSet, featureModelFormula)
         )).collect(Collectors.toList()));
     }
 }

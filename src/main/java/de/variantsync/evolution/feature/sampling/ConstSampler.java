@@ -17,9 +17,4 @@ public final record ConstSampler(Sample sample) implements Sampler {
     public Sample sample(final IFeatureModel model) {
         return sample;
     }
-    
-    @Override
-    public Sample sample(final IFeatureModel model, Map<String, Boolean> fixedAssignment) {
-        throw new NotImplementedException();
-    }
 }
