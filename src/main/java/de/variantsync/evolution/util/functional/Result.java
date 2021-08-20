@@ -163,6 +163,14 @@ public class Result<SuccessType, FailureType> {
         }
     }
 
+    public <T> T match(final Function<SuccessType, T> successCase, final Function<FailureType, T> failureCase) {
+        if (isSuccess()) {
+            return successCase.apply(result);
+        } else {
+            return failureCase.apply(failure);
+        }
+    }
+
     public <S2> Result<S2, FailureType> bind(final Function<SuccessType, Result<S2, FailureType>> successCase) {
         if (isSuccess()) {
             return successCase.apply(result);
