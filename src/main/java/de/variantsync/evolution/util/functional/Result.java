@@ -120,6 +120,7 @@ public class Result<SuccessType, FailureType> {
             if (HARD_CRASH_ON_TRY) {
                 throw new RuntimeException(e);
             } else {
+                // TODO: This cast might be impossible!
                 return Result.Failure((E) e);
             }
         }
