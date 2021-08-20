@@ -108,7 +108,7 @@ public class Functional {
     public static <Nullable, B, E extends Exception> Optional<B> mapFragile(final Nullable n, final FragileFunction<Nullable, B, E> f, final Supplier<String> errorMessage) {
         return Optional.ofNullable(n).flatMap(a ->
                 Result.Try(() -> f.run(a)).match(
-                        Optional::of,
+                        Optional::ofNullable, // actually the returned B can also be null, thus ofNullable here
                         exception -> {
                             Logger.error(errorMessage.get(), exception);
                             return Optional.empty();
