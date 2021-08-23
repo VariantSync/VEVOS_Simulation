@@ -71,27 +71,32 @@ public class TextIO {
             final StringBuilder linesToWrite = new StringBuilder();
 
             for (final Integer lineNo : linesToTake) {
+                int lineIndex = lineNo - 1;
                 // skip lines that exceed the content
-                if (lineNo - 1 >= read_lines.size()) {
-                    // TODO: This is logged frequently and is caused by https://bugs.openjdk.java.net/browse/JDK-8199413
-                    // Skipping the line really is the best solution, as the empty line is created by appending a line separator
-                    // to the previous line. 
-                    Logger.debug("Skipped copying line "
+                if (lineIndex >= read_lines.size()) {
+                    String logMessage = "Skipped copying line "
                             + lineNo
                             + " from \""
                             + sourceFile
                             + "\" to \""
                             + targetFile
                             + "\" as it is out of bounds [1, "
-                            + (read_lines.size() - 1)
-                            + "]!"
-                    );
+                            + read_lines.size()
+                            + "]!";
+
+                    if (lineIndex > read_lines.size()) {
+                        // This was logged frequently and is caused by https://bugs.openjdk.java.net/browse/JDK-8199413
+                        // Skipping the line really is the best solution, as the empty line is created by appending a line separator
+                        // to the previous line. I added the additional if-statement, to only catch cases in which more than one line 
+                        // is out of bounds, which indicates a serious problem. 
+                        Logger.error(logMessage);
+                    }
                 } else {
                     // The list read_lines is 0-based.
                     // Given lines are 1-based because line numbers are typically given 1-based.
                     // Thus, we have to -1 here because line numbers are 1-indexed
                     // but we want to look them up in read_lines, which is 0-based.
-                    linesToWrite.append(read_lines.get(lineNo - 1)).append(System.lineSeparator());
+                    linesToWrite.append(read_lines.get(lineIndex)).append(System.lineSeparator());
                 }
             }
 
@@ -105,7 +110,8 @@ public class TextIO {
     /**
      * Writes the given text to the given file.
      * Creates a new file and assumes there exists no file yet at the given path.
-     * @param p File to create and fill with text.
+     *
+     * @param p    File to create and fill with text.
      * @param text Text to write to file.
      * @throws IOException if an I/O error occurs writing to or creating the file, or the text cannot be encoded using the specified charset.
      *                     Also throws if the given file already exists.
