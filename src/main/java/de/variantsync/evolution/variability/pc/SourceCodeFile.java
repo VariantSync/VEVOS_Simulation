@@ -15,6 +15,7 @@ import de.variantsync.evolution.variability.pc.groundtruth.GroundTruth;
 import de.variantsync.evolution.variability.pc.visitor.SourceCodeFileVisitorFocus;
 import org.prop4j.Node;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Collections;
@@ -50,13 +51,14 @@ public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
         final CaseSensitivePath sourceFile = sourceDir.resolve(getFile());
         final CaseSensitivePath targetFile = targetDir.resolve(getFile());
 
+        // Check if the source file exists.
+        if (!Files.exists(sourceFile.path())) {
+            return Result.Failure(new FileNotFoundException("Source file " + sourceFile + " does not exist!"));
+        }
+
         final Result<Optional<AnnotationGroundTruth>, IOException> groundTruth =
-                // Check if the source file exists.
-                Result.FromFlag(
-                        () -> Files.exists(sourceFile.path()),
-                        () -> new IOException("Source file " + sourceFile + " does not exist!"))
                 // Create the target file.
-                .bind(unit -> PathUtils.createEmptyAsResult(targetFile.path()))
+                PathUtils.createEmptyAsResult(targetFile.path())
                 // Write to target file.
                 .bind(unit -> Traversable.sequence(rootAnnotation.deriveForVariant(variant).map(splAnnotationGroundTruth -> {
                     final BlockMatching lineMatching = splAnnotationGroundTruth.matching();
