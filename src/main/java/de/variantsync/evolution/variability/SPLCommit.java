@@ -3,12 +3,11 @@ package de.variantsync.evolution.variability;
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import de.variantsync.evolution.io.Resources;
 import de.variantsync.evolution.repository.Commit;
-import de.variantsync.evolution.util.Logger;
+import de.variantsync.evolution.util.functional.Functional;
 import de.variantsync.evolution.util.functional.Lazy;
 import de.variantsync.evolution.variability.pc.Artefact;
 import de.variantsync.evolution.variability.pc.EFilterOutcome;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -50,52 +49,34 @@ public class SPLCommit extends Commit {
         this.filterCountsPath = filterCounts == null ? null : filterCounts.path;
 
         // Lazy loading of log file
-        this.kernelHavenLog = Lazy.of(() -> Optional.ofNullable(kernelHavenLogPath).flatMap(path -> {
-            try {
-                return Optional.of(Files.readString(path));
-            } catch (final IOException e) {
-                Logger.error("Was not able to load KernelHaven log for commit " + commitId, e);
-                return Optional.empty();
-            }
-        }));
+        this.kernelHavenLog = Functional.mapFragileLazily(
+                kernelHavenLogPath,
+                Files::readString,
+                () -> "Was not able to load KernelHaven log for commit " + commitId);
         // Lazy loading of feature model
-        this.featureModel = Lazy.of(() -> Optional.ofNullable(featureModelPath).flatMap(path -> {
-            try {
-                return Optional.of(Resources.Instance().load(IFeatureModel.class, path));
-            } catch (final Resources.ResourceIOException resourceFailure) {
-                Logger.error("Was not able to load feature model for id " + commitId, resourceFailure);
-                return Optional.empty();
-            }
-        }));
+        this.featureModel = Functional.mapFragileLazily(
+                featureModelPath,
+                p -> Resources.Instance().load(IFeatureModel.class, p),
+                () -> "Was not able to load feature model for id " + commitId);
         // Lazy loading of presence condition
-        this.presenceConditions = Lazy.of(() -> Optional.ofNullable(presenceConditionsPath).flatMap(path -> {
-            try {
-                return Optional.of(Resources.Instance().load(Artefact.class, path));
-            } catch (final Resources.ResourceIOException resourceFailure) {
-                Logger.error("Was not able to load presence conditions for id " + commitId, resourceFailure);
-                return Optional.empty();
-            }
-        }));
+        this.presenceConditions = Functional.mapFragileLazily(
+                presenceConditionsPath,
+                path -> Resources.Instance().load(Artefact.class, path),
+                () -> "Was not able to load presence conditions for id " + commitId);
         // Lazy loading of commit message
-        this.message = Lazy.of(() -> Optional.ofNullable(commitMessagePath).flatMap(path -> {
-            try {
-                return Optional.of(Files.readString(path));
-            } catch (final IOException e) {
-                Logger.error("Was not able to load commit message for id " + commitId, e);
-                return Optional.empty();
-            }
-        }));
+        this.message = Functional.mapFragileLazily(
+                commitMessagePath,
+                Files::readString,
+                () -> "Was not able to load commit message for id " + commitId);
         // Lazy loading of filter counts
-        this.filterCounts = Lazy.of(() -> Optional.ofNullable(filterCountsPath).flatMap(path -> {
-            try {
-                Map<EFilterOutcome, Integer> countsMap = new HashMap<>();
-                Files.readAllLines(path).stream().map(l -> l.split(":")).forEach(parts -> countsMap.put(EFilterOutcome.valueOf(parts[0]), Integer.parseInt(parts[1].trim())));
-                return Optional.of(countsMap);
-            } catch (IOException e) {
-                Logger.error("Was not able to load filter counts for id " + commitId, e);
-                return Optional.empty();
-            }
-        }));
+        this.filterCounts = Functional.mapFragileLazily(
+                filterCountsPath,
+                path -> {
+                    final Map<EFilterOutcome, Integer> countsMap = new HashMap<>();
+                    Files.readAllLines(path).stream().map(l -> l.split(":")).forEach(parts -> countsMap.put(EFilterOutcome.valueOf(parts[0]), Integer.parseInt(parts[1].trim())));
+                    return countsMap;
+                },
+                () -> "Was not able to load filter counts for id " + commitId);
     }
 
     /**

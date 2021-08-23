@@ -120,6 +120,7 @@ public class Result<SuccessType, FailureType> {
             if (HARD_CRASH_ON_TRY) {
                 throw new RuntimeException(e);
             } else {
+                // TODO: This cast might be impossible!
                 return Result.Failure((E) e);
             }
         }
@@ -160,6 +161,14 @@ public class Result<SuccessType, FailureType> {
             return Success(successCase.apply(result));
         } else {
             return Failure(failureCase.apply(failure));
+        }
+    }
+
+    public <T> T match(final Function<SuccessType, T> successCase, final Function<FailureType, T> failureCase) {
+        if (isSuccess()) {
+            return successCase.apply(result);
+        } else {
+            return failureCase.apply(failure);
         }
     }
 

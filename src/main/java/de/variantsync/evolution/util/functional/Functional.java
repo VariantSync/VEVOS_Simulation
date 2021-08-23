@@ -1,5 +1,7 @@
 package de.variantsync.evolution.util.functional;
 
+import de.variantsync.evolution.util.Logger;
+import de.variantsync.evolution.util.functional.interfaces.FragileFunction;
 import de.variantsync.evolution.util.functional.interfaces.FragileProcedure;
 import de.variantsync.evolution.util.functional.interfaces.FragileSupplier;
 import de.variantsync.evolution.util.functional.interfaces.Procedure;
@@ -89,5 +91,32 @@ public class Functional {
             f.run();
             return Unit.Instance();
         };
+    }
+
+    /**
+     * Maps the given function f onto the given value a if a is not null.
+     *
+     * @param n A nullable value that should be converted to a value of type B via f.
+     * @param f A function that should be mapped onto a. f can safely assume that any arguments passed to it are not null.
+     * @param errorMessage Creates an error message in case f threw an exception of type E.
+     * @param <Nullable> The type of the nullable value a.
+     * @param <B> The result type.
+     * @param <E> The type of an exception that might be thrown by f.
+     * @return Returns the result of f(a) if a is not null and f(a) did not throw an exception of type E.
+     *         Returns Optional.empty() if a is null or f(a) threw an exception of type E.
+     */
+    public static <Nullable, B, E extends Exception> Optional<B> mapFragile(final Nullable n, final FragileFunction<Nullable, B, E> f, final Supplier<String> errorMessage) {
+        return Optional.ofNullable(n).flatMap(a ->
+                Result.Try(() -> f.run(a)).match(
+                        Optional::ofNullable, // actually the returned B can also be null, thus ofNullable here
+                        exception -> {
+                            Logger.error(errorMessage.get(), exception);
+                            return Optional.empty();
+                        })
+        );
+    }
+
+    public static <A, B, E extends Exception> Lazy<Optional<B>> mapFragileLazily(final A a, final FragileFunction<A, B, E> f, final Supplier<String> errorMessage) {
+        return Lazy.of(() -> mapFragile(a, f, errorMessage));
     }
 }
