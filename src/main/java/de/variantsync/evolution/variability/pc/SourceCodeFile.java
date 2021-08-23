@@ -16,6 +16,7 @@ import de.variantsync.evolution.variability.pc.visitor.SourceCodeFileVisitorFocu
 import org.prop4j.Node;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -46,24 +47,30 @@ public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
             final CaseSensitivePath sourceDir,
             final CaseSensitivePath targetDir,
             final VariantGenerationOptions strategy) {
+        final CaseSensitivePath sourceFile = sourceDir.resolve(getFile());
         final CaseSensitivePath targetFile = targetDir.resolve(getFile());
+
         final Result<Optional<AnnotationGroundTruth>, IOException> groundTruth =
-                // 1. Create the target file.
-                PathUtils.createEmptyAsResult(targetFile.path())
-                // 2. Write to target file.
+                // Check if the source file exists.
+                Result.FromFlag(
+                        () -> Files.exists(sourceFile.path()),
+                        () -> new IOException("Source file " + sourceFile + " does not exist!"))
+                // Create the target file.
+                .bind(unit -> PathUtils.createEmptyAsResult(targetFile.path()))
+                // Write to target file.
                 .bind(unit -> Traversable.sequence(rootAnnotation.deriveForVariant(variant).map(splAnnotationGroundTruth -> {
                     final BlockMatching lineMatching = splAnnotationGroundTruth.matching();
                     // only write lines of blocks that are part of our variant
                     final List<Integer> lines = rootAnnotation.getAllLinesFor(lineMatching::isPresentInVariant);
-                    final CaseSensitivePath sourceFile = sourceDir.resolve(getFile());
                     return Result.Try(
                             () -> {
                                 TextIO.copyTextLines(sourceFile.path(), targetFile.path(), lines);
                                 return splAnnotationGroundTruth;
                             });
                 })));
+
         return groundTruth.bimap(
-                // 3. In case of success, return ground truth.
+                // In case of success, return ground truth.
                 Functional.match(
                         splAnnotationGroundTruth -> GroundTruth.forSourceCodeFile(
                                 new SourceCodeFile(getFeatureMapping(), getFile(), splAnnotationGroundTruth.variantArtefact()),
@@ -71,7 +78,7 @@ public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
                         ),
                         () -> GroundTruth.withoutAnnotations(new SourceCodeFile(getFeatureMapping(), getFile()))
                 ),
-                // 4. In case of failure, log it (and implicitly transform IOException to Exception).
+                // In case of failure, log it (and implicitly transform IOException to Exception).
                 ioexception -> {
                     Logger.error("Could not create variant file " + targetFile + " because ", ioexception);
                     return ioexception;
