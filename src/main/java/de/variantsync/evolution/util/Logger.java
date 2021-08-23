@@ -8,6 +8,7 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -76,7 +77,7 @@ public class Logger {
     }
 
     public static void error(final String message, final Exception e) {
-        INSTANCE.log(message + "\n" + e.getMessage(), ERROR);
+        INSTANCE.log(String.format("%s%n%s%n%s%n", message, e.getMessage(), Arrays.toString(e.getStackTrace())), ERROR);
     }
 
     public static <S, F> void log(final Result<S, F> result) {
