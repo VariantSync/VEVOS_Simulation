@@ -1,6 +1,6 @@
 package de.variantsync.evolution.variability.pc.visitor.common;
 
-import de.variantsync.evolution.util.CaseSensitivePath;
+import de.variantsync.evolution.util.io.CaseSensitivePath;
 import de.variantsync.evolution.util.functional.Result;
 import de.variantsync.evolution.variability.pc.ArtefactTree;
 import de.variantsync.evolution.variability.pc.LineBasedAnnotation;

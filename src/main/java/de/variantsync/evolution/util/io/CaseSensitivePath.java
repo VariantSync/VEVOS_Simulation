@@ -1,4 +1,4 @@
-package de.variantsync.evolution.util;
+package de.variantsync.evolution.util.io;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

@@ -1,6 +1,6 @@
 package de.variantsync.evolution.variability.pc.groundtruth;
 
-import de.variantsync.evolution.util.CaseSensitivePath;
+import de.variantsync.evolution.util.io.CaseSensitivePath;
 import de.variantsync.evolution.variability.pc.Artefact;
 import de.variantsync.evolution.variability.pc.SourceCodeFile;
 

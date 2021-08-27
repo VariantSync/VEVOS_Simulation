@@ -1,6 +1,6 @@
 package de.variantsync.evolution.variability.pc;
 
-import de.variantsync.evolution.util.CaseSensitivePath;
+import de.variantsync.evolution.util.io.CaseSensitivePath;
 import de.variantsync.evolution.util.fide.FormulaUtils;
 import org.prop4j.Node;
 

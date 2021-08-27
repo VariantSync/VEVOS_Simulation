@@ -3,7 +3,7 @@ package de.variantsync.evolution.io.data;
 import de.variantsync.evolution.io.ResourceLoader;
 import de.variantsync.evolution.io.ResourceWriter;
 import de.variantsync.evolution.io.TextIO;
-import de.variantsync.evolution.util.PathUtils;
+import de.variantsync.evolution.util.io.PathUtils;
 import de.variantsync.evolution.util.functional.Result;
 import de.variantsync.evolution.util.functional.Unit;
 

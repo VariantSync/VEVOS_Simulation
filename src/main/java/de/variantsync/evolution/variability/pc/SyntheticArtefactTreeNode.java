@@ -1,7 +1,7 @@
 package de.variantsync.evolution.variability.pc;
 
 import de.variantsync.evolution.feature.Variant;
-import de.variantsync.evolution.util.CaseSensitivePath;
+import de.variantsync.evolution.util.io.CaseSensitivePath;
 import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.fide.bugfix.FixTrueFalse;
 import de.variantsync.evolution.util.functional.Functional;

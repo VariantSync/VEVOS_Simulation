@@ -1,4 +1,4 @@
-package de.variantsync.evolution.util;
+package de.variantsync.evolution.util.io;
 
 import de.variantsync.evolution.util.functional.CompositeException;
 import de.variantsync.evolution.util.functional.Monoid;
