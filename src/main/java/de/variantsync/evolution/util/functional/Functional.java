@@ -45,6 +45,10 @@ public class Functional {
         return ma -> match(ma, just, nothing);
     }
 
+    public static <A, B, C> Function<Result<A, B>, C> match(final Function<A, C> success, final Function<B, C> failure) {
+        return ma -> ma.match(success, failure);
+    }
+
     /**
      * Creates a branching function for given condition, then and else case.
      * @param condition The condition choosing whether to run 'then' or 'otherwise'.
