@@ -196,6 +196,19 @@ public class Result<SuccessType, FailureType> {
         }
     }
 
+    /**
+     * Flattens a nested Result.
+     * @param r A nested Result that should be flattened to a single Result.
+     * @return Flattened result.
+     */
+    public static <A, B> Result<A, B> join(final Result<Result<A, B>, B> r) {
+        if (r.isSuccess()) {
+            return r.getSuccess();
+        } else {
+            return Failure(r.getFailure());
+        }
+    }
+
     public boolean isSuccess() {
         return result != null;
     }
