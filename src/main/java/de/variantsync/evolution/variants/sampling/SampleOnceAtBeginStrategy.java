@@ -3,14 +3,13 @@ package de.variantsync.evolution.variants.sampling;
 import de.ovgu.featureide.fm.core.analysis.cnf.formula.FeatureModelFormula;
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import de.variantsync.evolution.feature.sampling.ConstSampler;
-import de.variantsync.evolution.feature.Sample;
-import de.variantsync.evolution.feature.Sampler;
+import de.variantsync.evolution.feature.sampling.Sample;
+import de.variantsync.evolution.feature.sampling.Sampler;
 import de.variantsync.evolution.feature.Variant;
 import de.variantsync.evolution.util.functional.Functional;
 import de.variantsync.evolution.variants.blueprints.VariantsRevisionBlueprint;
 import org.prop4j.Node;
 
-import java.util.Map;
 import java.util.Optional;
 
 public class SampleOnceAtBeginStrategy implements Sampler, SamplingStrategy {

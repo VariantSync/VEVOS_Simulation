@@ -10,14 +10,14 @@ import java.util.Map;
 public class SimpleConfiguration implements IConfiguration {
     private final Map<Object, Boolean> assignment;
     
-    public SimpleConfiguration(List<String> activeFeatures) {
+    public SimpleConfiguration(final List<String> activeFeatures) {
         this.assignment = new HashMap<>();
         activeFeatures.forEach(f -> this.assignment.put(f, true));
     }
     
     @Override
-    public boolean satisfies(Node formula) {
-        List<String> containedFeatures = formula.getContainedFeatures();
+    public boolean satisfies(final Node formula) {
+        final List<String> containedFeatures = formula.getContainedFeatures();
         // Add features that are missing in the configuration as unset features
         containedFeatures.forEach(f -> {if (!assignment.containsKey(f)) {
             Logger.debug("Found a feature that was not defined previously: " + f);

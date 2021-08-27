@@ -2,8 +2,7 @@ package de.variantsync.evolution;
 
 import de.ovgu.featureide.fm.core.analysis.cnf.formula.FeatureModelFormula;
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
-import de.variantsync.evolution.Main;
-import de.variantsync.evolution.feature.Sampler;
+import de.variantsync.evolution.feature.sampling.Sampler;
 import de.variantsync.evolution.feature.Variant;
 import de.variantsync.evolution.feature.config.IConfiguration;
 import de.variantsync.evolution.feature.sampling.FeatureIDESampler;

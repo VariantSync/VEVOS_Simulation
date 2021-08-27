@@ -1,6 +1,6 @@
 package de.variantsync.evolution.variants.blueprints;
 
-import de.variantsync.evolution.feature.Sample;
+import de.variantsync.evolution.feature.sampling.Sample;
 import de.variantsync.evolution.util.functional.Lazy;
 import de.variantsync.evolution.variants.VariantsRevision;
 

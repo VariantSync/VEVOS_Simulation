@@ -1,7 +1,5 @@
 package de.variantsync.evolution.feature.sampling;
 
-import de.variantsync.evolution.feature.Sampler;
-
 public abstract class ResizableSampler implements Sampler {
     private int size;
 

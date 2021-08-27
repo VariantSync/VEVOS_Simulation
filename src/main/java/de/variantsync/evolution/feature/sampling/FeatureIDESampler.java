@@ -8,16 +8,12 @@ import de.ovgu.featureide.fm.core.analysis.cnf.generator.configuration.RandomCon
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import de.ovgu.featureide.fm.core.job.LongRunningWrapper;
 import de.ovgu.featureide.fm.core.job.monitor.NullMonitor;
-import de.variantsync.evolution.feature.Sample;
-import de.variantsync.evolution.feature.Sampler;
 import de.variantsync.evolution.feature.Variant;
 import de.variantsync.evolution.util.names.NameGenerator;
 import de.variantsync.evolution.util.names.NumericNameGenerator;
 import de.variantsync.evolution.feature.config.FeatureIDEConfiguration;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
