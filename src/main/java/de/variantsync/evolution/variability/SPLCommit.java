@@ -5,6 +5,7 @@ import de.variantsync.evolution.io.Resources;
 import de.variantsync.evolution.repository.Commit;
 import de.variantsync.evolution.util.functional.Functional;
 import de.variantsync.evolution.util.functional.Lazy;
+import de.variantsync.evolution.util.io.TypedPath;
 import de.variantsync.evolution.variability.pc.Artefact;
 import de.variantsync.evolution.variability.pc.EFilterOutcome;
 
@@ -15,6 +16,12 @@ import java.util.Map;
 import java.util.Optional;
 
 public class SPLCommit extends Commit {
+    public record KernelHavenLogPath(Path path) implements TypedPath {}
+    public record FeatureModelPath(Path path) implements TypedPath {}
+    public record PresenceConditionPath(Path path) implements TypedPath {}
+    public record CommitMessagePath(Path path) implements TypedPath {}
+    public record FilterCountsPath(Path path) implements TypedPath {}
+
     private final Lazy<Optional<String>> kernelHavenLog;
     private final Lazy<Optional<IFeatureModel>> featureModel;
     private final Lazy<Optional<Artefact>> presenceConditions;
@@ -39,14 +46,21 @@ public class SPLCommit extends Commit {
         this(commitId, null, null, null, null, null);
     }
 
-    public SPLCommit(final String commitId, final KernelHavenLogPath kernelHavenLog, final FeatureModelPath featureModel, final PresenceConditionPath presenceConditions, final CommitMessagePath commitMessage, final FilterCountsPath filterCounts) {
+    public SPLCommit(
+            final String commitId,
+            final KernelHavenLogPath kernelHavenLog,
+            final FeatureModelPath featureModel,
+            final PresenceConditionPath presenceConditions,
+            final CommitMessagePath commitMessage,
+            final FilterCountsPath filterCounts)
+    {
         super(commitId);
 
-        this.kernelHavenLogPath = kernelHavenLog == null ? null : kernelHavenLog.path;
-        this.featureModelPath = featureModel == null ? null : featureModel.path;
-        this.presenceConditionsPath = presenceConditions == null ? null : presenceConditions.path;
-        this.commitMessagePath = commitMessage == null ? null : commitMessage.path;
-        this.filterCountsPath = filterCounts == null ? null : filterCounts.path;
+        this.kernelHavenLogPath = TypedPath.unwrapNullable(kernelHavenLog);
+        this.featureModelPath = TypedPath.unwrapNullable(featureModel);
+        this.presenceConditionsPath = TypedPath.unwrapNullable(presenceConditions);
+        this.commitMessagePath = TypedPath.unwrapNullable(commitMessage);
+        this.filterCountsPath = TypedPath.unwrapNullable(filterCounts);
 
         // Lazy loading of log file
         this.kernelHavenLog = Functional.mapFragileLazily(
@@ -146,20 +160,5 @@ public class SPLCommit extends Commit {
 
     public Path getFilterCountsPath() {
         return filterCountsPath;
-    }
-
-    public record KernelHavenLogPath(Path path) {
-    }
-
-    public record FeatureModelPath(Path path) {
-    }
-
-    public record PresenceConditionPath(Path path) {
-    }
-
-    public record CommitMessagePath(Path path) {
-    }
-
-    public record FilterCountsPath(Path path) {
     }
 }
