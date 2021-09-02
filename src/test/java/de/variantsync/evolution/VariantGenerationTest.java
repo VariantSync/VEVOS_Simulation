@@ -59,7 +59,7 @@ public class VariantGenerationTest {
             this.features = fm;
         }
 
-        public boolean generate(final List<Variant> variantsToTest) {
+        public boolean generate(final List<Variant> variantsToTest, final boolean writeConfigs) {
             traces.assertSuccess();
             PathUtils.deleteDirectory(variantsDir.path()).assertSuccess();
             final Artefact traceToTest = traces.getSuccess();
@@ -69,17 +69,23 @@ public class VariantGenerationTest {
 
             for (final Variant v : variantsToTest) {
                 traceToTest
-                        .generateVariant(v, splDir, variantsDir.resolve(v.getName()), VariantGenerationOptions.ExitOnError)
+                        .generateVariant(v, splDir, variantsDir.resolve(v.getName()), VariantGenerationOptions.ExitOnErrorButAllowNonExistentFiles)
                         // Write ground truth
                         .bind(groundTruth -> Result.Try(() -> Resources.Instance().write(
                                 Artefact.class,
                                 groundTruth.artefact(),
                                 variantsDir.resolve(v.getName()).resolve("ground_truth.variant.csv").path())))
                         // Write configuration
-                        .bind(unit -> Result.Try(() -> Resources.Instance().write(
-                                IConfiguration.class,
-                                v.getConfiguration(),
-                                variantsDir.resolve(v.getName()).resolve("configuration.xml").path())))
+                        .bind(unit -> {
+                            if (writeConfigs) {
+                                return Result.Try(() -> Resources.Instance().write(
+                                        IConfiguration.class,
+                                        v.getConfiguration(),
+                                        variantsDir.resolve(v.getName()).resolve("configuration.xml").path()));
+                            }
+
+                            return Result.Success(unit);
+                        })
                         .assertSuccess();
             }
 
@@ -211,27 +217,28 @@ public class VariantGenerationTest {
                 new Variant("justA", new FeatureIDEConfiguration(fmf, Collections.singletonList("A"))),
                 new Variant("justB", new FeatureIDEConfiguration(fmf, Collections.singletonList("B"))),
                 new Variant("all", new FeatureIDEConfiguration(fmf, Arrays.asList("A", "B", "C", "D", "E")))
-        ));
+                ),
+                true);
     }
 
     @Test
     public void testGenerationWithCustomSample() {
         final Sampler sampler = FeatureIDESampler.CreateRandomSampler(5);
-        assert pcTest1.generate(sampler.sample(pcTest1.features).variants());
+        assert pcTest1.generate(sampler.sample(pcTest1.features).variants(), true);
     }
 
     @Test
     public void testLinuxSampleGeneration() {
-        assert linuxSample.generate(Arrays.asList(
-                new Variant("all", new SayYesToAllConfiguration())
-        ));
+        assert linuxSample.generate(
+                List.of(new Variant("all", new SayYesToAllConfiguration())),
+                false);
     }
 
     @Test
     public void testLinuxGeneration() {
-        assert linux.generate(Arrays.asList(
-                new Variant("all", new SayYesToAllConfiguration())
-        ));
+        assert linux.generate(
+                List.of(new Variant("all", new SayYesToAllConfiguration())),
+                false);
     }
 
     @Test
