@@ -39,7 +39,7 @@ public class VariabilityDatasetLoaderTest {
             if (!SIMPLE_HISTORY_REPO_DIR.exists()) {
                 GitUtil.fromRemote(SPL_REPO_URI, "simple-history", TEMP_TEST_REPO_DIR.toString());
             }
-        } catch (IOException | GitAPIException e) {
+        } catch (final IOException | GitAPIException e) {
             throw new RuntimeException(e);
         }
     }
@@ -48,7 +48,7 @@ public class VariabilityDatasetLoaderTest {
 
     @Before
     public void loadData() {
-        var result = new VariabilityDatasetLoader().load(SIMPLE_VARIABILITY_METADATA_DIR);
+        final var result = new VariabilityDatasetLoader().load(SIMPLE_VARIABILITY_METADATA_DIR);
         assert result.isSuccess();
         this.dataset = result.getSuccess();
     }
@@ -74,8 +74,8 @@ public class VariabilityDatasetLoaderTest {
                 "741ee98bf3edee477c504726fdc482ae85adf0e5"
         };
 
-        List<SPLCommit> successCommits = dataset.getSuccessCommits();
-        for (var expectedCommit : expectedSuccessCommits) {
+        final List<SPLCommit> successCommits = dataset.getSuccessCommits();
+        for (final var expectedCommit : expectedSuccessCommits) {
             assert Commit.contains(successCommits, expectedCommit);
         }
         assert successCommits.size() == expectedSuccessCommits.length;
@@ -91,8 +91,8 @@ public class VariabilityDatasetLoaderTest {
                 "4ea494802cd552464c2f1a47d727a206eccf1d20"
         };
 
-        List<SPLCommit> errorCommits = dataset.getErrorCommits();
-        for (var expectedCommit : expectedErrorCommits) {
+        final List<SPLCommit> errorCommits = dataset.getErrorCommits();
+        for (final var expectedCommit : expectedErrorCommits) {
             assert Commit.contains(errorCommits, expectedCommit);
         }
         assert errorCommits.size() == expectedErrorCommits.length;
@@ -107,8 +107,8 @@ public class VariabilityDatasetLoaderTest {
                 "f0619022ca9f6aeaba51fb1b71e77f6887cca4a4"
         };
 
-        List<SPLCommit> incompletePCCommits = dataset.getPartialSuccessCommits();
-        for (var expectedCommit : expectedSuccessCommits) {
+        final List<SPLCommit> incompletePCCommits = dataset.getPartialSuccessCommits();
+        for (final var expectedCommit : expectedSuccessCommits) {
             assert Commit.contains(incompletePCCommits, expectedCommit);
         }
         assert incompletePCCommits.size() == expectedSuccessCommits.length;
@@ -119,16 +119,16 @@ public class VariabilityDatasetLoaderTest {
         // We created a test VariabilityRepo for which we manually selected success and error commits. The following
         // commit lists represent all sequences of success commits that were created. Any deviation from these sequences
         // indicates a bug in loading the VariabilityRepo
-        var firstList = new String[]{"eab1607a6f137376e57a3381c2fdae9c9d46de4d", "78fe3d306860e11e327a43cfce2c97748a34c1e1"};
-        var secondList = new String[]{"454f7da158fdf3fe4b3c3fc8110f6c15861f97fa", "600f60df96cdbbf3319085d8e777d7e66c96e013", "a54c3c30f2dff6dc36331f06360630b697b7562c", "38e15e31eabccf82d3183273240cd44f2dec9fa9", "741ee98bf3edee477c504726fdc482ae85adf0e5"};
-        var thirdList = new String[]{"c79e89cd49fc17be386ca026686dd01e0985a5ea", "48c073dfcfd0907f1e460628a7379b4bcbc8c737"};
+        final var firstList = new String[]{"eab1607a6f137376e57a3381c2fdae9c9d46de4d", "78fe3d306860e11e327a43cfce2c97748a34c1e1"};
+        final var secondList = new String[]{"454f7da158fdf3fe4b3c3fc8110f6c15861f97fa", "600f60df96cdbbf3319085d8e777d7e66c96e013", "a54c3c30f2dff6dc36331f06360630b697b7562c", "38e15e31eabccf82d3183273240cd44f2dec9fa9", "741ee98bf3edee477c504726fdc482ae85adf0e5"};
+        final var thirdList = new String[]{"c79e89cd49fc17be386ca026686dd01e0985a5ea", "48c073dfcfd0907f1e460628a7379b4bcbc8c737"};
 
-        VariabilityHistory history = dataset.getVariabilityHistory(SequenceExtractors.longestNonOverlappingSequences());
-        var commitSequences = history.commitSequences();
+        final VariabilityHistory history = dataset.getVariabilityHistory(SequenceExtractors.longestNonOverlappingSequences());
+        final var commitSequences = history.commitSequences();
         // Check the size
         assert commitSequences.size() == 3;
 
-        for (var sequence : commitSequences) {
+        for (final var sequence : commitSequences) {
             switch (sequence.size()) {
                 case 2 -> {
                     // The retrieved sequence contains 2 commits, so it must contain the same commits as either firstList or secondList
@@ -148,85 +148,85 @@ public class VariabilityDatasetLoaderTest {
 
     @Test
     public void messagesOfSuccessCommitsAreLoaded() {
-        for (SPLCommit commit : dataset.getSuccessCommits()) {
-            String message = commit.message().run().orElseThrow();
+        for (final SPLCommit commit : dataset.getSuccessCommits()) {
+            final String message = commit.message().run().orElseThrow();
             assert message.equals(COMMIT_MESSAGE);
         }
     }
 
     @Test
     public void messagesOfIncompletePCCommitsAreLoaded() {
-        for (SPLCommit commit : dataset.getPartialSuccessCommits()) {
-            String message = commit.message().run().orElseThrow();
+        for (final SPLCommit commit : dataset.getPartialSuccessCommits()) {
+            final String message = commit.message().run().orElseThrow();
             assert message.equals(COMMIT_MESSAGE);
         }
     }
 
     @Test
     public void noMessagesForErrorCommits() {
-        for (SPLCommit commit : dataset.getErrorCommits()) {
-            Optional<String> message = commit.message().run();
+        for (final SPLCommit commit : dataset.getErrorCommits()) {
+            final Optional<String> message = commit.message().run();
             assert message.isEmpty();
         }
     }
 
     @Test
     public void logsOfEachCommitAreLoaded() {
-        for (SPLCommit commit : dataset.getAllCommits()) {
-            String log = commit.kernelHavenLog().run().orElseThrow();
+        for (final SPLCommit commit : dataset.getAllCommits()) {
+            final String log = commit.kernelHavenLog().run().orElseThrow();
             assert "".equals(log);
         }
     }
 
     @Test
     public void presenceConditionsOfSuccessCommitsAreLoaded() {
-        for (SPLCommit commit : dataset.getSuccessCommits()) {
-            Artefact trace = commit.presenceConditions().run().orElseThrow();
+        for (final SPLCommit commit : dataset.getSuccessCommits()) {
+            final Artefact trace = commit.presenceConditions().run().orElseThrow();
             assert trace != null;
         }
     }
 
     @Test
     public void presenceConditionsOfIncompletePCCommitsAreLoaded() {
-        for (SPLCommit commit : dataset.getPartialSuccessCommits()) {
-            Artefact trace = commit.presenceConditions().run().orElseThrow();
+        for (final SPLCommit commit : dataset.getPartialSuccessCommits()) {
+            final Artefact trace = commit.presenceConditions().run().orElseThrow();
             assert trace != null;
         }
     }
 
     @Test
     public void noPresenceConditionsForErrorCommits() {
-        for (SPLCommit commit : dataset.getErrorCommits()) {
-            Optional<Artefact> trace = commit.presenceConditions().run();
+        for (final SPLCommit commit : dataset.getErrorCommits()) {
+            final Optional<Artefact> trace = commit.presenceConditions().run();
             assert trace.isEmpty();
         }
     }
 
     @Test
     public void featureModelsOfSuccessCommitsAreLoaded() {
-        for (SPLCommit commit : dataset.getSuccessCommits()) {
-            IFeatureModel model = commit.featureModel().run().orElseThrow();
+        for (final SPLCommit commit : dataset.getSuccessCommits()) {
+            final IFeatureModel model = commit.featureModel().run().orElseThrow();
             assert model != null;
         }
     }
 
     @Test
     public void featureModelsOfIncompletePCCommitsAreLoaded() {
-        for (SPLCommit commit : dataset.getPartialSuccessCommits()) {
+        for (final SPLCommit commit : dataset.getPartialSuccessCommits()) {
             if (commit.id().equals(COMMIT_WITH_INVALID_DIMACS_FILE)) {
                 // I added an invalid String to one of the commits
                 continue;
             }
-            IFeatureModel model = commit.featureModel().run().orElseThrow();
+            final IFeatureModel model = commit.featureModel().run().orElseThrow();
             assert model != null;
         }
     }
 
     @Test
     public void expectParseError() {
-        for (SPLCommit commit : dataset.getPartialSuccessCommits()) {
+        for (final SPLCommit commit : dataset.getPartialSuccessCommits()) {
             if (commit.id().equals(COMMIT_WITH_INVALID_DIMACS_FILE)) {
-                Optional<IFeatureModel> model = commit.featureModel().run();
+                final Optional<IFeatureModel> model = commit.featureModel().run();
                 assert model.isEmpty();
             }
         }
@@ -234,13 +234,13 @@ public class VariabilityDatasetLoaderTest {
 
     @Test
     public void noFeatureModelForErrorCommits() {
-        for (SPLCommit commit : dataset.getErrorCommits()) {
-            Optional<IFeatureModel> model = commit.featureModel().run();
+        for (final SPLCommit commit : dataset.getErrorCommits()) {
+            final Optional<IFeatureModel> model = commit.featureModel().run();
             assert model.isEmpty();
         }
     }
 
-    private void assertCommitIdsAreEqual(String[] ids, List<SPLCommit> commits) {
+    private void assertCommitIdsAreEqual(final String[] ids, final List<SPLCommit> commits) {
         assert ids.length == commits.size();
         for (int i = 0; i < ids.length; i++) {
             assert ids[i].equals(commits.get(i).id());
