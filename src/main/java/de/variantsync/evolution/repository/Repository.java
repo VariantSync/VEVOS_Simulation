@@ -108,7 +108,13 @@ public abstract class Repository<C extends Commit> implements IRepository<C> {
         return path;
     }
 
-    protected Git git() throws IOException {
+    /**
+     * Grants access to the underlying git object.
+     *
+     * @return The wrapped git object.
+     * @throws IOException iff the repository could not be loaded for some reason.
+     */
+    public Git git() throws IOException {
         if (git == null) {
             git = GitUtil.loadGitRepo(path.toFile());
         }
