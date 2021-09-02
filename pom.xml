@@ -92,12 +92,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-csv</artifactId>
-            <version>1.4</version>
-        </dependency>
-
-        <dependency>
             <groupId>de.ovgu</groupId>
             <artifactId>featureide.lib.fm</artifactId>
             <version>3.7.2</version>
