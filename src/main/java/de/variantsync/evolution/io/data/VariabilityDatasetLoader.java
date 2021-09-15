@@ -7,7 +7,10 @@ import de.variantsync.evolution.util.functional.Result;
 import de.variantsync.evolution.variability.SPLCommit;
 import de.variantsync.evolution.variability.SPLCommit.*;
 import de.variantsync.evolution.variability.VariabilityDataset;
+import net.lingala.zip4j.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -104,6 +107,7 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
             }
         }
         Logger.info("Done.");
+        Logger.info("Found a total of " + idToCommitMap.size() + " commits.");
         // Return the fully-loaded dataset
         return Result.Success(new VariabilityDataset(successCommits, errorCommits, partialSuccessCommits));
     }
@@ -154,15 +158,29 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
 
     private String[] loadParentIds(final Path p, final String commitId) {
         final Path parentsFile = resolvePathToParentsFile(p, commitId);
-        if (parentsFile != null && Files.exists(parentsFile)) {
-            try {
-                return Files.readString(parentsFile).split("\\s");
-            } catch (final IOException e) {
-                Logger.error("Was not able to load PARENTS.txt " + parentsFile + " even though it exists:", e);
-                return null;
+        if (parentsFile != null) {
+            if (!Files.exists(parentsFile)) {
+                Logger.info("No PARENTS.txt found, checking archive....");
+                final File zipFile = new File(parentsFile.getParent() + ".zip");
+                Logger.info("Checking ZIP file " + zipFile);
+                if (zipFile.exists()) {
+                    try {
+                        Logger.info("Unzipping PARENTS.txt");
+                        new ZipFile(zipFile).extractFile("PARENTS.txt", String.valueOf(parentsFile.getParent()));
+                    } catch (final ZipException e) {
+                        Logger.error("Was not able to unzip commit data.", e);
+                    }
+                }
             }
-        } else {
-            return null;
+            if (Files.exists(parentsFile)) {
+                try {
+                    return Files.readString(parentsFile).split("\\s");
+                } catch (final IOException e) {
+                    Logger.error("Was not able to load PARENTS.txt " + parentsFile + " even though it exists:", e);
+                    return null;
+                }
+            }
         }
+        return null;
     }
 }

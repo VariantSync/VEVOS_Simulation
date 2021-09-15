@@ -8,6 +8,8 @@ import de.variantsync.evolution.util.functional.Lazy;
 import de.variantsync.evolution.util.io.TypedPath;
 import de.variantsync.evolution.variability.pc.Artefact;
 import de.variantsync.evolution.variability.pc.EFilterOutcome;
+import net.lingala.zip4j.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,26 +18,17 @@ import java.util.Map;
 import java.util.Optional;
 
 public class SPLCommit extends Commit {
-    public record KernelHavenLogPath(Path path) implements TypedPath {}
-    public record FeatureModelPath(Path path) implements TypedPath {}
-    public record PresenceConditionPath(Path path) implements TypedPath {}
-    public record CommitMessagePath(Path path) implements TypedPath {}
-    public record FilterCountsPath(Path path) implements TypedPath {}
-
     private final Lazy<Optional<String>> kernelHavenLog;
     private final Lazy<Optional<IFeatureModel>> featureModel;
     private final Lazy<Optional<Artefact>> presenceConditions;
     private final Lazy<Optional<String>> message;
     private final Lazy<Optional<Map<EFilterOutcome, Integer>>> filterCounts;
-
     private final Path kernelHavenLogPath;
     private final Path featureModelPath;
     private final Path presenceConditionsPath;
     private final Path commitMessagePath;
     private final Path filterCountsPath;
-
     private SPLCommit[] parents;
-
 
     /**
      * Constructor for commits that should only contain information about the commit id.
@@ -52,8 +45,7 @@ public class SPLCommit extends Commit {
             final FeatureModelPath featureModel,
             final PresenceConditionPath presenceConditions,
             final CommitMessagePath commitMessage,
-            final FilterCountsPath filterCounts)
-    {
+            final FilterCountsPath filterCounts) {
         super(commitId);
 
         this.kernelHavenLogPath = TypedPath.unwrapNullable(kernelHavenLog);
@@ -65,32 +57,42 @@ public class SPLCommit extends Commit {
         // Lazy loading of log file
         this.kernelHavenLog = Functional.mapFragileLazily(
                 kernelHavenLogPath,
-                Files::readString,
+                Functional.chainFragile(SPLCommit::tryUnzip, Files::readString),
                 () -> "Was not able to load KernelHaven log for commit " + commitId);
         // Lazy loading of feature model
         this.featureModel = Functional.mapFragileLazily(
                 featureModelPath,
-                p -> Resources.Instance().load(IFeatureModel.class, p),
+                Functional.chainFragile(SPLCommit::tryUnzip, path -> Resources.Instance().load(IFeatureModel.class, path)),
                 () -> "Was not able to load feature model for id " + commitId);
         // Lazy loading of presence condition
         this.presenceConditions = Functional.mapFragileLazily(
                 presenceConditionsPath,
-                path -> Resources.Instance().load(Artefact.class, path),
+                Functional.chainFragile(SPLCommit::tryUnzip, path -> Resources.Instance().load(Artefact.class, path)),
                 () -> "Was not able to load presence conditions for id " + commitId);
         // Lazy loading of commit message
         this.message = Functional.mapFragileLazily(
                 commitMessagePath,
-                Files::readString,
+                Functional.chainFragile(SPLCommit::tryUnzip, Files::readString),
                 () -> "Was not able to load commit message for id " + commitId);
         // Lazy loading of filter counts
         this.filterCounts = Functional.mapFragileLazily(
                 filterCountsPath,
-                path -> {
+                Functional.chainFragile(SPLCommit::tryUnzip, path -> {
                     final Map<EFilterOutcome, Integer> countsMap = new HashMap<>();
                     Files.readAllLines(path).stream().map(l -> l.split(":")).forEach(parts -> countsMap.put(EFilterOutcome.valueOf(parts[0]), Integer.parseInt(parts[1].trim())));
                     return countsMap;
-                },
+                }),
                 () -> "Was not able to load filter counts for id " + commitId);
+    }
+
+    private static Path tryUnzip(final Path path) throws ZipException {
+        if (!Files.exists(path)) {
+            final Path zippedParent = Path.of(path.getParent().toString() + ".zip");
+            if (Files.exists(zippedParent)) {
+                new ZipFile(zippedParent.toFile()).extractAll(String.valueOf(path.getParent()));
+            }
+        }
+        return path;
     }
 
     /**
@@ -160,5 +162,20 @@ public class SPLCommit extends Commit {
 
     public Path getFilterCountsPath() {
         return filterCountsPath;
+    }
+
+    public record KernelHavenLogPath(Path path) implements TypedPath {
+    }
+
+    public record FeatureModelPath(Path path) implements TypedPath {
+    }
+
+    public record PresenceConditionPath(Path path) implements TypedPath {
+    }
+
+    public record CommitMessagePath(Path path) implements TypedPath {
+    }
+
+    public record FilterCountsPath(Path path) implements TypedPath {
     }
 }
