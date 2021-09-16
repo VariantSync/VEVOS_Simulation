@@ -123,20 +123,4 @@ public class Functional {
     public static <A, B, E extends Exception> Lazy<Optional<B>> mapFragileLazily(final A a, final FragileFunction<A, B, E> f, final Supplier<String> errorMessage) {
         return Lazy.of(() -> mapFragile(a, f, errorMessage));
     }
-
-    /**
-     * Chains two fragile functions. The chained function first applies f1 to a given input, and then applies f2 to the 
-     * output of f1 (i.e., given an input x the chained function corresponds to f2(f1(x)))
-     * @param f1 The inner function
-     * @param f2 The outer function
-     * @param <Input> The input type of the inner function
-     * @param <Intermediate> The input type of the outer function and the return type of the inner function
-     * @param <Output> The return type of the outer function
-     * @return A new FragileFunction f2(f1(x))
-     */
-    public static <Input, Intermediate, Output> FragileFunction<Input, Output, Exception> chainFragile(
-            final FragileFunction<Input, Intermediate, Exception> f1, 
-            final FragileFunction<Intermediate, Output, Exception> f2) {
-        return (Input input) -> f2.run(f1.run(input));
-    }
 }
