@@ -116,7 +116,14 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
         final List<SPLCommit> splCommits = new ArrayList<>(commitIds.size());
         for (final String id : commitIds) {
             // Initialize a SPLCommit object for each commit id by resolving all paths to files with data about the commit
-            final SPLCommit splCommit = new SPLCommit(id, resolvePathToLogFile(p, id), resolvePathToFeatureModel(p, id), resolvePathToPresenceConditions(p, id), resolvePathToMessageFile(p, id), resolvePathToFilterCountsFile(p, id));
+            final SPLCommit splCommit = new SPLCommit(
+                    id, 
+                    resolvePathToCommitOutputDir(p, id), 
+                    resolvePathToLogFile(p, id), 
+                    resolvePathToFeatureModel(p, id), 
+                    resolvePathToPresenceConditions(p, id), 
+                    resolvePathToMessageFile(p, id), 
+                    resolvePathToFilterCountsFile(p, id));
             splCommits.add(splCommit);
         }
         return splCommits;
@@ -128,57 +135,54 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
 
     private FeatureModelPath resolvePathToFeatureModel(final Path rootDir, final String commitId) {
         final Path p = resolvePathToCommitOutputDir(rootDir, commitId).resolve(FEATURE_MODEL_FILE);
-        return p.toFile().exists() ? new FeatureModelPath(p) : null;
+        return new FeatureModelPath(p);
     }
 
     private PresenceConditionPath resolvePathToPresenceConditions(final Path rootDir, final String commitId) {
         final Path p = resolvePathToCommitOutputDir(rootDir, commitId).resolve(PRESENCE_CONDITIONS_FILE);
-        return p.toFile().exists() ? new PresenceConditionPath(p) : null;
+        return new PresenceConditionPath(p);
     }
 
     private Path resolvePathToParentsFile(final Path rootDir, final String commitId) {
-        final Path p = resolvePathToCommitOutputDir(rootDir, commitId).resolve(PARENTS_FILE);
-        return p.toFile().exists() ? p : null;
+        return resolvePathToCommitOutputDir(rootDir, commitId).resolve(PARENTS_FILE);
     }
 
     private CommitMessagePath resolvePathToMessageFile(final Path rootDir, final String commitId) {
         final Path p = resolvePathToCommitOutputDir(rootDir, commitId).resolve(MESSAGE_FILE);
-        return p.toFile().exists() ? new CommitMessagePath(p) : null;
+        return new CommitMessagePath(p);
     }
 
     private KernelHavenLogPath resolvePathToLogFile(final Path rootDir, final String commitId) {
         final Path p = rootDir.resolve(LOG_DIR_NAME).resolve(commitId + ".log");
-        return p.toFile().exists() ? new KernelHavenLogPath(p) : null;
+        return new KernelHavenLogPath(p);
     }
 
     private FilterCountsPath resolvePathToFilterCountsFile(final Path rootDir, final String commitId) {
         final Path p = resolvePathToCommitOutputDir(rootDir, commitId).resolve(FILTER_COUNTS_FILE);
-        return p.toFile().exists() ? new FilterCountsPath(p) : null;
+        return new FilterCountsPath(p);
     }
 
     private String[] loadParentIds(final Path p, final String commitId) {
         final Path parentsFile = resolvePathToParentsFile(p, commitId);
-        if (parentsFile != null) {
-            if (!Files.exists(parentsFile)) {
-                Logger.info("No PARENTS.txt found, checking archive....");
-                final File zipFile = new File(parentsFile.getParent() + ".zip");
-                Logger.info("Checking ZIP file " + zipFile);
-                if (zipFile.exists()) {
-                    try {
-                        Logger.info("Unzipping PARENTS.txt");
-                        new ZipFile(zipFile).extractFile("PARENTS.txt", String.valueOf(parentsFile.getParent()));
-                    } catch (final ZipException e) {
-                        Logger.error("Was not able to unzip commit data.", e);
-                    }
+        if (!Files.exists(parentsFile)) {
+            Logger.info("No PARENTS.txt found, checking archive....");
+            final File zipFile = new File(parentsFile.getParent() + ".zip");
+            Logger.info("Checking ZIP file " + zipFile);
+            if (zipFile.exists()) {
+                try {
+                    Logger.info("Unzipping PARENTS.txt");
+                    new ZipFile(zipFile).extractFile(commitId + "/PARENTS.txt", String.valueOf(resolvePathToCommitOutputDir(p, commitId).getParent()));
+                } catch (final ZipException e) {
+                    Logger.error("Was not able to unzip commit data.", e);
                 }
             }
-            if (Files.exists(parentsFile)) {
-                try {
-                    return Files.readString(parentsFile).split("\\s");
-                } catch (final IOException e) {
-                    Logger.error("Was not able to load PARENTS.txt " + parentsFile + " even though it exists:", e);
-                    return null;
-                }
+        }
+        if (Files.exists(parentsFile)) {
+            try {
+                return Files.readString(parentsFile).split("\\s");
+            } catch (final IOException e) {
+                Logger.error("Was not able to load PARENTS.txt " + parentsFile + " even though it exists:", e);
+                return null;
             }
         }
         return null;
