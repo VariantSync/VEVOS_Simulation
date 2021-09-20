@@ -173,7 +173,9 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
                     Logger.info("Unzipping PARENTS.txt");
                     new ZipFile(zipFile).extractFile(commitId + "/PARENTS.txt", String.valueOf(resolvePathToCommitOutputDir(p, commitId).getParent()));
                 } catch (final ZipException e) {
-                    Logger.error("Was not able to unzip commit data.", e);
+                    // Not all commits have a ZIP file and not all commits with a ZIP file have a PARENTS.txt. So this is
+                    // an expected exception
+                    Logger.debug("Was not able to unzip commit data." + e.getMessage());
                 }
             }
         }
