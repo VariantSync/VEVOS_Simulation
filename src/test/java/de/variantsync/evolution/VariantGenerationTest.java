@@ -2,24 +2,26 @@ package de.variantsync.evolution;
 
 import de.ovgu.featureide.fm.core.analysis.cnf.formula.FeatureModelFormula;
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
-import de.variantsync.evolution.feature.sampling.Sampler;
 import de.variantsync.evolution.feature.Variant;
+import de.variantsync.evolution.feature.config.FeatureIDEConfiguration;
 import de.variantsync.evolution.feature.config.IConfiguration;
+import de.variantsync.evolution.feature.config.SayYesToAllConfiguration;
 import de.variantsync.evolution.feature.sampling.FeatureIDESampler;
+import de.variantsync.evolution.feature.sampling.Sampler;
 import de.variantsync.evolution.io.ResourceLoader;
 import de.variantsync.evolution.io.Resources;
 import de.variantsync.evolution.io.TextIO;
 import de.variantsync.evolution.io.kernelhaven.KernelHavenSPLPCIO;
 import de.variantsync.evolution.sat.SAT;
-import de.variantsync.evolution.util.io.CaseSensitivePath;
 import de.variantsync.evolution.util.Logger;
-import de.variantsync.evolution.util.io.PathUtils;
 import de.variantsync.evolution.util.fide.FeatureModelUtils;
 import de.variantsync.evolution.util.fide.bugfix.FixTrueFalse;
 import de.variantsync.evolution.util.functional.Result;
-import de.variantsync.evolution.feature.config.FeatureIDEConfiguration;
-import de.variantsync.evolution.feature.config.SayYesToAllConfiguration;
+import de.variantsync.evolution.util.io.CaseSensitivePath;
+import de.variantsync.evolution.util.io.PathUtils;
 import de.variantsync.evolution.variability.pc.*;
+import de.variantsync.evolution.variability.pc.options.ArtefactFilter;
+import de.variantsync.evolution.variability.pc.options.VariantGenerationOptions;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.prop4j.And;
@@ -69,7 +71,9 @@ public class VariantGenerationTest {
 
             for (final Variant v : variantsToTest) {
                 traceToTest
-                        .generateVariant(v, splDir, variantsDir.resolve(v.getName()), VariantGenerationOptions.ExitOnErrorButAllowNonExistentFiles)
+                        .generateVariant(v, splDir,
+                                variantsDir.resolve(v.getName()),
+                                VariantGenerationOptions.ExitOnErrorButAllowNonExistentFiles(ArtefactFilter.KeepAll()))
                         // Write ground truth
                         .bind(groundTruth -> Result.Try(() -> Resources.Instance().write(
                                 Artefact.class,

@@ -1,18 +1,19 @@
 package de.variantsync.evolution.variants.blueprints;
 
-import de.variantsync.evolution.feature.sampling.Sample;
 import de.variantsync.evolution.feature.Variant;
+import de.variantsync.evolution.feature.sampling.Sample;
 import de.variantsync.evolution.repository.AbstractSPLRepository;
 import de.variantsync.evolution.repository.AbstractVariantsRepository;
 import de.variantsync.evolution.repository.Branch;
-import de.variantsync.evolution.util.io.CaseSensitivePath;
 import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.functional.Lazy;
 import de.variantsync.evolution.util.functional.Result;
+import de.variantsync.evolution.util.io.CaseSensitivePath;
 import de.variantsync.evolution.variability.SPLCommit;
 import de.variantsync.evolution.variability.pc.Artefact;
-import de.variantsync.evolution.variability.pc.VariantGenerationOptions;
 import de.variantsync.evolution.variability.pc.groundtruth.GroundTruth;
+import de.variantsync.evolution.variability.pc.options.ArtefactFilter;
+import de.variantsync.evolution.variability.pc.options.VariantGenerationOptions;
 import de.variantsync.evolution.variants.VariantCommit;
 import de.variantsync.evolution.variants.VariantsRevision;
 import de.variantsync.evolution.variants.sampling.SamplingStrategy;
@@ -86,7 +87,7 @@ public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBl
                         variant,
                         new CaseSensitivePath(splRepo.getPath()),
                         new CaseSensitivePath(variantsRepo.getPath()),
-                        VariantGenerationOptions.ExitOnErrorButAllowNonExistentFiles);
+                        VariantGenerationOptions.ExitOnErrorButAllowNonExistentFiles(ArtefactFilter.KeepAll()));
                 Logger.log(result.map(u -> "Generating variant " + variant + " was successful!"));
 
                 // Commit the generated variant with the corresponding spl commit has as message.

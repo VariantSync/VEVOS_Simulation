@@ -1,11 +1,12 @@
 package de.variantsync.evolution.variability.pc;
 
 import de.variantsync.evolution.feature.Variant;
-import de.variantsync.evolution.util.io.CaseSensitivePath;
 import de.variantsync.evolution.util.functional.Result;
+import de.variantsync.evolution.util.io.CaseSensitivePath;
 import de.variantsync.evolution.variability.pc.groundtruth.AnnotationGroundTruth;
 import de.variantsync.evolution.variability.pc.groundtruth.BlockMatching;
 import de.variantsync.evolution.variability.pc.groundtruth.GroundTruth;
+import de.variantsync.evolution.variability.pc.options.VariantGenerationOptions;
 import de.variantsync.evolution.variability.pc.visitor.LineBasedAnnotationVisitorFocus;
 import org.prop4j.Node;
 

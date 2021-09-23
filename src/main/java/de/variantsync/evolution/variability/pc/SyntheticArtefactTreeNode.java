@@ -1,12 +1,13 @@
 package de.variantsync.evolution.variability.pc;
 
 import de.variantsync.evolution.feature.Variant;
-import de.variantsync.evolution.util.io.CaseSensitivePath;
 import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.fide.bugfix.FixTrueFalse;
 import de.variantsync.evolution.util.functional.Functional;
 import de.variantsync.evolution.util.functional.Result;
+import de.variantsync.evolution.util.io.CaseSensitivePath;
 import de.variantsync.evolution.variability.pc.groundtruth.GroundTruth;
+import de.variantsync.evolution.variability.pc.options.VariantGenerationOptions;
 import de.variantsync.evolution.variability.pc.visitor.ArtefactVisitorFocus;
 import de.variantsync.evolution.variability.pc.visitor.SyntheticArtefactTreeNodeVisitorFocus;
 
@@ -59,6 +60,12 @@ public class SyntheticArtefactTreeNode<Child extends ArtefactTree<?>> extends Ar
             }
         } else {
             for (final Child subtree : subtrees) {
+                if (subtree instanceof SourceCodeFile sourceCodeFile) {
+                    if (!strategy.filter().shouldKeep(sourceCodeFile)) {
+                        continue;
+                    }
+                }
+
                 if (variant.isImplementing(subtree.getPresenceCondition())) {
                     final Result<GroundTruth, Exception> result = subtree
                             .generateVariant(variant, sourceDir, targetDir, strategy);

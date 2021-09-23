@@ -35,6 +35,7 @@ public class SPLCommit extends Commit {
 
     /**
      * Constructor for commits that should only contain information about the commit id.
+     * TODO: Document params.
      *
      * @param commitId The id of the commit
      */
