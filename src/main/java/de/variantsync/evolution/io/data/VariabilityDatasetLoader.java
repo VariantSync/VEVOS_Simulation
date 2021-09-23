@@ -165,12 +165,12 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
     private String[] loadParentIds(final Path p, final String commitId) {
         final Path parentsFile = resolvePathToParentsFile(p, commitId);
         if (!Files.exists(parentsFile)) {
-            Logger.info("No PARENTS.txt found, checking archive....");
+            Logger.debug("No PARENTS.txt found, checking archive....");
             final File zipFile = new File(parentsFile.getParent() + ".zip");
-            Logger.info("Checking ZIP file " + zipFile);
+            Logger.debug("Checking ZIP file " + zipFile);
             if (zipFile.exists()) {
                 try {
-                    Logger.info("Unzipping PARENTS.txt");
+                    Logger.debug("Unzipping PARENTS.txt");
                     new ZipFile(zipFile).extractFile(commitId + "/PARENTS.txt", String.valueOf(resolvePathToCommitOutputDir(p, commitId).getParent()));
                 } catch (final ZipException e) {
                     // Not all commits have a ZIP file and not all commits with a ZIP file have a PARENTS.txt. So this is
