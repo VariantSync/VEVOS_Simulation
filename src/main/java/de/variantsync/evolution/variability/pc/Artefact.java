@@ -68,14 +68,14 @@ public interface Artefact {
         return new PrettyPrinter().prettyPrint(this);
     }
 
-    default Result<Node, Exception> getPresenceConditionOf(final CaseSensitivePath path, final int lineNumber) {
-        final LinePCQuery query = new LinePCQuery(path, lineNumber);
+    default Result<Node, Exception> getPresenceConditionOf(final CaseSensitivePath relativePath, final int lineNumber) {
+        final LinePCQuery query = new LinePCQuery(relativePath, lineNumber);
         accept(query);
         return query.getResult();
     }
 
-    default Result<Node, Exception> getPresenceConditionOf(final CaseSensitivePath path) {
-        final FilePCQuery query = new FilePCQuery(path);
+    default Result<Node, Exception> getPresenceConditionOf(final CaseSensitivePath relativePath) {
+        final FilePCQuery query = new FilePCQuery(relativePath);
         accept(query);
         return query.getResult();
     }

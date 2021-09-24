@@ -1,7 +1,7 @@
 package de.variantsync.evolution.variability.pc.visitor.common;
 
-import de.variantsync.evolution.util.io.CaseSensitivePath;
 import de.variantsync.evolution.util.functional.Result;
+import de.variantsync.evolution.util.io.CaseSensitivePath;
 import de.variantsync.evolution.variability.pc.ArtefactTree;
 import de.variantsync.evolution.variability.pc.visitor.ArtefactVisitor;
 import de.variantsync.evolution.variability.pc.visitor.LineBasedAnnotationVisitorFocus;
@@ -12,13 +12,13 @@ import org.prop4j.Node;
 import java.io.FileNotFoundException;
 
 public class FilePCQuery implements ArtefactVisitor {
-    private final CaseSensitivePath path;
+    private final CaseSensitivePath relativePath;
 
     private boolean fileFound = false;
     private Node result = null;
 
-    public FilePCQuery(final CaseSensitivePath path) {
-        this.path = path;
+    public FilePCQuery(final CaseSensitivePath relativePath) {
+        this.relativePath = relativePath;
     }
 
     public Result<Node, Exception> getResult() {
@@ -26,7 +26,7 @@ public class FilePCQuery implements ArtefactVisitor {
             return Result.Success(result);
         }
 
-        return Result.Failure(new FileNotFoundException("Could not find file " + path.toString() + "!"));
+        return Result.Failure(new FileNotFoundException("Could not find file " + relativePath.toString() + "!"));
     }
 
     @Override
@@ -38,7 +38,7 @@ public class FilePCQuery implements ArtefactVisitor {
 
     @Override
     public void visitSourceCodeFile(final SourceCodeFileVisitorFocus focus) {
-        if (!fileFound && focus.getValue().getFile().equals(path)) {
+        if (!fileFound && focus.getValue().getFile().equals(relativePath)) {
             result = focus.getValue().getPresenceCondition();
             fileFound = true;
         }
