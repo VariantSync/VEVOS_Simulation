@@ -221,14 +221,6 @@ public class Result<SuccessType, FailureType> {
         return expect("Tried to retrieve the success value of a Failure result!");
     }
 
-    public SuccessType expect(final String message) {
-        if (isFailure()) {
-            Logger.error(message);
-            throw new RuntimeException(message);
-        }
-        return result;
-    }
-
     public FailureType getFailure() {
         return failure;
     }
@@ -238,6 +230,18 @@ public class Result<SuccessType, FailureType> {
             Logger.error(getFailure().toString());
         }
         assert isSuccess();
+    }
+
+    public SuccessType expect(final String message) {
+        if (isFailure()) {
+            Logger.error(message);
+            throw new RuntimeException(message);
+        }
+        return result;
+    }
+
+    public static <S> S expect(final Result<S, ? extends Throwable> result) {
+        return result.match(Function.identity(), e -> {throw new RuntimeException(e);});
     }
 
     public void ifSuccess(final Consumer<SuccessType> f) {
