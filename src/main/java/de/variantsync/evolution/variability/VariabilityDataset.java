@@ -96,9 +96,9 @@ public class VariabilityDataset {
      *
      * @return Set of commit pairs that can be used in a variability evolution study
      */
-    public Set<CommitPair<SPLCommit>> getCommitPairsForEvolutionStudy() {
+    public Set<SPLCommitPair> getCommitPairsForEvolutionStudy() {
         Logger.info("Retrieving commit pairs for study...");
-        var set = successCommits.stream()
+        final var set = successCommits.stream()
                 .map(c -> {
                     if (c.parents().isPresent()) {
                         final SPLCommit[] parents = c.parents().get();
@@ -108,7 +108,7 @@ public class VariabilityDataset {
                         // We only consider commits that processed an SPL commit whose parent was also processed
                         final boolean parentSuccess = successCommits.contains(p);
                         if (notAMerge && parentSuccess) {
-                            return new CommitPair<>(p, c);
+                            return new SPLCommitPair(p, c);
                         }
                     }
                     return null;

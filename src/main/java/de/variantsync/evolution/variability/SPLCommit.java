@@ -116,6 +116,17 @@ public class SPLCommit extends Commit {
     }
 
     /**
+     * Clears all cached values by calling {@link Lazy#forget()} on all fields.
+     */
+    public void clearCaches() {
+        kernelHavenLog.forget();
+        featureModel.forget();
+        presenceConditions.forget();
+        message.forget();
+        filterCounts.forget();
+    }
+
+    /**
      * Return the parents of this commit. As the dataset only contains the data about non-error commits,
      * not all <code>SPLCommit</code> objects are associated with their parents. Therefore, an <code>Optional</code> is returned.
      *
