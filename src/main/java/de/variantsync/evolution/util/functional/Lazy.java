@@ -21,7 +21,7 @@ import java.util.function.Supplier;
  * @param <A> The return type of this lazy computation.
  */
 @SuppressWarnings("rawtypes")
-public class Lazy<A> implements Functor<Lazy, A> {
+public class Lazy<A> implements Functor<Lazy, A>, CachedValue {
     /**
      * Lazy is a monoid if the lazy values are monoidal.
      * Creates a Monoid for Lazy<A> from the monoid of the value type A.
@@ -99,12 +99,9 @@ public class Lazy<A> implements Functor<Lazy, A> {
 
     /**
      * Clears the cached value, such that it has to be recomputed next time it is queried.
-     * @return True if a value was cleared. False if there was no cached value to forget.
      */
-    public boolean forget() {
-        final boolean aValueWasForgotten = val != null;
+    public void forget() {
         val = null;
-        return aValueWasForgotten;
     }
 
     /**

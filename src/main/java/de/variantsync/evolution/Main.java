@@ -107,12 +107,12 @@ public class Main {
         final VariabilityDatasetLoader datasetLoader = new VariabilityDatasetLoader();
         assert datasetLoader.canLoad(variabilityDatasetDir);
         variabilityDataset = datasetLoader.load(variabilityDatasetDir).getSuccess();
-        final Set<SPLCommitPair> commitPairs = variabilityDataset.getCommitPairsForEvolutionStudy();
+        final Set<EvolutionStep<SPLCommit>> evolutionSteps = variabilityDataset.getCommitPairsForEvolutionStudy();
         Logger.info("The dataset contains " + variabilityDataset.getSuccessCommits().size() + " commits for which the variability extraction succeeded.");
         Logger.info("The dataset contains " + variabilityDataset.getErrorCommits().size() + " commits for which the variability extraction failed.");
         Logger.info("The dataset contains " + variabilityDataset.getPartialSuccessCommits().size() + " commits that for which the file presence conditions are missing.");
-        Logger.info("The dataset contains " + commitPairs.size() + " usable pairs.");
-        for (final SPLCommitPair pair : commitPairs) {
+        Logger.info("The dataset contains " + evolutionSteps.size() + " usable pairs.");
+        for (final EvolutionStep<SPLCommit> pair : evolutionSteps) {
             Logger.debug("<<CHILD> " + pair.child().id() + "> -- <<PARENT> " + pair.parent().id() + ">");
             Logger.debug("<<CHILD> " + pair.child().id() + "> -- <<SPL_COMMIT> " + pair.child().id() + ">");
             Logger.debug("<<PARENT> " + pair.parent().id() + "> -- <<SPL_COMMIT> " + pair.parent().id() + ">");

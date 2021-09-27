@@ -4,6 +4,7 @@ import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import de.variantsync.evolution.io.Resources;
 import de.variantsync.evolution.repository.Commit;
 import de.variantsync.evolution.util.Logger;
+import de.variantsync.evolution.util.functional.CachedValue;
 import de.variantsync.evolution.util.functional.Functional;
 import de.variantsync.evolution.util.functional.Lazy;
 import de.variantsync.evolution.util.functional.interfaces.FragileFunction;
@@ -19,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public class SPLCommit extends Commit {
+public class SPLCommit extends Commit implements CachedValue {
     private final Lazy<Optional<String>> kernelHavenLog;
     private final Lazy<Optional<IFeatureModel>> featureModel;
     private final Lazy<Optional<Artefact>> presenceConditions;
@@ -118,7 +119,8 @@ public class SPLCommit extends Commit {
     /**
      * Clears all cached values by calling {@link Lazy#forget()} on all fields.
      */
-    public void clearCaches() {
+    @Override
+    public void forget() {
         kernelHavenLog.forget();
         featureModel.forget();
         presenceConditions.forget();

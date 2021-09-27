@@ -6,7 +6,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class VariabilityDataset {
     private final Set<SPLCommit> allCommits;
@@ -96,27 +95,28 @@ public class VariabilityDataset {
      *
      * @return Set of commit pairs that can be used in a variability evolution study
      */
-    public Set<SPLCommitPair> getCommitPairsForEvolutionStudy() {
-        Logger.info("Retrieving commit pairs for study...");
-        final var set = successCommits.stream()
-                .map(c -> {
-                    if (c.parents().isPresent()) {
-                        final SPLCommit[] parents = c.parents().get();
-                        // We only consider commits that did not process a merge
-                        final boolean notAMerge = parents.length == 1;
-                        final SPLCommit p = parents[0];
-                        // We only consider commits that processed an SPL commit whose parent was also processed
-                        final boolean parentSuccess = successCommits.contains(p);
-                        if (notAMerge && parentSuccess) {
-                            return new SPLCommitPair(p, c);
-                        }
-                    }
-                    return null;
-                })
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
-        Logger.info("Done.");
-        return set;
+    public DominoSortedEvolutionSteps<SPLCommit> getCommitPairsForEvolutionStudy() {
+        Logger.debug("Retrieving commit pairs for study...");
+        final var steps = new DominoSortedEvolutionSteps<>(
+                successCommits.stream()
+                        .map(c -> {
+                            if (c.parents().isPresent()) {
+                                final SPLCommit[] parents = c.parents().get();
+                                // We only consider commits that did not process a merge
+                                final boolean notAMerge = parents.length == 1;
+                                final SPLCommit p = parents[0];
+                                // We only consider commits that processed an SPL commit whose parent was also processed
+                                final boolean parentSuccess = successCommits.contains(p);
+                                if (notAMerge && parentSuccess) {
+                                    return new EvolutionStep<>(p, c);
+                                }
+                            }
+                            return null;
+                        })
+                        .filter(Objects::nonNull)
+        );
+        Logger.debug("Done.");
+        return steps;
     }
 
 }
