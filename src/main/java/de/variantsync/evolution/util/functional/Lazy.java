@@ -87,6 +87,27 @@ public class Lazy<A> implements Functor<Lazy, A> {
     }
 
     /**
+     * Run the lazy computation, obtain the result, and immediately forget it.
+     * This method first calls {@link #run()} and then {@link #forget()}.
+     * @return The result of this lazy computation.
+     */
+    public A take() {
+        final A result = run();
+        forget();
+        return result;
+    }
+
+    /**
+     * Clears the cached value, such that it has to be recomputed next time it is queried.
+     * @return True if a value was cleared. False if there was no cached value to forget.
+     */
+    public boolean forget() {
+        final boolean aValueWasForgotten = val != null;
+        val = null;
+        return aValueWasForgotten;
+    }
+
+    /**
      * Lazy is a functor.
      * @param f Function to apply to the result of this Lazy when it is computed.
      * @return Composed Lazy that applies f to the result of this Lazy after computation.
