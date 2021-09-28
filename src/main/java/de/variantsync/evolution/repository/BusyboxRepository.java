@@ -25,13 +25,13 @@ import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
  */
 public class BusyboxRepository extends SPLRepository {
 
-    public BusyboxRepository(Path path) {
+    public BusyboxRepository(final Path path) {
         super(path);
     }
 
     @Override
-    public SPLCommit checkoutCommit(final SPLCommit c, boolean forced) throws GitAPIException, IOException {
-        SPLCommit previousCommit = super.checkoutCommit(c, forced);
+    public SPLCommit checkoutCommit(final SPLCommit c, final boolean forced) throws GitAPIException, IOException {
+        final SPLCommit previousCommit = super.checkoutCommit(c, forced);
         this.preprocess();
         return previousCommit;
     }
@@ -47,7 +47,7 @@ public class BusyboxRepository extends SPLRepository {
             Logger.debug("Normalizing Busybox files.");
             BusyboxRepository.normalizeDir(this.getPath().toFile());
             Logger.debug("Finished normalization of Busybox files.");
-        } catch (IOException e) {
+        } catch (final IOException e) {
             Logger.error("Was not able to normalize Busybox files.", e);
             throw e;
         }

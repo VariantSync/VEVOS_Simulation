@@ -1,7 +1,6 @@
 package de.variantsync.evolution.repository;
 
 import de.variantsync.evolution.Main;
-import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.variability.SPLCommit;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.After;
@@ -35,8 +34,8 @@ public class BusyboxRepositoryTest {
 
     @Test
     public void checkoutCommit() throws GitAPIException, IOException {
-        SPLCommit simpleCommit = new SPLCommit("f27a6a94a7fb172a6768bc450dbdec68f15bc78f");
-        SPLCommit previousCommit = BUSYBOX.checkoutCommit(simpleCommit);
+        final SPLCommit simpleCommit = new SPLCommit("f27a6a94a7fb172a6768bc450dbdec68f15bc78f");
+        final SPLCommit previousCommit = BUSYBOX.checkoutCommit(simpleCommit);
         BUSYBOX.checkoutCommit(previousCommit, true);
     }
 
