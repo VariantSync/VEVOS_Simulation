@@ -1,5 +1,6 @@
 package de.variantsync.evolution.repository;
 
+import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.variability.SPLCommit;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
@@ -15,8 +16,8 @@ import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
 
 /***
  * A specialized SPLRepository that performs the necessary preprocessing of BusyBox source files, whenever a new
- * commit is checked out. The preprocessing includes splitting of lines into multiple lines in order to deal with
- * inline preprocessor macros used to model variability.
+ * commit or branch is checked out. The preprocessing includes splitting of lines into multiple lines in order to deal
+ * with inline preprocessor macros used to model variability.
  * <br>
  * The preprocessing was copied from KernelHaven: net.ssehub.kernel_haven.busyboot.PrepareBusybox;
  * Copyright 2018-2019 University of Hildesheim, Software Systems Engineering
@@ -31,14 +32,25 @@ public class BusyboxRepository extends SPLRepository {
     @Override
     public SPLCommit checkoutCommit(final SPLCommit c, boolean forced) throws GitAPIException, IOException {
         SPLCommit previousCommit = super.checkoutCommit(c, forced);
-        BusyboxRepository.normalizeDir(this.getPath().toFile());
+        this.preprocess();
         return previousCommit;
     }
 
     @Override
     public void checkoutBranch(final Branch branch) throws GitAPIException, IOException {
         super.checkoutBranch(branch);
-        BusyboxRepository.normalizeDir(this.getPath().toFile());
+        this.preprocess();
+    }
+
+    public void preprocess() throws IOException {
+        try {
+            Logger.debug("Normalizing Busybox files.");
+            BusyboxRepository.normalizeDir(this.getPath().toFile());
+            Logger.debug("Finished normalization of Busybox files.");
+        } catch (IOException e) {
+            Logger.error("Was not able to normalize Busybox files.", e);
+            throw e;
+        }
     }
 
     /*
