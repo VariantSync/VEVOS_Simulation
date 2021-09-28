@@ -15,7 +15,11 @@ import de.variantsync.evolution.util.functional.Lazy;
 import de.variantsync.evolution.util.functional.MonadTransformer;
 import de.variantsync.evolution.util.functional.Unit;
 import de.variantsync.evolution.util.list.NonEmptyList;
-import de.variantsync.evolution.variability.*;
+import de.variantsync.evolution.variability.EvolutionStep;
+import de.variantsync.evolution.variability.SPLCommit;
+import de.variantsync.evolution.variability.VariabilityDataset;
+import de.variantsync.evolution.variability.VariabilityHistory;
+import de.variantsync.evolution.variability.sequenceextraction.LongestNonOverlappingSequences;
 import de.variantsync.evolution.variants.VariantsRepository;
 import de.variantsync.evolution.variants.VariantsRevision;
 import de.variantsync.evolution.variants.sampling.SampleOnceAtBeginStrategy;
@@ -107,7 +111,7 @@ public class Main {
         final VariabilityDatasetLoader datasetLoader = new VariabilityDatasetLoader();
         assert datasetLoader.canLoad(variabilityDatasetDir);
         variabilityDataset = datasetLoader.load(variabilityDatasetDir).getSuccess();
-        final Set<EvolutionStep<SPLCommit>> evolutionSteps = variabilityDataset.getCommitPairsForEvolutionStudy();
+        final Set<EvolutionStep<SPLCommit>> evolutionSteps = variabilityDataset.getEvolutionSteps();
         Logger.info("The dataset contains " + variabilityDataset.getSuccessCommits().size() + " commits for which the variability extraction succeeded.");
         Logger.info("The dataset contains " + variabilityDataset.getErrorCommits().size() + " commits for which the variability extraction failed.");
         Logger.info("The dataset contains " + variabilityDataset.getPartialSuccessCommits().size() + " commits that for which the file presence conditions are missing.");
@@ -118,7 +122,7 @@ public class Main {
             Logger.debug("<<PARENT> " + pair.parent().id() + "> -- <<SPL_COMMIT> " + pair.parent().id() + ">");
             Logger.debug("");
         }
-        final VariabilityHistory history = variabilityDataset.getVariabilityHistory(SequenceExtractors.longestNonOverlappingSequences());
+        final VariabilityHistory history = variabilityDataset.getVariabilityHistory(new LongestNonOverlappingSequences());
         final NonEmptyList<NonEmptyList<SPLCommit>> sequencesInHistory = history.commitSequences();
         Logger.info("The dataset contains " + sequencesInHistory.size() + " sequences.");
         for (int i = 0; i < sequencesInHistory.size(); i++) {

@@ -2,10 +2,12 @@ package de.variantsync.evolution.variability;
 
 import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.util.list.NonEmptyList;
+import de.variantsync.evolution.variability.sequenceextraction.CleaningEvolutionStepsStream;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class VariabilityDataset {
     private final Set<SPLCommit> allCommits;
@@ -67,9 +69,9 @@ public class VariabilityDataset {
      *
      * @return All sequences of commits that are usable in our evolution study.
      */
-    public VariabilityHistory getVariabilityHistory(final Function<Collection<SPLCommit>,  List<NonEmptyList<SPLCommit>>> sequenceExtractor) {
+    public VariabilityHistory getVariabilityHistory(final SequenceExtractor sequenceExtractor) {
         // Build a VariabilityHistory instance by applying the provided function to the set of success commits
-        final List<NonEmptyList<SPLCommit>> history = sequenceExtractor.apply(this.successCommits);
+        final List<NonEmptyList<SPLCommit>> history = sequenceExtractor.extract(this.successCommits);
 
         if (history.isEmpty()) {
             Logger.error("There is no valid sequence of commits from which a VariabilityHistory can be built!");
@@ -77,6 +79,33 @@ public class VariabilityDataset {
         } else {
             return new VariabilityHistory(new NonEmptyList<>(history));
         }
+    }
+
+    /**
+     * Collects all evolution steps into a set.
+     * @see #streamEvolutionSteps()
+     */
+    public Set<EvolutionStep<SPLCommit>> getEvolutionSteps() {
+        return streamEvolutionSteps().collect(Collectors.toSet());
+    }
+
+
+    /**
+     * Streams all valid pairs of success commits of this dataset.
+     * @see #streamEvolutionSteps(Collection)
+     */
+    public Stream<EvolutionStep<SPLCommit>> streamEvolutionSteps() {
+        return streamEvolutionSteps(successCommits);
+    }
+
+    /**
+     * Returns a sorted stream of {@link EvolutionStep<SPLCommit>}. Pairs of commits that
+     * have one commits in common will be returned sequentially (similar to playing domino).
+     * Visited SPLCommit's will be cleaned via {@link SPLCommit#forget()}.
+     * @see #streamEvolutionSteps(Collection)
+     */
+    public CleaningEvolutionStepsStream<SPLCommit> tidyStreamEvolutionSteps() {
+        return new CleaningEvolutionStepsStream<>(streamEvolutionSteps()::iterator);
     }
 
     /**
@@ -95,28 +124,22 @@ public class VariabilityDataset {
      *
      * @return Set of commit pairs that can be used in a variability evolution study
      */
-    public DominoSortedEvolutionSteps<SPLCommit> getCommitPairsForEvolutionStudy() {
-        Logger.debug("Retrieving commit pairs for study...");
-        final var steps = new DominoSortedEvolutionSteps<>(
-                successCommits.stream()
-                        .map(c -> {
-                            if (c.parents().isPresent()) {
-                                final SPLCommit[] parents = c.parents().get();
-                                // We only consider commits that did not process a merge
-                                final boolean notAMerge = parents.length == 1;
-                                final SPLCommit p = parents[0];
-                                // We only consider commits that processed an SPL commit whose parent was also processed
-                                final boolean parentSuccess = successCommits.contains(p);
-                                if (notAMerge && parentSuccess) {
-                                    return new EvolutionStep<>(p, c);
-                                }
-                            }
-                            return null;
-                        })
-                        .filter(Objects::nonNull)
-        );
-        Logger.debug("Done.");
-        return steps;
+    public static Stream<EvolutionStep<SPLCommit>> streamEvolutionSteps(final Collection<SPLCommit> successCommits) {
+        return successCommits.stream()
+                .map(c -> {
+                    if (c.parents().isPresent()) {
+                        final SPLCommit[] parents = c.parents().get();
+                        // We only consider commits that did not process a merge
+                        final boolean notAMerge = parents.length == 1;
+                        final SPLCommit p = parents[0];
+                        // We only consider commits that processed an SPL commit whose parent was also processed
+                        final boolean parentSuccess = successCommits.contains(p);
+                        if (notAMerge && parentSuccess) {
+                            return new EvolutionStep<>(p, c);
+                        }
+                    }
+                    return null;
+                })
+                .filter(Objects::nonNull);
     }
-
 }

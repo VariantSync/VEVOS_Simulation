@@ -3,15 +3,15 @@ package de.variantsync.evolution;
 import de.variantsync.evolution.repository.Commit;
 import de.variantsync.evolution.util.functional.CachedValue;
 import de.variantsync.evolution.util.list.StackUtil;
-import de.variantsync.evolution.variability.DominoSortedEvolutionSteps;
 import de.variantsync.evolution.variability.EvolutionStep;
+import de.variantsync.evolution.variability.sequenceextraction.CleaningEvolutionStepsStream;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.List;
 import java.util.Stack;
 
-public class StackTest {
+public class EvolutionStepTest {
     private static class TestCommit extends Commit implements CachedValue {
         public TestCommit(final String commitId) {
             super(commitId);
@@ -26,7 +26,7 @@ public class StackTest {
         return new TestCommit(id);
     }
 
-    private static EvolutionStep<TestCommit> pair(final String parent, final String child) {
+    private static EvolutionStep<TestCommit> step(final String parent, final String child) {
         return new EvolutionStep<>(commit(parent), commit(child));
     }
 
@@ -51,23 +51,21 @@ public class StackTest {
     @Test
     public void evolSteps() {
         final List<EvolutionStep<TestCommit>> input = List.of(
-                pair("1", "2"),
-                pair("4", "5"),
-                pair("2", "3"),
-                pair("3", "4"),
+                step("1", "2"),
+                step("4", "5"),
+                step("2", "3"),
+                step("3", "4"),
 
-                pair("12", "13"),
-                pair("10", "11"),
-                pair("11", "12")
+                step("12", "13"),
+                step("10", "11"),
+                step("11", "12")
         );
 
-        final DominoSortedEvolutionSteps<TestCommit> steps = new DominoSortedEvolutionSteps<>(input.stream());
+        final CleaningEvolutionStepsStream<TestCommit> steps = new CleaningEvolutionStepsStream<>(input);
         System.out.println("Sorted steps: " + steps);
 
         for (final EvolutionStep<TestCommit> step : steps) {
             System.out.println("Processing " + step);
         }
-        System.out.println("Manual cleanup");
-        steps.clearCaches();
     }
 }
