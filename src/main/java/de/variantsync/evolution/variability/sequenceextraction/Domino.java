@@ -33,14 +33,14 @@ public class Domino implements SequenceExtractor {
          */
         final Stack<Stack<C>> chains = new Stack<>();
 
-        System.out.println("Step 1: Build Chains");
+//        System.out.println("Step 1: Build Chains");
         buildChains : for (final EvolutionStep<C> domino : dominos) {
-            System.out.println("  Found " + domino);
+//            System.out.println("  Found " + domino);
             // push the domino to an existing stack if possible
             for (final Stack<C> row : chains) {
                 if (row.peek().equals(domino.parent())) {
                     row.push(domino.child());
-                    System.out.println("  Pushed it to chain " + row);
+//                    System.out.println("  Pushed it to chain " + row);
                     continue buildChains;
                 }
             }
@@ -50,39 +50,39 @@ public class Domino implements SequenceExtractor {
             newRow.add(domino.parent());
             newRow.add(domino.child());
             chains.push(newRow);
-            System.out.println("  Created new chain " + newRow);
+//            System.out.println("  Created new chain " + newRow);
         }
 
 
-        System.out.println("Result of step 1: " + chains);
+//        System.out.println("Result of step 1: " + chains);
 
         /*
          * Second, merge all chains by stacking them ontop of each other.
          * Repeat this until we cannot merge any chains.
          */
-        System.out.println("Step 2: Merge Chains");
+//        System.out.println("Step 2: Merge Chains");
         final Stack<Stack<C>> finalRows = new Stack<>();
         while (!chains.isEmpty()) {
             // Pick one of the chains ...
             Stack<C> current = chains.pop();
-            System.out.println("  Inspecting " + current);
+//            System.out.println("  Inspecting " + current);
             // ... and merge it with the other chains as long as possible.
             final Set<Stack<C>> mergedStacks = new HashSet<>();
             do {
                 mergedStacks.clear();
                 for (final Stack<C> other : chains) {
                     if (current.firstElement().equals(other.lastElement())) {
-                        System.out.println("    pushing it to " + other);
+//                        System.out.println("    pushing it to " + other);
                         other.pop();
                         StackUtil.pushAToB(current, other);
                         current = other;
-                        System.out.println("    got " + current);
+//                        System.out.println("    got " + current);
                         mergedStacks.add(other);
                     } else if (other.firstElement().equals(current.lastElement())) {
-                        System.out.println("    pushed " + other + " onto it");
+//                        System.out.println("    pushed " + other + " onto it");
                         current.pop();
                         StackUtil.pushAToB(other, current);
-                        System.out.println("    got " + current);
+//                        System.out.println("    got " + current);
                         mergedStacks.add(other);
                     }
                 }
