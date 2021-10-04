@@ -1,15 +1,13 @@
 package de.variantsync.evolution;
 
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
-import de.variantsync.evolution.Main;
 import de.variantsync.evolution.io.data.VariabilityDatasetLoader;
 import de.variantsync.evolution.repository.Commit;
 import de.variantsync.evolution.util.GitUtil;
 import de.variantsync.evolution.variability.SPLCommit;
-import de.variantsync.evolution.variability.SequenceExtractors;
 import de.variantsync.evolution.variability.VariabilityDataset;
 import de.variantsync.evolution.variability.VariabilityHistory;
-import de.variantsync.evolution.variability.pc.Artefact;
+import de.variantsync.evolution.variability.sequenceextraction.LongestNonOverlappingSequences;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.Before;
 import org.junit.Test;
@@ -123,7 +121,7 @@ public class VariabilityDatasetLoaderTest {
         final var secondList = new String[]{"454f7da158fdf3fe4b3c3fc8110f6c15861f97fa", "600f60df96cdbbf3319085d8e777d7e66c96e013", "a54c3c30f2dff6dc36331f06360630b697b7562c", "38e15e31eabccf82d3183273240cd44f2dec9fa9", "741ee98bf3edee477c504726fdc482ae85adf0e5"};
         final var thirdList = new String[]{"c79e89cd49fc17be386ca026686dd01e0985a5ea", "48c073dfcfd0907f1e460628a7379b4bcbc8c737"};
 
-        final VariabilityHistory history = dataset.getVariabilityHistory(SequenceExtractors.longestNonOverlappingSequences());
+        final VariabilityHistory history = dataset.getVariabilityHistory(new LongestNonOverlappingSequences());
         final var commitSequences = history.commitSequences();
         // Check the size
         assert commitSequences.size() == 3;
@@ -181,32 +179,28 @@ public class VariabilityDatasetLoaderTest {
     @Test
     public void presenceConditionsOfSuccessCommitsAreLoaded() {
         for (final SPLCommit commit : dataset.getSuccessCommits()) {
-            final Artefact trace = commit.presenceConditions().run().orElseThrow();
-            assert trace != null;
-        }
+           assert commit.presenceConditions().run().isPresent();
+                    }
     }
 
     @Test
     public void presenceConditionsOfIncompletePCCommitsAreLoaded() {
         for (final SPLCommit commit : dataset.getPartialSuccessCommits()) {
-            final Artefact trace = commit.presenceConditions().run().orElseThrow();
-            assert trace != null;
+            assert commit.presenceConditions().run().isPresent();
         }
     }
 
     @Test
     public void noPresenceConditionsForErrorCommits() {
         for (final SPLCommit commit : dataset.getErrorCommits()) {
-            final Optional<Artefact> trace = commit.presenceConditions().run();
-            assert trace.isEmpty();
+            assert commit.presenceConditions().run().isEmpty();
         }
     }
 
     @Test
     public void featureModelsOfSuccessCommitsAreLoaded() {
         for (final SPLCommit commit : dataset.getSuccessCommits()) {
-            final IFeatureModel model = commit.featureModel().run().orElseThrow();
-            assert model != null;
+            assert commit.featureModel().run().isPresent();
         }
     }
 
@@ -217,8 +211,7 @@ public class VariabilityDatasetLoaderTest {
                 // I added an invalid String to one of the commits
                 continue;
             }
-            final IFeatureModel model = commit.featureModel().run().orElseThrow();
-            assert model != null;
+            assert commit.featureModel().run().isPresent();
         }
     }
 
