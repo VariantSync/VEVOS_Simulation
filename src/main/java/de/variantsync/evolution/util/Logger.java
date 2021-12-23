@@ -1,6 +1,6 @@
 package de.variantsync.evolution.util;
 
-import de.variantsync.evolution.util.functional.Result;
+import de.variantsync.functjonal.Result;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static de.variantsync.evolution.util.LogLevel.*;
-
 
 public class Logger {
     protected static LogLevel logLevel = INFO;

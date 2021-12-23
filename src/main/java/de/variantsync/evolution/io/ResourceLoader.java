@@ -1,6 +1,6 @@
 package de.variantsync.evolution.io;
 
-import de.variantsync.evolution.util.functional.Result;
+import de.variantsync.functjonal.Result;
 
 import java.nio.file.Path;
 

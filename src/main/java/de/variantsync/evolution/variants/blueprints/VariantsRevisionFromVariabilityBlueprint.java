@@ -6,8 +6,6 @@ import de.variantsync.evolution.repository.AbstractSPLRepository;
 import de.variantsync.evolution.repository.AbstractVariantsRepository;
 import de.variantsync.evolution.repository.Branch;
 import de.variantsync.evolution.util.Logger;
-import de.variantsync.evolution.util.functional.Lazy;
-import de.variantsync.evolution.util.functional.Result;
 import de.variantsync.evolution.util.io.CaseSensitivePath;
 import de.variantsync.evolution.variability.SPLCommit;
 import de.variantsync.evolution.variability.pc.Artefact;
@@ -17,6 +15,8 @@ import de.variantsync.evolution.variability.pc.options.VariantGenerationOptions;
 import de.variantsync.evolution.variants.VariantCommit;
 import de.variantsync.evolution.variants.VariantsRevision;
 import de.variantsync.evolution.variants.sampling.SamplingStrategy;
+import de.variantsync.functjonal.Lazy;
+import de.variantsync.functjonal.Result;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
 import java.io.IOException;
@@ -61,8 +61,8 @@ public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBl
     public Lazy<VariantsRevision.Branches> generateArtefactsFor(final VariantsRevision revision) {
         return splCommit.presenceConditions().and(getSample()).map(ts -> {
             // TODO: Should we implement handling of an empty optional, or do we consider this to be a fundamental error?
-            final Artefact traces = ts.getKey().orElseThrow();
-            final Sample sample = ts.getValue();
+            final Artefact traces = ts.first().orElseThrow();
+            final Sample sample = ts.second();
             final AbstractSPLRepository splRepo = revision.getSPLRepo();
             final AbstractVariantsRepository variantsRepo = revision.getVariantsRepo();
 

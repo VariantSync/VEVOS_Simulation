@@ -1,7 +1,7 @@
 package de.variantsync.evolution.io;
 
 import de.variantsync.evolution.util.Logger;
-import de.variantsync.evolution.util.functional.Result;
+import de.variantsync.functjonal.Result;
 
 import java.io.BufferedReader;
 import java.io.File;

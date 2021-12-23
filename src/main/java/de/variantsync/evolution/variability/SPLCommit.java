@@ -4,13 +4,13 @@ import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import de.variantsync.evolution.io.Resources;
 import de.variantsync.evolution.repository.Commit;
 import de.variantsync.evolution.util.Logger;
-import de.variantsync.evolution.util.functional.CachedValue;
-import de.variantsync.evolution.util.functional.Functional;
-import de.variantsync.evolution.util.functional.Lazy;
-import de.variantsync.evolution.util.functional.interfaces.FragileFunction;
 import de.variantsync.evolution.util.io.TypedPath;
 import de.variantsync.evolution.variability.pc.Artefact;
 import de.variantsync.evolution.variability.pc.EFilterOutcome;
+import de.variantsync.functjonal.CachedValue;
+import de.variantsync.functjonal.Functjonal;
+import de.variantsync.functjonal.Lazy;
+import de.variantsync.functjonal.functions.FragileFunction;
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 
@@ -64,27 +64,27 @@ public class SPLCommit extends Commit implements CachedValue {
         final FragileFunction<Path, Path, ZipException> tryUnzip = SPLCommit::tryUnzip;
 
         // Lazy loading of log file
-        this.kernelHavenLog = Functional.mapFragileLazily(
+        this.kernelHavenLog = Functjonal.mapFragileLazily(
                 kernelHavenLogPath,
                 tryUnzip.andThen(Files::readString),
                 () -> "Was not able to load KernelHaven log for commit " + commitId);
         // Lazy loading of feature model
-        this.featureModel = Functional.mapFragileLazily(
+        this.featureModel = Functjonal.mapFragileLazily(
                 featureModelPath,
                 tryUnzip.andThen(path -> Resources.Instance().load(IFeatureModel.class, path)),
                 () -> "Was not able to load feature model for id " + commitId);
         // Lazy loading of presence condition
-        this.presenceConditions = Functional.mapFragileLazily(
+        this.presenceConditions = Functjonal.mapFragileLazily(
                 presenceConditionsPath,
                 tryUnzip.andThen(path -> Resources.Instance().load(Artefact.class, path)),
                 () -> "Was not able to load presence conditions for id " + commitId);
         // Lazy loading of commit message
-        this.message = Functional.mapFragileLazily(
+        this.message = Functjonal.mapFragileLazily(
                 commitMessagePath,
                 tryUnzip.andThen(Files::readString),
                 () -> "Was not able to load commit message for id " + commitId);
         // Lazy loading of filter counts
-        this.filterCounts = Functional.mapFragileLazily(
+        this.filterCounts = Functjonal.mapFragileLazily(
                 filterCountsPath,
                 tryUnzip.andThen(path -> {
                     final Map<EFilterOutcome, Integer> countsMap = new HashMap<>();

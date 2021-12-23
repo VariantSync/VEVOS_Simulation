@@ -1,8 +1,8 @@
 package de.variantsync.evolution.variability.sequenceextraction;
 
 import de.variantsync.evolution.repository.Commit;
-import de.variantsync.evolution.util.functional.CachedValue;
 import de.variantsync.evolution.variability.EvolutionStep;
+import de.variantsync.functjonal.CachedValue;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

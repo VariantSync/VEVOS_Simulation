@@ -1,9 +1,9 @@
 package de.variantsync.evolution.util.io;
 
-import de.variantsync.evolution.util.functional.CompositeException;
-import de.variantsync.evolution.util.functional.Monoid;
-import de.variantsync.evolution.util.functional.Result;
-import de.variantsync.evolution.util.functional.Unit;
+import de.variantsync.functjonal.CompositeException;
+import de.variantsync.functjonal.Result;
+import de.variantsync.functjonal.category.Monoid;
+import de.variantsync.functjonal.category.Unit;
 
 import java.io.File;
 import java.io.IOException;

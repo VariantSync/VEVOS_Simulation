@@ -2,12 +2,12 @@ package de.variantsync.evolution.variants.sampling;
 
 import de.ovgu.featureide.fm.core.analysis.cnf.formula.FeatureModelFormula;
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
+import de.variantsync.evolution.feature.Variant;
 import de.variantsync.evolution.feature.sampling.ConstSampler;
 import de.variantsync.evolution.feature.sampling.Sample;
 import de.variantsync.evolution.feature.sampling.Sampler;
-import de.variantsync.evolution.feature.Variant;
-import de.variantsync.evolution.util.functional.Functional;
 import de.variantsync.evolution.variants.blueprints.VariantsRevisionBlueprint;
+import de.variantsync.functjonal.Functjonal;
 import org.prop4j.Node;
 
 import java.util.Optional;
@@ -31,7 +31,7 @@ public class SampleOnceAtBeginStrategy implements Sampler, SamplingStrategy {
 
     @Override
     public Sample sampleForRevision(final Optional<IFeatureModel> model, final VariantsRevisionBlueprint blueprint) {
-        return Functional.match(blueprint.getPredecessor(),
+        return Functjonal.match(blueprint.getPredecessor(),
                 // Use the sample we already computed.
                 p -> {
                     final Sample previousSample = p.getSample().run();
@@ -49,7 +49,7 @@ public class SampleOnceAtBeginStrategy implements Sampler, SamplingStrategy {
                     return previousSample;
                 },
                 // If there is no predecessor the given blueprint is the first one.
-                () -> Functional.match(model,
+                () -> Functjonal.match(model,
                         this::sample,
                         () -> {
                             if (sampler instanceof ConstSampler c) {

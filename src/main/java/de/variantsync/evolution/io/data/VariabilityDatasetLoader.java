@@ -3,10 +3,10 @@ package de.variantsync.evolution.io.data;
 import de.variantsync.evolution.io.ResourceLoader;
 import de.variantsync.evolution.io.TextIO;
 import de.variantsync.evolution.util.Logger;
-import de.variantsync.evolution.util.functional.Result;
 import de.variantsync.evolution.variability.SPLCommit;
 import de.variantsync.evolution.variability.SPLCommit.*;
 import de.variantsync.evolution.variability.VariabilityDataset;
+import de.variantsync.functjonal.Result;
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 
@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+
+;
 
 public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDataset> {
     private final static String SUCCESS_COMMIT_FILE = "SUCCESS_COMMITS.txt";

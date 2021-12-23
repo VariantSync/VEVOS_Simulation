@@ -91,6 +91,13 @@
             <version>5.11.1.202105131744-r</version>
         </dependency>
 
+<!--        Local dependencies-->
+        <dependency>
+            <groupId>de.variantsync</groupId>
+            <artifactId>Functjonal</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
         <dependency>
             <groupId>de.ovgu</groupId>
             <artifactId>featureide.lib.fm</artifactId>
@@ -102,6 +109,8 @@
             <artifactId>core</artifactId>
             <version>2.3.5</version>
         </dependency>
+<!--        -->
+
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>

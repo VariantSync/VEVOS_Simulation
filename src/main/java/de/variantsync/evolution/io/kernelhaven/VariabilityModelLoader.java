@@ -2,9 +2,9 @@ package de.variantsync.evolution.io.kernelhaven;
 
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import de.variantsync.evolution.io.ResourceLoader;
-import de.variantsync.evolution.util.io.PathUtils;
 import de.variantsync.evolution.util.fide.FeatureModelUtils;
-import de.variantsync.evolution.util.functional.Result;
+import de.variantsync.evolution.util.io.PathUtils;
+import de.variantsync.functjonal.Result;
 import net.ssehub.kernel_haven.variability_model.JsonVariabilityModelCache;
 
 import java.nio.file.Path;

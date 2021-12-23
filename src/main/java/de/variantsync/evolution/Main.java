@@ -10,10 +10,6 @@ import de.variantsync.evolution.io.Resources;
 import de.variantsync.evolution.io.data.VariabilityDatasetLoader;
 import de.variantsync.evolution.repository.AbstractSPLRepository;
 import de.variantsync.evolution.util.Logger;
-import de.variantsync.evolution.util.functional.Functional;
-import de.variantsync.evolution.util.functional.Lazy;
-import de.variantsync.evolution.util.functional.MonadTransformer;
-import de.variantsync.evolution.util.functional.Unit;
 import de.variantsync.evolution.util.list.NonEmptyList;
 import de.variantsync.evolution.variability.EvolutionStep;
 import de.variantsync.evolution.variability.SPLCommit;
@@ -24,6 +20,10 @@ import de.variantsync.evolution.variants.VariantsRepository;
 import de.variantsync.evolution.variants.VariantsRevision;
 import de.variantsync.evolution.variants.sampling.SampleOnceAtBeginStrategy;
 import de.variantsync.evolution.variants.sampling.SamplingStrategy;
+import de.variantsync.functjonal.Functjonal;
+import de.variantsync.functjonal.Lazy;
+import de.variantsync.functjonal.category.MonadTransformer;
+import de.variantsync.functjonal.category.Unit;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -152,7 +152,7 @@ public class Main {
             // First possible way is to just run all revisions at once.
             {
                 // This lazy holds the computation that will run everything.
-                final Lazy<Unit> genAll = Functional.match(
+                final Lazy<Unit> genAll = Functjonal.match(
                         firstRevisionToGenerate,
                         VariantsRevision::evolveAll, // If there is a first revision to generate, then generate all subsequent revision.
                         () -> Lazy.pure(Unit.Instance())); // If there was nothing to generate, return an empty computation.

@@ -2,7 +2,7 @@ package de.variantsync.evolution.util.fide;
 
 import de.ovgu.featureide.fm.core.io.Problem;
 import de.ovgu.featureide.fm.core.io.ProblemList;
-import de.variantsync.evolution.util.functional.Result;
+import de.variantsync.functjonal.Result;
 
 import java.util.function.Supplier;
 

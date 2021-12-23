@@ -1,12 +1,12 @@
 package de.variantsync.evolution.variability.pc.visitor.common;
 
-import de.variantsync.evolution.util.functional.Result;
 import de.variantsync.evolution.util.io.CaseSensitivePath;
 import de.variantsync.evolution.variability.pc.ArtefactTree;
 import de.variantsync.evolution.variability.pc.visitor.ArtefactVisitor;
 import de.variantsync.evolution.variability.pc.visitor.LineBasedAnnotationVisitorFocus;
 import de.variantsync.evolution.variability.pc.visitor.SourceCodeFileVisitorFocus;
 import de.variantsync.evolution.variability.pc.visitor.SyntheticArtefactTreeNodeVisitorFocus;
+import de.variantsync.functjonal.Result;
 import org.prop4j.Node;
 
 import java.io.FileNotFoundException;
