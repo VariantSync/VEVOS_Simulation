@@ -1,8 +1,8 @@
 package de.variantsync.evolution.variability.sequenceextraction;
 
-import de.variantsync.evolution.util.list.NonEmptyList;
 import de.variantsync.evolution.variability.SPLCommit;
 import de.variantsync.evolution.variability.SequenceExtractor;
+import de.variantsync.functjonal.list.NonEmptyList;
 
 import java.util.*;
 

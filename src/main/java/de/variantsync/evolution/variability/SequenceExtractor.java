@@ -1,6 +1,6 @@
 package de.variantsync.evolution.variability;
 
-import de.variantsync.evolution.util.list.NonEmptyList;
+import de.variantsync.functjonal.list.NonEmptyList;
 
 import java.util.Collection;
 import java.util.List;

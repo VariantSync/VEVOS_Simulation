@@ -1,10 +1,10 @@
 package de.variantsync.evolution;
 
 import de.variantsync.evolution.repository.Commit;
-import de.variantsync.evolution.util.functional.CachedValue;
-import de.variantsync.evolution.util.list.StackUtil;
+import de.variantsync.evolution.util.StackUtil;
 import de.variantsync.evolution.variability.EvolutionStep;
 import de.variantsync.evolution.variability.sequenceextraction.CleaningEvolutionStepsStream;
+import de.variantsync.functjonal.CachedValue;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

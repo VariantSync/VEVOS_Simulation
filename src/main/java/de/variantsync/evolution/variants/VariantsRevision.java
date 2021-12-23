@@ -3,11 +3,11 @@ package de.variantsync.evolution.variants;
 import de.variantsync.evolution.repository.AbstractSPLRepository;
 import de.variantsync.evolution.repository.AbstractVariantsRepository;
 import de.variantsync.evolution.repository.Branch;
-import de.variantsync.evolution.util.list.ListHeadTailView;
 import de.variantsync.evolution.variants.blueprints.VariantsRevisionBlueprint;
 import de.variantsync.functjonal.Lazy;
 import de.variantsync.functjonal.category.MonadTransformer;
 import de.variantsync.functjonal.category.Unit;
+import de.variantsync.functjonal.list.ListHeadTailView;
 
 import java.util.Map;
 import java.util.Optional;
@@ -19,7 +19,7 @@ import java.util.Optional;
  * A VariantsRevision runs and captures this co-evolution for a single commit (i.e., modelled as a blueprint).
  */
 public class VariantsRevision {
-    public static record Branches(Map<Branch, VariantCommit> commitOf) {}
+    public record Branches(Map<Branch, VariantCommit> commitOf) {}
 
     private final AbstractSPLRepository splRepo;
     private final AbstractVariantsRepository variantsRepo;

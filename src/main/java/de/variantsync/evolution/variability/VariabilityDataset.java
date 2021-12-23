@@ -1,8 +1,8 @@
 package de.variantsync.evolution.variability;
 
 import de.variantsync.evolution.util.Logger;
-import de.variantsync.evolution.util.list.NonEmptyList;
 import de.variantsync.evolution.variability.sequenceextraction.CleaningEvolutionStepsStream;
+import de.variantsync.functjonal.list.NonEmptyList;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;

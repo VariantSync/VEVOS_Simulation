@@ -7,13 +7,13 @@ import de.variantsync.evolution.io.data.CSV;
 import de.variantsync.evolution.util.fide.bugfix.FixTrueFalse;
 import de.variantsync.evolution.util.io.CaseSensitivePath;
 import de.variantsync.evolution.util.io.PathUtils;
-import de.variantsync.evolution.util.list.ListHeadTailView;
 import de.variantsync.evolution.variability.pc.Artefact;
 import de.variantsync.evolution.variability.pc.LineBasedAnnotation;
 import de.variantsync.evolution.variability.pc.SourceCodeFile;
 import de.variantsync.evolution.variability.pc.SyntheticArtefactTreeNode;
 import de.variantsync.functjonal.Result;
 import de.variantsync.functjonal.category.Unit;
+import de.variantsync.functjonal.list.ListHeadTailView;
 import org.prop4j.Node;
 import org.prop4j.NodeReader;
 

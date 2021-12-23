@@ -1,12 +1,12 @@
 package de.variantsync.evolution.variability.sequenceextraction;
 
 import de.variantsync.evolution.repository.Commit;
-import de.variantsync.evolution.util.list.NonEmptyList;
-import de.variantsync.evolution.util.list.StackUtil;
+import de.variantsync.evolution.util.StackUtil;
 import de.variantsync.evolution.variability.EvolutionStep;
 import de.variantsync.evolution.variability.SPLCommit;
 import de.variantsync.evolution.variability.SequenceExtractor;
 import de.variantsync.evolution.variability.VariabilityDataset;
+import de.variantsync.functjonal.list.NonEmptyList;
 
 import java.util.*;
 import java.util.stream.Collectors;

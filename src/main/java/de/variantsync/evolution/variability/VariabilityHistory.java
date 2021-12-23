@@ -1,10 +1,10 @@
 package de.variantsync.evolution.variability;
 
-import de.variantsync.evolution.util.list.NonEmptyList;
 import de.variantsync.evolution.variants.blueprints.VariantsRevisionBlueprint;
 import de.variantsync.evolution.variants.blueprints.VariantsRevisionFromErrorBlueprint;
 import de.variantsync.evolution.variants.blueprints.VariantsRevisionFromVariabilityBlueprint;
 import de.variantsync.evolution.variants.sampling.SamplingStrategy;
+import de.variantsync.functjonal.list.NonEmptyList;
 
 import java.util.ArrayList;
 

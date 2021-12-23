@@ -10,7 +10,6 @@ import de.variantsync.evolution.io.Resources;
 import de.variantsync.evolution.io.data.VariabilityDatasetLoader;
 import de.variantsync.evolution.repository.AbstractSPLRepository;
 import de.variantsync.evolution.util.Logger;
-import de.variantsync.evolution.util.list.NonEmptyList;
 import de.variantsync.evolution.variability.EvolutionStep;
 import de.variantsync.evolution.variability.SPLCommit;
 import de.variantsync.evolution.variability.VariabilityDataset;
@@ -24,6 +23,7 @@ import de.variantsync.functjonal.Functjonal;
 import de.variantsync.functjonal.Lazy;
 import de.variantsync.functjonal.category.MonadTransformer;
 import de.variantsync.functjonal.category.Unit;
+import de.variantsync.functjonal.list.NonEmptyList;
 
 import java.io.File;
 import java.io.FileInputStream;

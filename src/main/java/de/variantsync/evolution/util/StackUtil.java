@@ -1,4 +1,4 @@
-package de.variantsync.evolution.util.list;
+package de.variantsync.evolution.util;
 
 import java.util.Stack;
 
