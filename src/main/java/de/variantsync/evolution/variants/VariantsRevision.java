@@ -5,8 +5,8 @@ import de.variantsync.evolution.repository.AbstractVariantsRepository;
 import de.variantsync.evolution.repository.Branch;
 import de.variantsync.evolution.variants.blueprints.VariantsRevisionBlueprint;
 import de.variantsync.functjonal.Lazy;
+import de.variantsync.functjonal.Unit;
 import de.variantsync.functjonal.category.MonadTransformer;
-import de.variantsync.functjonal.category.Unit;
 import de.variantsync.functjonal.list.ListHeadTailView;
 
 import java.util.Map;

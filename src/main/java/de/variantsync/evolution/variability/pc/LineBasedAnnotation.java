@@ -100,7 +100,7 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
     }
 
     public Optional<AnnotationGroundTruth> deriveForVariant(final Variant variant) {
-        final BlockMatching matching = BlockMatching.MONOID.mEmpty();
+        final BlockMatching matching = BlockMatching.MONOID.neutral();
         return deriveForVariant(variant, 0, matching).map(l -> new AnnotationGroundTruth(this, l, matching));
     }
 

@@ -1,8 +1,8 @@
 package de.variantsync.evolution.util.io;
 
 import de.variantsync.functjonal.Result;
+import de.variantsync.functjonal.Unit;
 import de.variantsync.functjonal.category.Monoid;
-import de.variantsync.functjonal.category.Unit;
 import de.variantsync.functjonal.error.CompositeException;
 
 import java.io.File;
@@ -68,7 +68,7 @@ public class PathUtils {
             return walk
                     .sorted(Comparator.reverseOrder())
                     .map(f -> Result.Try(() -> Files.delete(f)).mapFail(CompositeException::new))
-                    .reduce(resultReducer::mAppend)
+                    .reduce(resultReducer::append)
                     .orElseGet(() -> Result.Success(Unit.Instance()));
         } catch (final NoSuchFileException e) {
             // If the given path does not exist, then there was nothing to delete.

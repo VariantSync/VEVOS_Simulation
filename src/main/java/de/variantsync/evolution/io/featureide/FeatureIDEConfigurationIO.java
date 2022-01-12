@@ -11,7 +11,7 @@ import de.variantsync.evolution.io.ResourceWriter;
 import de.variantsync.evolution.util.fide.ProblemListUtils;
 import de.variantsync.evolution.util.io.PathUtils;
 import de.variantsync.functjonal.Result;
-import de.variantsync.functjonal.category.Unit;
+import de.variantsync.functjonal.Unit;
 
 import java.nio.file.Path;
 

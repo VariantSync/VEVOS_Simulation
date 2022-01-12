@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class BlockMatching {
-    public static final Monoid<BlockMatching> MONOID = Monoid.Create(
+    public static final Monoid<BlockMatching> MONOID = Monoid.From(
             BlockMatching::new,
             (a, b) -> {
                 final BlockMatching result = new BlockMatching();

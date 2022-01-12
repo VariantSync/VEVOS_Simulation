@@ -21,8 +21,8 @@ import de.variantsync.evolution.variants.sampling.SampleOnceAtBeginStrategy;
 import de.variantsync.evolution.variants.sampling.SamplingStrategy;
 import de.variantsync.functjonal.Functjonal;
 import de.variantsync.functjonal.Lazy;
+import de.variantsync.functjonal.Unit;
 import de.variantsync.functjonal.category.MonadTransformer;
-import de.variantsync.functjonal.category.Unit;
 import de.variantsync.functjonal.list.NonEmptyList;
 
 import java.io.File;

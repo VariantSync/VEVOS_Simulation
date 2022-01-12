@@ -12,7 +12,7 @@ import de.variantsync.evolution.variability.pc.LineBasedAnnotation;
 import de.variantsync.evolution.variability.pc.SourceCodeFile;
 import de.variantsync.evolution.variability.pc.SyntheticArtefactTreeNode;
 import de.variantsync.functjonal.Result;
-import de.variantsync.functjonal.category.Unit;
+import de.variantsync.functjonal.Unit;
 import de.variantsync.functjonal.list.ListHeadTailView;
 import org.prop4j.Node;
 import org.prop4j.NodeReader;

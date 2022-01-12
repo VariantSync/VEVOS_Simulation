@@ -5,7 +5,7 @@ import de.variantsync.evolution.io.ResourceWriter;
 import de.variantsync.evolution.io.TextIO;
 import de.variantsync.evolution.util.io.PathUtils;
 import de.variantsync.functjonal.Result;
-import de.variantsync.functjonal.category.Unit;
+import de.variantsync.functjonal.Unit;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

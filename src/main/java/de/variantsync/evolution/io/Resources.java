@@ -17,7 +17,7 @@ import de.variantsync.evolution.util.Logger;
 import de.variantsync.evolution.variability.VariabilityDataset;
 import de.variantsync.evolution.variability.pc.Artefact;
 import de.variantsync.functjonal.Result;
-import de.variantsync.functjonal.category.Unit;
+import de.variantsync.functjonal.Unit;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
