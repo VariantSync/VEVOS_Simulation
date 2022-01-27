@@ -183,11 +183,4 @@ The project is structured into the following packages:
 VEVOS_Generation is a Java 16 library and Maven project.
 You may include VEVOS_Generation as a pre-build `jar` file or build it on your own.
 The `jar` file can be found in the releases of this repository.
-
-### Build
-
-VEVOS_Generation comes with three dependencies that are not available in the maven repositories and thus are included as pre-built jar files in `src/main/resources/lib`.
-To initialize the local maven repository for the libraries we use, run the following as maven targets:
-
-- FeatureIDE: `deploy:deploy-file -DgroupId=de.ovgu -DartifactId=featureide.lib.fm -Dversion=3.7.2 -Durl=file:./local-maven-repo/ -DrepositoryId=local-maven-repo -DupdateReleaseInfo=true -Dfile=src/main/resources/lib/de.ovgu.featureide.lib.fm-v3.7.2.jar`
-- Sat4j: `deploy:deploy-file -DgroupId=org.sat4j -DartifactId=core -Dversion=2.3.5 -Durl=file:./local-maven-repo/ -DrepositoryId=local-maven-repo -DupdateReleaseInfo=true -Dfile=src/main/resources/lib/org.sat4j.core.jar`
+Building VEVOS_Generation comes with no other requirements other than Maven.
