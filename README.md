@@ -91,11 +91,12 @@ final Sample variantsToGenerate = new Sample(List.of(
                 "A", "B", "D", "E", "N", "R"
         ))),
         new Variant("Bianca", new SimpleConfiguration(List.of(
+                /// Features selected in variant Bianca.
                 "A", "B", "C", "I", "N"
         )))
 ));
+
 Sampler variantsSampler = new ConstSampler(variantsToGenerate);
-}
 ```
 We are now ready to traverse the evolution history to generate variants:
 ```java
