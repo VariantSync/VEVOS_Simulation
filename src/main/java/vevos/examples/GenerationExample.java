@@ -81,6 +81,7 @@ public class GenerationExample {
                             "A", "B", "D", "E", "N", "R"
                     ))),
                     new Variant("Bianca", new SimpleConfiguration(List.of(
+                            /// Features selected in variant Bianca.
                             "A", "B", "C", "I", "N"
                     )))
             ));

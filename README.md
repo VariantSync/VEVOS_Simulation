@@ -166,21 +166,19 @@ This was round-trip about the major features of VEVOS_Generation. Further featur
 ## Project Structure
 
 The project is structured into the following packages:
-- `vevos.examples` contains the code of our example described above
-- `vevos.feature` contains our representation for `Variant`s and their `Configuration`s as well as sampling of configurations and variants
-- `vevos.io` contains our `Resources` service and default implementations for loading `CSV` files, ground truth, feature models, and configurations
-- `vevos.repository` contains classes for representing git repositories and commits
-- `vevos.sat` contains an interface for SAT solving (currently only used for annotation simplification on demand)
-- `vevos.util` is the conventional utils package with helper methods for interfacing with FeatureIDE, name generation, logging, and others.
-- `vevos.variability` contains the classes for representing evolution histories and the ground truth dataset.
+- [`vevos.examples`](src/main/java/vevos/examples) contains the code of our example described above
+- [`vevos.feature`](src/main/java/vevos/feature) contains our representation for `Variant`s and their `Configuration`s as well as sampling of configurations and variants
+- [`vevos.io`](src/main/java/vevos/io) contains our `Resources` service and default implementations for loading `CSV` files, ground truth, feature models, and configurations
+- [`vevos.repository`](src/main/java/vevos/repository) contains classes for representing git repositories and commits
+- [`vevos.sat`](src/main/java/vevos/sat) contains an interface for SAT solving (currently only used for annotation simplification on demand)
+- [`vevos.util`](src/main/java/vevos/util) is the conventional utils package with helper methods for interfacing with FeatureIDE, name generation, logging, and others.
+- [`vevos.variability`](src/main/java/vevos/variability) contains the classes for representing evolution histories and the ground truth dataset.
   The package is divided into:
-    - `vevos.variability.pc` contains classes for representing , and annotations (i.e., presence conditions and feature mappings). We store annotations in `Artefact`s that follow a tree structure similar to the annotations in preprocessor based software product lines.
-    - `vevos.variability.pc.groundtruth` contains datatypes for the ground truth of generated variants
-    - `vevos.variability.pc.options` contains the options for the variant generation process
-    - `vevos.variability.pc.visitor` contains an implementation of the visitor pattern for traversing and inspecting `ArtefactTree`s. Some visitors for querying a files or a line's presence condition, as well as a pretty printer can be found in `vevos.variability.pc.visitor.common`.
-    - `vevos.variability.sequenceextraction` contains default implementation for `SequenceExtractor`. These are algorithms for sorting pairs of commits into continuous histories (see example above).
-
-- ``
+    - [`vevos.variability.pc`](src/main/java/vevos/variability/pc) contains classes for representing , and annotations (i.e., presence conditions and feature mappings). We store annotations in `Artefact`s that follow a tree structure similar to the annotations in preprocessor based software product lines.
+    - [`vevos.variability.pc.groundtruth`](src/main/java/vevos/variability/pc/groundtruth) contains datatypes for the ground truth of generated variants
+    - [`vevos.variability.pc.options`](src/main/java/vevos/variability/pc/options) contains the options for the variant generation process
+    - [`vevos.variability.pc.visitor`](src/main/java/vevos/variability/pc/visitor) contains an implementation of the visitor pattern for traversing and inspecting `ArtefactTree`s. Some visitors for querying a files or a line's presence condition, as well as a pretty printer can be found in `vevos.variability.pc.visitor.common`.
+    - [`vevos.variability.sequenceextraction`](src/main/java/vevos/variability/pc/sequenceextraction) contains default implementation for `SequenceExtractor`. These are algorithms for sorting pairs of commits into continuous histories (see example above).
 
 ## Setup
 
