@@ -2,8 +2,8 @@
 
 ## begin todos
 TODO: Find names for
-- **ground truth extraction**: VEVOS_Extraction, VEVOSX, VEvoSX
-- **variant generation**: VEVOS_Generation, VEVOSG, VEvoSG
+- **ground truth extraction**: VEVOS_Extraction, VEVOSX, VEvoSX, VEVOS.extraction
+- **variant generation**: VEVOS_Generation, VEVOSG, VEvoSG, VEVOS.generation
 ## end todos
 
 VEVOS is a tool suite for the simulation of the evolution of clone-and-own projects.
