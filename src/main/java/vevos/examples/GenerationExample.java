@@ -4,6 +4,7 @@ import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import de.variantsync.functjonal.Lazy;
 import de.variantsync.functjonal.Result;
 import de.variantsync.functjonal.list.NonEmptyList;
+import vevos.VEVOS;
 import vevos.feature.Variant;
 import vevos.feature.config.SimpleConfiguration;
 import vevos.feature.sampling.ConstSampler;
@@ -32,6 +33,8 @@ import java.util.Set;
 
 public class GenerationExample {
     public static void main(final String[] args) throws Resources.ResourceIOException {
+        VEVOS.Initialize();
+
         final CaseSensitivePath splRepositoryPath = CaseSensitivePath.of("path", "to", "SPL", "git", "repository");
         final CaseSensitivePath groundTruthDatasetPath = CaseSensitivePath.of("path", "to", "datasets");
         final CaseSensitivePath variantsGenerationDir = CaseSensitivePath.of("directory", "to", "put", "generated", "variants");

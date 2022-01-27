@@ -1,13 +1,15 @@
 # VEVOS - Variant Generation
 
 ## begin todos
-TODO: Find names for
-- **ground truth extraction**: VEVOS_Extraction, VEVOSX, VEvoSX, VEVOS.extraction
-- **variant generation**: VEVOS_Generation, VEVOSG, VEvoSG, VEVOS.generation
+- Find names for
+  - **ground truth extraction**: VEVOS_Extraction, VEVOSX, VEvoSX, VEVOS.extraction
+  - **variant generation**: VEVOS_Generation, VEVOSG, VEvoSG, VEVOS.generation
+- create a release with a jar
+- include and anonymise Functjonal
+- simplify maven dependencies to FeatureIDE, Sat4j, and Functjonal?
 ## end todos
 
-VEVOS is a tool suite for the simulation of the evolution of clone-and-own projects.
-VEVOS has two main components: The ground truth extraction, called VEVOS_Extraction and the variant generation called VEVOS_Generation.
+VEVOS is a tool suite for the simulation of the evolution of clone-and-own projects and consists of two main components: The ground truth extraction, called VEVOS_Extraction and the variant generation called VEVOS_Generation.
 
 This repository contains VEVOS_Generation and thus the second part of the replication package for the paper _Simulating the Evolution of Clone-and-Own Projects with VEVOS_ submitted to the International Conference on Evaluation and Assessment in Software Engineering (EASE) 2022.
 VEVOS_Generation is a java library for generating variants with ground truth from an input software product line and dataset extracted with VEVOS_Extraction.
@@ -24,7 +26,13 @@ In the following we give a step by step example in how the library can be used t
 The examples source code can also be found in [GenerationExample.java](src/main/java/vevos/examples/GenerationExample.java).
 We also give a brief introduction of the key features of the library we use in the following example.
 
-We start by specifying the necessary paths to (1) the git repository of the input software product line, (2) the directory of the extracted ground truth dataset, (3) and a directory to which we want to generate variants. (We use case sensitive paths to also allow the generation of Linux variants under Windows).
+At the very begin of your program, you have to initialize the library:
+```java
+VEVOS.Initialize();
+```
+This initializes the libraries logging and binding to FeatureIDE.
+
+We can then start by specifying the necessary paths to (1) the git repository of the input software product line, (2) the directory of the extracted ground truth dataset, (3) and a directory to which we want to generate variants. (We use case sensitive paths to also allow the generation of Linux variants under Windows).
 ```java
 final CaseSensitivePath splRepositoryPath = CaseSensitivePath.of("path", "to", "SPL", "git", "repository");
 final CaseSensitivePath groundTruthDatasetPath = CaseSensitivePath.of("path", "to", "datasets");
@@ -153,6 +161,25 @@ In contrast, the suffix is `.spl.csv` for ground truth presence conditions of th
             } 
 ```
 This was round-trip about the major features of VEVOS_Generation. Further features and convencience methods can be found in our documentation.
+
+## Project Structure
+
+The project is structured into the following packages:
+- `vevos.examples` contains the code of our example described above
+- `vevos.feature` contains our representation for `Variant`s and their `Configuration`s as well as sampling of configurations and variants
+- `vevos.io` contains our `Resources` service and default implementations for loading `CSV` files, ground truth, feature models, and configurations
+- `vevos.repository` contains classes for representing git repositories and commits
+- `vevos.sat` contains an interface for SAT solving (currently only used for annotation simplification on demand)
+- `vevos.util` is the conventional utils package with helper methods for interfacing with FeatureIDE, name generation, logging, and others.
+- `vevos.variability` contains the classes for representing evolution histories and the ground truth dataset.
+  The package is divided into:
+    - `vevos.variability.pc` contains classes for representing , and annotations (i.e., presence conditions and feature mappings). We store annotations in `Artefact`s that follow a tree structure similar to the annotations in preprocessor based software product lines.
+    - `vevos.variability.pc.groundtruth` contains datatypes for the ground truth of generated variants
+    - `vevos.variability.pc.options` contains the options for the variant generation process
+    - `vevos.variability.pc.visitor` contains an implementation of the visitor pattern for traversing and inspecting `ArtefactTree`s. Some visitors for querying a files or a line's presence condition, as well as a pretty printer can be found in `vevos.variability.pc.visitor.common`.
+    - `vevos.variability.sequenceextraction` contains default implementation for `SequenceExtractor`. These are algorithms for sorting pairs of commits into continuous histories (see example above).
+
+- ``
 
 ## Setup
 
