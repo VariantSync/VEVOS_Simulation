@@ -1,6 +1,6 @@
 package vevos.variability.sequenceextraction;
 
-import de.variantsync.functjonal.list.NonEmptyList;
+import vevos.functjonal.list.NonEmptyList;
 import vevos.variability.SPLCommit;
 import vevos.variability.SequenceExtractor;
 

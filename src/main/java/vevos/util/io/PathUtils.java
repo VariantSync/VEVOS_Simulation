@@ -1,9 +1,9 @@
 package vevos.util.io;
 
-import de.variantsync.functjonal.Result;
-import de.variantsync.functjonal.Unit;
-import de.variantsync.functjonal.category.Monoid;
-import de.variantsync.functjonal.error.CompositeException;
+import vevos.functjonal.Result;
+import vevos.functjonal.Unit;
+import vevos.functjonal.category.Monoid;
+import vevos.functjonal.error.CompositeException;
 
 import java.io.File;
 import java.io.IOException;

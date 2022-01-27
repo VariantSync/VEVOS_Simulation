@@ -1,10 +1,10 @@
 package vevos.io.kernelhaven;
 
-import de.variantsync.functjonal.Result;
-import de.variantsync.functjonal.Unit;
-import de.variantsync.functjonal.list.ListHeadTailView;
 import org.prop4j.Node;
 import org.prop4j.NodeReader;
+import vevos.functjonal.Result;
+import vevos.functjonal.Unit;
+import vevos.functjonal.list.ListHeadTailView;
 import vevos.io.ResourceLoader;
 import vevos.io.ResourceWriter;
 import vevos.io.Resources;
@@ -58,8 +58,8 @@ public abstract class KernelHavenPCIO implements ResourceLoader<Artefact>, Resou
         final ListHeadTailView<String[]> rows = new ListHeadTailView<>(csv.rows()).tail();
         for (final String[] row : rows) {
             final CaseSensitivePath pathOfSourceFile = CaseSensitivePath.of(row[0]);
-            final Node fileCondition = FixTrueFalse.On(nodeReader.stringToNode(row[1]));
-            final Node blockCondition = FixTrueFalse.On(nodeReader.stringToNode(row[2]));
+            final Node fileCondition = FixTrueFalse.EliminateTrueAndFalseInplace(nodeReader.stringToNode(row[1]));
+            final Node blockCondition = FixTrueFalse.EliminateTrueAndFalseInplace(nodeReader.stringToNode(row[2]));
             // We don't need the actual presenceCondition (lol) as it is a value computed from row[1] and row[2]
             // final Node presenceCondition = nodeReader.stringToNode(row[3]);
             final int startLine = Integer.parseInt(row[4]);

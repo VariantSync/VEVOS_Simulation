@@ -1,6 +1,6 @@
 package vevos.variability;
 
-import de.variantsync.functjonal.list.NonEmptyList;
+import vevos.functjonal.list.NonEmptyList;
 import vevos.variants.blueprints.VariantsRevisionBlueprint;
 import vevos.variants.blueprints.VariantsRevisionFromErrorBlueprint;
 import vevos.variants.blueprints.VariantsRevisionFromVariabilityBlueprint;

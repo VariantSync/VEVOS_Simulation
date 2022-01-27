@@ -1,9 +1,6 @@
 package vevos.examples;
 
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
-import de.variantsync.functjonal.Lazy;
-import de.variantsync.functjonal.Result;
-import de.variantsync.functjonal.list.NonEmptyList;
 import vevos.VEVOS;
 import vevos.feature.Variant;
 import vevos.feature.config.SimpleConfiguration;
@@ -11,6 +8,9 @@ import vevos.feature.sampling.ConstSampler;
 import vevos.feature.sampling.FeatureIDESampler;
 import vevos.feature.sampling.Sample;
 import vevos.feature.sampling.Sampler;
+import vevos.functjonal.Lazy;
+import vevos.functjonal.Result;
+import vevos.functjonal.list.NonEmptyList;
 import vevos.io.Resources;
 import vevos.util.Logger;
 import vevos.util.io.CaseSensitivePath;

@@ -1,7 +1,7 @@
 package vevos.variability.sequenceextraction;
 
-import de.variantsync.functjonal.CachedValue;
 import org.jetbrains.annotations.NotNull;
+import vevos.functjonal.CachedValue;
 import vevos.repository.Commit;
 import vevos.variability.EvolutionStep;
 

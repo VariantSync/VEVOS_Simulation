@@ -1,6 +1,6 @@
 package vevos.io;
 
-import de.variantsync.functjonal.Result;
+import vevos.functjonal.Result;
 import vevos.util.Logger;
 
 import java.io.BufferedReader;

@@ -1,8 +1,8 @@
 package vevos.io.data;
 
-import de.variantsync.functjonal.Result;
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
+import vevos.functjonal.Result;
 import vevos.io.ResourceLoader;
 import vevos.io.TextIO;
 import vevos.util.Logger;

@@ -1,9 +1,9 @@
 package vevos;
 
-import de.variantsync.functjonal.CachedValue;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import vevos.functjonal.CachedValue;
 import vevos.repository.Commit;
 import vevos.util.StackUtil;
 import vevos.variability.EvolutionStep;

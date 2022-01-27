@@ -1,9 +1,9 @@
 package vevos.variants;
 
-import de.variantsync.functjonal.Lazy;
-import de.variantsync.functjonal.Unit;
-import de.variantsync.functjonal.category.MonadTransformer;
-import de.variantsync.functjonal.list.ListHeadTailView;
+import vevos.functjonal.Lazy;
+import vevos.functjonal.Unit;
+import vevos.functjonal.category.MonadTransformer;
+import vevos.functjonal.list.ListHeadTailView;
 import vevos.repository.AbstractSPLRepository;
 import vevos.repository.AbstractVariantsRepository;
 import vevos.repository.Branch;

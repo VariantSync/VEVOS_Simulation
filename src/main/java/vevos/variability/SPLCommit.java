@@ -1,12 +1,12 @@
 package vevos.variability;
 
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
-import de.variantsync.functjonal.CachedValue;
-import de.variantsync.functjonal.Functjonal;
-import de.variantsync.functjonal.Lazy;
-import de.variantsync.functjonal.functions.FragileFunction;
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
+import vevos.functjonal.CachedValue;
+import vevos.functjonal.Functjonal;
+import vevos.functjonal.Lazy;
+import vevos.functjonal.functions.FragileFunction;
 import vevos.io.Resources;
 import vevos.repository.Commit;
 import vevos.util.Logger;

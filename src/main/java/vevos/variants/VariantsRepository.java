@@ -1,10 +1,10 @@
 package vevos.variants;
 
-import de.variantsync.functjonal.list.ListHeadTailView;
-import de.variantsync.functjonal.list.NonEmptyList;
 import org.eclipse.jgit.api.errors.EmptyCommitException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.revwalk.RevCommit;
+import vevos.functjonal.list.ListHeadTailView;
+import vevos.functjonal.list.NonEmptyList;
 import vevos.repository.AbstractSPLRepository;
 import vevos.repository.AbstractVariantsRepository;
 import vevos.repository.Branch;

@@ -1,12 +1,12 @@
 package vevos;
 
-import de.variantsync.functjonal.Functjonal;
-import de.variantsync.functjonal.Lazy;
-import de.variantsync.functjonal.Unit;
-import de.variantsync.functjonal.category.MonadTransformer;
-import de.variantsync.functjonal.list.NonEmptyList;
 import vevos.feature.sampling.ConstSampler;
 import vevos.feature.sampling.FeatureIDESampler;
+import vevos.functjonal.Functjonal;
+import vevos.functjonal.Lazy;
+import vevos.functjonal.Unit;
+import vevos.functjonal.category.MonadTransformer;
+import vevos.functjonal.list.NonEmptyList;
 import vevos.io.Resources;
 import vevos.io.data.VariabilityDatasetLoader;
 import vevos.repository.AbstractSPLRepository;

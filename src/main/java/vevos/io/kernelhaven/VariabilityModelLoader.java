@@ -1,8 +1,8 @@
 package vevos.io.kernelhaven;
 
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
-import de.variantsync.functjonal.Result;
 import net.ssehub.kernel_haven.variability_model.JsonVariabilityModelCache;
+import vevos.functjonal.Result;
 import vevos.io.ResourceLoader;
 import vevos.util.fide.FeatureModelUtils;
 import vevos.util.io.PathUtils;

@@ -1,10 +1,10 @@
 package vevos.variability.pc;
 
-import de.variantsync.functjonal.Functjonal;
-import de.variantsync.functjonal.Result;
-import de.variantsync.functjonal.category.Traversable;
 import org.prop4j.Node;
 import vevos.feature.Variant;
+import vevos.functjonal.Functjonal;
+import vevos.functjonal.Result;
+import vevos.functjonal.category.Traversable;
 import vevos.io.TextIO;
 import vevos.util.Logger;
 import vevos.util.fide.bugfix.FixTrueFalse;

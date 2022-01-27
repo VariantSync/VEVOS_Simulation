@@ -1,6 +1,6 @@
 package vevos.variability.sequenceextraction;
 
-import de.variantsync.functjonal.list.NonEmptyList;
+import vevos.functjonal.list.NonEmptyList;
 import vevos.repository.Commit;
 import vevos.util.StackUtil;
 import vevos.variability.EvolutionStep;

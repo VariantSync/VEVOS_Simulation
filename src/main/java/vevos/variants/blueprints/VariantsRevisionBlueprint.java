@@ -1,7 +1,7 @@
 package vevos.variants.blueprints;
 
-import de.variantsync.functjonal.Lazy;
 import vevos.feature.sampling.Sample;
+import vevos.functjonal.Lazy;
 import vevos.variants.VariantsRevision;
 
 import java.util.Optional;

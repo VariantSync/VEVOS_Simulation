@@ -1,6 +1,6 @@
 package vevos.io;
 
-import de.variantsync.functjonal.Result;
+import vevos.functjonal.Result;
 
 import java.nio.file.Path;
 

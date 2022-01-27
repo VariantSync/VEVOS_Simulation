@@ -1,6 +1,6 @@
 package vevos.variability;
 
-import de.variantsync.functjonal.list.NonEmptyList;
+import vevos.functjonal.list.NonEmptyList;
 
 import java.util.Collection;
 import java.util.List;

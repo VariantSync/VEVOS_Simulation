@@ -1,7 +1,7 @@
 package vevos.io;
 
-import de.variantsync.functjonal.Result;
-import de.variantsync.functjonal.Unit;
+import vevos.functjonal.Result;
+import vevos.functjonal.Unit;
 
 import java.nio.file.Path;
 

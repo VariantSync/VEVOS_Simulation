@@ -1,7 +1,7 @@
 package vevos.variability.pc.visitor.common;
 
-import de.variantsync.functjonal.Result;
 import org.prop4j.Node;
+import vevos.functjonal.Result;
 import vevos.util.io.CaseSensitivePath;
 import vevos.variability.pc.ArtefactTree;
 import vevos.variability.pc.LineBasedAnnotation;

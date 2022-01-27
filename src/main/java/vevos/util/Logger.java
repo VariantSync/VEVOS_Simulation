@@ -1,6 +1,6 @@
 package vevos.util;
 
-import de.variantsync.functjonal.Result;
+import vevos.functjonal.Result;
 
 import java.io.IOException;
 import java.io.OutputStream;

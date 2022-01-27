@@ -1,7 +1,7 @@
 package vevos.variability;
 
-import de.variantsync.functjonal.list.NonEmptyList;
 import org.jetbrains.annotations.NotNull;
+import vevos.functjonal.list.NonEmptyList;
 import vevos.util.Logger;
 import vevos.variability.sequenceextraction.CleaningEvolutionStepsStream;
 

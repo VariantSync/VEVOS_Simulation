@@ -1,7 +1,7 @@
 package vevos.io.data;
 
-import de.variantsync.functjonal.Result;
-import de.variantsync.functjonal.Unit;
+import vevos.functjonal.Result;
+import vevos.functjonal.Unit;
 import vevos.io.ResourceLoader;
 import vevos.io.ResourceWriter;
 import vevos.io.TextIO;

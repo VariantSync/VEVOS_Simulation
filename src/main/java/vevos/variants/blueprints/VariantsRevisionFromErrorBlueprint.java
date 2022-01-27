@@ -1,9 +1,9 @@
 package vevos.variants.blueprints;
 
-import de.variantsync.functjonal.Lazy;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import vevos.feature.Variant;
 import vevos.feature.sampling.Sample;
+import vevos.functjonal.Lazy;
 import vevos.repository.AbstractVariantsRepository;
 import vevos.repository.Branch;
 import vevos.variants.VariantCommit;

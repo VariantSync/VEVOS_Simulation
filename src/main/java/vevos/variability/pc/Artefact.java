@@ -1,8 +1,8 @@
 package vevos.variability.pc;
 
-import de.variantsync.functjonal.Result;
 import org.prop4j.Node;
 import vevos.feature.Variant;
+import vevos.functjonal.Result;
 import vevos.util.io.CaseSensitivePath;
 import vevos.variability.pc.groundtruth.GroundTruth;
 import vevos.variability.pc.options.VariantGenerationOptions;

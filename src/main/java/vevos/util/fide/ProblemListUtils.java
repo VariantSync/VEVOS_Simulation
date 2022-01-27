@@ -2,7 +2,7 @@ package vevos.util.fide;
 
 import de.ovgu.featureide.fm.core.io.Problem;
 import de.ovgu.featureide.fm.core.io.ProblemList;
-import de.variantsync.functjonal.Result;
+import vevos.functjonal.Result;
 
 import java.util.function.Supplier;
 

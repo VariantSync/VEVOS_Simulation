@@ -5,8 +5,7 @@
   - **ground truth extraction**: VEVOS_Extraction, VEVOSX, VEvoSX, VEVOS.extraction
   - **variant generation**: VEVOS_Generation, VEVOSG, VEvoSG, VEVOS.generation
 - create a release with a jar
-- include and anonymise Functjonal
-- simplify maven dependencies to FeatureIDE, Sat4j, and Functjonal?
+- simplify maven dependencies for KernelHaven
 ## end todos
 
 VEVOS is a tool suite for the simulation of the evolution of clone-and-own projects and consists of two main components: The ground truth extraction, called VEVOS_Extraction and the variant generation called VEVOS_Generation.

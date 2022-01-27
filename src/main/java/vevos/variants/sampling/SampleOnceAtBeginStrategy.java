@@ -2,12 +2,12 @@ package vevos.variants.sampling;
 
 import de.ovgu.featureide.fm.core.analysis.cnf.formula.FeatureModelFormula;
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
-import de.variantsync.functjonal.Functjonal;
 import org.prop4j.Node;
 import vevos.feature.Variant;
 import vevos.feature.sampling.ConstSampler;
 import vevos.feature.sampling.Sample;
 import vevos.feature.sampling.Sampler;
+import vevos.functjonal.Functjonal;
 import vevos.variants.blueprints.VariantsRevisionBlueprint;
 
 import java.util.Optional;

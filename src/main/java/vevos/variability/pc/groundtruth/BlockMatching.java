@@ -1,6 +1,6 @@
 package vevos.variability.pc.groundtruth;
 
-import de.variantsync.functjonal.category.Monoid;
+import vevos.functjonal.category.Monoid;
 import vevos.variability.pc.LineBasedAnnotation;
 
 import java.util.HashMap;

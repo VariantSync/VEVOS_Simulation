@@ -1,8 +1,8 @@
 package vevos.variability.pc;
 
-import de.variantsync.functjonal.Cast;
-import de.variantsync.functjonal.Result;
 import vevos.feature.Variant;
+import vevos.functjonal.Cast;
+import vevos.functjonal.Result;
 import vevos.util.Logger;
 import vevos.util.fide.bugfix.FixTrueFalse;
 import vevos.util.io.CaseSensitivePath;
@@ -71,7 +71,7 @@ public class SyntheticArtefactTreeNode<Child extends ArtefactTree<?>> extends Ar
                             .generateVariant(variant, sourceDir, targetDir, strategy);
 
                     result.ifSuccess(childGroundTruth -> {
-                        copy.addTrace(Cast.unchecked(childGroundTruth.artefact()));
+                        copy.addTrace(Cast.unchecked(childGroundTruth.variant()));
                         groundTruth.add(childGroundTruth);
                     });
 

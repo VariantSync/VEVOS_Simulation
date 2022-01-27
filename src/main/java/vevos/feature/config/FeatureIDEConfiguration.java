@@ -8,8 +8,8 @@ import de.ovgu.featureide.fm.core.configuration.Configuration;
 import de.ovgu.featureide.fm.core.configuration.ConfigurationAnalyzer;
 import de.ovgu.featureide.fm.core.configuration.ConfigurationPropagator;
 import de.ovgu.featureide.fm.core.configuration.Selection;
-import de.variantsync.functjonal.Lazy;
 import org.prop4j.Node;
+import vevos.functjonal.Lazy;
 import vevos.util.fide.bugfix.FixTrueFalse;
 
 import java.util.HashMap;
