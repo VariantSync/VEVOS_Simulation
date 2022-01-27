@@ -55,13 +55,6 @@
         </plugins>
     </build>
 
-    <repositories>
-        <repository>
-            <id>local-maven-repo</id>
-            <url>file:///${project.basedir}/local-maven-repo</url>
-        </repository>
-    </repositories>
-
     <dependencies>
 <!--        Local dependencies-->
         <dependency>
@@ -87,6 +80,14 @@
             <scope>system</scope>
             <systemPath>${project.basedir}/src/main/resources/lib/org.sat4j.core.jar</systemPath>
         </dependency>
+
+        <dependency>
+            <groupId>net.ssehub</groupId>
+            <artifactId>kernel_haven</artifactId>
+            <version>1.0.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/src/main/resources/lib/kernel_haven-1.0.0.jar</systemPath>
+        </dependency>
 <!--        -->
 
         <dependency>
@@ -107,12 +108,6 @@
             <artifactId>annotations</artifactId>
             <version>21.0.1</version>
             <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>net.ssehub</groupId>
-            <artifactId>kernel_haven</artifactId>
-            <version>1.0.0</version>
         </dependency>
 
         <dependency>
