@@ -1,9 +1,0 @@
-package de.variantsync.evolution.util;
-
-import java.util.Stack;
-
-public class StackUtil {
-    public static <T> void pushAToB(final Stack<T> a, final Stack<T> b) {
-        b.addAll(a);
-    }
-}
