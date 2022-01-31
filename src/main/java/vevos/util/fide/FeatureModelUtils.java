@@ -1,9 +1,13 @@
 package vevos.util.fide;
 
+import de.ovgu.featureide.fm.core.analysis.cnf.CNF;
+import de.ovgu.featureide.fm.core.analysis.cnf.analysis.HasSolutionAnalysis;
+import de.ovgu.featureide.fm.core.analysis.cnf.formula.FeatureModelFormula;
 import de.ovgu.featureide.fm.core.base.*;
 import de.ovgu.featureide.fm.core.base.impl.DefaultFeatureModelFactory;
 import de.ovgu.featureide.fm.core.base.impl.FMFactoryManager;
 import de.ovgu.featureide.fm.core.base.impl.Feature;
+import de.ovgu.featureide.fm.core.job.monitor.ConsoleTimeMonitor;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 import vevos.io.Resources;
 import vevos.util.Logger;
@@ -179,5 +183,23 @@ public class FeatureModelUtils {
             }
         }
         Files.write(pathToFile, amendedLines);
+    }
+
+    public static boolean isValid(IFeatureModel fm) {
+//        final CNF cnf = new FeatureModelCNF(fm);
+        final FeatureModelFormula featureModelFormula = new FeatureModelFormula(fm);
+        final CNF cnf = featureModelFormula.getCNF();
+        return isValid(cnf);
+    }
+
+    public static boolean isValid(CNF cnf) {
+        final HasSolutionAnalysis hasSolutionAnalysis = new HasSolutionAnalysis(cnf);
+        hasSolutionAnalysis.setTimeout(HOUR); // hour
+        try {
+            return hasSolutionAnalysis.analyze(new ConsoleTimeMonitor<>());
+        } catch (Exception e) {
+            Logger.error("Analysis failed", e);
+        }
+        return false;
     }
 }
