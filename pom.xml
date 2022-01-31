@@ -7,7 +7,7 @@
 	<!-- Adjust group id for anonymous projects -->
     <groupId>vevos</groupId>
 	<!-- Adjust the generateVariant name -->
-    <artifactId>Generation</artifactId>
+    <artifactId>Simulation</artifactId>
     <version>0.0.1</version>
 
     <properties>
