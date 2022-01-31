@@ -6,7 +6,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import vevos.Main;
+import vevos.VEVOS;
 import vevos.util.GitUtil;
 import vevos.variability.SPLCommit;
 
@@ -25,7 +25,7 @@ public class SPLRepositoryTest {
 
     @BeforeClass
     public static void setupStatic() {
-        Main.Initialize();
+        VEVOS.Initialize();
         Git testGit = null;
 
         try {

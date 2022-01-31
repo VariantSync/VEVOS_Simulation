@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 public class FeatureModelUtilsTest {
     
     static {
-        Main.Initialize();
+        VEVOS.Initialize();
     }
     
     @Test
