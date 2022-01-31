@@ -52,6 +52,11 @@ public class BusyboxRepository extends SPLRepository {
         }
     }
 
+    public void postprocess() throws GitAPIException, IOException {
+        stashCreate(true);
+        dropStash();
+    }
+
     /*
      * The code below was copied from package net.ssehub.kernel_haven.busyboot;
      * Copyright 2018-2019 University of Hildesheim, Software Systems Engineering
