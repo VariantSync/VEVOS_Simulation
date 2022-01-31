@@ -3,6 +3,7 @@ package vevos.feature.sampling;
 import de.ovgu.featureide.fm.core.analysis.cnf.CNF;
 import de.ovgu.featureide.fm.core.analysis.cnf.LiteralSet;
 import de.ovgu.featureide.fm.core.analysis.cnf.formula.FeatureModelFormula;
+import de.ovgu.featureide.fm.core.analysis.cnf.generator.configuration.AConfigurationGenerator;
 import de.ovgu.featureide.fm.core.analysis.cnf.generator.configuration.IConfigurationGenerator;
 import de.ovgu.featureide.fm.core.analysis.cnf.generator.configuration.RandomConfigurationGenerator;
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
@@ -10,6 +11,7 @@ import de.ovgu.featureide.fm.core.job.LongRunningWrapper;
 import de.ovgu.featureide.fm.core.job.monitor.NullMonitor;
 import vevos.feature.Variant;
 import vevos.feature.config.FeatureIDEConfiguration;
+import vevos.util.fide.FeatureModelUtils;
 import vevos.util.names.NameGenerator;
 import vevos.util.names.NumericNameGenerator;
 
@@ -24,9 +26,17 @@ public class FeatureIDESampler implements Sampler {
     private NameGenerator variantNameGenerator;
 
     public static FeatureIDESampler CreateRandomSampler(final int size) {
+        return CreateRandomSampler(size, FeatureModelUtils.HOUR);
+    }
+
+    public static FeatureIDESampler CreateRandomSampler(final int size, final int timeoutInMilliseconds) {
         return new FeatureIDESampler(
                 size,
-                cnf -> new RandomConfigurationGenerator(cnf, size)
+                cnf -> {
+                    final AConfigurationGenerator randomSampler =  new RandomConfigurationGenerator(cnf, size);
+                    randomSampler.setTimeout(timeoutInMilliseconds);
+                    return randomSampler;
+                }
         );
     }
 

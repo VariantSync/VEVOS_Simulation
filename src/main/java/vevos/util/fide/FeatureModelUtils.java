@@ -16,6 +16,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class FeatureModelUtils {
+    public static int HOUR = 1000 * 60 * 60;
+
     public static IFeatureModel CreateEmptyFeatureModel() {
         return DefaultFeatureModelFactory.getInstance().create();
     }
