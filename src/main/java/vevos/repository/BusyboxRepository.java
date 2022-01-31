@@ -68,8 +68,6 @@ public class BusyboxRepository extends SPLRepository {
      * See the License for the specific language governing permissions and
      * limitations under the License.
      *
-     * NOTE: The original version of this file was changed by Alexander Schultheiß,
-     * Humboldt-Universität zu Berlin, alexander.schultheiss@informatik.hu-berlin.de
      */
 
     /**

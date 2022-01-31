@@ -54,7 +54,7 @@ public class PathUtils {
 
     /**
      * Maybe bug?
-     * Alex: I often have the problem with Java that it only requests the deletion of the file, but does not
+     * I often have the problem with Java that it only requests the deletion of the file, but does not
      * guarantee that it is deleted. In the VariabilityExtraction project this was a serious issue and in the end
      * I had to call rm -f  ... as shell command.
      * @param path Path to a directory that should be deleted.

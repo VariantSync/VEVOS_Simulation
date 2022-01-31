@@ -2,7 +2,6 @@ package vevos;
 
 import de.ovgu.featureide.fm.core.analysis.cnf.formula.FeatureModelFormula;
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
-import de.variantsync.evolution.variability.pc.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.prop4j.And;
@@ -78,7 +77,7 @@ public class VariantGenerationTest {
                         // Write ground truth
                         .bind(groundTruth -> Result.Try(() -> Resources.Instance().write(
                                 Artefact.class,
-                                groundTruth.artefact(),
+                                groundTruth.variant(),
                                 variantsDir.resolve(v.getName()).resolve("ground_truth.variant.csv").path())))
                         // Write configuration
                         .bind(unit -> {
@@ -111,7 +110,7 @@ public class VariantGenerationTest {
 
     @BeforeClass
     public static void setupStatic() {
-        Main.Initialize();
+        VEVOS.Initialize();
 
         pcTest1 = new TestCaseData(
                 resDir.resolve("KernelHavenPCs.spl.csv"),
@@ -141,14 +140,14 @@ public class VariantGenerationTest {
 
         final Artefact expectedTrace;
         { // Build the expected result by hand.
-            final SourceCodeFile alex = new SourceCodeFile(FixTrueFalse.True, CaseSensitivePath.of("src", "Alex.cpp"));
+            final SourceCodeFile foofoo = new SourceCodeFile(FixTrueFalse.True, CaseSensitivePath.of("src", "FooFoo.cpp"));
             {
                 final LineBasedAnnotation a = new LineBasedAnnotation(new Literal("A"), 4, 11, AnnotationStyle.Internal);
                 a.addTrace(new LineBasedAnnotation(new Literal("B"), 6, 8, AnnotationStyle.Internal));
                 final LineBasedAnnotation tru = new LineBasedAnnotation(FixTrueFalse.True, 1, 21, AnnotationStyle.External);
                 tru.addTrace(a);
                 tru.addTrace(new LineBasedAnnotation(new Or(new And(new Literal("C"), new Literal("D")), new Literal("E")), 16, 18, AnnotationStyle.Internal));
-                alex.addTrace(tru);
+                foofoo.addTrace(tru);
             }
 
             final SourceCodeFile bar = new SourceCodeFile(new Literal("A"), CaseSensitivePath.of("src", "foo", "bar.cpp"));
@@ -158,7 +157,7 @@ public class VariantGenerationTest {
                 bar.addTrace(new LineBasedAnnotation(FixTrueFalse.False, 1, 4, AnnotationStyle.Internal));
             }
 
-            expectedTrace = new SyntheticArtefactTreeNode<>(Arrays.asList(alex, bar));
+            expectedTrace = new SyntheticArtefactTreeNode<>(Arrays.asList(foofoo, bar));
         }
 
         if (!expectedTrace.equals(dataToCheck.traces.getSuccess())) {
@@ -209,7 +208,7 @@ public class VariantGenerationTest {
     public void testPCQuery() {
         assert pcTest1.traces.isSuccess();
         final Result<Node, Exception> result =
-                pcTest1.traces.getSuccess().getPresenceConditionOf(CaseSensitivePath.of("src", "Alex.cpp"), 7);
+                pcTest1.traces.getSuccess().getPresenceConditionOf(CaseSensitivePath.of("src", "FooFoo.cpp"), 7);
         Logger.log(result);
         assert result.isSuccess();
         assert SAT.equivalent(result.getSuccess(), new And(new Literal("A"), new Literal("B")));

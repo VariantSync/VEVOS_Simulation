@@ -1,4 +1,4 @@
-class Alex {
+class FooFoo {
   void bla() {
     true_1();
 #if A

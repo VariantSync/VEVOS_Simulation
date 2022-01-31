@@ -1,23 +1,17 @@
 # VEVOS - Variant Generation
 
-## begin todos
-- Find names for
-  - **ground truth extraction**: VEVOS_Extraction, VEVOSX, VEvoSX, VEVOS.extraction
-  - **variant generation**: VEVOS_Generation, VEVOSG, VEvoSG, VEVOS.generation
-- create a release with a jar
-- documentation and javadoc
-## end todos
+VEVOS is a tool suite for the simulation of the evolution of clone-and-own projects and consists of two main components: The ground truth extraction, called VEVOS/Extraction and the variant generation called VEVOS/Generation.
 
-VEVOS is a tool suite for the simulation of the evolution of clone-and-own projects and consists of two main components: The ground truth extraction, called VEVOS_Extraction and the variant generation called VEVOS_Generation.
+This repository contains VEVOS/Generation and thus the second part of the replication package for the paper _Simulating the Evolution of Clone-and-Own Projects with VEVOS_ submitted to the International Conference on Evaluation and Assessment in Software Engineering (EASE) 2022.
+VEVOS/Generation is a java library for generating variants with ground truth from an input software product line and dataset extracted with VEVOS/Extraction.
 
-This repository contains VEVOS_Generation and thus the second part of the replication package for the paper _Simulating the Evolution of Clone-and-Own Projects with VEVOS_ submitted to the International Conference on Evaluation and Assessment in Software Engineering (EASE) 2022.
-VEVOS_Generation is a java library for generating variants with ground truth from an input software product line and dataset extracted with VEVOS_Extraction.
+![Generation Overview](docs/generation.pdf)
 
 ## Example Usage and Main Features
 
-VEVOS_Generation is supposed to be used by your research prototype on clone-and-own or variability in software systems.
+VEVOS/Generation is supposed to be used by your research prototype on clone-and-own or variability in software systems.
 In the following we give a step by step example in how the library can be used to 
-  - parse the ground truth dataset extracted by VEVOS_Extraction,
+  - parse the ground truth dataset extracted by VEVOS/Extraction,
   - traverse the datasets' evolution history,
   - sample variants randomly, or use a predefined set of variants for generation,
   - generate variants for each step in the evolution history,
@@ -42,7 +36,7 @@ We can now load the extraced ground truth dataset:
 final VariabilityDataset dataset = Resources.Instance()
         .load(VariabilityDataset.class, groundTruthDatasetPath.path());
 ```
-For loading data, VEVOS_Generation uses a central service for resource loading and writing called `Resources`.
+For loading data, VEVOS/Generation uses a central service for resource loading and writing called `Resources`.
 `Resources` provides a unified interface for reading and writing data of any type.
 Above, we use the resources to load a `VariabilityDataset` from the given path.
 Internally, `Resources` stores `ResourceLoader` and `ResourceWriter` objects that perform the file system interaction.
@@ -55,7 +49,7 @@ Note that the evolution steps are not ordered because commits in the input produ
 Alternatively, we can also request a continuous history of evolution steps instead of an unordered set.
 Therefore, a `SequenceExtractor` is used to determine how the successfully extracted commits should ordered.
 In this example, we use the `LongestNonOverlappingSequences` extractor to sort the commits into one single continuous history.
-Nevertheless, merge commits and error commits (where VEVOS_Extraction failed) are excluded from the history and thus, the returned list of commits has gaps.
+Nevertheless, merge commits and error commits (where VEVOS/Extraction failed) are excluded from the history and thus, the returned list of commits has gaps.
 Because of these gaps, we obtain a list of sub-histories, where each sub-history is continuous but sub-histories are divided by merge and error commits.
 ```java
 final Set<EvolutionStep<SPLCommit>> evolutionSteps = dataset.getEvolutionSteps();
@@ -71,7 +65,7 @@ final NonEmptyList<NonEmptyList<SPLCommit>> sequencesInHistory = history.commitS
 ```
 To generate variants, we have to specify which variants should be generated.
 Therefore, a `Sampler` is used that returns the set of variants to use for a certain feature model.
-Apart from the possibility of introducing custom samplers, VEVOS_Generation comes with two built-in ways for sampling:
+Apart from the possibility of introducing custom samplers, VEVOS/Generation comes with two built-in ways for sampling:
 Random configuration sampling using the FeatureIDE library, and constant sampling.
 Random sampling returns a random set of valid configuration from a given feature model.
 Constant sampling uses a pre-defined set of variants to generate ignoring the feature model.
@@ -104,7 +98,7 @@ for (final NonEmptyList<SPLCommit> subhistory : history.commitSequences()) {
         final Lazy<Optional<IFeatureModel>> loadFeatureModel = splCommit.featureModel();
         final Lazy<Optional<Artefact>> loadPresenceConditions = splCommit.presenceConditions();
 ```
-The history we retrieved earlier is structured into sub-histories. For each sub-history we can get the commits (as objects of type `SPLCommit`) from the input software product line that was analysed by VEVOS_Extraction.
+The history we retrieved earlier is structured into sub-histories. For each sub-history we can get the commits (as objects of type `SPLCommit`) from the input software product line that was analysed by VEVOS/Extraction.
 Through an `SPLCommit`, we can access the feature model and the presence condition of the software product line at the respective commit.
 However, both types of data are not directly accessible but have to be loaded first.
 This is what the `Lazy` type is used for: It defers the loading of data until it is actually required.
@@ -160,7 +154,7 @@ In contrast, the suffix is `.spl.csv` for ground truth presence conditions of th
                 Resources.Instance().write(Artefact.class, presenceConditionsOfVariant, variantDir.resolve("pcs.variant.csv").path());
             } 
 ```
-This was round-trip about the major features of VEVOS_Generation. Further features and convencience methods can be found in our documentation.
+This was round-trip about the major features of VEVOS/Generation. Further features and convencience methods can be found in our documentation.
 
 ## Project Structure
 
@@ -181,7 +175,7 @@ The project is structured into the following packages:
 
 ## Setup
 
-VEVOS_Generation is a Java 16 library and Maven project.
-You may include VEVOS_Generation as a pre-build `jar` file or build it on your own.
+VEVOS/Generation is a Java 16 library and Maven project.
+You may include VEVOS/Generation as a pre-build `jar` file or build it on your own.
 The `jar` file can be found in the releases of this repository.
-Building VEVOS_Generation comes with no other requirements other than Maven.
+Building VEVOS/Generation comes with no other requirements other than Maven.

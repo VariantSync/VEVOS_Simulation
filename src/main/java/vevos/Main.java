@@ -49,11 +49,7 @@ public class Main {
             return;
         }
         /*
-        Directory to which
-        https://www.informatik.hu-berlin.de/de/forschung/gebiete/mse/forsch/Data/linux-variability-debug.7z/at_download/file
-        or
-        https://www.informatik.hu-berlin.de/de/forschung/gebiete/mse/forsch/Data/busybox-complete.7z/at_download/file
-        (or any other dataset) was downloaded to
+        Directory to which dataset was downloaded to
          */
         final Path variabilityDatasetDir = Paths.get(properties.getProperty(VARIABILITY_DATASET));
 
@@ -62,7 +58,6 @@ public class Main {
             Logger.debug("Variability dataset found under " + variabilityDatasetDir);
         } else {
             Logger.error("Was not able to find directory with variability dataset under " + variabilityDatasetDir);
-            Logger.error("Please download and extract \"https://www.informatik.hu-berlin.de/de/forschung/gebiete/mse/forsch/Data/linux-variability-debug.7z/at_download/file\"");
         }
 
         // Directory to which https://github.com/torvalds/linux was cloned to
