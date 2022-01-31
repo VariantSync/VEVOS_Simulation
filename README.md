@@ -1,19 +1,19 @@
-# VEVOS - Variant Generation
+# VEVOS - Variant Simulation
 
-VEVOS is a tool suite for the simulation of the evolution of clone-and-own projects and consists of two main components: The ground truth extraction, called VEVOS/Extraction and the variant generation called VEVOS/Generation.
+VEVOS is a tool suite for the simulation of the evolution of clone-and-own projects and consists of two main components: The ground truth extraction, called VEVOS/Extraction and the variant simulation called VEVOS/Simulation.
 
-This repository contains VEVOS/Generation and thus the second part of the replication package for the paper _Simulating the Evolution of Clone-and-Own Projects with VEVOS_ submitted to the International Conference on Evaluation and Assessment in Software Engineering (EASE) 2022.
-VEVOS/Generation is a java library for generating variants with ground truth from an input software product line and dataset extracted with VEVOS/Extraction.
+This repository contains VEVOS/Simulation and thus the second part of the replication package for the paper _Simulating the Evolution of Clone-and-Own Projects with VEVOS_ submitted to the International Conference on Evaluation and Assessment in Software Engineering (EASE) 2022.
+VEVOS/Simulation is a java library for generating variants with ground truth from an input software product line and dataset extracted with VEVOS/Extraction.
 
 ![Generation Overview](docs/generation.pdf)
 
 ## Example Usage and Main Features
 
-VEVOS/Generation is supposed to be used by your research prototype on clone-and-own or variability in software systems.
+VEVOS/Simulation is supposed to be used by your research prototype on clone-and-own or variability in software systems.
 In the following we give a step by step example in how the library can be used to 
   - parse the ground truth dataset extracted by VEVOS/Extraction,
   - traverse the datasets' evolution history,
-  - sample variants randomly, or use a predefined set of variants for generation,
+  - sample variants randomly, or use a predefined set of variants for simulation,
   - generate variants for each step in the evolution history,
   - obtain the ground truth of generated variants.
 The examples source code can also be found in [GenerationExample.java](src/main/java/vevos/examples/GenerationExample.java).
@@ -36,7 +36,7 @@ We can now load the extraced ground truth dataset:
 final VariabilityDataset dataset = Resources.Instance()
         .load(VariabilityDataset.class, groundTruthDatasetPath.path());
 ```
-For loading data, VEVOS/Generation uses a central service for resource loading and writing called `Resources`.
+For loading data, VEVOS/Simulation uses a central service for resource loading and writing called `Resources`.
 `Resources` provides a unified interface for reading and writing data of any type.
 Above, we use the resources to load a `VariabilityDataset` from the given path.
 Internally, `Resources` stores `ResourceLoader` and `ResourceWriter` objects that perform the file system interaction.
@@ -65,12 +65,12 @@ final NonEmptyList<NonEmptyList<SPLCommit>> sequencesInHistory = history.commitS
 ```
 To generate variants, we have to specify which variants should be generated.
 Therefore, a `Sampler` is used that returns the set of variants to use for a certain feature model.
-Apart from the possibility of introducing custom samplers, VEVOS/Generation comes with two built-in ways for sampling:
+Apart from the possibility of introducing custom samplers, VEVOS/Simulation comes with two built-in ways for sampling:
 Random configuration sampling using the FeatureIDE library, and constant sampling.
 Random sampling returns a random set of valid configuration from a given feature model.
 Constant sampling uses a pre-defined set of variants to generate ignoring the feature model.
 The set of desired variants is encapsulated in samplers because the set of valid variants of the input product line may change when the feature model changes.
-Thus, the sampler can be invoked during each step of the variant generation.
+Thus, the sampler can be invoked during each step of the variant simulation.
 ```java
 /// Either use random sampling, ...
 final int numberOfVariantsToGenerate = 42;
@@ -154,7 +154,7 @@ In contrast, the suffix is `.spl.csv` for ground truth presence conditions of th
                 Resources.Instance().write(Artefact.class, presenceConditionsOfVariant, variantDir.resolve("pcs.variant.csv").path());
             } 
 ```
-This was round-trip about the major features of VEVOS/Generation. Further features and convencience methods can be found in our documentation.
+This was round-trip about the major features of VEVOS/Simulation. Further features and convencience methods can be found in our documentation.
 
 ## Project Structure
 
@@ -175,7 +175,7 @@ The project is structured into the following packages:
 
 ## Setup
 
-VEVOS/Generation is a Java 16 library and Maven project.
-You may include VEVOS/Generation as a pre-build `jar` file or build it on your own.
+VEVOS/Simulation is a Java 16 library and Maven project.
+You may include VEVOS/Simulation as a pre-build `jar` file or build it on your own.
 The `jar` file can be found in the releases of this repository.
-Building VEVOS/Generation comes with no other requirements other than Maven.
+Building VEVOS/Simulation comes with no other requirements other than Maven.
