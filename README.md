@@ -33,7 +33,7 @@ final CaseSensitivePath splRepositoryPath = CaseSensitivePath.of("path", "to", "
 final CaseSensitivePath groundTruthDatasetPath = CaseSensitivePath.of("path", "to", "datasets");
 final CaseSensitivePath variantsGenerationDir = CaseSensitivePath.of("directory", "to", "put", "generated", "variants");
 ```
-We can now load the extraced ground truth dataset:
+We can now load the extracted ground truth dataset:
 ```java
 final VariabilityDataset dataset = Resources.Instance()
         .load(VariabilityDataset.class, groundTruthDatasetPath.path());
@@ -45,10 +45,10 @@ Internally, `Resources` stores `ResourceLoader` and `ResourceWriter` objects tha
 This central interface allows users to add loaders and writers for further or custom data types as well as to replace existing loaders.
 Currently, `Resources` support IO of CSV files, feature models (KernelHaven `json`, and FeatureIDE `dimacs`, `xml`), variant configurations (FeatureIDE `xml`), and presence conditions of product lines and variants.
 
-From the loaded `dataset`, we can obtain the available evolution step.
-An evolution step describes a commit-sized change to the input software product line, and is defined by the (child) commit performing a change to a previous (parent) commit.
+From the loaded `dataset`, we can obtain the available evolution steps.
+An evolution step describes a commit-sized change to the input software product line, and is defined by a (child) commit performing a change to a previous (parent) commit.
 Note that the evolution steps are not ordered because commits in the input product-line repository might not have been ordered as the commits might have been extracted from different branches.
-Alternatively, we can also request a continuous history of evolution steps instead of an unordered set.
+If we require an order, we can request a continuous history of evolution steps instead of an unordered set.
 Therefore, a `SequenceExtractor` is used to determine how the successfully extracted commits should be ordered.
 In this example, we use the `LongestNonOverlappingSequences` extractor to sort the commits into one single continuous history.
 Nevertheless, merge commits and error commits (where VEVOS/Extraction failed) are excluded from the history and thus, the returned list of commits has gaps.
@@ -77,17 +77,18 @@ In particular, the `VariabilityDataset` provides:
 
 To generate variants, we have to specify which variants should be generated.
 Therefore, a `Sampler` is used that returns the set of variants to use for a certain feature model.
+The set of desired variants is encapsulated in samplers because the set of valid variants of the input product line may change when the feature model changes over time (i.e., commits).
+Thus, the sampler can be invoked during each step of the variant simulation.
 Apart from the possibility of introducing custom samplers, VEVOS/Simulation comes with two built-in ways for sampling:
 Random configuration sampling using the FeatureIDE library, and constant sampling.
-Random sampling returns a random set of valid configuration from a given feature model.
-Constant sampling uses a pre-defined set of variants to generate ignoring the feature model.
-The set of desired variants is encapsulated in samplers because the set of valid variants of the input product line may change when the feature model changes.
-Thus, the sampler can be invoked during each step of the variant simulation.
+
+[Random sampling](src/main/java/vevos/feature/sampling/FeatureIDESampler.java) returns a random set of valid configurations from a given feature model:
 ```java
 /// Either use random sampling, ...
 final int numberOfVariantsToGenerate = 42;
 Sampler variantsSampler = FeatureIDESampler.CreateRandomSampler(numberOfVariantsToGenerate);
 ```
+[Constant sampling](src/main/java/vevos/feature/sampling/ConstSampler.java) uses a pre-defined set of variants and ignores the feature model (it can easily be extended though to for example crash if a configuration violates a feature model at any commit):
 ```java
 /// ... or use a predefined set of variants.
 final Sample variantsToGenerate = new Sample(List.of(
@@ -111,7 +112,7 @@ final SPLRepository splRepository = new SPLRepository(splRepositoryPath.path());
 /// for Busybox:
 final SPLRepository splRepository = new BusyboxRepository(splRepositoryPath.path());
 ```
-Note that Busybox has a special subclass called `BusyboxRepository` that performs some necessary pre- and postprocessing on the product lines source code.
+Note that Busybox has a special subclass called `BusyboxRepository` that performs some necessary pre- and postprocessing on the product line's source code.
 
 We are now ready to traverse the evolution history to generate variants:
 ```java
@@ -126,7 +127,7 @@ However, both types of data are not directly accessible but have to be loaded fi
 This is what the `Lazy` type is used for: It defers the loading of data until it is actually required.
 This makes accessing the possibly huge (93GB for 13k commits of Linux, yikes!) ground truth dataset faster and memory-friendly as only required data is loaded into memory.
 We can start the loading process by invoking `Lazy::run` that returns a value of the loaded type (i.e., `Optional<IFeatureModel>` or `Optional<Artefact>`).
-A `Lazy` caches its loaded value so loading is only performed once.
+A `Lazy` caches its loaded value, so loading is only performed once: Subsequent calls to `Lazy::run` return the cached value directly.
 (Loaded data that is not required anymore can and should be freed by invoking `Lazy::forget`.)
 As the extraction of feature model or presence condition might have failed, both types are again wrapped in an `Optional` that contains a value if extraction was successful.
 Let's assume the extraction succeeded by just invoking `orElseThrow` here.
@@ -142,14 +143,14 @@ In case the `variantsSampler` is actually a `ConstSampler` (see above), it will 
 ```
 Optionally, we might want to filter which files of a variant to generate.
 For example, a study on evolution of code in variable software systems could be interested only in generating the changed files of a commit.
-In our case, let's just generate all variants.
+In our case, let's just generate the entire code base of each variant.
 Moreover, `VariantGenerationOptions` allow to configure some parameters for the variant generation.
 Here, we just instruct the generation to exit in case an error happens but we could for example also instruct it to ignore errors and proceed.
 ```java
         final ArtefactFilter<SourceCodeFile> artefactFilter = ArtefactFilter.KeepAll();
         final VariantGenerationOptions generationOptions = VariantGenerationOptions.ExitOnError(artefactFilter);
 ```
-To generate variants, we have to access the source code of the input software product line, at the currently inspected commit.
+To generate variants, we have to access the source code of the input software product line at the currently inspected commit.
 We thus checkout the current commit in the product line's repository:
 ```java
         try {
@@ -171,8 +172,8 @@ Finally, we may indeed generate our variants:
 The generation returns a `Result` that either represents the ground truth for the generated variant, or contains an exception if something went wrong.
 In case the generation was successful, we can inspect the `groundTruth` of the variant.
 The `groundTruth` consists of
-- the presence conditions and feature mappings of the variant (which are different from the software product lines presence conditions, for example because line numbers shifted),
-- and a block matching that for each source code file (key of the map) tells us which blocks of source code in the variant steam from which blocks of source code in the software product line.
+- the presence conditions and feature mappings of the variant (which are different from the presence conditions of the software product line, for example because line numbers shifted),
+- and a block matching that for each source code file (key of the map) tells us which blocks of source code in the variant stem from which blocks of source code in the software product line.
 We may also export ground truth data to disk for later usage.
 
 (Here it is important to export the ground truth as `.variant.csv` as this suffix is used by our `Resources` to correctly load the ground truth.
@@ -189,7 +190,7 @@ In contrast, the suffix is `.spl.csv` for ground truth presence conditions of th
             }
         }
 ```
-In case we use Busybox as our input product line, we have to clean its repository as a last step:
+In case we use Busybox as our input product line, we have to clean its repository as a last step before we can proceed to the next `SPLCommit`:
 ```java
         if (splRepository instanceof BusyboxRepository b) {
             try {
@@ -199,7 +200,7 @@ In case we use Busybox as our input product line, we have to clean its repositor
             }
         }
 ```
-This was round-trip about the major features of VEVOS/Simulation. Further features and convencience methods can be found in our documentation.
+This was round-trip about the major features of VEVOS/Simulation.
 
 ## Project Structure
 
@@ -208,15 +209,15 @@ The project is structured into the following packages:
 - [`vevos.feature`](src/main/java/vevos/feature) contains our representation for `Variant`s and their `Configuration`s as well as sampling of configurations and variants
 - [`vevos.io`](src/main/java/vevos/io) contains our `Resources` service and default implementations for loading `CSV` files, ground truth, feature models, and configurations
 - [`vevos.repository`](src/main/java/vevos/repository) contains classes for representing git repositories and commits
-- [`vevos.sat`](src/main/java/vevos/sat) contains an interface for SAT solving (currently only used for annotation simplification on demand)
+- [`vevos.sat`](src/main/java/vevos/sat) contains an interface for SAT solving (currently only used for annotation simplification, which is deactivated by default)
 - [`vevos.util`](src/main/java/vevos/util) is the conventional utils package with helper methods for interfacing with FeatureIDE, name generation, logging, and others.
 - [`vevos.variability`](src/main/java/vevos/variability) contains the classes for representing evolution histories and the ground truth dataset.
   The package is divided into:
-    - [`vevos.variability.pc`](src/main/java/vevos/variability/pc) contains classes for representing , and annotations (i.e., presence conditions and feature mappings). We store annotations in `Artefact`s that follow a tree structure similar to the annotations in preprocessor based software product lines.
-    - [`vevos.variability.pc.groundtruth`](src/main/java/vevos/variability/pc/groundtruth) contains datatypes for the ground truth of generated variants
-    - [`vevos.variability.pc.options`](src/main/java/vevos/variability/pc/options) contains the options for the variant generation process
-    - [`vevos.variability.pc.visitor`](src/main/java/vevos/variability/pc/visitor) contains an implementation of the visitor pattern for traversing and inspecting `ArtefactTree`s. Some visitors for querying a files or a line's presence condition, as well as a pretty printer can be found in `vevos.variability.pc.visitor.common`.
-    - [`vevos.variability.sequenceextraction`](src/main/java/vevos/variability/pc/sequenceextraction) contains default implementation for `SequenceExtractor`. These are algorithms for sorting pairs of commits into continuous histories (see example above).
+    - [`vevos.variability.pc`](src/main/java/vevos/variability/pc) contains classes for representing annotations (i.e., presence conditions and feature mappings). We store annotations in `Artefact`s that follow a tree structure similar to the annotations in preprocessor based software product lines.
+    - [`vevos.variability.pc.groundtruth`](src/main/java/vevos/variability/pc/groundtruth) contains datatypes for the ground truth of generated variants.
+    - [`vevos.variability.pc.options`](src/main/java/vevos/variability/pc/options) contains the options for the variant generation process.
+    - [`vevos.variability.pc.visitor`](src/main/java/vevos/variability/pc/visitor) contains an implementation of the visitor pattern for traversing and inspecting `ArtefactTree`s. Some visitors for querying a files or a line's presence condition, as well as a pretty printer can be found in [`vevos.variability.pc.visitor.common`](src/main/java/vevos/variability/pc/visitor/common).
+    - [`vevos.variability.sequenceextraction`](src/main/java/vevos/variability/sequenceextraction) contains default implementations for `SequenceExtractor`. These are algorithms for sorting pairs of commits into continuous histories (see example above).
 
 ## Setup
 
