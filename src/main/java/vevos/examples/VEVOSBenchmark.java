@@ -1,7 +1,7 @@
-package vevos;
+package vevos.examples;
 
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
-import org.junit.Test;
+import vevos.VEVOS;
 import vevos.feature.Variant;
 import vevos.feature.sampling.FeatureIDESampler;
 import vevos.feature.sampling.Sample;
@@ -37,27 +37,25 @@ public class VEVOSBenchmark {
             CaseSensitivePath groundTruthDatasetPath,
             CaseSensitivePath variantsGenerationDir,
             Function<CaseSensitivePath, SPLRepository> createRepo,
-            Consumer<SPLRepository> prepare,
             Consumer<SPLRepository> cleanup) {}
 
-    private static final CaseSensitivePath WIN_SUBMISSION_DIR = CaseSensitivePath.of("/mnt/c/Users/Paul Bittner/Documents/MyDocuments/Projects/VEVOS/Submission/Extraction/extraction-results/");
-    private static final CaseSensitivePath WSL_VARIANT_EVOLUTION_DATASETS_DIR = CaseSensitivePath.of("../variantevolution_datasets/");
+    /// TODO: Specify your paths here.
+    private static final CaseSensitivePath SPL_REPOS_DIR = CaseSensitivePath.of("path/to/SPL/repos");
+    private static final CaseSensitivePath DATASETS_DIR = CaseSensitivePath.of("path/to/datasets/");
+    private static final CaseSensitivePath VARIANT_GENERATION_DIR = CaseSensitivePath.of("path/to/datasets/");
 
     private static final Repo LINUX = new Repo(
-            WSL_VARIANT_EVOLUTION_DATASETS_DIR.resolve("linux"),
-            WIN_SUBMISSION_DIR.resolve("linux"),
-            CaseSensitivePath.of("../dockerbrezel/linux"),
+            SPL_REPOS_DIR.resolve("linux"),
+            DATASETS_DIR.resolve("linux"),
+            VARIANT_GENERATION_DIR.resolve("linux"),
             path -> new SPLRepository(path.path()),
-            s -> {},
             s -> {}
     );
     private static final Repo BUSYBOX = new Repo(
-            WSL_VARIANT_EVOLUTION_DATASETS_DIR.resolve("busybox/busybox"),
-            WSL_VARIANT_EVOLUTION_DATASETS_DIR.resolve("busybox/variability"),
-//            WIN_SUBMISSION_DIR.resolve("busybox"),
-            CaseSensitivePath.of("../dockerbrezel/busybox"),
+            SPL_REPOS_DIR.resolve("busybox"),
+            DATASETS_DIR.resolve("busybox"),
+            VARIANT_GENERATION_DIR.resolve("busybox"),
             path -> new BusyboxRepository(path.path()),
-            s -> { },
             s -> {
                 BusyboxRepository b = Cast.unchecked(s);
                 try {
@@ -76,7 +74,7 @@ public class VEVOSBenchmark {
         return msg;
     }
 
-    private static void resultEntry(final StringBuilder builder, String entry) {
+    private static void resultEntry(final StringBuilder builder, final String entry) {
         builder.append(entry).append("\r\n");
     }
 
@@ -118,7 +116,6 @@ public class VEVOSBenchmark {
         for (final SPLCommit splCommit : subhistory) {
             Logger.info("-- Processing commit " + splCommit.id() + " --");
             splRepo.checkoutCommit(splCommit);
-            repo.prepare.accept(splRepo);
 
             clock.start();
             final Lazy<Optional<IFeatureModel>> loadFeatureModel = splCommit.featureModel();
@@ -193,13 +190,26 @@ public class VEVOSBenchmark {
         TextIO.write(repo.variantsGenerationDir.resolve("benchmarkdata.txt").path(), result);
     }
 
-    @Test
-    public void benchmarkLinux() throws Exception {
+    public static void benchmarkLinux() throws Exception {
         benchmark(LINUX);
     }
 
-    @Test
-    public void benchmarkBusybox() throws Exception {
+    public static void benchmarkBusybox() throws Exception {
         benchmark(BUSYBOX);
+    }
+
+    public static void main(final String[] args) throws Exception {
+        if (args.length < 1) {
+            Logger.error("Expected exactly one argument that either is \"busybox\" or \"linux\"!");
+        }
+
+        final String repoName = args[0];
+        if ("linux".equalsIgnoreCase(repoName)) {
+            benchmarkLinux();
+        } else if ("busybox".equalsIgnoreCase(repoName)) {
+            benchmarkBusybox();
+        } else {
+            Logger.error("Unknown repository " + repoName + "! Expected \"busybox\" or \"linux\"!");
+        }
     }
 }

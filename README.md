@@ -16,14 +16,16 @@ In the following we give a step by step example in how the library can be used t
   - sample variants randomly, or use a predefined set of variants for simulation,
   - generate variants for each step in the evolution history,
   - obtain the ground truth of generated variants.
-The examples source code can also be found in [GenerationExample.java](src/main/java/vevos/examples/GenerationExample.java).
-We also give a brief introduction of the key features of the library we use in the following example.
+
+The example's source code can also be found in [GenerationExample.java](src/main/java/vevos/examples/GenerationExample.java).
+A similar and executable version of this example can be found in [VEVOSBenchmark.java](src/main/java/vevos/examples/VEVOSBenchmark.java), which gathers some rudimentary data on runtime performance for Linux and Busybox variant simulation. 
 
 At the very begin of your program, you have to initialize the library:
 ```java
 VEVOS.Initialize();
 ```
 This initializes the libraries logging and binding to FeatureIDE.
+You may also set a log level for the library here via `Logger::setLogLevel`.
 
 We can then start by specifying the necessary paths to (1) the git repository of the input software product line, (2) the directory of the extracted ground truth dataset, (3) and a directory to which we want to generate variants. (We use case sensitive paths to also allow the generation of Linux variants under Windows).
 ```java
@@ -47,7 +49,7 @@ From the loaded `dataset`, we can obtain the available evolution step.
 An evolution step describes a commit-sized change to the input software product line, and is defined by the (child) commit performing a change to a previous (parent) commit.
 Note that the evolution steps are not ordered because commits in the input product-line repository might not have been ordered as the commits might have been extracted from different branches.
 Alternatively, we can also request a continuous history of evolution steps instead of an unordered set.
-Therefore, a `SequenceExtractor` is used to determine how the successfully extracted commits should ordered.
+Therefore, a `SequenceExtractor` is used to determine how the successfully extracted commits should be ordered.
 In this example, we use the `LongestNonOverlappingSequences` extractor to sort the commits into one single continuous history.
 Nevertheless, merge commits and error commits (where VEVOS/Extraction failed) are excluded from the history and thus, the returned list of commits has gaps.
 Because of these gaps, we obtain a list of sub-histories, where each sub-history is continuous but sub-histories are divided by merge and error commits.
@@ -63,6 +65,16 @@ final VariabilityHistory history = dataset.getVariabilityHistory(new LongestNonO
 /// Thus, we divide the history into sub-histories at each failed commit.
 final NonEmptyList<NonEmptyList<SPLCommit>> sequencesInHistory = history.commitSequences();
 ```
+A sequence extraction might fail, for example if all commits are unrelated and no continuous history could be derived.
+In case this happens, as an alternative, you can either iterate over all `evolutionSteps` or iterate over all success commits in isolation:
+```java
+final List<SPLCommit> successCommits = dataset.getSuccessCommits();
+```
+In particular, the `VariabilityDataset` provides:
+- _success commits_ for which the extraction of feature mappings and feature model succeeded,
+- _partial success_ commits for which part of the extraction failed; Usually, a partial success commit has feature mappings but no file presence condition and no feature model,
+- _error commits_ for which the extraction failed.
+
 To generate variants, we have to specify which variants should be generated.
 Therefore, a `Sampler` is used that returns the set of variants to use for a certain feature model.
 Apart from the possibility of introducing custom samplers, VEVOS/Simulation comes with two built-in ways for sampling:
@@ -91,6 +103,16 @@ final Sample variantsToGenerate = new Sample(List.of(
 
 Sampler variantsSampler = new ConstSampler(variantsToGenerate);
 ```
+For the generation of variants we have to be able to access the repository of the input software product line to retrieve its source code.
+We reference the repository with an instance of `SPLRepository`:
+```java
+/// in general:
+final SPLRepository splRepository = new SPLRepository(splRepositoryPath.path());
+/// for Busybox:
+final SPLRepository splRepository = new BusyboxRepository(splRepositoryPath.path());
+```
+Note that Busybox has a special subclass called `BusyboxRepository` that performs some necessary pre- and postprocessing on the product lines source code.
+
 We are now ready to traverse the evolution history to generate variants:
 ```java
 for (final NonEmptyList<SPLCommit> subhistory : history.commitSequences()) {
@@ -108,6 +130,7 @@ A `Lazy` caches its loaded value so loading is only performed once.
 (Loaded data that is not required anymore can and should be freed by invoking `Lazy::forget`.)
 As the extraction of feature model or presence condition might have failed, both types are again wrapped in an `Optional` that contains a value if extraction was successful.
 Let's assume the extraction succeeded by just invoking `orElseThrow` here.
+(However, if also partial success commits are considered, one might need a more careful procedure here.)
 ```java
         final Artefact pcs = loadPresenceConditions.run().orElseThrow();
         final IFeatureModel featureModel = loadFeatureModel.run().orElseThrow();
@@ -126,6 +149,17 @@ Here, we just instruct the generation to exit in case an error happens but we co
         final ArtefactFilter<SourceCodeFile> artefactFilter = ArtefactFilter.KeepAll();
         final VariantGenerationOptions generationOptions = VariantGenerationOptions.ExitOnError(artefactFilter);
 ```
+To generate variants, we have to access the source code of the input software product line, at the currently inspected commit.
+We thus checkout the current commit in the product line's repository:
+```java
+        try {
+            splRepository.checkoutCommit(splCommit);
+        } catch (final GitAPIException | IOException e) {
+            Logger.error("Failed to checkout commit " + splCommit.id() + " of " + splRepository.getPath() + "!", e);
+            return;
+        }
+```
+
 Finally, we may indeed generate our variants:
 ```java
         for (final Variant variant : variants) {
@@ -152,7 +186,18 @@ In contrast, the suffix is `.spl.csv` for ground truth presence conditions of th
 
                 /// We can also export the ground truth PCs of the variant.
                 Resources.Instance().write(Artefact.class, presenceConditionsOfVariant, variantDir.resolve("pcs.variant.csv").path());
-            } 
+            }
+        }
+```
+In case we use Busybox as our input product line, we have to clean its repository as a last step:
+```java
+        if (splRepository instanceof BusyboxRepository b) {
+            try {
+                b.postprocess();
+            } catch (final GitAPIException | IOException e) {
+                Logger.error("Busybox postprocessing failed, please clean up manually (e.g., git stash, git stash drop) at " + splRepository.getPath(), e);
+            }
+        }
 ```
 This was round-trip about the major features of VEVOS/Simulation. Further features and convencience methods can be found in our documentation.
 

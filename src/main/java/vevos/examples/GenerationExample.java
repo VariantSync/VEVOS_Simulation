@@ -1,6 +1,7 @@
 package vevos.examples;
 
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import vevos.VEVOS;
 import vevos.feature.Variant;
 import vevos.feature.config.SimpleConfiguration;
@@ -12,6 +13,8 @@ import vevos.functjonal.Lazy;
 import vevos.functjonal.Result;
 import vevos.functjonal.list.NonEmptyList;
 import vevos.io.Resources;
+import vevos.repository.BusyboxRepository;
+import vevos.repository.SPLRepository;
 import vevos.util.Logger;
 import vevos.util.io.CaseSensitivePath;
 import vevos.variability.EvolutionStep;
@@ -26,6 +29,7 @@ import vevos.variability.pc.options.ArtefactFilter;
 import vevos.variability.pc.options.VariantGenerationOptions;
 import vevos.variability.sequenceextraction.LongestNonOverlappingSequences;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -65,6 +69,10 @@ public class GenerationExample {
         }
         Logger.info("");
 
+        /// In case the sequence extraction fails, you might either use the evolutionSteps directly or
+        /// iterate over all commits in isolation:
+//        final List<SPLCommit> successCommits = dataset.getSuccessCommits();
+
         /// Now lets use the variant generator to generate variants.
         /// First, create a sampler that determines which variants to generate at each evolution step.
         Sampler variantsSampler;
@@ -87,6 +95,15 @@ public class GenerationExample {
             ));
             variantsSampler = new ConstSampler(variantsToGenerate);
         }
+
+        /// Access the input software-product line's repository.
+        /// In case you use Busybox as input SPL, use the BusyboxRepository class.
+        /// Busybox requires special pre- and postprocessing steps upon commit checkout, that are handled by the
+        /// BusyboxRepository class.
+        final SPLRepository splRepository =
+                new SPLRepository(splRepositoryPath.path());
+//                new BusyboxRepository(splRepositoryPath.path());
+
 
         /// For the entire history
         for (final NonEmptyList<SPLCommit> subhistory : history.commitSequences()) {
@@ -117,6 +134,14 @@ public class GenerationExample {
                 final ArtefactFilter<SourceCodeFile> artefactFilter = ArtefactFilter.KeepAll();
                 final VariantGenerationOptions generationOptions = VariantGenerationOptions.ExitOnError(artefactFilter);
 
+                /// Checkout the considered commit of the input SPL to access its source code.
+                try {
+                    splRepository.checkoutCommit(splCommit);
+                } catch (final GitAPIException | IOException e) {
+                    Logger.error("Failed to checkout commit " + splCommit.id() + " of " + splRepository.getPath() + "!", e);
+                    return;
+                }
+
                 for (final Variant variant : variants) {
                     /// Let's put the variant into our target directory but indexed by commit hash and its name.
                     final CaseSensitivePath variantDir = variantsGenerationDir.resolve(splCommit.id(), variant.getName());
@@ -141,6 +166,14 @@ public class GenerationExample {
                                         + variant.getName()
                                         + " at SPL commit " + splCommit.id() + "!",
                                 result.getFailure());
+                    }
+                }
+
+                if (splRepository instanceof BusyboxRepository b) {
+                    try {
+                        b.postprocess();
+                    } catch (final GitAPIException | IOException e) {
+                        Logger.error("Busybox postprocessing failed, please clean up manually (e.g., git stash, git stash drop) at " + splRepository.getPath(), e);
                     }
                 }
             }
