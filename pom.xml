@@ -5,22 +5,27 @@
     <modelVersion>4.0.0</modelVersion>
 
 	<!-- Adjust group id for anonymous projects -->
-    <groupId>de.hub.mse</groupId>
-	<!-- Adjust the project name -->
-    <artifactId>MyProject</artifactId>
-    <version>0.0.1</version>
+    <groupId>vevos</groupId>
+	<!-- Adjust the generateVariant name -->
+    <artifactId>Simulation</artifactId>
+    <version>1.0.0</version>
 
     <properties>
         <!-- Adjust your java version here -->
-        <java.version>15</java.version>
-		<!-- Adjust the path to the class that contains the main-method, that is to be executed, here -->
-		<path.to.main>${groupId}.MyMainClass</path.to.main>
+        <java.version>16</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <maven.compiler.release>${java.version}</maven.compiler.release>
         <junit.jupiter.version>5.6.0</junit.jupiter.version>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>repo</id>
+            <url>file://${project.basedir}/repo</url>
+        </repository>
+    </repositories>
 
     <build>
         <plugins>
@@ -37,13 +42,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.2.0</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <mainClass>${path.to.main}</mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -56,38 +54,71 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <archive>
-                        <manifest>
-                            <mainClass>${path.to.main}</mainClass>
-                        </manifest>
-                    </archive>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
                 </configuration>
             </plugin>
-            <plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.2</version>
-            </plugin>
         </plugins>
     </build>
 
-	<!-- IN CASE YOU NEED ANY LOCAL LIBS
-    <repositories>
-        <repository>
-            <id>local-maven-repo</id>
-            <url>file:///${project.basedir}/local-maven-repo</url>
-        </repository>
-    </repositories>
-	-->
-
     <dependencies>
+<!--        Local dependencies-->
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>${junit.jupiter.version}</version>
+            <groupId>vevos</groupId>
+            <artifactId>functjonal</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>de.ovgu</groupId>
+            <artifactId>featureide.lib.fm</artifactId>
+            <version>3.8.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.sat4j</groupId>
+            <artifactId>core</artifactId>
+            <version>2.3.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>net.ssehub</groupId>
+            <artifactId>kernel_haven</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>net.ssehub.kernelhaven</groupId>
+            <artifactId>kconfigreader</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+<!--        -->
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.eclipse.jgit</groupId>
+            <artifactId>org.eclipse.jgit</artifactId>
+            <version>5.11.1.202105131744-r</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>21.0.1</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>net.lingala.zip4j</groupId>
+            <artifactId>zip4j</artifactId>
+            <version>2.9.0</version>
         </dependency>
     </dependencies>
 </project>

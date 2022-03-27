@@ -6,8 +6,11 @@
 .settings/
 build.properties
 
+temporary-test-repos/
+
 target/
 bin/
+./data/
 __pycache__
 
 */latex/*.aux
@@ -16,3 +19,5 @@ __pycache__
 */latex/*.log
 */latex/*.out
 */latex/*.synctex.gz
+
+/src/test/resources/variantgeneration/gen/
