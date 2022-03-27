@@ -7,8 +7,8 @@
 	<!-- Adjust group id for anonymous projects -->
     <groupId>vevos</groupId>
 	<!-- Adjust the generateVariant name -->
-    <artifactId>Generation</artifactId>
-    <version>0.0.1</version>
+    <artifactId>Simulation</artifactId>
+    <version>1.0.0</version>
 
     <properties>
         <!-- Adjust your java version here -->
@@ -19,6 +19,13 @@
         <maven.compiler.release>${java.version}</maven.compiler.release>
         <junit.jupiter.version>5.6.0</junit.jupiter.version>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>repo</id>
+            <url>file://${project.basedir}/repo</url>
+        </repository>
+    </repositories>
 
     <build>
         <plugins>
@@ -35,13 +42,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.2.0</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <mainClass>${path.to.main}</mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -54,11 +54,6 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <archive>
-                        <manifest>
-                            <mainClass>${path.to.main}</mainClass>
-                        </manifest>
-                    </archive>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
@@ -67,14 +62,39 @@
         </plugins>
     </build>
 
-    <repositories>
-        <repository>
-            <id>local-maven-repo</id>
-            <url>file:///${project.basedir}/local-maven-repo</url>
-        </repository>
-    </repositories>
-
     <dependencies>
+<!--        Local dependencies-->
+        <dependency>
+            <groupId>vevos</groupId>
+            <artifactId>functjonal</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>de.ovgu</groupId>
+            <artifactId>featureide.lib.fm</artifactId>
+            <version>3.8.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.sat4j</groupId>
+            <artifactId>core</artifactId>
+            <version>2.3.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>net.ssehub</groupId>
+            <artifactId>kernel_haven</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>net.ssehub.kernelhaven</groupId>
+            <artifactId>kconfigreader</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+<!--        -->
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -88,37 +108,13 @@
             <version>5.11.1.202105131744-r</version>
         </dependency>
 
-<!--        Local dependencies-->
-        <dependency>
-            <groupId>de.variantsync</groupId>
-            <artifactId>Functjonal</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>de.ovgu</groupId>
-            <artifactId>featureide.lib.fm</artifactId>
-            <version>3.7.2</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.sat4j</groupId>
-            <artifactId>core</artifactId>
-            <version>2.3.5</version>
-        </dependency>
-<!--        -->
-
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
             <version>21.0.1</version>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>net.ssehub</groupId>
-            <artifactId>kernel_haven</artifactId>
-            <version>1.0.0</version>
-        </dependency>
+
         <dependency>
             <groupId>net.lingala.zip4j</groupId>
             <artifactId>zip4j</artifactId>
