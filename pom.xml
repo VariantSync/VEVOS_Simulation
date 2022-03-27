@@ -20,6 +20,13 @@
         <junit.jupiter.version>5.6.0</junit.jupiter.version>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>repo</id>
+            <url>file://${project.basedir}/repo</url>
+        </repository>
+    </repositories>
+
     <build>
         <plugins>
             <plugin>
@@ -59,42 +66,32 @@
 <!--        Local dependencies-->
         <dependency>
             <groupId>vevos</groupId>
-            <artifactId>Functjonal</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/src/main/resources/lib/Functjonal-1.0-SNAPSHOT.jar</systemPath>
+            <artifactId>functjonal</artifactId>
+            <version>1.0.0</version>
         </dependency>
 
         <dependency>
             <groupId>de.ovgu</groupId>
             <artifactId>featureide.lib.fm</artifactId>
             <version>3.8.1</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/src/main/resources/lib/de.ovgu.featureide.lib.fm-v3.8.1.jar</systemPath>
         </dependency>
 
         <dependency>
             <groupId>org.sat4j</groupId>
             <artifactId>core</artifactId>
             <version>2.3.5</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/src/main/resources/lib/org.sat4j.core.jar</systemPath>
         </dependency>
 
         <dependency>
             <groupId>net.ssehub</groupId>
             <artifactId>kernel_haven</artifactId>
             <version>1.0.0</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/src/main/resources/lib/kernel_haven-1.0.0.jar</systemPath>
         </dependency>
 
         <dependency>
             <groupId>net.ssehub.kernelhaven</groupId>
             <artifactId>kconfigreader</artifactId>
             <version>1.0.0</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/src/main/resources/lib/kconfigreader-1.0.0.jar</systemPath>
         </dependency>
 <!--        -->
 
