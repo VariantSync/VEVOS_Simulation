@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
 	<!-- Adjust group id for anonymous projects -->
-    <groupId>vevos</groupId>
+    <groupId>de.variantsync.vevos</groupId>
 	<!-- Adjust the generateVariant name -->
     <artifactId>Simulation</artifactId>
     <version>1.0.0</version>
