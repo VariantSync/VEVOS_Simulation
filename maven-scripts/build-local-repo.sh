@@ -9,10 +9,10 @@ mvn install:install-file \
 
 mvn install:install-file \
 -DlocalRepositoryPath=../repo \
-   -Dfile=../src/main/resources/lib/Functjonal-1.0-SNAPSHOT.jar \
-   -DgroupId=vevos \
+   -Dfile=../src/main/resources/lib/functjonal-1.0-SNAPSHOT.jar \
+   -DgroupId=org.variantsync \
    -DartifactId=functjonal \
-   -Dversion=1.0.0 \
+   -Dversion=1.0-SNAPSHOT \
    -Dpackaging=jar \
    -DgeneratePom=true
 

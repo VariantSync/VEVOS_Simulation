@@ -17,8 +17,8 @@ In the following we give a step by step example in how the library can be used t
   - generate variants for each step in the evolution history,
   - obtain the ground truth of generated variants.
 
-The example's source code can also be found in [GenerationExample.java](src/main/java/simulation/examples/GenerationExample.java).
-A similar and executable version of this example can be found in [VEVOSBenchmark.java](src/main/java/simulation/examples/VEVOSBenchmark.java), which gathers some rudimentary data on runtime performance for Linux and Busybox variant simulation. 
+The example's source code can also be found in [GenerationExample.java](src/main/java/org/variantsync/vevos/simulation/examples/GenerationExample.java).
+A similar and executable version of this example can be found in [VEVOSBenchmark.java](src/main/java/org/variantsync/vevos/simulation/examples/VEVOSBenchmark.java), which gathers some rudimentary data on runtime performance for Linux and Busybox variant simulation. 
 
 At the very begin of your program, you have to initialize the library:
 ```java
@@ -82,13 +82,13 @@ Thus, the sampler can be invoked during each step of the variant simulation.
 Apart from the possibility of introducing custom samplers, VEVOS/Simulation comes with two built-in ways for sampling:
 Random configuration sampling using the FeatureIDE library, and constant sampling.
 
-[Random sampling](src/main/java/simulation/feature/sampling/FeatureIDESampler.java) returns a random set of valid configurations from a given feature model:
+[Random sampling](src/main/java/org/variantsync/vevos/simulation/feature/sampling/FeatureIDESampler.java) returns a random set of valid configurations from a given feature model:
 ```java
 /// Either use random sampling, ...
 final int numberOfVariantsToGenerate = 42;
 Sampler variantsSampler = FeatureIDESampler.CreateRandomSampler(numberOfVariantsToGenerate);
 ```
-[Constant sampling](src/main/java/simulation/feature/sampling/ConstSampler.java) uses a pre-defined set of variants and ignores the feature model (it can easily be extended though to for example crash if a configuration violates a feature model at any commit):
+[Constant sampling](src/main/java/org/variantsync/vevos/simulation/feature/sampling/ConstSampler.java) uses a pre-defined set of variants and ignores the feature model (it can easily be extended though to for example crash if a configuration violates a feature model at any commit):
 ```java
 /// ... or use a predefined set of variants.
 final Sample variantsToGenerate = new Sample(List.of(
@@ -205,19 +205,19 @@ This was round-trip about the major features of VEVOS/Simulation.
 ## Project Structure
 
 The project is structured into the following packages:
-- [`vevos.examples`](src/main/java/simulation/examples) contains the code of our example described above
-- [`vevos.feature`](src/main/java/simulation/feature) contains our representation for `Variant`s and their `Configuration`s as well as sampling of configurations and variants
-- [`vevos.io`](src/main/java/simulation/io) contains our `Resources` service and default implementations for loading `CSV` files, ground truth, feature models, and configurations
-- [`vevos.repository`](src/main/java/simulation/repository) contains classes for representing git repositories and commits
-- [`vevos.sat`](src/main/java/simulation/sat) contains an interface for SAT solving (currently only used for annotation simplification, which is deactivated by default)
-- [`vevos.util`](src/main/java/simulation/util) is the conventional utils package with helper methods for interfacing with FeatureIDE, name generation, logging, and others.
-- [`vevos.variability`](src/main/java/simulation/variability) contains the classes for representing evolution histories and the ground truth dataset.
+- [`vevos.examples`](src/main/java/org/variantsync/vevos/simulation/examples) contains the code of our example described above
+- [`vevos.feature`](src/main/java/org/variantsync/vevos/simulation/feature) contains our representation for `Variant`s and their `Configuration`s as well as sampling of configurations and variants
+- [`vevos.io`](src/main/java/org/variantsync/vevos/simulation/io) contains our `Resources` service and default implementations for loading `CSV` files, ground truth, feature models, and configurations
+- [`vevos.repository`](src/main/java/org/variantsync/vevos/simulation/repository) contains classes for representing git repositories and commits
+- [`vevos.sat`](src/main/java/org/variantsync/vevos/simulation/sat) contains an interface for SAT solving (currently only used for annotation simplification, which is deactivated by default)
+- [`vevos.util`](src/main/java/org/variantsync/vevos/simulation/util) is the conventional utils package with helper methods for interfacing with FeatureIDE, name generation, logging, and others.
+- [`vevos.variability`](src/main/java/org/variantsync/vevos/simulation/variability) contains the classes for representing evolution histories and the ground truth dataset.
   The package is divided into:
-    - [`vevos.variability.pc`](src/main/java/simulation/variability/pc) contains classes for representing annotations (i.e., presence conditions and feature mappings). We store annotations in `Artefact`s that follow a tree structure similar to the annotations in preprocessor based software product lines.
-    - [`vevos.variability.pc.groundtruth`](src/main/java/simulation/variability/pc/groundtruth) contains datatypes for the ground truth of generated variants.
-    - [`vevos.variability.pc.options`](src/main/java/simulation/variability/pc/options) contains the options for the variant generation process.
-    - [`vevos.variability.pc.visitor`](src/main/java/simulation/variability/pc/visitor) contains an implementation of the visitor pattern for traversing and inspecting `ArtefactTree`s. Some visitors for querying a files or a line's presence condition, as well as a pretty printer can be found in [`vevos.variability.pc.visitor.common`](src/main/java/simulation/variability/pc/visitor/common).
-    - [`vevos.variability.sequenceextraction`](src/main/java/simulation/variability/sequenceextraction) contains default implementations for `SequenceExtractor`. These are algorithms for sorting pairs of commits into continuous histories (see example above).
+    - [`vevos.variability.pc`](src/main/java/org/variantsync/vevos/simulation/variability/pc) contains classes for representing annotations (i.e., presence conditions and feature mappings). We store annotations in `Artefact`s that follow a tree structure similar to the annotations in preprocessor based software product lines.
+    - [`vevos.variability.pc.groundtruth`](src/main/java/org/variantsync/vevos/simulation/variability/pc/groundtruth) contains datatypes for the ground truth of generated variants.
+    - [`vevos.variability.pc.options`](src/main/java/org/variantsync/vevos/simulation/variability/pc/options) contains the options for the variant generation process.
+    - [`vevos.variability.pc.visitor`](src/main/java/org/variantsync/vevos/simulation/variability/pc/visitor) contains an implementation of the visitor pattern for traversing and inspecting `ArtefactTree`s. Some visitors for querying a files or a line's presence condition, as well as a pretty printer can be found in [`vevos.variability.pc.visitor.common`](src/main/java/org/variantsync/vevos/simulation/variability/pc/visitor/common).
+    - [`vevos.variability.sequenceextraction`](src/main/java/org/variantsync/vevos/simulation/variability/sequenceextraction) contains default implementations for `SequenceExtractor`. These are algorithms for sorting pairs of commits into continuous histories (see example above).
 
 ## Setup
 
