@@ -73,7 +73,7 @@ public class VariantGenerationTest {
                 traceToTest
                         .generateVariant(v, splDir,
                                 variantsDir.resolve(v.getName()),
-                                VariantGenerationOptions.ExitOnErrorButAllowNonExistentFiles(ArtefactFilter.KeepAll()))
+                                VariantGenerationOptions.ExitOnErrorButAllowNonExistentFiles(false, ArtefactFilter.KeepAll()))
                         // Write ground truth
                         .bind(groundTruth -> Result.Try(() -> Resources.Instance().write(
                                 Artefact.class,
@@ -233,6 +233,7 @@ public class VariantGenerationTest {
 
     @Test
     public void testLinuxSampleGeneration() {
+        Result.HARD_CRASH_ON_TRY = true;
         assert linuxSample.generate(
                 List.of(new Variant("all", new SayYesToAllConfiguration())),
                 false);

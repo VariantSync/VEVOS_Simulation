@@ -19,6 +19,9 @@ import java.util.stream.Stream;
 // TODO: Implement readLinesAs(Path p, Function<> f) with which one can load a file into a desired format
 
 public class TextIO {
+    public final static String LINEBREAK = "\r\n";
+    public final static String LINEBREAK_REGEX = "\\r?\\n";
+
     public static String[] readLinesAsArray(final File file) throws IOException {
         final LinkedList<String> lines = new LinkedList<>();
         try (final BufferedReader reader = new BufferedReader(new FileReader(file))) {
@@ -50,7 +53,20 @@ public class TextIO {
      * @return The lines that were read
      */
     public static Result<List<String>, IOException> readLinesTrimmed(final Path p) {
-        return Result.Try(() -> Files.readAllLines(p).stream().map(String::trim).filter(s -> !s.isEmpty()).collect(Collectors.toList()));
+        return readLines(p).map(lines ->
+                lines.stream()
+                        .map(String::trim)
+                        .filter(s -> !s.isEmpty())
+                        .collect(Collectors.toList()));
+    }
+
+    public static Result<List<String>, IOException> readLines(final Path p) {
+        try (final BufferedReader br = new BufferedReader(new FileReader(p.toFile()));
+             final Stream<String> linesStream = br.lines()) {
+            return Result.Success(linesStream.toList());
+        } catch (final IOException e) {
+            return Result.Failure(e);
+        }
     }
 
     /**
@@ -65,16 +81,16 @@ public class TextIO {
         /// Do not use Files.readAllLines(sourceFile) as it assumes the files to be in UTF-8 and crashes otherwise.
         //  Do also not use try (final Stream<String> linesStream = new BufferedReader(new FileReader(sourceFile.toFile())).lines()) {
         // Apparently, Java is stupid and the BufferedReader is not closed by the try-with-resources if it is anonymous.
-        try (BufferedReader br = new BufferedReader(new FileReader(sourceFile.toFile()));
-             Stream<String> linesStream = br.lines()) {
-            final List<String> read_lines = linesStream.collect(Collectors.toList());
+        try (final BufferedReader br = new BufferedReader(new FileReader(sourceFile.toFile()));
+             final Stream<String> linesStream = br.lines()) {
+            final List<String> read_lines = linesStream.toList();
             final StringBuilder linesToWrite = new StringBuilder();
 
             for (final Integer lineNo : linesToTake) {
-                int lineIndex = lineNo - 1;
+                final int lineIndex = lineNo - 1;
                 // skip lines that exceed the content
                 if (lineIndex >= read_lines.size()) {
-                    String logMessage = "Skipped copying line "
+                    final String logMessage = "Skipped copying line "
                             + lineNo
                             + " from \""
                             + sourceFile
