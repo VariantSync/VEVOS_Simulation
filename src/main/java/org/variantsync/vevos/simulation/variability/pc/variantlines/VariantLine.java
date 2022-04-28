@@ -14,7 +14,7 @@ public record VariantLine(Integer lineNumber) implements VariantLineChunk {
 
         if (sourceLineNo >= splFileLines.size()) {
             final String logMessage = "Skipped copying line "
-                    + sourceLineNo
+                    + lineNumber
                     + " as it is out of bounds [1, "
                     + splFileLines.size()
                     + "]!";
