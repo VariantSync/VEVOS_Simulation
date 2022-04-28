@@ -71,7 +71,7 @@ public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
                             .readLines(sourceFile.path())
                             .bind(splLines -> Result.Try(() ->
                                     // write all lines that should be included in the variant to the text file
-                                    TextIO.write(
+                                    TextIO.append(
                                             targetFile.path(),
                                             String.join(
                                                     TextIO.LINEBREAK,

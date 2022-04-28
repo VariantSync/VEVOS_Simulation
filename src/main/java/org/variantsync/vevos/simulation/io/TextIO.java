@@ -136,6 +136,18 @@ public class TextIO {
         Files.writeString(p, text, StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
     }
 
+    /**
+     * Append the given text to the given file.
+     * Assumes that the given file already exists.
+     *
+     * @param p    Existing file to append text to.
+     * @param text Text to write to file.
+     * @throws IOException if an I/O error occurs while writing to the file, or the text cannot be encoded using the specified charset.
+     */
+    public static void append(final Path p, final String text) throws IOException {
+        Files.writeString(p, text, StandardCharsets.UTF_8, StandardOpenOption.APPEND);
+    }
+
     public static String readAsString(final Path p) throws IOException {
         try (final BufferedReader reader = new BufferedReader(new FileReader(p.toFile()))) {
             return reader.lines().collect(Collectors.joining());
