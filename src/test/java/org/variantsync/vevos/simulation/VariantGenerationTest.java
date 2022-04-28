@@ -111,6 +111,7 @@ public class VariantGenerationTest {
     @BeforeClass
     public static void setupStatic() {
         VEVOS.Initialize();
+        Result.HARD_CRASH_ON_TRY = true;
 
         pcTest1 = new TestCaseData(
                 resDir.resolve("KernelHavenPCs.spl.csv"),
@@ -233,7 +234,6 @@ public class VariantGenerationTest {
 
     @Test
     public void testLinuxSampleGeneration() {
-        Result.HARD_CRASH_ON_TRY = true;
         assert linuxSample.generate(
                 List.of(new Variant("all", new SayYesToAllConfiguration())),
                 false);
