@@ -70,60 +70,6 @@ public class TextIO {
     }
 
     /**
-     * Extract all lines in [lineFrom, lineTo] = i from sourceFile and put them into targetFile for each interval i in linesToTake.
-     *
-     * @param sourceFile  File from which to read lines. Won't be altered.
-     * @param targetFile  File to write the desired lines to.
-     * @param linesToTake Intervals of lines to copy.
-     * @throws IOException May occur upon writing or creating files.
-     */
-    public static void copyTextLines(final Path sourceFile, final Path targetFile, final List<Integer> linesToTake) throws IOException {
-        /// Do not use Files.readAllLines(sourceFile) as it assumes the files to be in UTF-8 and crashes otherwise.
-        //  Do also not use try (final Stream<String> linesStream = new BufferedReader(new FileReader(sourceFile.toFile())).lines()) {
-        // Apparently, Java is stupid and the BufferedReader is not closed by the try-with-resources if it is anonymous.
-        try (final BufferedReader br = new BufferedReader(new FileReader(sourceFile.toFile()));
-             final Stream<String> linesStream = br.lines()) {
-            final List<String> read_lines = linesStream.toList();
-            final StringBuilder linesToWrite = new StringBuilder();
-
-            for (final Integer lineNo : linesToTake) {
-                final int lineIndex = lineNo - 1;
-                // skip lines that exceed the content
-                if (lineIndex >= read_lines.size()) {
-                    final String logMessage = "Skipped copying line "
-                            + lineNo
-                            + " from \""
-                            + sourceFile
-                            + "\" to \""
-                            + targetFile
-                            + "\" as it is out of bounds [1, "
-                            + read_lines.size()
-                            + "]!";
-
-                    if (lineIndex > read_lines.size()) {
-                        // This was logged frequently and is caused by https://bugs.openjdk.java.net/browse/JDK-8199413
-                        // Skipping the line really is the best solution, as the empty line is created by appending a line separator
-                        // to the previous line. I added the additional if-statement, to only catch cases in which more than one line 
-                        // is out of bounds, which indicates a serious problem. 
-                        Logger.error(logMessage);
-                    }
-                } else {
-                    // The list read_lines is 0-based.
-                    // Given lines are 1-based because line numbers are typically given 1-based.
-                    // Thus, we have to -1 here because line numbers are 1-indexed
-                    // but we want to look them up in read_lines, which is 0-based.
-                    linesToWrite.append(read_lines.get(lineIndex)).append(System.lineSeparator());
-                }
-            }
-
-            Files.write(
-                    targetFile,
-                    linesToWrite.toString().getBytes(),
-                    StandardOpenOption.APPEND);
-        }
-    }
-
-    /**
      * Writes the given text to the given file.
      * Creates a new file and assumes there exists no file yet at the given path.
      *

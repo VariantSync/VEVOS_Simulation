@@ -54,13 +54,7 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
         this.style = other.style;
     }
 
-    private static void addRange(final List<Integer> list, final int fromInclusive, final int toInclusive) {
-        for (int i = fromInclusive; i <= toInclusive; ++i) {
-            list.add(i);
-        }
-    }
-
-    private static void addRange2(final List<VariantLineChunk> list, final int fromInclusive, final int toInclusive) {
+    private static void addRange(final List<VariantLineChunk> list, final int fromInclusive, final int toInclusive) {
         for (int i = fromInclusive; i <= toInclusive; ++i) {
             list.add(new VariantLine(i));
         }
@@ -160,8 +154,9 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
      * @param isIncluded A predicate to select subtrees. A subtree will be considered if isIncluded returns true for it.
      * @return All line numbers that should be copied from the SPL file to the variant file. 1-based.
      */
-    public List<Integer> getAllLinesFor(final Predicate<LineBasedAnnotation> isIncluded) {
-        final List<Integer> chunksToWrite = new ArrayList<>();
+    public VariantAnnotation getLinesToCopy(final Predicate<LineBasedAnnotation> isIncluded) {
+        final List<VariantLineChunk> chunksToWrite = new ArrayList<>();
+//        final List<Integer> chunksToWrite = new ArrayList<>();
         final int firstCodeLine = getLineFrom() + style.offset; // ignore #if
         final int lastCodeLine = getLineTo() - style.offset; // ignore #endif
 
@@ -172,38 +167,6 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
             }
 
             if (isIncluded.test(subtree)) {
-                chunksToWrite.addAll(subtree.getAllLinesFor(isIncluded));
-            }
-
-            currentLine = subtree.getLineTo() + 1;
-        }
-
-        if (currentLine <= lastCodeLine) {
-            addRange(chunksToWrite, currentLine, lastCodeLine);
-        }
-
-        return chunksToWrite;
-    }
-
-    /**
-     * Computes all lines that should be included in the given variant when evaluating the annotations in this artefact.
-     *
-     * @param isIncluded A predicate to select subtrees. A subtree will be considered if isIncluded returns true for it.
-     * @return All line numbers that should be copied from the SPL file to the variant file. 1-based.
-     */
-    public VariantAnnotation getLinesToCopy(final Predicate<LineBasedAnnotation> isIncluded) {
-        final List<VariantLineChunk> chunksToWrite = new ArrayList<>();
-//        final List<Integer> chunksToWrite = new ArrayList<>();
-        final int firstCodeLine = getLineFrom() + style.offset; // ignore #if
-        final int lastCodeLine = getLineTo() - style.offset; // ignore #endif
-
-        int currentLine = firstCodeLine;
-        for (final LineBasedAnnotation subtree : subtrees) {
-            if (currentLine < subtree.getLineFrom()) {
-                addRange2(chunksToWrite, currentLine, subtree.getLineFrom() - 1);
-            }
-
-            if (isIncluded.test(subtree)) {
                 chunksToWrite.add(subtree.getLinesToCopy(isIncluded));
             }
 
@@ -211,7 +174,7 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
         }
 
         if (currentLine <= lastCodeLine) {
-            addRange2(chunksToWrite, currentLine, lastCodeLine);
+            addRange(chunksToWrite, currentLine, lastCodeLine);
         }
 
         return new VariantAnnotation(
