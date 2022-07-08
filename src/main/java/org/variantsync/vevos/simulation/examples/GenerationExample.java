@@ -132,7 +132,7 @@ public class GenerationExample {
                 /// Moreover, VariantGenerationOptions allow to configure some parameters for the variant generation.
                 //Here, we just instruct the generation to exit in case an error happens but we could for example also instruct it to ignore errors and proceed.
                 final ArtefactFilter<SourceCodeFile> artefactFilter = ArtefactFilter.KeepAll();
-                final VariantGenerationOptions generationOptions = VariantGenerationOptions.ExitOnError(artefactFilter);
+                final VariantGenerationOptions generationOptions = VariantGenerationOptions.ExitOnError(false, artefactFilter);
 
                 /// Checkout the considered commit of the input SPL to access its source code.
                 try {

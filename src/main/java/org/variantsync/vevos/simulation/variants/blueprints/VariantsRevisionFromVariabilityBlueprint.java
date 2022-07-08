@@ -87,7 +87,7 @@ public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBl
                         variant,
                         new CaseSensitivePath(splRepo.getPath()),
                         new CaseSensitivePath(variantsRepo.getPath()),
-                        VariantGenerationOptions.ExitOnErrorButAllowNonExistentFiles(ArtefactFilter.KeepAll()));
+                        VariantGenerationOptions.ExitOnErrorButAllowNonExistentFiles(false, ArtefactFilter.KeepAll()));
                 Logger.log(result.map(u -> "Generating variant " + variant + " was successful!"));
 
                 // Commit the generated variant with the corresponding spl commit has as message.

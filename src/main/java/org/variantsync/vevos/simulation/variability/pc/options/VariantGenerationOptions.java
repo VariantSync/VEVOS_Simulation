@@ -5,18 +5,15 @@ import org.variantsync.vevos.simulation.variability.pc.SourceCodeFile;
 public record VariantGenerationOptions(
         boolean exitOnError,
         boolean ignoreNonExistentSPLFiles,
+        boolean withMacros,
         ArtefactFilter<SourceCodeFile> filter
 )
 {
-    public static VariantGenerationOptions ExitOnError(final ArtefactFilter<SourceCodeFile> filter) {
-        return new VariantGenerationOptions(true, false, filter);
+    public static VariantGenerationOptions ExitOnError(final boolean withMacros, final ArtefactFilter<SourceCodeFile> filter) {
+        return new VariantGenerationOptions(true, false, withMacros, filter);
     }
 
-    public static VariantGenerationOptions IgnoreErrors(final ArtefactFilter<SourceCodeFile> filter) {
-        return new VariantGenerationOptions(false, true, filter);
-    }
-
-    public static VariantGenerationOptions ExitOnErrorButAllowNonExistentFiles(final ArtefactFilter<SourceCodeFile> filter) {
-        return new VariantGenerationOptions(true, true, filter);
+    public static VariantGenerationOptions ExitOnErrorButAllowNonExistentFiles(final boolean withMacros, final ArtefactFilter<SourceCodeFile> filter) {
+        return new VariantGenerationOptions(true, true, withMacros, filter);
     }
 }

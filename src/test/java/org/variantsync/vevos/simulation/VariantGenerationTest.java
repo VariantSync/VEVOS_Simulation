@@ -74,7 +74,7 @@ public class VariantGenerationTest {
                 traceToTest
                         .generateVariant(v, splDir,
                                 variantsDir.resolve(v.getName()),
-                                VariantGenerationOptions.ExitOnErrorButAllowNonExistentFiles(ArtefactFilter.KeepAll()))
+                                VariantGenerationOptions.ExitOnErrorButAllowNonExistentFiles(false, ArtefactFilter.KeepAll()))
                         // Write ground truth
                         .bind(groundTruth -> Result.Try(() -> Resources.Instance().write(
                                 Artefact.class,
@@ -112,6 +112,7 @@ public class VariantGenerationTest {
     @BeforeClass
     public static void setupStatic() throws IOException {
         VEVOS.Initialize();
+        Result.HARD_CRASH_ON_TRY = true;
         genDir = new CaseSensitivePath(Files.createTempDirectory("gen"));
 
         pcTest1 = new TestCaseData(
