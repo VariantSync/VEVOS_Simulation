@@ -146,7 +146,7 @@ public class VEVOSBenchmark {
             logTime("Sampling " + variants.size() + " variants", timeSample);
 
             final ArtefactFilter<SourceCodeFile> artefactFilter = ArtefactFilter.KeepAll();
-            final VariantGenerationOptions generationOptions = VariantGenerationOptions.ExitOnError(artefactFilter);
+            final VariantGenerationOptions generationOptions = VariantGenerationOptions.ExitOnError(false, artefactFilter);
 
             clock.start();
             for (final Variant variant : variants) {

@@ -8,6 +8,9 @@ import org.variantsync.vevos.simulation.variability.pc.groundtruth.AnnotationGro
 import org.variantsync.vevos.simulation.variability.pc.groundtruth.BlockMatching;
 import org.variantsync.vevos.simulation.variability.pc.groundtruth.GroundTruth;
 import org.variantsync.vevos.simulation.variability.pc.options.VariantGenerationOptions;
+import org.variantsync.vevos.simulation.variability.pc.variantlines.VariantAnnotation;
+import org.variantsync.vevos.simulation.variability.pc.variantlines.VariantLine;
+import org.variantsync.vevos.simulation.variability.pc.variantlines.VariantLineChunk;
 import org.variantsync.vevos.simulation.variability.pc.visitor.LineBasedAnnotationVisitorFocus;
 
 import java.util.ArrayList;
@@ -51,9 +54,9 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
         this.style = other.style;
     }
 
-    private static void addRange(final List<Integer> list, final int fromInclusive, final int toInclusive) {
+    private static void addRange(final List<VariantLineChunk> list, final int fromInclusive, final int toInclusive) {
         for (int i = fromInclusive; i <= toInclusive; ++i) {
-            list.add(i);
+            list.add(new VariantLine(i));
         }
     }
 
@@ -151,8 +154,9 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
      * @param isIncluded A predicate to select subtrees. A subtree will be considered if isIncluded returns true for it.
      * @return All line numbers that should be copied from the SPL file to the variant file. 1-based.
      */
-    public List<Integer> getAllLinesFor(final Predicate<LineBasedAnnotation> isIncluded) {
-        final List<Integer> chunksToWrite = new ArrayList<>();
+    public VariantAnnotation getLinesToCopy(final Predicate<LineBasedAnnotation> isIncluded) {
+        final List<VariantLineChunk> chunksToWrite = new ArrayList<>();
+//        final List<Integer> chunksToWrite = new ArrayList<>();
         final int firstCodeLine = getLineFrom() + style.offset; // ignore #if
         final int lastCodeLine = getLineTo() - style.offset; // ignore #endif
 
@@ -163,7 +167,7 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
             }
 
             if (isIncluded.test(subtree)) {
-                chunksToWrite.addAll(subtree.getAllLinesFor(isIncluded));
+                chunksToWrite.add(subtree.getLinesToCopy(isIncluded));
             }
 
             currentLine = subtree.getLineTo() + 1;
@@ -173,7 +177,10 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
             addRange(chunksToWrite, currentLine, lastCodeLine);
         }
 
-        return chunksToWrite;
+        return new VariantAnnotation(
+                this.getFeatureMapping(),
+                chunksToWrite
+        );
     }
 
     public void simplify() {

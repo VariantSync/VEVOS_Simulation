@@ -12,7 +12,7 @@ mvn install:install-file \
    -Dfile=../src/main/resources/lib/functjonal-1.0-SNAPSHOT.jar \
    -DgroupId=org.variantsync \
    -DartifactId=functjonal \
-   -Dversion=1.0-SNAPSHOT \
+   -Dversion=1.0.1 \
    -Dpackaging=jar \
    -DgeneratePom=true
 
