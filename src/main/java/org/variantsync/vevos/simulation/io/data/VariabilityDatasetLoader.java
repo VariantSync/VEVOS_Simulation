@@ -25,6 +25,7 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
     private final static String PRESENCE_CONDITIONS_FILE = "code-variability.spl.csv";
     private final static String PARENTS_FILE = "PARENTS.txt";
     private final static String MESSAGE_FILE = "MESSAGE.txt";
+    private final static String VARIABLES_FILE = "VARIABLES.txt";
     private static final String DATA_DIR_NAME = "data";
     private static final String LOG_DIR_NAME = "log";
     private static final String FILTER_COUNTS_FILE = "FILTERED.txt";
@@ -135,7 +136,12 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
     }
 
     private SPLCommit.FeatureModelPath resolvePathToFeatureModel(final Path rootDir, final String commitId) {
-        final Path p = resolvePathToCommitOutputDir(rootDir, commitId).resolve(FEATURE_MODEL_FILE);
+        Path p = resolvePathToCommitOutputDir(rootDir, commitId).resolve(FEATURE_MODEL_FILE);
+        if (!Files.exists(p)) {
+            // If no feature model is found, we instead set the variables file, as feature model
+            // TODO: Move this logic to VEVOS_extraction, if we convert a feature model a FeatureIDE format?
+            p = resolvePathToCommitOutputDir(rootDir, commitId).resolve(VARIABLES_FILE);
+        }
         return new SPLCommit.FeatureModelPath(p);
     }
 

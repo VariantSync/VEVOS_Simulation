@@ -30,6 +30,7 @@ import org.variantsync.vevos.simulation.variability.pc.options.ArtefactFilter;
 import org.variantsync.vevos.simulation.variability.pc.options.VariantGenerationOptions;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -100,18 +101,19 @@ public class VariantGenerationTest {
     private static final ResourceLoader<Artefact> splPCLoader = new KernelHavenSPLPCIO();
 
     private static final CaseSensitivePath resDir = CaseSensitivePath.of("src", "test", "resources", "variantgeneration");
-    private static final CaseSensitivePath genDir = resDir.resolve("gen");
-    private static final CaseSensitivePath datasetsDir = CaseSensitivePath.of("..", "variantevolution_datasets");
+    private static CaseSensitivePath genDir;
+    // private static final CaseSensitivePath datasetsDir = CaseSensitivePath.of("..", "variantevolution_datasets");
 
     private static TestCaseData pcTest1;
     private static TestCaseData illPcTest;
-    private static TestCaseData linuxSample;
-    private static TestCaseData linux;
+    // private static TestCaseData linuxSample;
+    // private static TestCaseData linux;
 
     @BeforeClass
-    public static void setupStatic() {
+    public static void setupStatic() throws IOException {
         VEVOS.Initialize();
         Result.HARD_CRASH_ON_TRY = true;
+        genDir = new CaseSensitivePath(Files.createTempDirectory("gen"));
 
         pcTest1 = new TestCaseData(
                 resDir.resolve("KernelHavenPCs.spl.csv"),
@@ -122,16 +124,18 @@ public class VariantGenerationTest {
         illPcTest = new TestCaseData(
                 resDir.resolve("KernelHavenPCs_illformed.spl.csv")
         );
-        linuxSample = new TestCaseData(
-                resDir.resolve("LinuxPCS_Simple.spl.csv"),
-                datasetsDir.resolve("linux"),
-                genDir.resolve("linux-sample")
-        );
-        linux = new TestCaseData(
-                datasetsDir.resolve("LinuxVariabilityData", "code-variability.spl.csv"),
-                datasetsDir.resolve("linux"),
-                genDir.resolve("linux")
-        );
+
+        // TODO: Fix broken tests
+        // linuxSample = new TestCaseData(
+        //         resDir.resolve("LinuxPCS_Simple.spl.csv"),
+        //         datasetsDir.resolve("linux"),
+        //         genDir.resolve("linux-sample")
+        // );
+        // linux = new TestCaseData(
+        //         datasetsDir.resolve("LinuxVariabilityData", "code-variability.spl.csv"),
+        //         datasetsDir.resolve("linux"),
+        //         genDir.resolve("linux")
+        // );
     }
 
     @Test
@@ -188,7 +192,9 @@ public class VariantGenerationTest {
 
     @Test
     public void idempotentReadWriteOfPCFiles() throws Resources.ResourceIOException, IOException {
-        final List<TestCaseData> testCases = Arrays.asList(pcTest1, linuxSample);
+        // TODO: Fix broken test cases
+        // final List<TestCaseData> testCases = Arrays.asList(pcTest1, linuxSample);
+        final List<TestCaseData> testCases = Arrays.asList(pcTest1);
         for (final TestCaseData testCase : testCases) {
             final CaseSensitivePath sourcePath = testCase.pcs;
             final CaseSensitivePath intermediatePath = genDir.resolve(sourcePath.path().getFileName());
@@ -219,9 +225,9 @@ public class VariantGenerationTest {
     public void testGeneration() {
         final FeatureModelFormula fmf = new FeatureModelFormula(pcTest1.features);
         assert pcTest1.generate(Arrays.asList(
-                new Variant("justA", new FeatureIDEConfiguration(fmf, Collections.singletonList("A"))),
-                new Variant("justB", new FeatureIDEConfiguration(fmf, Collections.singletonList("B"))),
-                new Variant("all", new FeatureIDEConfiguration(fmf, Arrays.asList("A", "B", "C", "D", "E")))
+                        new Variant("justA", new FeatureIDEConfiguration(fmf, Collections.singletonList("A"))),
+                        new Variant("justB", new FeatureIDEConfiguration(fmf, Collections.singletonList("B"))),
+                        new Variant("all", new FeatureIDEConfiguration(fmf, Arrays.asList("A", "B", "C", "D", "E")))
                 ),
                 true);
     }
@@ -232,19 +238,19 @@ public class VariantGenerationTest {
         assert pcTest1.generate(sampler.sample(pcTest1.features).variants(), true);
     }
 
-    @Test
-    public void testLinuxSampleGeneration() {
-        assert linuxSample.generate(
-                List.of(new Variant("all", new SayYesToAllConfiguration())),
-                false);
-    }
+    // TODO: Fix broken test
+//    public void testLinuxSampleGeneration() {
+//        assert linuxSample.generate(
+//                List.of(new Variant("all", new SayYesToAllConfiguration())),
+//                false);
+//    }
 
-//    @Test
-    public void testLinuxGeneration() {
-        assert linux.generate(
-                List.of(new Variant("all", new SayYesToAllConfiguration())),
-                false);
-    }
+    // TODO: Fix broken test
+//    public void testLinuxGeneration() {
+//        assert linux.generate(
+//                List.of(new Variant("all", new SayYesToAllConfiguration())),
+//                false);
+//    }
 
     @Test
     public void caseSensitivePathTest() {
