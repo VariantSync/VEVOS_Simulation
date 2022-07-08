@@ -150,6 +150,12 @@ public class FeatureModelUtils {
         final Set<String> featureNames = new HashSet<>(vm.getVariableMap().keySet());
         // We only want to add features that are not part of the model yet
         fm.getFeatures().stream().map(IFeatureModelElement::getName).forEach(featureNames::remove);
+
+        return FillFeatureModel(fm, featureNames);
+    }
+
+    /// Create optional features from a collection of feature names and add them to the feature model
+    public static IFeatureModel FillFeatureModel(IFeatureModel fm, Collection<String> featureNames) {
         final IFeatureModelFactory factory = FMFactoryManager.getInstance().getFactory(fm);
         final IFeature root = FeatureUtils.getRoot(fm);
         // Add all remaining feature from the variability model to the feature model
@@ -157,7 +163,7 @@ public class FeatureModelUtils {
             FeatureUtils.addFeature(fm, feature);
             FeatureUtils.addChild(root, feature);
         });
-        Logger.debug("Added all feature from VariabilityModel to FeatureModel.");
+        Logger.debug("Added all optional features to the FeatureModel.");
         return fm;
     }
 
