@@ -1,6 +1,5 @@
 package org.variantsync.vevos.simulation;
 
-import de.ovgu.featureide.fm.core.base.IFeature;
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import de.ovgu.featureide.fm.core.base.IFeatureModelElement;
 import org.junit.Test;
