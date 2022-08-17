@@ -73,6 +73,10 @@ public class FormulaUtils {
      * @return A new formula in which all nodes matching the given predicate are replaced.
      */
     public static Node replaceAll(final Node root, final Predicate<Node> who, final Function<Node, Node> replacement) {
+        if (root == null) {
+            return null;
+        }
+
         return replaceAllInplace(root.clone(), who, replacement);
     }
 
@@ -81,14 +85,20 @@ public class FormulaUtils {
      * This means the given formula (root parameter) will be altered.
      */
     public static Node replaceAllInplace(final Node root, final Predicate<Node> who, final Function<Node, Node> replacement) {
+        if (root == null) {
+            return null;
+        }
+
         if (who.test(root)) {
             return replacement.apply(root);
         } else {
             final Node[] children = root.getChildren();
-            for (int i = 0; i < children.length; ++i) {
-                children[i] = replaceAllInplace(children[i], who, replacement);
+            if (children != null) {
+                for (int i = 0; i < children.length; ++i) {
+                    children[i] = replaceAllInplace(children[i], who, replacement);
+                }
+                root.setChildren(children);
             }
-            root.setChildren(children);
             return root;
         }
     }
