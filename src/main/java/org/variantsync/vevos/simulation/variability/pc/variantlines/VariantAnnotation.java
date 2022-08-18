@@ -17,7 +17,7 @@ public record VariantAnnotation(
         final List<String> result = new ArrayList<>();
 
         if (projectionOptions.withMacros()) {
-            result.add("#if " + FormulaUtils.toString(condition, NodeWriter.javaSymbols));
+            result.add("#if " + FormulaUtils.toCPPString(condition, NodeWriter.javaSymbols));
         }
 
         for (final VariantLineChunk child : lines) {
