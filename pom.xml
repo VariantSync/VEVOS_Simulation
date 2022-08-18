@@ -7,7 +7,7 @@
 	<!-- Adjust group id for anonymous projects -->
     <groupId>org.variantsync.vevos</groupId>
 	<!-- Adjust the generateVariant name -->
-    <artifactId>Simulation</artifactId>
+    <artifactId>simulation</artifactId>
     <version>1.1.1</version>
 
     <properties>
