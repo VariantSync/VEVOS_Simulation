@@ -1,7 +1,6 @@
 package org.variantsync.vevos.simulation.variability.pc.variantlines;
 
 import org.prop4j.Node;
-import org.prop4j.NodeWriter;
 import org.variantsync.vevos.simulation.util.fide.FormulaUtils;
 import org.variantsync.vevos.simulation.variability.pc.options.VariantGenerationOptions;
 
@@ -17,7 +16,7 @@ public record VariantAnnotation(
         final List<String> result = new ArrayList<>();
 
         if (projectionOptions.withMacros()) {
-            result.add("#if " + FormulaUtils.toCPPString(condition, NodeWriter.javaSymbols));
+            result.add("#if " + FormulaUtils.toCPPString(condition));
         }
 
         for (final VariantLineChunk child : lines) {

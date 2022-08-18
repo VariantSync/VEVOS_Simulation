@@ -104,20 +104,38 @@ public class FormulaUtils {
     }
 
     /**
+     * Wraps a literal name in a defined statement.
+     * x -> defined(x)
+     * !x -> !defined(x)
+     */
+    private static Node ifdef(final Literal l) {
+        final Function<Object, Literal> toDefinedLiteral = s -> new Literal("defined(" + s + ")");
+
+        if (l.positive) {
+            return toDefinedLiteral.apply(l);
+        } else {
+            return new Not(toDefinedLiteral.apply(new Literal(l.var, true)));
+        }
+    }
+
+    /**
      * Serializes the given formula to a string usable in C preprocessor conditions.
      * True and false will be converted to 1 and 0, respectively.
      * Variables will be wrapped in a defined expression.
      * @see FixTrueFalse#TrueAs1
      * @see FixTrueFalse#FalseAs0
      */
-    public static String toCPPString(Node formula, final String[] symbols) {
+    public static String toCPPString(Node formula) {
         formula = replaceAll(formula, FixTrueFalse::isTrue, n -> FixTrueFalse.TrueAs1);
         formula = replaceAllInplace(formula, FixTrueFalse::isFalse, n -> FixTrueFalse.FalseAs0);
-        formula = replaceAllInplace(formula, FixTrueFalse::isVariable, n -> new Literal("defined(" + n.toString() + ")"));
-        return toFormulaString(formula, symbols);
+        formula = replaceAllInplace(formula, FixTrueFalse::isVariable,
+                // we know that n is a literal because FixTureFalse::isVariable returned true
+                n -> ifdef((Literal) n)
+        );
+        return toFormulaString(formula, NodeWriter.javaSymbols);
     }
 
-    public static String toFormulaString(Node formula, final String[] symbols) {
+    public static String toFormulaString(final Node formula, final String[] symbols) {
         final NodeWriter writer = new NodeWriter(formula);
         writer.setNotation(NodeWriter.Notation.INFIX);
         writer.setEnquoteWhitespace(false);
