@@ -19,8 +19,7 @@ import java.util.stream.Stream;
 // TODO: Implement readLinesAs(Path p, Function<> f) with which one can load a file into a desired format
 
 public class TextIO {
-    public final static String LINEBREAK = "\r\n";
-    public final static String LINEBREAK_REGEX = "\\r?\\n";
+    public final static String LINEBREAK = System.lineSeparator();
 
     public static String[] readLinesAsArray(final File file) throws IOException {
         final LinkedList<String> lines = new LinkedList<>();
