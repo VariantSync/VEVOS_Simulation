@@ -6,6 +6,8 @@ import org.variantsync.vevos.simulation.util.fide.bugfix.FixTrueFalse;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class FormulaUtils {
     public static Node negate(final Node node) {
@@ -60,7 +62,51 @@ public class FormulaUtils {
         } while (!redundantChildren.isEmpty());
     }
 
-    public static String toString(final Node formula, final String[] symbols) {
+    /**
+     * Replaces all nodes within the given formula's tree that match the given predicate.
+     * Matching nodes (i.e., nodes for which the predicate who returns true) will be replaced by the value returned
+     * by the replacement function, invoked on the matching node.
+     * @param root The root of the formula in which occurences of formulas should be replaced. The object remains unaltered.
+     * @param who A replacement is made whenever this predicate evaluates to true on a given node.
+     * @param replacement Whenever a node should be replaced, this function is invoked with that node as argument.
+     *                    The node will be replaced with the node returned.
+     * @return A new formula in which all nodes matching the given predicate are replaced.
+     */
+    public static Node replaceAll(final Node root, final Predicate<Node> who, final Function<Node, Node> replacement) {
+        if (root == null) {
+            return null;
+        }
+
+        return replaceAllInplace(root.clone(), who, replacement);
+    }
+
+    /**
+     * Inplace variant of the {@link #replaceAll(Node, Predicate, Function)} function.
+     * This means the given formula (root parameter) will be altered.
+     */
+    public static Node replaceAllInplace(final Node root, final Predicate<Node> who, final Function<Node, Node> replacement) {
+        if (root == null) {
+            return null;
+        }
+
+        if (who.test(root)) {
+            return replacement.apply(root);
+        } else {
+            final Node[] children = root.getChildren();
+            if (children != null) {
+                for (int i = 0; i < children.length; ++i) {
+                    children[i] = replaceAllInplace(children[i], who, replacement);
+                }
+                root.setChildren(children);
+            }
+            return root;
+        }
+    }
+
+    public static String toString(Node formula, final String[] symbols) {
+        formula = replaceAll(formula, FixTrueFalse::isTrue, n -> FixTrueFalse.TrueAs1);
+        formula = replaceAllInplace(formula, FixTrueFalse::isFalse, n -> FixTrueFalse.FalseAs0);
+
         final NodeWriter writer = new NodeWriter(formula);
         writer.setNotation(NodeWriter.Notation.INFIX);
         writer.setEnquoteWhitespace(false);

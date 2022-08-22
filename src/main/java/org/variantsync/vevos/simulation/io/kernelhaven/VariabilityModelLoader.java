@@ -30,10 +30,7 @@ public class VariabilityModelLoader implements ResourceLoader<IFeatureModel> {
                 return FeatureModelUtils.FromVariabilityModel(cache.readFixed(p.toFile()));
             } else {
                 List<String> variables = Files.readAllLines(p).stream().map(String::trim).collect(Collectors.toList());
-                final IFeatureModel featureModel = DefaultFeatureModelFactory.getInstance().create();
-                IFeature root = DefaultFeatureModelFactory.getInstance().createFeature(featureModel, "ROOT");
-                FeatureUtils.setRoot(featureModel, root);
-                return FeatureModelUtils.FillFeatureModel(featureModel, variables);
+                return FeatureModelUtils.FromOptionalFeatures(variables);
             }
         });
     }

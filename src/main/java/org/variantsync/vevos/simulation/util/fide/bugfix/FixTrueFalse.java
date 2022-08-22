@@ -17,15 +17,22 @@ import java.util.function.Predicate;
  * as well as a conversion method for parsing certain feature names to true and false, respectively.
  */
 public class FixTrueFalse {
-    /// Names of variables that we want to interpret as atomic values true or false, respectively.
-    public final static List<String> TrueNames = Arrays.asList("true", "1");
-    public final static List<String> FalseNames = Arrays.asList("false", "0");
-
     /*
     Constant literals representing the true and false value
      */
     public final static Literal True = new org.prop4j.True();
     public final static Literal False = new org.prop4j.False();
+
+    /*
+    Constant literals representing the true and false values only for serialization.
+    True and False are represented by the numeric values 0 and 1.
+     */
+    public final static Literal TrueAs1 = new Literal("1");
+    public final static Literal FalseAs0 = new Literal("0");
+
+    /// Names of variables that we want to interpret as atomic values true or false, respectively.
+    public final static List<String> TrueNames  = Arrays.asList("true",  (String) TrueAs1.var);
+    public final static List<String> FalseNames = Arrays.asList("false", (String) FalseAs0.var);
 
     /**
      * @return True iff the given formula is a true literal.
@@ -47,14 +54,14 @@ public class FixTrueFalse {
      * @return True iff the given name represents the atomic value true w.r.t. the constant TrueNames.
      */
     public static boolean isTrueLiteral(final Literal l) {
-        return TrueNames.stream().anyMatch(t -> t.equals(l.var.toString().toLowerCase()));
+        return TrueNames.stream().anyMatch(t -> t.equalsIgnoreCase(l.var.toString()));
     }
 
     /**
      * @return True iff the given name represents the atomic value false w.r.t. the constant FalseNames.
      */
     public static boolean isFalseLiteral(final Literal l) {
-        return FalseNames.stream().anyMatch(f -> f.equals(l.var.toString().toLowerCase()));
+        return FalseNames.stream().anyMatch(f -> f.equalsIgnoreCase(l.var.toString()));
     }
 
     private static Node[] filterMatches(final Node[] nodes, Predicate<Node> filter) {
