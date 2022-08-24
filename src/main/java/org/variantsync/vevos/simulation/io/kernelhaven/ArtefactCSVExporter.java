@@ -59,9 +59,9 @@ public class ArtefactCSVExporter implements ArtefactVisitor {
     private String[] toRow(final LineBasedAnnotation annotation) {
         final String[] row = makeRow();
         row[0] = currentFile.getFile().toString();
-        row[1] = FormulaUtils.toString(currentFile.getPresenceCondition(), NodeWriter.javaSymbols);
-        row[2] = FormulaUtils.toString(annotation.getFeatureMapping(), NodeWriter.javaSymbols);
-        row[3] = FormulaUtils.toString(annotation.getPresenceCondition(), NodeWriter.javaSymbols);
+        row[1] = FormulaUtils.toFormulaString(currentFile.getPresenceCondition(), NodeWriter.javaSymbols);
+        row[2] = FormulaUtils.toFormulaString(annotation.getFeatureMapping(), NodeWriter.javaSymbols);
+        row[3] = FormulaUtils.toFormulaString(annotation.getPresenceCondition(), NodeWriter.javaSymbols);
         row[4] = "" + annotation.getLineFrom();
         // -1 because Kernelhaven stores annotations as [#if, #endif) intervals, so we have to point one line before the annotation end (#endif).
         row[5] = "" + (annotation.getLineTo() - (annotation.isMacro() ? 1 : 0));

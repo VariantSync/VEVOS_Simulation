@@ -51,6 +51,13 @@ public class FixTrueFalse {
     }
 
     /**
+     * @return True iff the given formula is a literal that neither {@link #isTrue} nor {@link #isFalse}.
+     */
+    public static boolean isVariable(final Node n) {
+        return n instanceof Literal l && !isTrueLiteral(l) && !isFalseLiteral(l);
+    }
+
+    /**
      * @return True iff the given name represents the atomic value true w.r.t. the constant TrueNames.
      */
     public static boolean isTrueLiteral(final Literal l) {
