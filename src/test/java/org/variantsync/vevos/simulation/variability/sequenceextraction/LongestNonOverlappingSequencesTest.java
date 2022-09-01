@@ -5,7 +5,9 @@ import org.variantsync.functjonal.list.NonEmptyList;
 import org.variantsync.vevos.simulation.variability.SPLCommit;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class LongestNonOverlappingSequencesTest {
 
@@ -58,7 +60,27 @@ public class LongestNonOverlappingSequencesTest {
         assert sequencesAreEqual(result.get(2), expectedThree);
     }
 
-    public boolean sequencesAreEqual(final NonEmptyList<SPLCommit> a, final NonEmptyList<SPLCommit> b) {
+    @Test
+    public void stackOverflowPrevented() {
+        int size = 10_000;
+        Set<SPLCommit> commits = new HashSet<>();
+        SPLCommit previousCommit = new SPLCommit("0");
+        previousCommit.setParents();
+        commits.add(previousCommit);
+        for (int i = 1; i < size; i++) {
+            SPLCommit commit = new SPLCommit(String.valueOf(i));
+            commit.setParents(previousCommit);
+            commits.add(commit);
+            previousCommit = commit;
+        }
+
+        LongestNonOverlappingSequences algo = new LongestNonOverlappingSequences();
+        var result = algo.extract(commits);
+        assert result.size() == 1;
+        assert result.get(0).size() == size;
+    }
+
+    private boolean sequencesAreEqual(final NonEmptyList<SPLCommit> a, final NonEmptyList<SPLCommit> b) {
         if (a.size() != b.size()) {
             return false;
         }
