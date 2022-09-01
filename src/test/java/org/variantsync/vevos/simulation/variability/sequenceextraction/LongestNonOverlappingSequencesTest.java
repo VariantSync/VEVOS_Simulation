@@ -1,5 +1,6 @@
 package org.variantsync.vevos.simulation.variability.sequenceextraction;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.variantsync.functjonal.list.NonEmptyList;
 import org.variantsync.vevos.simulation.variability.SPLCommit;
@@ -54,13 +55,15 @@ public class LongestNonOverlappingSequencesTest {
         LongestNonOverlappingSequences algorithm = new LongestNonOverlappingSequences();
         List<NonEmptyList<SPLCommit>> result = algorithm.extract(exampleCommits);
 
-        assert result.size() == 3;
-        assert sequencesAreEqual(result.get(0), expectedOne);
-        assert sequencesAreEqual(result.get(1), expectedTwo);
-        assert sequencesAreEqual(result.get(2), expectedThree);
+        Assert.assertEquals(result.size(), 3);
+        Assert.assertTrue(sequencesAreEqual(result.get(0), expectedOne));
+        Assert.assertTrue(sequencesAreEqual(result.get(1), expectedTwo));
+        Assert.assertTrue(sequencesAreEqual(result.get(2), expectedThree));
     }
 
     @Test
+    // This test caused a StackoverflowError for the previous implementation of LongestNonOverlappingSequences at
+    // confirms that the Error is no longer thrown.
     public void stackOverflowPrevented() {
         int size = 10_000;
         Set<SPLCommit> commits = new HashSet<>();
@@ -76,8 +79,9 @@ public class LongestNonOverlappingSequencesTest {
 
         LongestNonOverlappingSequences algo = new LongestNonOverlappingSequences();
         var result = algo.extract(commits);
-        assert result.size() == 1;
-        assert result.get(0).size() == size;
+        // Some sanity checks (i.e., is the sequence extracted correctly?)
+        Assert.assertEquals(1, result.size());
+        Assert.assertEquals(result.get(0).size(), size);
     }
 
     private boolean sequencesAreEqual(final NonEmptyList<SPLCommit> a, final NonEmptyList<SPLCommit> b) {
