@@ -101,7 +101,19 @@ public class LongestNonOverlappingSequences implements SequenceExtractor {
         // We continue to build sequences, going from parent to descendents, until the ends of all possible sequences have been reached
         boolean incomplete = true;
         while(incomplete) {
+            // Why do we have to create a new HashSet every iteration?
+            // (See comments https://github.com/VariantSync/VEVOS_Simulation/pull/13#discussion_r960891984)
+            // It makes the code a lot simpler and runtime should not really be an issue here.
+            // If we do not create a new set in each iteration, we have to create additional checks, because we can
+            // only update the old sequence if there is only one child. If there is more than one child, we have to
+            // first create copies of the sequence for each child and add these sequences to the set.
+            // Finally, we could change the initial sequence in-place for the last child. However, because the children
+            // are provided as a set, we either first have to convert the set to a list or array (which is the same as
+            // creating a new set above), or we have to introduce additional counters and/or flags and checks.
+            // It is not pretty. I was at least not able to think of something simpler, without introducing additional
+            // cost elsewhere.
             Set<LinkedList<SPLCommit>> updatedSet = new HashSet<>();
+
             // Set to false at the start of the iteration, it is set to true if at least one sequence has been extended
             incomplete = false;
             // For all found sequences, check whether their last commit has more children that can be added to the sequence
