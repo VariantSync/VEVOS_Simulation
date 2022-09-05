@@ -138,7 +138,7 @@ public class SPLCommit extends Commit implements CachedValue {
         return Optional.ofNullable(parents);
     }
 
-    public void setParents(final SPLCommit[] parents) {
+    public void setParents(final SPLCommit... parents) {
         this.parents = parents;
     }
 

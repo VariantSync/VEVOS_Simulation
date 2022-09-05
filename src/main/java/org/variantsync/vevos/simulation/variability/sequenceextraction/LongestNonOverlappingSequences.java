@@ -83,29 +83,64 @@ public class LongestNonOverlappingSequences implements SequenceExtractor {
             }
         }
 
+        // Sort the sequences once more, after filtering them
+        commitSequences.sort((o1, o2) -> Integer.compare(o2.size(), o1.size()));
         return commitSequences;
     }
 
-    // Recursively build sequences
     private static Set<LinkedList<SPLCommit>> retrieveSequencesForStart(final Map<SPLCommit, Set<SPLCommit>> parentChildMap, final SPLCommit start) {
-        if (!parentChildMap.containsKey(start)) {
-            // Create a new sequence that contains the start commit
-            final Set<LinkedList<SPLCommit>> sequenceSet = new HashSet<>();
+        // Set for holding all retrieved sequences
+        Set<LinkedList<SPLCommit>> sequenceSet = new HashSet<>();
+        {
+            // We start with the 'start' commit
             final LinkedList<SPLCommit> sequence = new LinkedList<>();
             sequence.add(start);
             sequenceSet.add(sequence);
-            return sequenceSet;
-        } else {
-            // Collect the sequences of the children and prepend the commit to each of them as parent
-            final Set<LinkedList<SPLCommit>> sequences = new HashSet<>();
-            for (final SPLCommit child : parentChildMap.get(start)) {
-                final Set<LinkedList<SPLCommit>> childSequences = retrieveSequencesForStart(parentChildMap, child);
-                for (final LinkedList<SPLCommit> childSequence : childSequences) {
-                    childSequence.addFirst(start);
-                    sequences.add(childSequence);
+        }
+
+        // We continue to build sequences, going from parent to descendents, until the ends of all possible sequences have been reached
+        boolean incomplete = true;
+        while(incomplete) {
+            // Why do we have to create a new HashSet every iteration?
+            // (See comments https://github.com/VariantSync/VEVOS_Simulation/pull/13#discussion_r960891984)
+            // It makes the code a lot simpler and runtime should not really be an issue here.
+            // If we do not create a new set in each iteration, we have to create additional checks, because we can
+            // only update the old sequence if there is only one child. If there is more than one child, we have to
+            // first create copies of the sequence for each child and add these sequences to the set.
+            // Finally, we could change the initial sequence in-place for the last child. However, because the children
+            // are provided as a set, we either first have to convert the set to a list or array (which is the same as
+            // creating a new set above), or we have to introduce additional counters and/or flags and checks.
+            // It is not pretty. I was at least not able to think of something simpler, without introducing additional
+            // cost elsewhere.
+            Set<LinkedList<SPLCommit>> updatedSet = new HashSet<>();
+
+            // Set to false at the start of the iteration, it is set to true if at least one sequence has been extended
+            incomplete = false;
+            // For all found sequences, check whether their last commit has more children that can be added to the sequence
+            // if multiple children exist, new sequences are created
+            for (LinkedList<SPLCommit> sequence : sequenceSet) {
+                final SPLCommit parent = sequence.getLast();
+                if (parentChildMap.containsKey(parent)) {
+                    final Set<SPLCommit> children = parentChildMap.get(parent);
+                    for (SPLCommit child : children) {
+                        // There is at least one child, we are not done yet
+                        incomplete = true;
+                        // Create a new sequence from the old sequence for each child
+                        final LinkedList<SPLCommit> anotherSequence = new LinkedList<>(sequence);
+                        anotherSequence.add(child);
+                        // Add the new sequence to the new set
+                        updatedSet.add(anotherSequence);
+                    }
+                } else {
+                    // There are no children, simply add the old sequence to the updated set
+                    updatedSet.add(sequence);
                 }
             }
-            return sequences;
+            // Update the sequence set
+            sequenceSet = updatedSet;
         }
+
+        return sequenceSet;
     }
 }
+

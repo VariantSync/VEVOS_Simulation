@@ -275,13 +275,13 @@ public class BusyboxRepository extends SPLRepository {
             temp = notNull(temp.replace("ENABLE_", "defined CONFIG_"));
         }
         if (temp.contains("&& ENABLE_")) {
-            temp = notNull(temp.replace("ENABLE_", "'defined CONFIG_"));
+            temp = notNull(temp.replace("ENABLE_", "defined CONFIG_"));
         }
         if (temp.contains("|| !ENABLE_")) {
             temp = notNull(temp.replace("!ENABLE_", "!defined CONFIG_"));
         }
         if (temp.contains("&& !ENABLE_")) {
-            temp = notNull(temp.replace("!ENABLE_", "'!defined CONFIG_"));
+            temp = notNull(temp.replace("!ENABLE_", "!defined CONFIG_"));
         }
 
         return temp;
