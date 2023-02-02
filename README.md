@@ -2,7 +2,7 @@
 
 VEVOS is a tool suite for the simulation of the evolution of clone-and-own projects and consists of two main components: The ground truth extraction, called VEVOS/Extraction and the variant simulation called VEVOS/Simulation.
 
-This repository contains VEVOS/Simulation and thus the second part of the replication package for the paper _Simulating the Evolution of Clone-and-Own Projects with VEVOS_ published at the International Conference on Evaluation and Assessment in Software Engineering (EASE) 2022 ([doi](https://doi.org/10.1145/3530019.3534084). 
+This repository contains VEVOS/Simulation and thus the second part of the replication package for the paper _Simulating the Evolution of Clone-and-Own Projects with VEVOS_ published at the International Conference on Evaluation and Assessment in Software Engineering (EASE) 2022 ([doi](https://doi.org/10.1145/3530019.3534084)). 
 VEVOS/Simulation is a java library for generating variants with ground truth from an input software product line and dataset extracted with VEVOS/Extraction.
 
 ![Simulation Overview](docs/generation.png)
