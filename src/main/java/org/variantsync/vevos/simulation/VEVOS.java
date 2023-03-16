@@ -4,7 +4,7 @@ import de.ovgu.featureide.fm.core.base.impl.*;
 import de.ovgu.featureide.fm.core.configuration.*;
 import de.ovgu.featureide.fm.core.io.sxfm.SXFMFormat;
 import de.ovgu.featureide.fm.core.io.xml.XmlFeatureModelFormat;
-import org.variantsync.vevos.simulation.util.Logger;
+import org.tinylog.Logger;
 
 public final class VEVOS {
     private static boolean initialized = false;
@@ -31,7 +31,6 @@ public final class VEVOS {
 
     public static void Initialize() {
         if (!initialized) {
-            Logger.initConsoleLogger();
             InitFeatureIDE();
             initialized = true;
             Logger.debug("Finished initialization");

@@ -15,7 +15,7 @@ import org.variantsync.vevos.simulation.feature.sampling.Sampler;
 import org.variantsync.vevos.simulation.io.Resources;
 import org.variantsync.vevos.simulation.repository.BusyboxRepository;
 import org.variantsync.vevos.simulation.repository.SPLRepository;
-import org.variantsync.vevos.simulation.util.Logger;
+import org.tinylog.Logger;
 import org.variantsync.vevos.simulation.util.io.CaseSensitivePath;
 import org.variantsync.vevos.simulation.variability.EvolutionStep;
 import org.variantsync.vevos.simulation.variability.SPLCommit;

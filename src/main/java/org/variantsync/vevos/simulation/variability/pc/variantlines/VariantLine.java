@@ -1,6 +1,6 @@
 package org.variantsync.vevos.simulation.variability.pc.variantlines;
 
-import org.variantsync.vevos.simulation.util.Logger;
+import org.tinylog.Logger;
 import org.variantsync.vevos.simulation.variability.pc.options.VariantGenerationOptions;
 
 import java.util.List;

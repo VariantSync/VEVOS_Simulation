@@ -9,7 +9,7 @@ import org.variantsync.functjonal.Lazy;
 import org.variantsync.functjonal.functions.FragileFunction;
 import org.variantsync.vevos.simulation.io.Resources;
 import org.variantsync.vevos.simulation.repository.Commit;
-import org.variantsync.vevos.simulation.util.Logger;
+import org.tinylog.Logger;
 import org.variantsync.vevos.simulation.util.io.TypedPath;
 import org.variantsync.vevos.simulation.variability.pc.Artefact;
 import org.variantsync.vevos.simulation.variability.pc.EFilterOutcome;
@@ -107,7 +107,7 @@ public class SPLCommit extends Commit implements CachedValue {
                     throw e;
                 }
             } else {
-                Logger.warning("Path " + path + " does not exist and no ZIP file found.");
+                Logger.warn("Path " + path + " does not exist and no ZIP file found.");
                 return null;
             }
         } else {

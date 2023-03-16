@@ -3,7 +3,7 @@ package org.variantsync.vevos.simulation.variability.pc;
 import org.variantsync.functjonal.Cast;
 import org.variantsync.functjonal.Result;
 import org.variantsync.vevos.simulation.feature.Variant;
-import org.variantsync.vevos.simulation.util.Logger;
+import org.tinylog.Logger;
 import org.variantsync.vevos.simulation.util.fide.bugfix.FixTrueFalse;
 import org.variantsync.vevos.simulation.util.io.CaseSensitivePath;
 import org.variantsync.vevos.simulation.variability.pc.groundtruth.GroundTruth;

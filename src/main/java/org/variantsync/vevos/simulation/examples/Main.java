@@ -11,7 +11,7 @@ import org.variantsync.vevos.simulation.feature.sampling.FeatureIDESampler;
 import org.variantsync.vevos.simulation.io.Resources;
 import org.variantsync.vevos.simulation.io.data.VariabilityDatasetLoader;
 import org.variantsync.vevos.simulation.repository.AbstractSPLRepository;
-import org.variantsync.vevos.simulation.util.Logger;
+import org.tinylog.Logger;
 import org.variantsync.vevos.simulation.variability.EvolutionStep;
 import org.variantsync.vevos.simulation.variability.SPLCommit;
 import org.variantsync.vevos.simulation.variability.VariabilityDataset;
