@@ -53,7 +53,6 @@ public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
         if (!Files.exists(sourceFile.path())) {
             return Result.Failure(new FileNotFoundException("Source file " + sourceFile + " does not exist!"));
         }
-
         return
                 // Create the target file.
                 PathUtils.createEmptyAsResult(targetFile.path())
