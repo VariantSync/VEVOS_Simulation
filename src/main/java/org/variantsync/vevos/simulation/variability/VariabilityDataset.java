@@ -2,7 +2,7 @@ package org.variantsync.vevos.simulation.variability;
 
 import org.jetbrains.annotations.NotNull;
 import org.variantsync.functjonal.list.NonEmptyList;
-import org.variantsync.vevos.simulation.util.Logger;
+import org.tinylog.Logger;
 import org.variantsync.vevos.simulation.variability.sequenceextraction.CleaningEvolutionStepsStream;
 
 import java.util.*;

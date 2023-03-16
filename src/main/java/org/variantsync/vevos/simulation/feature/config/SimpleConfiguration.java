@@ -1,7 +1,7 @@
 package org.variantsync.vevos.simulation.feature.config;
 
 import org.prop4j.Node;
-import org.variantsync.vevos.simulation.util.Logger;
+import org.tinylog.Logger;
 
 import java.util.HashMap;
 import java.util.List;

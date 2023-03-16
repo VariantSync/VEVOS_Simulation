@@ -2,7 +2,7 @@ package org.variantsync.vevos.simulation.repository;
 
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.variantsync.vevos.simulation.util.Logger;
+import org.tinylog.Logger;
 import org.variantsync.vevos.simulation.variability.SPLCommit;
 
 import java.io.*;

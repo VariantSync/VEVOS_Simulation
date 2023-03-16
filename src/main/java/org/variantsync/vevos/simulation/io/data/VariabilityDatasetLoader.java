@@ -5,7 +5,7 @@ import net.lingala.zip4j.exception.ZipException;
 import org.variantsync.functjonal.Result;
 import org.variantsync.vevos.simulation.io.ResourceLoader;
 import org.variantsync.vevos.simulation.io.TextIO;
-import org.variantsync.vevos.simulation.util.Logger;
+import org.tinylog.Logger;
 import org.variantsync.vevos.simulation.variability.SPLCommit;
 import org.variantsync.vevos.simulation.variability.VariabilityDataset;
 
@@ -66,7 +66,7 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
         List<String> errorIds = new ArrayList<>();
         List<String> partialSuccessIds = new ArrayList<>();
 
-        Logger.status("Started loading of dataset under " + p);
+        Logger.info("Started loading of dataset under " + p);
         final Path successFile = p.resolve(SUCCESS_COMMIT_FILE);
         if (Files.exists(successFile)) {
             successIds = TextIO.readLinesTrimmed(successFile).expect("Success-commit file exists but could not be loaded.");

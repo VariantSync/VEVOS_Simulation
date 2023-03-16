@@ -9,7 +9,7 @@ import org.variantsync.vevos.simulation.io.ResourceLoader;
 import org.variantsync.vevos.simulation.io.ResourceWriter;
 import org.variantsync.vevos.simulation.io.Resources;
 import org.variantsync.vevos.simulation.io.data.CSV;
-import org.variantsync.vevos.simulation.util.Logger;
+import org.tinylog.Logger;
 import org.variantsync.vevos.simulation.util.fide.bugfix.FixTrueFalse;
 import org.variantsync.vevos.simulation.util.io.CaseSensitivePath;
 import org.variantsync.vevos.simulation.util.io.PathUtils;
@@ -49,7 +49,7 @@ public abstract class KernelHavenPCIO implements ResourceLoader<Artefact>, Resou
         try {
             csv = Resources.Instance().load(CSV.class, csvPath);
         } catch (final Resources.ResourceIOException resourceFailure) {
-            Logger.warning("Was not able to load csv file: " + resourceFailure);
+            Logger.warn("Was not able to load csv file: " + resourceFailure);
             return Result.Failure(resourceFailure);
         }
 
@@ -78,7 +78,7 @@ public abstract class KernelHavenPCIO implements ResourceLoader<Artefact>, Resou
                         p -> new SourceCodeFile(fileCondition, p))
                         .addTrace(createAnnotation(blockCondition, startLine, endLine));
             } catch (final Exception e) {
-                Logger.warning("Was not able to parse csv file: " + e);
+                Logger.warn("Was not able to parse csv file: " + e);
                 return Result.Failure(e);
             }
         }

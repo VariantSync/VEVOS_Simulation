@@ -6,7 +6,7 @@ import org.variantsync.functjonal.Result;
 import org.variantsync.functjonal.category.Traversable;
 import org.variantsync.vevos.simulation.feature.Variant;
 import org.variantsync.vevos.simulation.io.TextIO;
-import org.variantsync.vevos.simulation.util.Logger;
+import org.tinylog.Logger;
 import org.variantsync.vevos.simulation.util.fide.bugfix.FixTrueFalse;
 import org.variantsync.vevos.simulation.util.io.CaseSensitivePath;
 import org.variantsync.vevos.simulation.util.io.PathUtils;

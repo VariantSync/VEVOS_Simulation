@@ -8,11 +8,11 @@ import org.prop4j.And;
 import org.prop4j.Literal;
 import org.prop4j.Node;
 import org.prop4j.Or;
+import org.tinylog.Logger;
 import org.variantsync.functjonal.Result;
 import org.variantsync.vevos.simulation.feature.Variant;
 import org.variantsync.vevos.simulation.feature.config.FeatureIDEConfiguration;
 import org.variantsync.vevos.simulation.feature.config.IConfiguration;
-import org.variantsync.vevos.simulation.feature.config.SayYesToAllConfiguration;
 import org.variantsync.vevos.simulation.feature.sampling.FeatureIDESampler;
 import org.variantsync.vevos.simulation.feature.sampling.Sampler;
 import org.variantsync.vevos.simulation.io.ResourceLoader;
@@ -20,7 +20,6 @@ import org.variantsync.vevos.simulation.io.Resources;
 import org.variantsync.vevos.simulation.io.TextIO;
 import org.variantsync.vevos.simulation.io.kernelhaven.KernelHavenSPLPCIO;
 import org.variantsync.vevos.simulation.sat.SAT;
-import org.variantsync.vevos.simulation.util.Logger;
 import org.variantsync.vevos.simulation.util.fide.FeatureModelUtils;
 import org.variantsync.vevos.simulation.util.fide.bugfix.FixTrueFalse;
 import org.variantsync.vevos.simulation.util.io.CaseSensitivePath;
@@ -216,7 +215,7 @@ public class VariantGenerationTest {
         assert pcTest1.traces.isSuccess();
         final Result<Node, Exception> result =
                 pcTest1.traces.getSuccess().getPresenceConditionOf(CaseSensitivePath.of("src", "FooFoo.cpp"), 7);
-        Logger.log(result);
+        Logger.debug(result);
         assert result.isSuccess();
         assert SAT.equivalent(result.getSuccess(), new And(new Literal("A"), new Literal("B")));
     }

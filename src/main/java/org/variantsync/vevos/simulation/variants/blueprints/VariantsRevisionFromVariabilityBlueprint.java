@@ -8,7 +8,7 @@ import org.variantsync.vevos.simulation.feature.sampling.Sample;
 import org.variantsync.vevos.simulation.repository.AbstractSPLRepository;
 import org.variantsync.vevos.simulation.repository.AbstractVariantsRepository;
 import org.variantsync.vevos.simulation.repository.Branch;
-import org.variantsync.vevos.simulation.util.Logger;
+import org.tinylog.Logger;
 import org.variantsync.vevos.simulation.util.io.CaseSensitivePath;
 import org.variantsync.vevos.simulation.variability.SPLCommit;
 import org.variantsync.vevos.simulation.variability.pc.Artefact;
@@ -88,7 +88,7 @@ public class VariantsRevisionFromVariabilityBlueprint extends VariantsRevisionBl
                         new CaseSensitivePath(splRepo.getPath()),
                         new CaseSensitivePath(variantsRepo.getPath()),
                         VariantGenerationOptions.ExitOnErrorButAllowNonExistentFiles(false, ArtefactFilter.KeepAll()));
-                Logger.log(result.map(u -> "Generating variant " + variant + " was successful!"));
+                Logger.debug(result.map(u -> "Generating variant " + variant + " was successful!"));
 
                 // Commit the generated variant with the corresponding spl commit has as message.
                 final String commitMessage = splCommit.id() + " || " + splCommit.message() + " || " + variant.getName();
