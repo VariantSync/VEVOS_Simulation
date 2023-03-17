@@ -21,3 +21,4 @@ __pycache__
 */latex/*.synctex.gz
 
 /src/test/resources/variantgeneration/gen/
+/log.txt
