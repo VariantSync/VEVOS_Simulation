@@ -22,3 +22,5 @@ __pycache__
 
 /src/test/resources/variantgeneration/gen/
 /log.txt
+.classpath
+.project
