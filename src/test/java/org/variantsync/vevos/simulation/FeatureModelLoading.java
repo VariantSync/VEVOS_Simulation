@@ -19,10 +19,14 @@ public class FeatureModelLoading {
 
     @Test
     public void fromVariables() throws IOException {
-        Path variablesPath = Path.of("src/test/java/org/variantsync/vevos/simulation/variability/TEST_VARIABLES.txt");
-        SPLCommit commit = new SPLCommit("aaaaa", null, null, new SPLCommit.FeatureModelPath(variablesPath), null, null, null);
+        Path variablesPath = Path.of(
+                        "src/test/java/org/variantsync/vevos/simulation/variability/TEST_VARIABLES.txt");
+        SPLCommit commit = new SPLCommit("aaaaa", null, null,
+                        new SPLCommit.FeatureModelPath(variablesPath), null, null, null, null,
+                        null);
         IFeatureModel featureModel = commit.featureModel().run().orElseThrow();
-        Collection<String> features = featureModel.getFeatures().stream().map(IFeatureModelElement::getName).collect(Collectors.toList());
+        Collection<String> features = featureModel.getFeatures().stream()
+                        .map(IFeatureModelElement::getName).collect(Collectors.toList());
         assert features.size() == 5;
         for (String feature : Files.readAllLines(variablesPath)) {
             assert features.contains(feature);

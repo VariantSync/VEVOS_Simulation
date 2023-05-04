@@ -1,7 +1,6 @@
 package org.variantsync.vevos.simulation.io.data;
 
 import net.lingala.zip4j.ZipFile;
-import net.lingala.zip4j.exception.ZipException;
 import org.variantsync.functjonal.Result;
 import org.variantsync.vevos.simulation.io.ResourceLoader;
 import org.variantsync.vevos.simulation.io.TextIO;
@@ -22,7 +21,9 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
     private final static String ERROR_COMMIT_FILE = "ERROR_COMMITS.txt";
     private final static String PARTIAL_SUCCESS_COMMIT_FILE = "PARTIAL_SUCCESS_COMMITS.txt";
     private final static String FEATURE_MODEL_FILE = "variability-model.json";
-    private final static String PRESENCE_CONDITIONS_FILE = "code-variability.spl.csv";
+    private final static String PRESENCE_CONDITIONS_BEFORE_FILE = "code-variability.before.spl.csv";
+    private final static String PRESENCE_CONDITIONS_AFTER_FILE = "code-variability.after.spl.csv";
+    private final static String PRESENCE_CONDITIONS_FALLBACK_FILE = "code-variability.spl.csv";
     private final static String PARENTS_FILE = "PARENTS.txt";
     private final static String MESSAGE_FILE = "MESSAGE.txt";
     private final static String VARIABLES_FILE = "VARIABLES.txt";
@@ -33,12 +34,11 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
     @Override
     public boolean canLoad(final Path p) {
         try {
-            return Files.list(p)
-                    .map(Path::toFile)
-                    .anyMatch(f -> {
-                        final String name = f.getName();
-                        return name.equals(SUCCESS_COMMIT_FILE) || name.equals(ERROR_COMMIT_FILE) || name.equals(PARTIAL_SUCCESS_COMMIT_FILE);
-                    });
+            return Files.list(p).map(Path::toFile).anyMatch(f -> {
+                final String name = f.getName();
+                return name.equals(SUCCESS_COMMIT_FILE) || name.equals(ERROR_COMMIT_FILE)
+                                || name.equals(PARTIAL_SUCCESS_COMMIT_FILE);
+            });
         } catch (final IOException e) {
             Logger.error("Was not able to check the file(s) under " + p, e);
             return false;
@@ -48,13 +48,21 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
     /**
      * Load a dataset containing the extracted variability information of a SPL.
      * <p>
-     * The given path should point to the root of the dataset's directory. Assume that the given path to the dataset is
-     * `/home/alice/data/extraction-results`. Then, the structure of `extraction-results` should look as follows:
-     * <p></p>
+     * The given path should point to the root of the dataset's directory. Assume that the given
+     * path to the dataset is `/home/alice/data/extraction-results`. Then, the structure of
+     * `extraction-results` should look as follows:
+     * <p>
+     * </p>
      * extraction-results/
-     * <p>|- log/</p>
-     * <p>|- data/</p>
-     * <p>|- SUCCESS_COMMITS.txt</p>
+     * <p>
+     * |- log/
+     * </p>
+     * <p>
+     * |- data/
+     * </p>
+     * <p>
+     * |- SUCCESS_COMMITS.txt
+     * </p>
      *
      * @param p path to the root directory of the dataset
      * @return The fully-loaded dataset if loading is successful, otherwise an Exception.
@@ -69,17 +77,20 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
         Logger.info("Started loading of dataset under " + p);
         final Path successFile = p.resolve(SUCCESS_COMMIT_FILE);
         if (Files.exists(successFile)) {
-            successIds = TextIO.readLinesTrimmed(successFile).expect("Success-commit file exists but could not be loaded.");
+            successIds = TextIO.readLinesTrimmed(successFile)
+                            .expect("Success-commit file exists but could not be loaded.");
         }
 
         final Path errorFile = p.resolve(ERROR_COMMIT_FILE);
         if (Files.exists(errorFile)) {
-            errorIds = TextIO.readLinesTrimmed(errorFile).expect("Error-commit file exists but could not be loaded.");
+            errorIds = TextIO.readLinesTrimmed(errorFile)
+                            .expect("Error-commit file exists but could not be loaded.");
         }
 
         final Path partialSuccessFile = p.resolve(PARTIAL_SUCCESS_COMMIT_FILE);
         if (Files.exists(partialSuccessFile)) {
-            partialSuccessIds = TextIO.readLinesTrimmed(partialSuccessFile).expect("Partial-success-commit file exists but could not be loaded.");
+            partialSuccessIds = TextIO.readLinesTrimmed(partialSuccessFile)
+                            .expect("Partial-success-commit file exists but could not be loaded.");
         }
 
         Logger.info("Read commit ids.");
@@ -105,27 +116,28 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
             if (parentIds == null || parentIds.length == 0) {
                 entry.getValue().setParents(null);
             } else {
-                entry.getValue().setParents(Arrays.stream(parentIds).map(idToCommitMap::get).toArray(SPLCommit[]::new));
+                entry.getValue().setParents(Arrays.stream(parentIds).map(idToCommitMap::get)
+                                .toArray(SPLCommit[]::new));
             }
         }
         Logger.info("Done.");
         Logger.info("Found a total of " + idToCommitMap.size() + " commits.");
         // Return the fully-loaded dataset
-        return Result.Success(new VariabilityDataset(successCommits, errorCommits, partialSuccessCommits));
+        return Result.Success(new VariabilityDataset(successCommits, errorCommits,
+                        partialSuccessCommits));
     }
 
     private List<SPLCommit> initializeSPLCommits(final Path p, final List<String> commitIds) {
         final List<SPLCommit> splCommits = new ArrayList<>(commitIds.size());
         for (final String id : commitIds) {
-            // Initialize a SPLCommit object for each commit id by resolving all paths to files with data about the commit
-            final SPLCommit splCommit = new SPLCommit(
-                    id, 
-                    resolvePathToCommitOutputDir(p, id), 
-                    resolvePathToLogFile(p, id), 
-                    resolvePathToFeatureModel(p, id), 
-                    resolvePathToPresenceConditions(p, id), 
-                    resolvePathToMessageFile(p, id), 
-                    resolvePathToFilterCountsFile(p, id));
+            // Initialize a SPLCommit object for each commit id by resolving all paths to files with
+            // data about the commit
+            final SPLCommit splCommit = new SPLCommit(id, resolvePathToCommitOutputDir(p, id),
+                            resolvePathToLogFile(p, id), resolvePathToFeatureModel(p, id),
+                            resolvePathToPresenceConditionsBefore(p, id),
+                            resolvePathToPresenceConditionsAfter(p, id),
+                            resolvePathToPresenceConditionsFallback(p, id),
+                            resolvePathToMessageFile(p, id), resolvePathToFilterCountsFile(p, id));
             splCommits.add(splCommit);
         }
         return splCommits;
@@ -135,18 +147,42 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
         return rootDir.resolve(DATA_DIR_NAME).resolve(commitId);
     }
 
-    private SPLCommit.FeatureModelPath resolvePathToFeatureModel(final Path rootDir, final String commitId) {
+    private SPLCommit.FeatureModelPath resolvePathToFeatureModel(final Path rootDir,
+                    final String commitId) {
         Path p = resolvePathToCommitOutputDir(rootDir, commitId).resolve(FEATURE_MODEL_FILE);
         if (!Files.exists(p)) {
             // If no feature model is found, we instead set the variables file, as feature model
-            // TODO: Move this logic to VEVOS_extraction, if we convert a feature model a FeatureIDE format?
+            // TODO: Move this logic to VEVOS_extraction, if we convert a feature model a FeatureIDE
+            // format?
             p = resolvePathToCommitOutputDir(rootDir, commitId).resolve(VARIABLES_FILE);
         }
         return new SPLCommit.FeatureModelPath(p);
     }
 
-    private SPLCommit.PresenceConditionPath resolvePathToPresenceConditions(final Path rootDir, final String commitId) {
-        final Path p = resolvePathToCommitOutputDir(rootDir, commitId).resolve(PRESENCE_CONDITIONS_FILE);
+    private SPLCommit.PresenceConditionPath resolvePathToPresenceConditionsBefore(
+                    final Path rootDir, final String commitId) {
+        final Path p = resolvePathToCommitOutputDir(rootDir, commitId)
+                        .resolve(PRESENCE_CONDITIONS_BEFORE_FILE);
+        return new SPLCommit.PresenceConditionPath(p);
+    }
+
+    private SPLCommit.PresenceConditionPath resolvePathToPresenceConditionsAfter(final Path rootDir,
+                    final String commitId) {
+        final Path p = resolvePathToCommitOutputDir(rootDir, commitId)
+                        .resolve(PRESENCE_CONDITIONS_AFTER_FILE);
+        return new SPLCommit.PresenceConditionPath(p);
+    }
+
+    private SPLCommit.PresenceConditionPath resolvePathToPresenceConditionsFallback(
+                    final Path rootDir, final String commitId) {
+        // For the fallback file, we first try the 'after' version of the PCS. If it does not exist,
+        // we use the fallback
+        Path p = resolvePathToCommitOutputDir(rootDir, commitId)
+                        .resolve(PRESENCE_CONDITIONS_AFTER_FILE);
+        if (!Files.exists(p)) {
+            p = resolvePathToCommitOutputDir(rootDir, commitId)
+                            .resolve(PRESENCE_CONDITIONS_FALLBACK_FILE);
+        }
         return new SPLCommit.PresenceConditionPath(p);
     }
 
@@ -154,17 +190,20 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
         return resolvePathToCommitOutputDir(rootDir, commitId).resolve(PARENTS_FILE);
     }
 
-    private SPLCommit.CommitMessagePath resolvePathToMessageFile(final Path rootDir, final String commitId) {
+    private SPLCommit.CommitMessagePath resolvePathToMessageFile(final Path rootDir,
+                    final String commitId) {
         final Path p = resolvePathToCommitOutputDir(rootDir, commitId).resolve(MESSAGE_FILE);
         return new SPLCommit.CommitMessagePath(p);
     }
 
-    private SPLCommit.KernelHavenLogPath resolvePathToLogFile(final Path rootDir, final String commitId) {
+    private SPLCommit.KernelHavenLogPath resolvePathToLogFile(final Path rootDir,
+                    final String commitId) {
         final Path p = rootDir.resolve(LOG_DIR_NAME).resolve(commitId + ".log");
         return new SPLCommit.KernelHavenLogPath(p);
     }
 
-    private SPLCommit.FilterCountsPath resolvePathToFilterCountsFile(final Path rootDir, final String commitId) {
+    private SPLCommit.FilterCountsPath resolvePathToFilterCountsFile(final Path rootDir,
+                    final String commitId) {
         final Path p = resolvePathToCommitOutputDir(rootDir, commitId).resolve(FILTER_COUNTS_FILE);
         return new SPLCommit.FilterCountsPath(p);
     }
@@ -176,11 +215,13 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
             final File zipFile = new File(parentsFile.getParent() + ".zip");
             Logger.debug("Checking ZIP file " + zipFile);
             if (zipFile.exists()) {
-                try {
+                try (var zip = new ZipFile(zipFile)) {
                     Logger.debug("Unzipping PARENTS.txt");
-                    new ZipFile(zipFile).extractFile(commitId + "/PARENTS.txt", String.valueOf(resolvePathToCommitOutputDir(p, commitId).getParent()));
-                } catch (final ZipException e) {
-                    // Not all commits have a ZIP file and not all commits with a ZIP file have a PARENTS.txt. So this is
+                    zip.extractFile(commitId + "/PARENTS.txt", String.valueOf(
+                                    resolvePathToCommitOutputDir(p, commitId).getParent()));
+                } catch (final IOException e) {
+                    // Not all commits have a ZIP file and not all commits with a ZIP file have a
+                    // PARENTS.txt. So this is
                     // an expected exception
                     Logger.debug("Was not able to unzip commit data." + e.getMessage());
                 }
@@ -190,10 +231,12 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
             try {
                 return Files.readString(parentsFile).split("\\s");
             } catch (final IOException e) {
-                Logger.error("Was not able to load PARENTS.txt " + parentsFile + " even though it exists:", e);
+                Logger.error("Was not able to load PARENTS.txt " + parentsFile
+                                + " even though it exists:", e);
                 return null;
             }
         }
         return null;
     }
 }
+
