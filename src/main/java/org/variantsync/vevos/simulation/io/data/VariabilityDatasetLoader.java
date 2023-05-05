@@ -116,8 +116,13 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
             if (parentIds == null || parentIds.length == 0) {
                 entry.getValue().setParents(null);
             } else {
-                entry.getValue().setParents(Arrays.stream(parentIds).map(idToCommitMap::get)
-                                .toArray(SPLCommit[]::new));
+                entry.getValue().setParents(Arrays.stream(parentIds).map(id -> {
+                    var commit = idToCommitMap.get(id);
+                    if (commit == null) {
+                        commit = new SPLCommit(id);
+                    }
+                    return commit;
+                }).toArray(SPLCommit[]::new));
             }
         }
         Logger.info("Done.");
