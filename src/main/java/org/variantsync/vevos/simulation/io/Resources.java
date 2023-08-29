@@ -134,6 +134,7 @@ public class Resources {
             if (loader.canLoad(p)) {
                 final Result<T, ? extends Exception> result = loader.load(p);
                 if (result.isSuccess()) {
+                    Logger.debug("Successfully loaded resource under " + p);
                     return result.getSuccess();
                 } else {
                     Logger.error("ResourceLoader " + loader + " failed: ", result.getFailure());
