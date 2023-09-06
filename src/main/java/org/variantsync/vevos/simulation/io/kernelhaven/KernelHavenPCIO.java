@@ -67,11 +67,15 @@ public abstract class KernelHavenPCIO implements ResourceLoader<Artefact>, Resou
                 Node fileConditionNode = nodeReader.stringToNode(row[1]);
                 if (fileConditionNode == null) {
                     Logger.warn("Was not able to parse the file condition for " + pathOfSourceFile + " in " + csvPath);
+                    Logger.warn("GT entry: " + row[1]);
+                    Logger.warn(nodeReader.getErrorMessage());
                     fileConditionNode = nodeReader.stringToNode("1");
                 }
                 Node blockConditionNode = nodeReader.stringToNode(row[2]);
                 if (blockConditionNode == null) {
                     Logger.warn("Was not able to parse the block condition for " + pathOfSourceFile + " in " + csvPath);
+                    Logger.warn("GT entry: " + row[2]);
+                    Logger.warn(nodeReader.getErrorMessage());
                     blockConditionNode = nodeReader.stringToNode("1");
                 }
                 final Node fileCondition = FixTrueFalse.EliminateTrueAndFalseInplace(fileConditionNode);
