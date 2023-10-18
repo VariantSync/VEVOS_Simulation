@@ -60,7 +60,7 @@ public class SPLCommit extends Commit implements CachedValue {
         this.featureModelPath = TypedPath.unwrapNullable(featureModel);
         this.presenceConditionsBeforePath = TypedPath.unwrapNullable(presenceConditionsBefore);
         this.presenceConditionsAfterPath = TypedPath.unwrapNullable(presenceConditionsAfter);
-        this.presenceConditionsFallbackPath = TypedPath.unwrapNullable(presenceConditionsAfter);
+        this.presenceConditionsFallbackPath = TypedPath.unwrapNullable(presenceConditionsFallback);
         this.commitMessagePath = TypedPath.unwrapNullable(commitMessage);
         this.filterCountsPath = TypedPath.unwrapNullable(filterCounts);
 
