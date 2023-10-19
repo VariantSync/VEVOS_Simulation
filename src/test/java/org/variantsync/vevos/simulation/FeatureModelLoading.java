@@ -22,7 +22,7 @@ public class FeatureModelLoading {
         Path variablesPath = Path.of(
                         "src/test/java/org/variantsync/vevos/simulation/variability/TEST_VARIABLES.txt");
         SPLCommit commit = new SPLCommit("aaaaa", null, null,
-                        new SPLCommit.FeatureModelPath(variablesPath), null, null, null, null,
+                        new SPLCommit.FeatureModelPath(variablesPath), null, null, null, null, null, null,
                         null);
         IFeatureModel featureModel = commit.featureModel().run().orElseThrow();
         Collection<String> features = featureModel.getFeatures().stream()

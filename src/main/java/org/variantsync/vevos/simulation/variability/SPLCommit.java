@@ -7,11 +7,14 @@ import org.variantsync.functjonal.Functjonal;
 import org.variantsync.functjonal.Lazy;
 import org.variantsync.functjonal.functions.FragileFunction;
 import org.variantsync.vevos.simulation.io.Resources;
+import org.variantsync.vevos.simulation.io.data.CSV;
 import org.variantsync.vevos.simulation.repository.Commit;
 import org.tinylog.Logger;
 import org.variantsync.vevos.simulation.util.io.TypedPath;
 import org.variantsync.vevos.simulation.variability.pc.Artefact;
 import org.variantsync.vevos.simulation.variability.pc.EFilterOutcome;
+import org.variantsync.vevos.simulation.variability.pc.groundtruth.CodeMatching;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -25,6 +28,7 @@ public class SPLCommit extends Commit implements CachedValue {
     private final Lazy<Optional<Artefact>> presenceConditionsBefore;
     private final Lazy<Optional<Artefact>> presenceConditionsAfter;
     private final Lazy<Optional<Artefact>> presenceConditionsFallback;
+    private final Lazy<Optional<CodeMatching>> codeMatching;
     private final Lazy<Optional<String>> message;
     private final Lazy<Optional<Map<EFilterOutcome, Integer>>> filterCounts;
     private final Path dataDir;
@@ -33,6 +37,8 @@ public class SPLCommit extends Commit implements CachedValue {
     private final Path presenceConditionsBeforePath;
     private final Path presenceConditionsAfterPath;
     private final Path presenceConditionsFallbackPath;
+    private final Path codeMatchingBeforePath;
+    private final Path codeMatchingAfterPath;
     private final Path commitMessagePath;
     private final Path filterCountsPath;
     private SPLCommit[] parents;
@@ -44,7 +50,7 @@ public class SPLCommit extends Commit implements CachedValue {
      * @param commitId The id of the commit
      */
     public SPLCommit(final String commitId) {
-        this(commitId, null, null, null, null, null, null, null, null);
+        this(commitId, null, null, null, null, null, null, null, null, null, null);
     }
 
     public SPLCommit(final String commitId, final Path dataDir,
@@ -52,6 +58,8 @@ public class SPLCommit extends Commit implements CachedValue {
                     final PresenceConditionPath presenceConditionsBefore,
                     final PresenceConditionPath presenceConditionsAfter,
                     final PresenceConditionPath presenceConditionsFallback,
+                    final CodeMatchingPath codeMatchingBefore,
+                    final CodeMatchingPath codeMatchingAfter,
                     final CommitMessagePath commitMessage, final FilterCountsPath filterCounts) {
         super(commitId);
         this.dataDir = dataDir;
@@ -61,6 +69,8 @@ public class SPLCommit extends Commit implements CachedValue {
         this.presenceConditionsBeforePath = TypedPath.unwrapNullable(presenceConditionsBefore);
         this.presenceConditionsAfterPath = TypedPath.unwrapNullable(presenceConditionsAfter);
         this.presenceConditionsFallbackPath = TypedPath.unwrapNullable(presenceConditionsFallback);
+        this.codeMatchingBeforePath = TypedPath.unwrapNullable(codeMatchingBefore);
+        this.codeMatchingAfterPath = TypedPath.unwrapNullable(codeMatchingAfter);
         this.commitMessagePath = TypedPath.unwrapNullable(commitMessage);
         this.filterCountsPath = TypedPath.unwrapNullable(filterCounts);
 
@@ -88,6 +98,7 @@ public class SPLCommit extends Commit implements CachedValue {
                         tryUnzip.andThen(path -> Resources.Instance().load(Artefact.class, path)),
                         () -> "Was not able to load fallback presence conditions for id "
                                         + commitId);
+        this.codeMatching = tryToLoadMatching();
         // Lazy loading of commit message
         this.message = Functjonal.mapFragileLazily(commitMessagePath,
                         tryUnzip.andThen(Files::readString),
@@ -100,6 +111,18 @@ public class SPLCommit extends Commit implements CachedValue {
                                             Integer.parseInt(parts[1].trim())));
             return countsMap;
         }), () -> "Was not able to load filter counts for id " + commitId);
+    }
+
+    private Lazy<Optional<CodeMatching>> tryToLoadMatching() {
+        Lazy<Optional<CSV>> matchingBefore = Functjonal.mapFragileLazily(codeMatchingBeforePath,
+                path -> Resources.Instance().load(CSV.class, path),
+                () -> "Was not able to load 'after' presence conditions for id "
+                        + this.id());
+        Lazy<Optional<CSV>> matchingAfter = Functjonal.mapFragileLazily(codeMatchingAfterPath,
+                path -> Resources.Instance().load(CSV.class, path),
+                () -> "Was not able to load 'after' presence conditions for id "
+                        + this.id());
+        return CodeMatching.lazyFromCSVs(matchingBefore, matchingAfter);
     }
 
     private static Path tryUnzip(final Path path) throws IOException {
@@ -244,6 +267,10 @@ public class SPLCommit extends Commit implements CachedValue {
     }
 
     public record PresenceConditionPath(Path path) implements TypedPath {
+
+    }
+
+    public record CodeMatchingPath(Path path) implements TypedPath {
 
     }
 

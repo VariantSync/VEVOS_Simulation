@@ -24,6 +24,8 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
     private final static String PRESENCE_CONDITIONS_BEFORE_FILE = "code-variability.before.spl.csv";
     private final static String PRESENCE_CONDITIONS_AFTER_FILE = "code-variability.after.spl.csv";
     private final static String PRESENCE_CONDITIONS_FALLBACK_FILE = "code-variability.spl.csv";
+    private final static String MATCHING_BEFORE_FILE = "code-matching.before.spl.csv";
+    private final static String MATCHING_AFTER_FILE = "code-matching.after.spl.csv";
     private final static String PARENTS_FILE = "PARENTS.txt";
     private final static String MESSAGE_FILE = "MESSAGE.txt";
     private final static String VARIABLES_FILE = "VARIABLES.txt";
@@ -142,10 +144,24 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
                             resolvePathToPresenceConditionsBefore(p, id),
                             resolvePathToPresenceConditionsAfter(p, id),
                             resolvePathToPresenceConditionsFallback(p, id),
+                            resolvePathToMatchingBefore(p, id),
+                            resolvePathToMatchingAfter(p, id),
                             resolvePathToMessageFile(p, id), resolvePathToFilterCountsFile(p, id));
             splCommits.add(splCommit);
         }
         return splCommits;
+    }
+
+    private SPLCommit.CodeMatchingPath resolvePathToMatchingBefore(final Path rootDir, String commitId) {
+        final Path p = resolvePathToCommitOutputDir(rootDir, commitId)
+                .resolve(MATCHING_BEFORE_FILE);
+        return new SPLCommit.CodeMatchingPath(p);
+    }
+
+    private SPLCommit.CodeMatchingPath resolvePathToMatchingAfter(final Path rootDir, String commitId) {
+        final Path p = resolvePathToCommitOutputDir(rootDir, commitId)
+                .resolve(MATCHING_AFTER_FILE);
+        return new SPLCommit.CodeMatchingPath(p);
     }
 
     private Path resolvePathToCommitOutputDir(final Path rootDir, final String commitId) {
