@@ -17,9 +17,10 @@ import java.util.*;
 ;
 
 public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDataset> {
-    private final static String SUCCESS_COMMIT_FILE = "SUCCESS_COMMITS.txt";
-    private final static String ERROR_COMMIT_FILE = "ERROR_COMMITS.txt";
-    private final static String PARTIAL_SUCCESS_COMMIT_FILE = "PARTIAL_SUCCESS_COMMITS.txt";
+    private final static String SUCCESS_COMMITS_FILE = "SUCCESS_COMMITS.txt";
+    private final static String ERROR_COMMITS_FILE = "ERROR_COMMITS.txt";
+    private final static String EMPTY_COMMITS_FILE = "EMPTY_COMMITS.txt";
+    private final static String PARTIAL_SUCCESS_COMMITS_FILE = "PARTIAL_SUCCESS_COMMITS.txt";
     private final static String FEATURE_MODEL_FILE = "variability-model.json";
     private final static String PRESENCE_CONDITIONS_BEFORE_FILE = "code-variability.before.spl.csv";
     private final static String PRESENCE_CONDITIONS_AFTER_FILE = "code-variability.after.spl.csv";
@@ -38,8 +39,8 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
         try {
             return Files.list(p).map(Path::toFile).anyMatch(f -> {
                 final String name = f.getName();
-                return name.equals(SUCCESS_COMMIT_FILE) || name.equals(ERROR_COMMIT_FILE)
-                                || name.equals(PARTIAL_SUCCESS_COMMIT_FILE);
+                return name.equals(SUCCESS_COMMITS_FILE) || name.equals(ERROR_COMMITS_FILE) || name.equals(EMPTY_COMMITS_FILE)
+                                || name.equals(PARTIAL_SUCCESS_COMMITS_FILE);
             });
         } catch (final IOException e) {
             Logger.error("Was not able to check the file(s) under " + p, e);
@@ -72,35 +73,43 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
     @Override
     public Result<VariabilityDataset, Exception> load(final Path p) {
         // Read the metadata
-        List<String> successIds = new ArrayList<>();
-        List<String> errorIds = new ArrayList<>();
-        List<String> partialSuccessIds = new ArrayList<>();
+        List<String> successCommitIds = new ArrayList<>();
+        List<String> errorCommitIds = new ArrayList<>();
+        List<String> emptyCommitIds = new ArrayList<>();
+        List<String> partialSuccessCommitIds = new ArrayList<>();
 
         Logger.info("Started loading of dataset under " + p);
-        final Path successFile = p.resolve(SUCCESS_COMMIT_FILE);
-        if (Files.exists(successFile)) {
-            successIds = TextIO.readLinesTrimmed(successFile)
+        final Path successCommitFile = p.resolve(SUCCESS_COMMITS_FILE);
+        if (Files.exists(successCommitFile)) {
+            successCommitIds = TextIO.readLinesTrimmed(successCommitFile)
                             .expect("Success-commit file exists but could not be loaded.");
         }
 
-        final Path errorFile = p.resolve(ERROR_COMMIT_FILE);
-        if (Files.exists(errorFile)) {
-            errorIds = TextIO.readLinesTrimmed(errorFile)
+        final Path errorCommitFile = p.resolve(ERROR_COMMITS_FILE);
+        if (Files.exists(errorCommitFile)) {
+            errorCommitIds = TextIO.readLinesTrimmed(errorCommitFile)
                             .expect("Error-commit file exists but could not be loaded.");
         }
 
-        final Path partialSuccessFile = p.resolve(PARTIAL_SUCCESS_COMMIT_FILE);
-        if (Files.exists(partialSuccessFile)) {
-            partialSuccessIds = TextIO.readLinesTrimmed(partialSuccessFile)
+        final Path emptyFile = p.resolve(EMPTY_COMMITS_FILE);
+        if (Files.exists(emptyFile)) {
+            emptyCommitIds = TextIO.readLinesTrimmed(emptyFile)
+                    .expect("Success-commit file exists but could not be loaded.");
+        }
+
+        final Path partialSuccessCommitFile = p.resolve(PARTIAL_SUCCESS_COMMITS_FILE);
+        if (Files.exists(partialSuccessCommitFile)) {
+            partialSuccessCommitIds = TextIO.readLinesTrimmed(partialSuccessCommitFile)
                             .expect("Partial-success-commit file exists but could not be loaded.");
         }
 
         Logger.info("Read commit ids.");
 
         // Create SPLCommit objects for each commit
-        final List<SPLCommit> successCommits = initializeSPLCommits(p, successIds);
-        final List<SPLCommit> errorCommits = initializeSPLCommits(p, errorIds);
-        final List<SPLCommit> partialSuccessCommits = initializeSPLCommits(p, partialSuccessIds);
+        final List<SPLCommit> successCommits = initializeSPLCommits(p, successCommitIds);
+        final List<SPLCommit> errorCommits = initializeSPLCommits(p, errorCommitIds);
+        final List<SPLCommit> emptyCommits = initializeSPLCommits(p, emptyCommitIds);
+        final List<SPLCommit> partialSuccessCommits = initializeSPLCommits(p, partialSuccessCommitIds);
         Logger.info("Initialized SPL commits.");
 
         // Retrieve the SPLCommit objects for the parents of each commit
@@ -109,6 +118,8 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
         Logger.info("Mapped success commits.");
         errorCommits.forEach(c -> idToCommitMap.put(c.id(), c));
         Logger.info("Mapped error commits.");
+        emptyCommits.forEach(c -> idToCommitMap.put(c.id(), c));
+        Logger.info("Mapped empty commits.");
         partialSuccessCommits.forEach(c -> idToCommitMap.put(c.id(), c));
         Logger.info("Mapped partial success commits.");
 
@@ -130,7 +141,7 @@ public class VariabilityDatasetLoader implements ResourceLoader<VariabilityDatas
         Logger.info("Done.");
         Logger.info("Found a total of " + idToCommitMap.size() + " commits.");
         // Return the fully-loaded dataset
-        return Result.Success(new VariabilityDataset(successCommits, errorCommits,
+        return Result.Success(new VariabilityDataset(successCommits, errorCommits, emptyCommits,
                         partialSuccessCommits));
     }
 

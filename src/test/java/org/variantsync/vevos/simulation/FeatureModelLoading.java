@@ -2,6 +2,7 @@ package org.variantsync.vevos.simulation;
 
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import de.ovgu.featureide.fm.core.base.IFeatureModelElement;
+import org.junit.Assert;
 import org.junit.Test;
 import org.variantsync.vevos.simulation.variability.SPLCommit;
 
@@ -26,10 +27,10 @@ public class FeatureModelLoading {
                         null);
         IFeatureModel featureModel = commit.featureModel().run().orElseThrow();
         Collection<String> features = featureModel.getFeatures().stream()
-                        .map(IFeatureModelElement::getName).collect(Collectors.toList());
-        assert features.size() == 5;
+                        .map(IFeatureModelElement::getName).toList();
+        Assert.assertEquals(6, features.size());
         for (String feature : Files.readAllLines(variablesPath)) {
-            assert features.contains(feature);
+            Assert.assertTrue(features.contains(feature));
         }
     }
 }

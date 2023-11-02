@@ -97,6 +97,8 @@ public class VEVOSBenchmark {
                         + " commits for which the variability extraction succeeded.");
         Logger.info("The dataset contains " + dataset.getErrorCommits().size()
                         + " commits for which the variability extraction failed.");
+        Logger.info("The dataset contains " + dataset.getEmptyCommits().size()
+                + " commits for which there is no ground truth.");
         Logger.info("The dataset contains " + dataset.getPartialSuccessCommits().size()
                         + " commits that for which the file presence conditions are missing.");
         Logger.info("The dataset contains " + evolutionSteps.size() + " usable pairs of commits.");
