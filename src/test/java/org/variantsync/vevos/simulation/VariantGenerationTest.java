@@ -2,6 +2,7 @@ package org.variantsync.vevos.simulation;
 
 import de.ovgu.featureide.fm.core.analysis.cnf.formula.FeatureModelFormula;
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.prop4j.And;
@@ -146,11 +147,11 @@ public class VariantGenerationTest {
         { // Build the expected result by hand.
             final SourceCodeFile foofoo = new SourceCodeFile(FixTrueFalse.True, CaseSensitivePath.of("src", "FooFoo.cpp"));
             {
-                final LineBasedAnnotation a = new LineBasedAnnotation(new Literal("A"), 4, 11, AnnotationStyle.Internal);
-                a.addTrace(new LineBasedAnnotation(new Literal("B"), 6, 8, AnnotationStyle.Internal));
+                final LineBasedAnnotation a = new LineBasedAnnotation(new Literal("A"), 4, 10, AnnotationStyle.Internal);
+                a.addTrace(new LineBasedAnnotation(new Literal("B"), 6, 7, AnnotationStyle.Internal));
                 final LineBasedAnnotation tru = new LineBasedAnnotation(FixTrueFalse.True, 1, 21, AnnotationStyle.External);
                 tru.addTrace(a);
-                tru.addTrace(new LineBasedAnnotation(new Or(new And(new Literal("C"), new Literal("D")), new Literal("E")), 16, 18, AnnotationStyle.Internal));
+                tru.addTrace(new LineBasedAnnotation(new Or(new And(new Literal("C"), new Literal("D")), new Literal("E")), 16, 17, AnnotationStyle.Internal));
                 foofoo.addTrace(tru);
             }
 
@@ -206,7 +207,7 @@ public class VariantGenerationTest {
             readFromAndDirectlyWriteTo(intermediatePath, outputPath);
 
             // assert that text at intermediatePath is the same as at outputPath
-            assert TextIO.readAsString(intermediatePath.path()).equals(TextIO.readAsString(outputPath.path()));
+            Assert.assertEquals(TextIO.readAsString(intermediatePath.path()), TextIO.readAsString(outputPath.path()));
         }
     }
 
