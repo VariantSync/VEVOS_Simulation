@@ -39,22 +39,22 @@ public class NewGTVariantGenerationTest {
 
     @Test
     public void variantA() throws IOException {
-        genericVariantGenerationTest("variant-A", "A");
+        genericVariantGenerationTest("variant-A", "FEATURE_A");
     }
 
     @Test
     public void variantAB() throws IOException {
-        genericVariantGenerationTest("variant-AB", "A", "B");
+        genericVariantGenerationTest("variant-AB", "FEATURE_A", "FEATURE_B");
     }
 
     @Test
     public void variantAD() throws IOException {
-        genericVariantGenerationTest("variant-AD", "A", "D");
+        genericVariantGenerationTest("variant-AD", "FEATURE_A", "FEATURE_D");
     }
 
     @Test
     public void variantB() throws IOException {
-        genericVariantGenerationTest("variant-B", "B");
+        genericVariantGenerationTest("variant-B", "FEATURE_B");
     }
 
     @Test
@@ -64,17 +64,17 @@ public class NewGTVariantGenerationTest {
 
     @Test
     public void variantBD() throws IOException {
-        genericVariantGenerationTest("variant-BD", "B", "D");
+        genericVariantGenerationTest("variant-BD", "FEATURE_B", "FEATURE_D");
     }
 
     @Test
     public void variantC() throws IOException {
-        genericVariantGenerationTest("variant-C", "C");
+        genericVariantGenerationTest("variant-C", "FEATURE_C");
     }
 
     @Test
     public void variantD() throws IOException {
-        genericVariantGenerationTest("variant-D", "D");
+        genericVariantGenerationTest("variant-D", "FEATURE_D");
     }
 
     private void genericVariantGenerationTest(String variantName, String... variantFeatures) throws IOException {
