@@ -1,0 +1,11 @@
+Path;File Condition;Block Condition;Presence Condition;start;end
+code.c;1;1;1;1;18
+code.c;1;0;0;2;2
+code.c;1;FEATURE_A;FEATURE_A;3;4
+code.c;1;0;0;5;6
+code.c;1;!FEATURE_A && (FEATURE_B || FEATURE_C);!FEATURE_A && (FEATURE_B || FEATURE_C);7;8
+code.c;1;0;0;9;9
+code.c;1;!FEATURE_A && !(FEATURE_B || FEATURE_C);!FEATURE_A && !(FEATURE_B || FEATURE_C);10;11
+code.c;1;0;0;12;13
+code.c;1;FEATURE_D;FEATURE_D;14;15
+code.c;1;0;0;16;16
