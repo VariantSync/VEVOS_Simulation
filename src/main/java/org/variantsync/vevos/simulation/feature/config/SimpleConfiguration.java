@@ -13,6 +13,8 @@ public class SimpleConfiguration implements IConfiguration {
     public SimpleConfiguration(final List<String> activeFeatures) {
         this.assignment = new HashMap<>();
         activeFeatures.forEach(f -> this.assignment.put(f, true));
+        this.assignment.put("True", true);
+        this.assignment.put("False", false);
     }
     
     @Override

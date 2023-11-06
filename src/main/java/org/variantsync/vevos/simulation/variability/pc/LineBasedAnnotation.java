@@ -111,19 +111,10 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
         // TODO: It should be sufficient to check the feature mapping here.
         if (variant.isImplementing(getPresenceCondition())) {
             final int firstCodeLine = getLineFrom() + offset;
-            offset -= style.offset; // ignore #if
 
-            int lastAnnotationEnd = 0;
             /// convert all subtrees to variants
             final List<LineBasedAnnotation> newSubtrees = new ArrayList<>(getNumberOfSubtrees());
             for (final LineBasedAnnotation splAnnotation : subtrees) {
-                // We have to increase the offset for each subtree overlap (i.e., in the case of #else), because overlapping subtrees
-                // share the same #endif, which should only be counted once.
-                if (splAnnotation.lineFrom == lastAnnotationEnd) {
-                    offset++;
-                }
-                lastAnnotationEnd = splAnnotation.lineTo;
-
                 final Optional<LineBasedAnnotation> mVariantAnnotation = splAnnotation.deriveForVariant(variant, offset, matching);
                 // If the subtree is still present in the variant, it might have shrunk.
                 // That can happen when the subtree as nested annotations inside it that code removed.
@@ -138,7 +129,7 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
                 }
             }
 
-            final int lastCodeLine = getLineTo() + offset - style.offset; // ignore #endif
+            final int lastCodeLine = getLineTo() + offset; // ignore #endif
             final LineBasedAnnotation meAsVariant = new LineBasedAnnotation(getFeatureMapping(), firstCodeLine, lastCodeLine, AnnotationStyle.External);
             meAsVariant.setSubtrees(newSubtrees);
             matching.put(this, meAsVariant);
@@ -157,8 +148,8 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
     public VariantAnnotation getLinesToCopy(final Predicate<LineBasedAnnotation> isIncluded) {
         final List<VariantLineChunk> chunksToWrite = new ArrayList<>();
 //        final List<Integer> chunksToWrite = new ArrayList<>();
-        final int firstCodeLine = getLineFrom() + style.offset; // ignore #if
-        final int lastCodeLine = getLineTo() - style.offset; // ignore #endif
+        final int firstCodeLine = getLineFrom(); // ignore #if
+        final int lastCodeLine = getLineTo(); // ignore #endif
 
         int currentLine = firstCodeLine;
         for (final LineBasedAnnotation subtree : subtrees) {

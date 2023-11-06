@@ -130,9 +130,9 @@ public class NewGTVariantGenerationTest {
     }
 
     private void assertCorrectPCs(CaseSensitivePath pathToExpected, CaseSensitivePath pathToActual) throws IOException {
-        List<String> expectedCode = Files.readAllLines(pathToExpected.resolve("ground_truth.variant.csv").path());
-        List<String> actualCode = Files.readAllLines(pathToActual.resolve("ground_truth.variant.csv").path());
-        Assert.assertTrue(compareLines(expectedCode, actualCode));
+        List<String> expectedPCs = Files.readAllLines(pathToExpected.resolve("code-variability.variant.csv").path());
+        List<String> actualPCs = Files.readAllLines(pathToActual.resolve("ground_truth.variant.csv").path());
+        Assert.assertTrue(compareLines(expectedPCs, actualPCs));
     }
 
     private boolean compareLines(List<String> listA, List<String> listB) {

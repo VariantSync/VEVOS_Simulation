@@ -1,4 +1,4 @@
 Path;File Condition;Block Condition;Presence Condition;start;end
-code.c;1;1;1;1;7
-code.c;1;!FEATURE_A && !(FEATURE_B || FEATURE_C);!FEATURE_A && !(FEATURE_B || FEATURE_C);2;3
-code.c;1;FEATURE_D;FEATURE_D;4;5
+code.c;True;True;True;1;7
+code.c;True;(!FEATURE_A && !((FEATURE_B || FEATURE_C)));(!FEATURE_A && !((FEATURE_B || FEATURE_C)));2;3
+code.c;True;FEATURE_D;FEATURE_D;4;5
