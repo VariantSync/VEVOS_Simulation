@@ -7,6 +7,8 @@ import org.variantsync.vevos.simulation.util.io.CaseSensitivePath;
 import org.variantsync.vevos.simulation.variability.pc.groundtruth.AnnotationGroundTruth;
 import org.variantsync.vevos.simulation.variability.pc.groundtruth.BlockMatching;
 import org.variantsync.vevos.simulation.variability.pc.groundtruth.GroundTruth;
+import org.variantsync.vevos.simulation.variability.pc.groundtruth.LineType;
+import org.variantsync.vevos.simulation.variability.pc.options.ArtefactFilter;
 import org.variantsync.vevos.simulation.variability.pc.options.VariantGenerationOptions;
 import org.variantsync.vevos.simulation.variability.pc.variantlines.VariantAnnotation;
 import org.variantsync.vevos.simulation.variability.pc.variantlines.VariantLine;
@@ -17,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -26,6 +29,7 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
     private final AnnotationStyle style;
     private int lineFrom;
     private int lineTo;
+    private LineType lineType;
 
     /**
      * Creates a new annotation starting at lineFrom and ending at lineTo including both
@@ -40,15 +44,17 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
      * 6 #endif    <-- lineTo
      * is reflected by LineBasedAnnotation(X, 3, 6, Internal);
      */
-    public LineBasedAnnotation(final Node featureMapping, final int lineFrom, final int lineTo, final AnnotationStyle style) {
-        super(featureMapping);
+    public LineBasedAnnotation(final Node featureMapping, final Node presenceCondition, final LineType lineType, final int lineFrom, final int lineTo, final AnnotationStyle style) {
+        super(featureMapping, presenceCondition);
+        this.lineType = lineType;
         this.lineFrom = lineFrom;
         this.lineTo = lineTo;
         this.style = style;
     }
 
     public LineBasedAnnotation(final LineBasedAnnotation other) {
-        super(other.getFeatureMapping());
+        super(other.getFeatureMapping(), other.getPresenceCondition());
+        this.lineType = other.lineType;
         this.lineFrom = other.lineFrom;
         this.lineTo = other.lineTo;
         this.style = other.style;
@@ -102,20 +108,19 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
         throw new UnsupportedOperationException();
     }
 
-    public Optional<AnnotationGroundTruth> deriveForVariant(final Variant variant) {
+    public Optional<AnnotationGroundTruth> deriveForVariant(final Variant variant, ArtefactFilter<LineBasedAnnotation> annotationFilter) {
         final BlockMatching matching = BlockMatching.MONOID.neutral();
-        return deriveForVariant(variant, 0, matching).map(l -> new AnnotationGroundTruth(this, l, matching));
+        return deriveForVariant(variant, annotationFilter, 0, matching).map(l -> new AnnotationGroundTruth(this, l, matching));
     }
 
-    private Optional<LineBasedAnnotation> deriveForVariant(final Variant variant, int offset, final BlockMatching matching) {
-        // TODO: It should be sufficient to check the feature mapping here.
-        if (variant.isImplementing(getPresenceCondition())) {
+    private Optional<LineBasedAnnotation> deriveForVariant(final Variant variant, ArtefactFilter<LineBasedAnnotation> annotationFilter, int offset, final BlockMatching matching) {
+        if (annotationFilter.shouldKeep(this) && variant.isImplementing(this.getPresenceCondition())) {
             final int firstCodeLine = getLineFrom() + offset;
 
             /// convert all subtrees to variants
             final List<LineBasedAnnotation> newSubtrees = new ArrayList<>(getNumberOfSubtrees());
             for (final LineBasedAnnotation splAnnotation : subtrees) {
-                final Optional<LineBasedAnnotation> mVariantAnnotation = splAnnotation.deriveForVariant(variant, offset, matching);
+                final Optional<LineBasedAnnotation> mVariantAnnotation = splAnnotation.deriveForVariant(variant, annotationFilter, offset, matching);
                 // If the subtree is still present in the variant, it might have shrunk.
                 // That can happen when the subtree as nested annotations inside it that code removed.
                 if (mVariantAnnotation.isPresent()) {
@@ -130,13 +135,17 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
             }
 
             final int lastCodeLine = getLineTo() + offset; // ignore #endif
-            final LineBasedAnnotation meAsVariant = new LineBasedAnnotation(getFeatureMapping(), firstCodeLine, lastCodeLine, AnnotationStyle.External);
+            final LineBasedAnnotation meAsVariant = new LineBasedAnnotation(getFeatureMapping(), getPresenceCondition(), getLineType(), firstCodeLine, lastCodeLine, AnnotationStyle.External);
             meAsVariant.setSubtrees(newSubtrees);
             matching.put(this, meAsVariant);
             return Optional.of(meAsVariant);
         } else {
             return Optional.empty();
         }
+    }
+
+    public LineType getLineType() {
+        return this.lineType;
     }
 
     /**

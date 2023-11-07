@@ -21,7 +21,7 @@ import java.util.List;
  * Path;File Condition;Block Condition;Presence Condition;start;end
  */
 public class ArtefactCSVExporter implements ArtefactVisitor {
-    private final static int COLUMN_COUNT = 6;
+    private final static int COLUMN_COUNT = 7;
     private final List<String[]> csv = new ArrayList<>();
     private SourceCodeFile currentFile = null;
 
@@ -39,8 +39,9 @@ public class ArtefactCSVExporter implements ArtefactVisitor {
         header[1] = "File Condition";
         header[2] = "Block Condition";
         header[3] = "Presence Condition";
-        header[4] = "start";
-        header[5] = "end";
+        header[4] = "Line Type";
+        header[5] = "start";
+        header[6] = "end";
         csv.add(header);
     }
 
@@ -62,9 +63,9 @@ public class ArtefactCSVExporter implements ArtefactVisitor {
         row[1] = FormulaUtils.toFormulaString(currentFile.getPresenceCondition(), NodeWriter.javaSymbols);
         row[2] = FormulaUtils.toFormulaString(annotation.getFeatureMapping(), NodeWriter.javaSymbols);
         row[3] = FormulaUtils.toFormulaString(annotation.getPresenceCondition(), NodeWriter.javaSymbols);
-        row[4] = "" + annotation.getLineFrom();
-        // -1 because Kernelhaven stores annotations as [#if, #endif) intervals, so we have to point one line before the annotation end (#endif).
-        row[5] = "" + (annotation.getLineTo() - (annotation.isMacro() ? 1 : 0));
+        row[4] = annotation.getLineType().name;
+        row[5] = "" + annotation.getLineFrom();
+        row[6] = "" + annotation.getLineTo();
         return row;
     }
 

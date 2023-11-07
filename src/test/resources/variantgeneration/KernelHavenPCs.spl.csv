@@ -1,12 +1,13 @@
-Path;File Condition;Block Condition;Presence Condition;start;end
-src/FooFoo.cpp ; true ;true;;ROOT;1;21
-src/FooFoo.cpp;true;A;;if;4;4
-src/FooFoo.cpp;true;A;;artifact;4;5
-src/FooFoo.cpp;true;B ;   ;if;6;6
-src/FooFoo.cpp;true;B ;   ;artifact;7;7
-src/FooFoo.cpp;true;A;;artifact;8;10
-src/FooFoo.cpp;true;A;;artifact;endif;11;11
-src/FooFoo.cpp;true;(C && D) || E;;if;16; 16
-src/FooFoo.cpp;true;(C && D) || E;;artifact;17; 17
-src/FooFoo.cpp;true;(C && D) || E;;endif;18; 18
- src/foo/bar.cpp;A;false;;ROOT;1;4
+Path;File Condition;Block Condition;Presence Condition;Line Type;start;end
+src/FooFoo.cpp ; true ;true;true;ROOT;1;21
+src/FooFoo.cpp;true;A;A;if;4;4
+src/FooFoo.cpp;true;A;A;artifact;5;5
+src/FooFoo.cpp;true;B ; A && B  ;if;6;6
+src/FooFoo.cpp;true;B ; A && B  ;artifact;7;7
+src/FooFoo.cpp;true;B ; A && B  ;endif;8;8
+src/FooFoo.cpp;true;A;A;artifact;9;10
+src/FooFoo.cpp;true;A;A;endif;11;11
+src/FooFoo.cpp;true;(C && D) || E;(C && D) || E;if;16; 16
+src/FooFoo.cpp;true;(C && D) || E;(C && D) || E;artifact;17; 17
+src/FooFoo.cpp;true;(C && D) || E;(C && D) || E;endif;18; 18
+ src/foo/bar.cpp;A;false;false;ROOT;1;4

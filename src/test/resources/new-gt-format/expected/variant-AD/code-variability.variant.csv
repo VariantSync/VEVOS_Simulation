@@ -1,4 +1,4 @@
-Path;File Condition;Block Condition;Presence Condition;start;end
+Path;File Condition;Block Condition;Presence Condition;Line Type;start;end
 code.c;True;True;True;ROOT;1;7
 code.c;True;FEATURE_A;FEATURE_A;artifact;2;3
 code.c;True;FEATURE_D;FEATURE_D;artifact;4;5

@@ -140,6 +140,7 @@ public class NewGTVariantGenerationTest {
 
         if (listA.size() != listB.size()) {
             Logger.error("Different number of lines: {} vs. {}", listA.size(), listB.size());
+            equal = false;
         }
 
         for (int lineNumber = 1; lineNumber <= Math.min(listA.size(), listB.size()); lineNumber++) {

@@ -3,6 +3,7 @@ package org.variantsync.vevos.simulation.io.kernelhaven;
 import org.prop4j.Node;
 import org.variantsync.vevos.simulation.variability.pc.AnnotationStyle;
 import org.variantsync.vevos.simulation.variability.pc.LineBasedAnnotation;
+import org.variantsync.vevos.simulation.variability.pc.groundtruth.LineType;
 
 /**
  * IO for presence condition of source code of software product lines.
@@ -18,7 +19,8 @@ public class KernelHavenSPLPCIO extends KernelHavenPCIO {
     }
 
     @Override
-    protected LineBasedAnnotation createAnnotation(final Node blockCondition, final int startLine, int endLine) {
+    protected LineBasedAnnotation createAnnotation(final Node blockCondition, final Node presenceCondition,
+                                                   final LineType lineType, final int startLine, int endLine) {
         /// If a block starts at 1 in KernelHaven files, it does not denote an #if but the entire file.
         /// Thus, there is no #if at line 1 but LineBasedAnnotation expects a macro at startLine.
         final boolean isVirtualSurroundingTrue = startLine == 1;
@@ -29,6 +31,8 @@ public class KernelHavenSPLPCIO extends KernelHavenPCIO {
 
         return new LineBasedAnnotation(
                 blockCondition,
+                presenceCondition,
+                lineType,
                 startLine,
                 endLine,
                 isVirtualSurroundingTrue ? AnnotationStyle.External : AnnotationStyle.Internal);
