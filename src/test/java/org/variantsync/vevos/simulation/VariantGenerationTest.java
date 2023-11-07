@@ -2,6 +2,7 @@ package org.variantsync.vevos.simulation;
 
 import de.ovgu.featureide.fm.core.analysis.cnf.formula.FeatureModelFormula;
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.prop4j.And;
@@ -229,7 +230,7 @@ public class VariantGenerationTest {
             readFromAndDirectlyWriteTo(intermediatePath, outputPath);
 
             // assert that text at intermediatePath is the same as at outputPath
-            assert TextIO.readAsString(intermediatePath.path()).equals(TextIO.readAsString(outputPath.path()));
+            Assert.assertEquals(TextIO.readAsString(intermediatePath.path()), TextIO.readAsString(outputPath.path()));
         }
     }
 
