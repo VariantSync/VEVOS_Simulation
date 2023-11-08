@@ -8,7 +8,7 @@
     <groupId>org.variantsync.vevos</groupId>
 	<!-- Adjust the generateVariant name -->
     <artifactId>simulation</artifactId>
-    <version>1.2.0</version>
+    <version>2.0.0</version>
 
     <properties>
         <!-- Adjust your java version here -->
@@ -105,7 +105,7 @@
         <dependency>
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit</artifactId>
-            <version>6.2.0.202206071550-r</version>
+            <version>6.6.0.202305301015-r</version>
         </dependency>
 
         <dependency>
