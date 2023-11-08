@@ -1,0 +1,12 @@
+Path;File Condition;Block Condition;Presence Condition;Line Type;start;end
+code.c;1;1;1;ROOT;1;18
+code.c;1;FEATURE_A;FEATURE_A;if;2;2
+code.c;1;FEATURE_A;FEATURE_A;artifact;3;4
+code.c;1;!FEATURE_A && (FEATURE_B || FEATURE_C);!FEATURE_A && (FEATURE_B || FEATURE_C);elif;5;6
+code.c;1;!FEATURE_A && (FEATURE_B || FEATURE_C);!FEATURE_A && (FEATURE_B || FEATURE_C);artifact;7;8
+code.c;1;!FEATURE_A && !(FEATURE_B || FEATURE_C);!FEATURE_A && !(FEATURE_B || FEATURE_C);else;9;9
+code.c;1;!FEATURE_A && !(FEATURE_B || FEATURE_C);!FEATURE_A && !(FEATURE_B || FEATURE_C);artifact;10;11
+code.c;1;!FEATURE_A && !(FEATURE_B || FEATURE_C);!FEATURE_A && !(FEATURE_B || FEATURE_C);endif;12;12
+code.c;1;FEATURE_D;FEATURE_D;if;13;13
+code.c;1;FEATURE_D;FEATURE_D;artifact;14;15
+code.c;1;FEATURE_D;FEATURE_D;endif;16;16

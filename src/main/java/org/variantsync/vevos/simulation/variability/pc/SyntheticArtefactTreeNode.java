@@ -31,7 +31,7 @@ public class SyntheticArtefactTreeNode<Child extends ArtefactTree<?>> extends Ar
      * Creates a new tree (node) with feature mapping True and the given subtrees.
      */
     public SyntheticArtefactTreeNode(final List<Child> subtrees) {
-        super(FixTrueFalse.True, subtrees, null);
+        super(FixTrueFalse.True, FixTrueFalse.True, subtrees, null);
     }
 
     /**
@@ -39,7 +39,7 @@ public class SyntheticArtefactTreeNode<Child extends ArtefactTree<?>> extends Ar
      * @param other Object to create a plain copy of (without copying children).
      */
     public SyntheticArtefactTreeNode(final ArtefactTree<Child> other) {
-        super(other.getFeatureMapping(), new ArrayList<>(), other.getFile());
+        super(other.getFeatureMapping(), other.getPresenceCondition(), new ArrayList<>(), other.getFile());
     }
 
     @Override

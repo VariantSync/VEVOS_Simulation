@@ -2,6 +2,7 @@ package org.variantsync.vevos.simulation;
 
 import de.ovgu.featureide.fm.core.analysis.cnf.formula.FeatureModelFormula;
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.prop4j.And;
@@ -9,6 +10,7 @@ import org.prop4j.Literal;
 import org.prop4j.Node;
 import org.prop4j.Or;
 import org.tinylog.Logger;
+import org.tinylog.Supplier;
 import org.variantsync.functjonal.Result;
 import org.variantsync.vevos.simulation.feature.Variant;
 import org.variantsync.vevos.simulation.feature.config.FeatureIDEConfiguration;
@@ -25,6 +27,7 @@ import org.variantsync.vevos.simulation.util.fide.bugfix.FixTrueFalse;
 import org.variantsync.vevos.simulation.util.io.CaseSensitivePath;
 import org.variantsync.vevos.simulation.util.io.PathUtils;
 import org.variantsync.vevos.simulation.variability.pc.*;
+import org.variantsync.vevos.simulation.variability.pc.groundtruth.LineType;
 import org.variantsync.vevos.simulation.variability.pc.options.ArtefactFilter;
 import org.variantsync.vevos.simulation.variability.pc.options.VariantGenerationOptions;
 
@@ -42,7 +45,7 @@ public class VariantGenerationTest {
         // init in constructor
         CaseSensitivePath pcs, splDir, variantsDir;
         IFeatureModel features;
-        Result<Artefact, ?> traces;
+        Result<Artefact, Exception> traces;
 
         public TestCaseData(final CaseSensitivePath pcs) {
             this.pcs = pcs;
@@ -97,7 +100,7 @@ public class VariantGenerationTest {
         }
     }
 
-    private static final ResourceLoader<Artefact> splPCLoader = new KernelHavenSPLPCIO();
+    private static final KernelHavenSPLPCIO splPCLoader = new KernelHavenSPLPCIO();
 
     private static final CaseSensitivePath resDir = CaseSensitivePath.of("src", "test", "resources", "variantgeneration");
     private static CaseSensitivePath genDir;
@@ -144,21 +147,42 @@ public class VariantGenerationTest {
 
         final Artefact expectedTrace;
         { // Build the expected result by hand.
-            final SourceCodeFile foofoo = new SourceCodeFile(FixTrueFalse.True, CaseSensitivePath.of("src", "FooFoo.cpp"));
+            final SourceCodeFile foofoo = new SourceCodeFile(FixTrueFalse.True, FixTrueFalse.True, CaseSensitivePath.of("src", "FooFoo.cpp"));
             {
-                final LineBasedAnnotation a = new LineBasedAnnotation(new Literal("A"), 4, 11, AnnotationStyle.Internal);
-                a.addTrace(new LineBasedAnnotation(new Literal("B"), 6, 8, AnnotationStyle.Internal));
-                final LineBasedAnnotation tru = new LineBasedAnnotation(FixTrueFalse.True, 1, 21, AnnotationStyle.External);
-                tru.addTrace(a);
-                tru.addTrace(new LineBasedAnnotation(new Or(new And(new Literal("C"), new Literal("D")), new Literal("E")), 16, 18, AnnotationStyle.Internal));
+                final LineBasedAnnotation a1 = new LineBasedAnnotation(new Literal("A"),new Literal("A"), LineType.IF, 4, 4, AnnotationStyle.Internal);
+                final LineBasedAnnotation a2 = new LineBasedAnnotation(new Literal("A"),new Literal("A"), LineType.ARTIFACT, 5, 5, AnnotationStyle.Internal);
+                final LineBasedAnnotation a3 = new LineBasedAnnotation(new Literal("A"),new Literal("A"), LineType.ARTIFACT, 9, 10, AnnotationStyle.Internal);
+                final LineBasedAnnotation a4 = new LineBasedAnnotation(new Literal("A"),new Literal("A"), LineType.ENDIF, 11, 11, AnnotationStyle.Internal);
+
+                Supplier<Node> generateB = () -> {
+                    Node left = new Literal("A");
+                    Node right = new Literal("B");
+                    return new And(left, right);
+                };
+                final LineBasedAnnotation b1 = new LineBasedAnnotation(new Literal("B"), generateB.get(), LineType.IF, 6, 6, AnnotationStyle.Internal);
+                final LineBasedAnnotation b2 = new LineBasedAnnotation(new Literal("B"), generateB.get(), LineType.ARTIFACT, 7, 7, AnnotationStyle.Internal);
+                final LineBasedAnnotation b3 = new LineBasedAnnotation(new Literal("B"), generateB.get(), LineType.ENDIF, 8, 8, AnnotationStyle.Internal);
+                final LineBasedAnnotation tru = new LineBasedAnnotation(FixTrueFalse.True, FixTrueFalse.True, LineType.ROOT, 1, 21, AnnotationStyle.External);
+                tru.addTrace(a1);
+                tru.addTrace(a2);
+                tru.addTrace(b1);
+                tru.addTrace(b2);
+                tru.addTrace(b3);
+                tru.addTrace(a3);
+                tru.addTrace(a4);
+
+                Supplier<Node> generateC = () -> new Or(new And(new Literal("C"), new Literal("D")), new Literal("E"));
+                tru.addTrace(new LineBasedAnnotation(generateC.get(), generateC.get(), LineType.IF, 16, 16, AnnotationStyle.Internal));
+                tru.addTrace(new LineBasedAnnotation(generateC.get(), generateC.get(), LineType.ARTIFACT, 17, 17, AnnotationStyle.Internal));
+                tru.addTrace(new LineBasedAnnotation(generateC.get(), generateC.get(), LineType.ENDIF, 18, 18, AnnotationStyle.Internal));
                 foofoo.addTrace(tru);
             }
 
-            final SourceCodeFile bar = new SourceCodeFile(new Literal("A"), CaseSensitivePath.of("src", "foo", "bar.cpp"));
+            final SourceCodeFile bar = new SourceCodeFile(new Literal("A"), new Literal("A"), CaseSensitivePath.of("src", "foo", "bar.cpp"));
             {
                 // This is a challenging case for the importer.
                 // We can not differentiate if a block starting at line 1 is an external annotation by Kernelhaven or an actual macro.
-                bar.addTrace(new LineBasedAnnotation(FixTrueFalse.False, 1, 4, AnnotationStyle.Internal));
+                bar.addTrace(new LineBasedAnnotation(FixTrueFalse.False, FixTrueFalse.False, LineType.ROOT, 1, 4, AnnotationStyle.Internal));
             }
 
             expectedTrace = new SyntheticArtefactTreeNode<>(Arrays.asList(foofoo, bar));
@@ -206,13 +230,15 @@ public class VariantGenerationTest {
             readFromAndDirectlyWriteTo(intermediatePath, outputPath);
 
             // assert that text at intermediatePath is the same as at outputPath
-            assert TextIO.readAsString(intermediatePath.path()).equals(TextIO.readAsString(outputPath.path()));
+            Assert.assertEquals(TextIO.readAsString(intermediatePath.path()), TextIO.readAsString(outputPath.path()));
         }
     }
 
     @Test
     public void testPCQuery() {
-        assert pcTest1.traces.isSuccess();
+        if (pcTest1.traces.isFailure()) {
+            throw new RuntimeException(pcTest1.traces.getFailure());
+        }
         final Result<Node, Exception> result =
                 pcTest1.traces.getSuccess().getPresenceConditionOf(CaseSensitivePath.of("src", "FooFoo.cpp"), 7);
         Logger.debug(result);

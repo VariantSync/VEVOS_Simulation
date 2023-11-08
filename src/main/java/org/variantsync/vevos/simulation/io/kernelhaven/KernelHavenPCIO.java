@@ -2,6 +2,7 @@ package org.variantsync.vevos.simulation.io.kernelhaven;
 
 import org.prop4j.Node;
 import org.prop4j.NodeReader;
+import org.tinylog.Logger;
 import org.variantsync.functjonal.Result;
 import org.variantsync.functjonal.Unit;
 import org.variantsync.functjonal.list.ListHeadTailView;
@@ -9,7 +10,6 @@ import org.variantsync.vevos.simulation.io.ResourceLoader;
 import org.variantsync.vevos.simulation.io.ResourceWriter;
 import org.variantsync.vevos.simulation.io.Resources;
 import org.variantsync.vevos.simulation.io.data.CSV;
-import org.tinylog.Logger;
 import org.variantsync.vevos.simulation.util.fide.bugfix.FixTrueFalse;
 import org.variantsync.vevos.simulation.util.io.CaseSensitivePath;
 import org.variantsync.vevos.simulation.util.io.PathUtils;
@@ -17,6 +17,7 @@ import org.variantsync.vevos.simulation.variability.pc.Artefact;
 import org.variantsync.vevos.simulation.variability.pc.LineBasedAnnotation;
 import org.variantsync.vevos.simulation.variability.pc.SourceCodeFile;
 import org.variantsync.vevos.simulation.variability.pc.SyntheticArtefactTreeNode;
+import org.variantsync.vevos.simulation.variability.pc.groundtruth.LineType;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -49,44 +50,68 @@ public abstract class KernelHavenPCIO implements ResourceLoader<Artefact>, Resou
         try {
             csv = Resources.Instance().load(CSV.class, csvPath);
         } catch (final Resources.ResourceIOException resourceFailure) {
-            Logger.warn("Was not able to load csv file: " + resourceFailure);
+            Logger.error("Was not able to load csv file: " + resourceFailure);
             return Result.Failure(resourceFailure);
         }
 
-        // parser for propositional formulas
-        final NodeReader nodeReader = new NodeReader();
-        nodeReader.activateJavaSymbols(); // select the symbols used for parsing conjunction (&&), disjunction (||), ...
+        Logger.debug("Parsing...");
 
-        // skip first entry as it is the csv header
-        final ListHeadTailView<String[]> rows = new ListHeadTailView<>(csv.rows()).tail();
-        for (final String[] row : rows) {
-            final CaseSensitivePath pathOfSourceFile = CaseSensitivePath.of(row[0]);
-            final Node fileCondition = FixTrueFalse.EliminateTrueAndFalseInplace(nodeReader.stringToNode(row[1]));
-            final Node blockCondition = FixTrueFalse.EliminateTrueAndFalseInplace(nodeReader.stringToNode(row[2]));
-            // We don't need the actual presenceCondition (lol) as it is a value computed from row[1] and row[2]
-            // final Node presenceCondition = nodeReader.stringToNode(row[3]);
-            final int startLine = Integer.parseInt(row[4]);
-            final int endLine = Integer.parseInt(row[5]);
+        try {
+            // parser for propositional formulas
+            final NodeReader nodeReader = new NodeReader();
+            nodeReader.activateJavaSymbols(); // select the symbols used for parsing conjunction (&&), disjunction (||), ...
+
+            // skip first entry as it is the csv header
+            final ListHeadTailView<String[]> rows = new ListHeadTailView<>(csv.rows()).tail();
+            for (final String[] row : rows) {
+                final CaseSensitivePath pathOfSourceFile = CaseSensitivePath.of(row[0]);
+                Node fileConditionNode = nodeReader.stringToNode(row[1]);
+                if (fileConditionNode == null) {
+                    Logger.warn("Was not able to parse the file condition for " + pathOfSourceFile + " in " + csvPath);
+                    Logger.warn("GT entry: " + row[1]);
+                    Logger.warn(nodeReader.getErrorMessage());
+                    fileConditionNode = nodeReader.stringToNode("1");
+                }
+                Node blockConditionNode = nodeReader.stringToNode(row[2]);
+                if (blockConditionNode == null) {
+                    Logger.warn("Was not able to parse the block condition for " + pathOfSourceFile + " in " + csvPath);
+                    Logger.warn("GT entry: " + row[2]);
+                    Logger.warn(nodeReader.getErrorMessage());
+                    blockConditionNode = nodeReader.stringToNode("1");
+                }
+                Node presenceConditionNode = nodeReader.stringToNode(row[3]);
+                if (presenceConditionNode == null) {
+                    Logger.warn("Was not able to parse the presence condition for " + pathOfSourceFile + " in " + csvPath);
+                    Logger.warn("GT entry: " + row[3]);
+                    Logger.warn(nodeReader.getErrorMessage());
+                    presenceConditionNode = nodeReader.stringToNode("1");
+                }
+                final Node fileCondition = FixTrueFalse.EliminateTrueAndFalseInplace(fileConditionNode);
+                final Node blockCondition = FixTrueFalse.EliminateTrueAndFalseInplace(blockConditionNode);
+                // We don't need the actual presenceCondition (lol) as it is a value computed from row[1] and row[2]
+                final Node presenceCondition = FixTrueFalse.EliminateTrueAndFalseInplace(presenceConditionNode);
+                final LineType lineType = LineType.fromName(row[4]);
+                final int startLine = Integer.parseInt(row[5]);
+                final int endLine = Integer.parseInt(row[6]);
 
             /*
             Add the file to our map if not already present and add the
             PreprocessorBlock to it that was described in the parsed row.
              */
-            try {
                 files.computeIfAbsent(
-                        pathOfSourceFile,
-                        p -> new SourceCodeFile(fileCondition, p))
-                        .addTrace(createAnnotation(blockCondition, startLine, endLine));
-            } catch (final Exception e) {
-                Logger.warn("Was not able to parse csv file: " + e);
-                return Result.Failure(e);
+                                pathOfSourceFile,
+                                p -> new SourceCodeFile(fileCondition, fileCondition, p))
+                        .addTrace(createAnnotation(blockCondition, presenceCondition, lineType, startLine, endLine));
             }
+            // sort and return all files as list
+            final List<SourceCodeFile> allFiles = new ArrayList<>(files.values());
+            allFiles.sort(Comparator.comparing(SourceCodeFile::getFile));
+            Logger.debug("Parsed a ground truth for " + allFiles.size() + " files.");
+            return Result.Success(new SyntheticArtefactTreeNode<>(allFiles));
+        } catch (final Exception e) {
+            Logger.error("Was not able to parse csv file: " + e);
+            return Result.Failure(e);
         }
-
-        // sort and return all files as list
-        final List<SourceCodeFile> allFiles = new ArrayList<>(files.values());
-        allFiles.sort(Comparator.comparing(SourceCodeFile::getFile));
-        return Result.Success(new SyntheticArtefactTreeNode<>(allFiles));
     }
 
     @Override
@@ -112,5 +137,9 @@ public abstract class KernelHavenPCIO implements ResourceLoader<Artefact>, Resou
         return Result.Try(() -> Resources.Instance().write(CSV.class, csv, p));
     }
 
-    protected abstract LineBasedAnnotation createAnnotation(final Node blockCondition, final int startLine, final int endLine);
+    protected abstract LineBasedAnnotation createAnnotation(final Node blockCondition,
+                                                            final Node presenceCondition,
+                                                            final LineType lineType,
+                                                            final int startLine,
+                                                            final int endLine);
 }

@@ -74,6 +74,7 @@ public class Main {
         final Set<EvolutionStep<SPLCommit>> evolutionSteps = variabilityDataset.getEvolutionSteps();
         Logger.info("The dataset contains " + variabilityDataset.getSuccessCommits().size() + " commits for which the variability extraction succeeded.");
         Logger.info("The dataset contains " + variabilityDataset.getErrorCommits().size() + " commits for which the variability extraction failed.");
+        Logger.info("The dataset contains " + variabilityDataset.getEmptyCommits().size() + " commits without ground truth, because there were no changes of interest.");
         Logger.info("The dataset contains " + variabilityDataset.getPartialSuccessCommits().size() + " commits that for which the file presence conditions are missing.");
         Logger.info("The dataset contains " + evolutionSteps.size() + " usable pairs.");
         for (final EvolutionStep<SPLCommit> pair : evolutionSteps) {

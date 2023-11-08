@@ -1,5 +1,6 @@
 package org.variantsync.vevos.simulation.io.data;
 
+import org.tinylog.Logger;
 import org.variantsync.functjonal.Result;
 import org.variantsync.functjonal.Unit;
 import org.variantsync.vevos.simulation.io.ResourceLoader;
@@ -56,7 +57,8 @@ public class CSVIO implements ResourceLoader<CSV>, ResourceWriter<CSV> {
             final List<String[]> rows =
                     reader.lines().map(line -> line.trim().split(separatorWithWhiteSpace)).collect(Collectors.toList());
             return Result.Success(new CSV(rows));
-        } catch (final IOException e) {
+        } catch (final Exception e) {
+            Logger.error(e);
             return Result.Failure(e);
         }
     }

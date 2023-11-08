@@ -1,0 +1,13 @@
+Path;Line Number; Counterpart
+miscutils/bc.c;0;0
+miscutils/bc.c;1;1
+miscutils/bc.c;2;2
+miscutils/bc.c;3;3
+anotherFile.c;0;0
+anotherFile.c;1;-1
+anotherFile.c;2;-1
+anotherFile.c;3;1
+thirdFile.c;0;0
+thirdFile.c;1;1
+thirdFile.c;2;4
+thirdFile.c;3;5
