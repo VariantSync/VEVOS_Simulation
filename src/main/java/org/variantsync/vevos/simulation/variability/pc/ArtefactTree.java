@@ -17,6 +17,7 @@ import java.util.Objects;
  */
 public abstract class ArtefactTree<Child extends ArtefactTree<?>> implements Artefact {
     private Node featureMapping;
+    private Node presenceCondition;
     private final CaseSensitivePath file;
     private ArtefactTree<?> parent;
     protected List<Child> subtrees;
@@ -24,18 +25,19 @@ public abstract class ArtefactTree<Child extends ArtefactTree<?>> implements Art
     /**
      * Creates a new empty tree (node) with the given feature mapping.
      */
-    public ArtefactTree(final Node featureMapping) {
-        this(featureMapping, new ArrayList<>(), null);
+    public ArtefactTree(final Node featureMapping, Node presenceCondition) {
+        this(featureMapping, presenceCondition, new ArrayList<>(), null);
     }
 
     /**
      * Creates a new tree (node) with the given feature mapping and subtrees representing (content of) the given file.
      */
-    public ArtefactTree(final Node featureMapping, final List<Child> subtrees, final CaseSensitivePath file) {
+    public ArtefactTree(final Node featureMapping, final Node presenceCondition, final List<Child> subtrees, final CaseSensitivePath file) {
         Objects.requireNonNull(featureMapping);
         Objects.requireNonNull(subtrees);
 
         this.featureMapping = featureMapping;
+        this.presenceCondition = presenceCondition;
         this.file = file;
 
         setSubtrees(subtrees);
@@ -45,6 +47,10 @@ public abstract class ArtefactTree<Child extends ArtefactTree<?>> implements Art
         this.featureMapping = featureMapping;
     }
 
+    protected void setPresenceCondition(final Node presenceCondition) {
+        this.presenceCondition = presenceCondition;
+    }
+
     @Override
     public Node getFeatureMapping() {
         return featureMapping;
@@ -52,10 +58,7 @@ public abstract class ArtefactTree<Child extends ArtefactTree<?>> implements Art
 
     @Override
     public Node getPresenceCondition() {
-        final Artefact parent = getParent();
-        return parent == null ?
-                featureMapping :
-                FormulaUtils.AndSimplified(parent.getPresenceCondition(), featureMapping);
+        return presenceCondition;
     }
 
     @Override
@@ -145,7 +148,12 @@ public abstract class ArtefactTree<Child extends ArtefactTree<?>> implements Art
         return subtrees.isEmpty();
     }
 
+
+    /**
+     * This method might no longer work properly with the new GT format and should be used with care.
+     */
     @Override
+    @Deprecated
     public void simplify() {
         for (final Child c : subtrees) {
             c.simplify();

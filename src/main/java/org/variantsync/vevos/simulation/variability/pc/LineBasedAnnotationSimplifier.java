@@ -12,13 +12,6 @@ import java.util.Queue;
  * Collections of methods for simplifying LineBasedAnnotations.
  */
 public class LineBasedAnnotationSimplifier {
-    /**
-     * @return A simplified formula of the given annotation's feature mapping.
-     */
-    public static Node simplifiedMapping(final LineBasedAnnotation root) {
-        // Actually we could employ presence condition simplification by Rhein et al. here.
-        return root.getFeatureMapping().simplifyTree();
-    }
 
     /**
      * Inlines all subtrees with redundant annotation. Example:
@@ -113,7 +106,8 @@ public class LineBasedAnnotationSimplifier {
      * Simplifies the given annotations using all other simplification methods in this class.
      */
     public static void simplify(final LineBasedAnnotation root) {
-        root.setFeatureMapping(simplifiedMapping(root));
+        root.setFeatureMapping(root.getFeatureMapping().simplifyTree());
+        root.setPresenceCondition(root.getPresenceCondition().simplifyTree());
         final List<LineBasedAnnotation> flattenedSubtrees = mergedEqualNeighbours(flattenedSubtrees(root));
         for (final LineBasedAnnotation child : flattenedSubtrees) {
             simplify(child);

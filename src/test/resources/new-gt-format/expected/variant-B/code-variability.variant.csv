@@ -1,0 +1,3 @@
+Path;File Condition;Block Condition;Presence Condition;Line Type;start;end
+code.c;True;True;True;ROOT;1;5
+code.c;True;(!FEATURE_A && (FEATURE_B || FEATURE_C));(!FEATURE_A && (FEATURE_B || FEATURE_C));artifact;2;3

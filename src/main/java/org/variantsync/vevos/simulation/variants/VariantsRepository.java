@@ -8,7 +8,7 @@ import org.variantsync.functjonal.list.NonEmptyList;
 import org.variantsync.vevos.simulation.repository.AbstractSPLRepository;
 import org.variantsync.vevos.simulation.repository.AbstractVariantsRepository;
 import org.variantsync.vevos.simulation.repository.Branch;
-import org.variantsync.vevos.simulation.util.Logger;
+import org.tinylog.Logger;
 import org.variantsync.vevos.simulation.variants.blueprints.VariantsRevisionBlueprint;
 
 import java.io.IOException;

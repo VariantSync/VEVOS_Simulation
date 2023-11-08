@@ -2,7 +2,7 @@ package org.variantsync.vevos.simulation.variability;
 
 import org.jetbrains.annotations.NotNull;
 import org.variantsync.functjonal.list.NonEmptyList;
-import org.variantsync.vevos.simulation.util.Logger;
+import org.tinylog.Logger;
 import org.variantsync.vevos.simulation.variability.sequenceextraction.CleaningEvolutionStepsStream;
 
 import java.util.*;
@@ -14,16 +14,20 @@ public class VariabilityDataset {
     private final List<SPLCommit> successCommits;
     private final List<SPLCommit> errorCommits;
     private final List<SPLCommit> partialSuccessCommits;
+    private final List<SPLCommit> emptyCommits;
 
-    public VariabilityDataset(@NotNull final List<SPLCommit> successCommits, @NotNull final List<SPLCommit> errorCommits, @NotNull final List<SPLCommit> partialSuccessCommits) {
+    public VariabilityDataset(@NotNull final List<SPLCommit> successCommits, @NotNull final List<SPLCommit> errorCommits,
+                              @NotNull final List<SPLCommit> emptyCommits, @NotNull final List<SPLCommit> partialSuccessCommits) {
         this.successCommits = successCommits;
         this.errorCommits = errorCommits;
+        this.emptyCommits = emptyCommits;
         this.partialSuccessCommits = partialSuccessCommits;
         this.allCommits = new HashSet<>();
         this.allCommits.addAll(successCommits);
         this.allCommits.addAll(errorCommits);
+        this.allCommits.addAll(emptyCommits);
         this.allCommits.addAll(partialSuccessCommits);
-        if (allCommits.size() != successCommits.size() + errorCommits.size() + partialSuccessCommits.size()) {
+        if (allCommits.size() != successCommits.size() + errorCommits.size() + emptyCommits.size() + partialSuccessCommits.size()) {
             final String errorMessage = "Some of the dataset's commits belong to more than one category (SUCCESS | ERROR | INCOMPLETE_PC)";
             Logger.error(errorMessage);
             throw new IllegalArgumentException(errorMessage);
@@ -49,6 +53,13 @@ public class VariabilityDataset {
      */
     public List<SPLCommit> getErrorCommits() {
         return errorCommits;
+    }
+
+    /**
+     * @return A List of all commits for which there was no variability data for extraction. Thus, there is no ground truth.
+     */
+    public List<SPLCommit> getEmptyCommits() {
+        return successCommits;
     }
 
     /**

@@ -6,7 +6,7 @@ import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.variantsync.vevos.simulation.util.GitUtil;
-import org.variantsync.vevos.simulation.util.Logger;
+import org.tinylog.Logger;
 
 import java.io.IOException;
 import java.nio.file.Path;

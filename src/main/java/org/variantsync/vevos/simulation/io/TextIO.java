@@ -1,7 +1,7 @@
 package org.variantsync.vevos.simulation.io;
 
 import org.variantsync.functjonal.Result;
-import org.variantsync.vevos.simulation.util.Logger;
+import org.tinylog.Logger;
 
 import java.io.BufferedReader;
 import java.io.File;

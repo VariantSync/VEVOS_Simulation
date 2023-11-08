@@ -14,7 +14,7 @@ import org.variantsync.vevos.simulation.io.TextIO;
 import org.variantsync.vevos.simulation.repository.BusyboxRepository;
 import org.variantsync.vevos.simulation.repository.SPLRepository;
 import org.variantsync.vevos.simulation.util.Clock;
-import org.variantsync.vevos.simulation.util.Logger;
+import org.tinylog.Logger;
 import org.variantsync.vevos.simulation.util.io.CaseSensitivePath;
 import org.variantsync.vevos.simulation.variability.EvolutionStep;
 import org.variantsync.vevos.simulation.variability.SPLCommit;
@@ -32,39 +32,34 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class VEVOSBenchmark {
-    private record Repo(
-            CaseSensitivePath splRepositoryPath,
-            CaseSensitivePath groundTruthDatasetPath,
-            CaseSensitivePath variantsGenerationDir,
-            Function<CaseSensitivePath, SPLRepository> createRepo,
-            Consumer<SPLRepository> cleanup) {}
+    private record Repo(CaseSensitivePath splRepositoryPath,
+                    CaseSensitivePath groundTruthDatasetPath,
+                    CaseSensitivePath variantsGenerationDir,
+                    Function<CaseSensitivePath, SPLRepository> createRepo,
+                    Consumer<SPLRepository> cleanup) {
+    }
 
     /// TODO: Specify your paths here.
-    private static final CaseSensitivePath SPL_REPOS_DIR = CaseSensitivePath.of("path/to/SPL/repos");
+    private static final CaseSensitivePath SPL_REPOS_DIR =
+                    CaseSensitivePath.of("path/to/SPL/repos");
     private static final CaseSensitivePath DATASETS_DIR = CaseSensitivePath.of("path/to/datasets/");
-    private static final CaseSensitivePath VARIANT_GENERATION_DIR = CaseSensitivePath.of("path/to/datasets/");
+    private static final CaseSensitivePath VARIANT_GENERATION_DIR =
+                    CaseSensitivePath.of("path/to/datasets/");
 
-    private static final Repo LINUX = new Repo(
-            SPL_REPOS_DIR.resolve("linux"),
-            DATASETS_DIR.resolve("linux"),
-            VARIANT_GENERATION_DIR.resolve("linux"),
-            path -> new SPLRepository(path.path()),
-            s -> {}
-    );
-    private static final Repo BUSYBOX = new Repo(
-            SPL_REPOS_DIR.resolve("busybox"),
-            DATASETS_DIR.resolve("busybox"),
-            VARIANT_GENERATION_DIR.resolve("busybox"),
-            path -> new BusyboxRepository(path.path()),
-            s -> {
-                BusyboxRepository b = Cast.unchecked(s);
-                try {
-                    b.postprocess();
-                } catch (Exception e) {
-                    Logger.error("Error in Busybox cleanup", e);
-                }
-            }
-    );
+    private static final Repo LINUX = new Repo(SPL_REPOS_DIR.resolve("linux"),
+                    DATASETS_DIR.resolve("linux"), VARIANT_GENERATION_DIR.resolve("linux"),
+                    path -> new SPLRepository(path.path()), s -> {
+                    });
+    private static final Repo BUSYBOX = new Repo(SPL_REPOS_DIR.resolve("busybox"),
+                    DATASETS_DIR.resolve("busybox"), VARIANT_GENERATION_DIR.resolve("busybox"),
+                    path -> new BusyboxRepository(path.path()), s -> {
+                        BusyboxRepository b = Cast.unchecked(s);
+                        try {
+                            b.postprocess();
+                        } catch (Exception e) {
+                            Logger.error("Error in Busybox cleanup", e);
+                        }
+                    });
     private final static int NUMBER_OF_VARIANTS_TO_GENERATE = 5;
     private final static int MAX_COMMITS_TO_ANALYZE = 20;
 
@@ -80,7 +75,7 @@ public class VEVOSBenchmark {
 
     public static void benchmark(final Repo repo) throws Exception {
         VEVOS.Initialize();
-//        Logger.setLogLevel(LogLevel.INFO);
+        // Logger.setLogLevel(LogLevel.INFO);
 
         final StringBuilder timeData = new StringBuilder();
 
@@ -88,8 +83,8 @@ public class VEVOSBenchmark {
 
         final Clock clock = new Clock();
         clock.start();
-        final VariabilityDataset dataset =
-                Resources.Instance().load(VariabilityDataset.class, repo.groundTruthDatasetPath().path());
+        final VariabilityDataset dataset = Resources.Instance().load(VariabilityDataset.class,
+                        repo.groundTruthDatasetPath().path());
         final double timeDatasetLoading = clock.getPassedSeconds();
         resultEntry(timeData, logTime("Loading dataset", timeDatasetLoading));
 
@@ -98,16 +93,22 @@ public class VEVOSBenchmark {
         final double timeEvolutionStepCreation = clock.getPassedSeconds();
         resultEntry(timeData, logTime("Creating evolution steps", timeEvolutionStepCreation));
 
-        Logger.info("The dataset contains " + dataset.getSuccessCommits().size() + " commits for which the variability extraction succeeded.");
-        Logger.info("The dataset contains " + dataset.getErrorCommits().size() + " commits for which the variability extraction failed.");
-        Logger.info("The dataset contains " + dataset.getPartialSuccessCommits().size() + " commits that for which the file presence conditions are missing.");
+        Logger.info("The dataset contains " + dataset.getSuccessCommits().size()
+                        + " commits for which the variability extraction succeeded.");
+        Logger.info("The dataset contains " + dataset.getErrorCommits().size()
+                        + " commits for which the variability extraction failed.");
+        Logger.info("The dataset contains " + dataset.getEmptyCommits().size()
+                + " commits for which there is no ground truth.");
+        Logger.info("The dataset contains " + dataset.getPartialSuccessCommits().size()
+                        + " commits that for which the file presence conditions are missing.");
         Logger.info("The dataset contains " + evolutionSteps.size() + " usable pairs of commits.");
 
         final List<SPLCommit> subhistory = dataset.getSuccessCommits();
 
         final Sampler variantsSampler =
-                FeatureIDESampler.CreateRandomSampler(NUMBER_OF_VARIANTS_TO_GENERATE);
-//                new FeatureIDESampler(NUMBER_OF_VARIANTS_TO_GENERATE, cnf -> new VEVOSRandomSampling(cnf, NUMBER_OF_VARIANTS_TO_GENERATE));
+                        FeatureIDESampler.CreateRandomSampler(NUMBER_OF_VARIANTS_TO_GENERATE);
+        // new FeatureIDESampler(NUMBER_OF_VARIANTS_TO_GENERATE, cnf -> new VEVOSRandomSampling(cnf,
+        // NUMBER_OF_VARIANTS_TO_GENERATE));
         double timeLoadPCsAverage = 0;
         double timeSampleAverage = 0;
         double timeGenVariantsAverage = 0;
@@ -119,7 +120,8 @@ public class VEVOSBenchmark {
 
             clock.start();
             final Lazy<Optional<IFeatureModel>> loadFeatureModel = splCommit.featureModel();
-            final Lazy<Optional<Artefact>> loadPresenceConditions = splCommit.presenceConditions();
+            final Lazy<Optional<Artefact>> loadPresenceConditions =
+                            splCommit.presenceConditionsFallback();
 
             if (loadPresenceConditions.run().isEmpty()) {
                 Logger.info("has no PCs");
@@ -136,8 +138,8 @@ public class VEVOSBenchmark {
             timeLoadPCsAverage += timeLoadPCs;
             logTime("Loading PCs and FM", timeLoadPCs);
 
-//            Logger.info("#features = " + featureModel.getFeatures().size());
-//            Logger.info("Feature model is valid = " + FeatureModelUtils.isValid(featureModel));
+            // Logger.info("#features = " + featureModel.getFeatures().size());
+            // Logger.info("Feature model is valid = " + FeatureModelUtils.isValid(featureModel));
 
             clock.start();
             final Sample variants = variantsSampler.sample(featureModel);
@@ -146,20 +148,26 @@ public class VEVOSBenchmark {
             logTime("Sampling " + variants.size() + " variants", timeSample);
 
             final ArtefactFilter<SourceCodeFile> artefactFilter = ArtefactFilter.KeepAll();
-            final VariantGenerationOptions generationOptions = VariantGenerationOptions.ExitOnError(false, artefactFilter);
+            final VariantGenerationOptions generationOptions =
+                            VariantGenerationOptions.ExitOnError(false, artefactFilter);
 
             clock.start();
             for (final Variant variant : variants) {
-                final CaseSensitivePath variantDir = repo.variantsGenerationDir().resolve(splCommit.id(), "_", analyzedCommits + "" , "_", variant.getName());
-                final Result<GroundTruth, Exception> result = pcs.generateVariant(variant, repo.splRepositoryPath(), variantDir, generationOptions);
+                final CaseSensitivePath variantDir = repo.variantsGenerationDir().resolve(
+                                splCommit.id(), "_", analyzedCommits + "", "_", variant.getName());
+                final Result<GroundTruth, Exception> result = pcs.generateVariant(variant,
+                                repo.splRepositoryPath(), variantDir, generationOptions);
 
-//                final FeatureIDEConfiguration config = (FeatureIDEConfiguration) variant.getConfiguration();
-//                Logger.info("Generating variant with configuration:\r\n" + config.toAssignment());
+                // final FeatureIDEConfiguration config = (FeatureIDEConfiguration)
+                // variant.getConfiguration();
+                // Logger.info("Generating variant with configuration:\r\n" +
+                // config.toAssignment());
 
                 if (result.isSuccess()) {
                     final GroundTruth groundTruth = result.getSuccess();
                     final Artefact presenceConditionsOfVariant = groundTruth.variant();
-                    Resources.Instance().write(Artefact.class, presenceConditionsOfVariant, variantDir.resolve("pcs.variant.csv").path());
+                    Resources.Instance().write(Artefact.class, presenceConditionsOfVariant,
+                                    variantDir.resolve("pcs.variant.csv").path());
                 } else {
                     throw result.getFailure();
                 }
@@ -176,13 +184,18 @@ public class VEVOSBenchmark {
             }
         }
 
-        timeLoadPCsAverage = timeLoadPCsAverage / ((double)analyzedCommits);
-        timeSampleAverage = timeSampleAverage / ((double)analyzedCommits);
-        timeGenVariantsAverage = timeGenVariantsAverage / (analyzedCommits * NUMBER_OF_VARIANTS_TO_GENERATE);
+        timeLoadPCsAverage = timeLoadPCsAverage / ((double) analyzedCommits);
+        timeSampleAverage = timeSampleAverage / ((double) analyzedCommits);
+        timeGenVariantsAverage =
+                        timeGenVariantsAverage / (analyzedCommits * NUMBER_OF_VARIANTS_TO_GENERATE);
 
         resultEntry(timeData, logTime("Loading PCs Average", timeLoadPCsAverage));
-        resultEntry(timeData, logTime("Sampling " + NUMBER_OF_VARIANTS_TO_GENERATE + " variants Average", timeSampleAverage));
-        resultEntry(timeData, logTime("Generating " + NUMBER_OF_VARIANTS_TO_GENERATE + " variants Average", timeGenVariantsAverage));
+        resultEntry(timeData,
+                        logTime("Sampling " + NUMBER_OF_VARIANTS_TO_GENERATE + " variants Average",
+                                        timeSampleAverage));
+        resultEntry(timeData, logTime(
+                        "Generating " + NUMBER_OF_VARIANTS_TO_GENERATE + " variants Average",
+                        timeGenVariantsAverage));
         resultEntry(timeData, "Commits: " + analyzedCommits);
 
         final String result = timeData.toString();

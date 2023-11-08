@@ -1,5 +1,6 @@
 package org.variantsync.vevos.simulation.variability.pc.options;
 
+import org.variantsync.vevos.simulation.variability.pc.LineBasedAnnotation;
 import org.variantsync.vevos.simulation.variability.pc.SourceCodeFile;
 
 public record VariantGenerationOptions(
@@ -15,5 +16,14 @@ public record VariantGenerationOptions(
 
     public static VariantGenerationOptions ExitOnErrorButAllowNonExistentFiles(final boolean withMacros, final ArtefactFilter<SourceCodeFile> filter) {
         return new VariantGenerationOptions(true, true, withMacros, filter);
+    }
+
+    public ArtefactFilter<LineBasedAnnotation> lineFilter() {
+        return (annotation -> {
+            if (withMacros) {
+                return true;
+            }
+            return annotation.getLineType().notAMacro();
+        });
     }
 }

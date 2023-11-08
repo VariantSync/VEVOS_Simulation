@@ -3,14 +3,19 @@
 VEVOS is a tool suite for the simulation of the evolution of clone-and-own projects and consists of two main components: The ground truth extraction, called VEVOS/Extraction and the variant simulation called VEVOS/Simulation.
 
 This repository contains VEVOS/Simulation and thus the second part of the replication package for the paper _Simulating the Evolution of Clone-and-Own Projects with VEVOS_ published at the International Conference on Evaluation and Assessment in Software Engineering (EASE) 2022 ([doi](https://doi.org/10.1145/3530019.3534084)). 
-VEVOS/Simulation is a java library for generating variants with ground truth from an input software product line and dataset extracted with VEVOS/Extraction.
+VEVOS/Simulation is a java library for generating variants with ground truth from an input software product line and dataset extracted with [VEVOS/Extraction](https://github.com/VariantSync/VEVOS_Extraction).
 
 ![Simulation Overview](docs/generation.png)
+
+## Version 2.0.0 Update
+With the latest version, VEVOS - Variant Simulation ensures compatability with ground truths extracted by VEVOS Extraction v2.0.0. It can therefore no longer be used for ground truths extracted with older VEVOS Extraction versions. 
+
+There were no major interface changes besides the compatability with the new ground truth format. 
 
 ## Example Usage and Main Features
 
 VEVOS/Simulation is supposed to be used by your research prototype on clone-and-own or variability in software systems.
-In the following we give a step by step example in how the library can be used to 
+In the following we give a step-by-step example in how the library can be used to 
   - parse the ground truth dataset extracted by VEVOS/Extraction,
   - traverse the datasets' evolution history,
   - sample variants randomly, or use a predefined set of variants for simulation,
@@ -74,6 +79,7 @@ In particular, the `VariabilityDataset` provides:
 - _success commits_ for which the extraction of feature mappings and feature model succeeded,
 - _partial success_ commits for which part of the extraction failed; Usually, a partial success commit has feature mappings but no file presence condition and no feature model,
 - _error commits_ for which the extraction failed.
+- _empty commits_ for which there were no files for which an extraction was performed
 
 To generate variants, we have to specify which variants should be generated.
 Therefore, a `Sampler` is used that returns the set of variants to use for a certain feature model.
@@ -112,6 +118,8 @@ final SPLRepository splRepository = new SPLRepository(splRepositoryPath.path());
 /// for Busybox:
 final SPLRepository splRepository = new BusyboxRepository(splRepositoryPath.path());
 ```
+
+> VEVOS Extraction 1.x.x: 
 Note that Busybox has a special subclass called `BusyboxRepository` that performs some necessary pre- and postprocessing on the product line's source code.
 
 We are now ready to traverse the evolution history to generate variants:

@@ -16,18 +16,8 @@ public record VariantAnnotation(
     public List<String> project(final VariantGenerationOptions projectionOptions, final List<String> splFileLines) {
         final List<String> result = new ArrayList<>();
 
-        final boolean genMacro = projectionOptions.withMacros() && !isTrue();
-
-        if (genMacro) {
-            result.add("#if " + FormulaUtils.toCPPString(condition));
-        }
-
         for (final VariantLineChunk child : lines) {
             result.addAll(child.project(projectionOptions, splFileLines));
-        }
-
-        if (genMacro) {
-            result.add("#endif");
         }
 
         return result;

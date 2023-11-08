@@ -15,7 +15,7 @@ import org.variantsync.vevos.simulation.io.featureide.FeatureModelIO;
 import org.variantsync.vevos.simulation.io.kernelhaven.KernelHavenSPLPCIO;
 import org.variantsync.vevos.simulation.io.kernelhaven.KernelHavenVariantPCIO;
 import org.variantsync.vevos.simulation.io.kernelhaven.VariabilityModelLoader;
-import org.variantsync.vevos.simulation.util.Logger;
+import org.tinylog.Logger;
 import org.variantsync.vevos.simulation.variability.VariabilityDataset;
 import org.variantsync.vevos.simulation.variability.pc.Artefact;
 
@@ -134,6 +134,7 @@ public class Resources {
             if (loader.canLoad(p)) {
                 final Result<T, ? extends Exception> result = loader.load(p);
                 if (result.isSuccess()) {
+                    Logger.debug("Successfully loaded resource under " + p);
                     return result.getSuccess();
                 } else {
                     Logger.error("ResourceLoader " + loader + " failed: ", result.getFailure());

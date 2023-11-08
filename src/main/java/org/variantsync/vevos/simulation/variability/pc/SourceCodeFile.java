@@ -6,12 +6,14 @@ import org.variantsync.functjonal.Result;
 import org.variantsync.functjonal.category.Traversable;
 import org.variantsync.vevos.simulation.feature.Variant;
 import org.variantsync.vevos.simulation.io.TextIO;
-import org.variantsync.vevos.simulation.util.Logger;
+import org.tinylog.Logger;
 import org.variantsync.vevos.simulation.util.fide.bugfix.FixTrueFalse;
 import org.variantsync.vevos.simulation.util.io.CaseSensitivePath;
 import org.variantsync.vevos.simulation.util.io.PathUtils;
 import org.variantsync.vevos.simulation.variability.pc.groundtruth.BlockMatching;
 import org.variantsync.vevos.simulation.variability.pc.groundtruth.GroundTruth;
+import org.variantsync.vevos.simulation.variability.pc.groundtruth.LineType;
+import org.variantsync.vevos.simulation.variability.pc.options.ArtefactFilter;
 import org.variantsync.vevos.simulation.variability.pc.options.VariantGenerationOptions;
 import org.variantsync.vevos.simulation.variability.pc.variantlines.VariantAnnotation;
 import org.variantsync.vevos.simulation.variability.pc.visitor.SourceCodeFileVisitorFocus;
@@ -26,12 +28,13 @@ import java.util.Collections;
 public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
     private final LineBasedAnnotation rootAnnotation;
 
-    public SourceCodeFile(final Node featureMapping, final CaseSensitivePath relativePath) {
-        this(featureMapping, relativePath, new LineBasedAnnotation(FixTrueFalse.True, 1, 1, AnnotationStyle.External));
+    public SourceCodeFile(final Node featureMapping, final Node presenceCondition, final CaseSensitivePath relativePath) {
+        this(featureMapping, presenceCondition, relativePath,
+                new LineBasedAnnotation(FixTrueFalse.True, FixTrueFalse.True, LineType.ROOT, 1, 1, AnnotationStyle.External));
     }
 
-    private SourceCodeFile(final Node featureMapping, final CaseSensitivePath relativePath, final LineBasedAnnotation root) {
-        super(featureMapping, Collections.singletonList(root), relativePath);
+    private SourceCodeFile(final Node featureMapping, final Node presenceCondition, final CaseSensitivePath relativePath, final LineBasedAnnotation root) {
+        super(featureMapping, presenceCondition, Collections.singletonList(root), relativePath);
         rootAnnotation = root;
     }
 
@@ -54,6 +57,8 @@ public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
             return Result.Failure(new FileNotFoundException("Source file " + sourceFile + " does not exist!"));
         }
 
+        ArtefactFilter<LineBasedAnnotation> annotationFilter = strategy.lineFilter();
+
         return
                 // Create the target file.
                 PathUtils.createEmptyAsResult(targetFile.path())
@@ -61,7 +66,7 @@ public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
                 .bind(unit -> Traversable.sequence(
                         // Compute ground truth for our variant (i.e., make the variant feature-aware
                         rootAnnotation
-                                .deriveForVariant(variant)
+                                .deriveForVariant(variant, annotationFilter)
                                 .map(splAnnotationGroundTruth -> {
                     final BlockMatching lineMatching = splAnnotationGroundTruth.matching();
                     // Retrieve all lines of code from the SPL file that should be included in the variant file.
@@ -86,10 +91,10 @@ public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
                         // In case of success, return ground truth.
                         Functjonal.match(
                                 splAnnotationGroundTruth -> GroundTruth.forSourceCodeFile(
-                                        new SourceCodeFile(getFeatureMapping(), getFile(), splAnnotationGroundTruth.variantArtefact()),
+                                        new SourceCodeFile(getFeatureMapping(), getPresenceCondition(), getFile(), splAnnotationGroundTruth.variantArtefact()),
                                         splAnnotationGroundTruth
                                 ),
-                                () -> GroundTruth.withoutAnnotations(new SourceCodeFile(getFeatureMapping(), getFile()))
+                                () -> GroundTruth.withoutAnnotations(new SourceCodeFile(getFeatureMapping(), getPresenceCondition(), getFile()))
                         ),
                         // In case of failure, log it (and implicitly transform IOException to Exception).
                         ioexception -> {
@@ -103,6 +108,10 @@ public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
         return rootAnnotation;
     }
 
+    /**
+     * This method might no longer work properly with the new GT format and should be used with care.
+     */
+    @Deprecated
     public void simplify() {
         rootAnnotation.simplify();
     }

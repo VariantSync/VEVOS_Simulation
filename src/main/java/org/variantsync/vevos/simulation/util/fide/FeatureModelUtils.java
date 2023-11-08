@@ -10,7 +10,7 @@ import de.ovgu.featureide.fm.core.base.impl.Feature;
 import de.ovgu.featureide.fm.core.job.monitor.ConsoleTimeMonitor;
 import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 import org.variantsync.vevos.simulation.io.Resources;
-import org.variantsync.vevos.simulation.util.Logger;
+import org.tinylog.Logger;
 
 import java.io.IOException;
 import java.nio.file.Files;

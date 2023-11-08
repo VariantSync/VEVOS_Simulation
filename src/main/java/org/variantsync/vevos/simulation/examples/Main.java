@@ -11,7 +11,7 @@ import org.variantsync.vevos.simulation.feature.sampling.FeatureIDESampler;
 import org.variantsync.vevos.simulation.io.Resources;
 import org.variantsync.vevos.simulation.io.data.VariabilityDatasetLoader;
 import org.variantsync.vevos.simulation.repository.AbstractSPLRepository;
-import org.variantsync.vevos.simulation.util.Logger;
+import org.tinylog.Logger;
 import org.variantsync.vevos.simulation.variability.EvolutionStep;
 import org.variantsync.vevos.simulation.variability.SPLCommit;
 import org.variantsync.vevos.simulation.variability.VariabilityDataset;
@@ -74,6 +74,7 @@ public class Main {
         final Set<EvolutionStep<SPLCommit>> evolutionSteps = variabilityDataset.getEvolutionSteps();
         Logger.info("The dataset contains " + variabilityDataset.getSuccessCommits().size() + " commits for which the variability extraction succeeded.");
         Logger.info("The dataset contains " + variabilityDataset.getErrorCommits().size() + " commits for which the variability extraction failed.");
+        Logger.info("The dataset contains " + variabilityDataset.getEmptyCommits().size() + " commits without ground truth, because there were no changes of interest.");
         Logger.info("The dataset contains " + variabilityDataset.getPartialSuccessCommits().size() + " commits that for which the file presence conditions are missing.");
         Logger.info("The dataset contains " + evolutionSteps.size() + " usable pairs.");
         for (final EvolutionStep<SPLCommit> pair : evolutionSteps) {

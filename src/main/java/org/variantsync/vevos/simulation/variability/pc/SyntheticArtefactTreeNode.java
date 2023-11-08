@@ -3,7 +3,7 @@ package org.variantsync.vevos.simulation.variability.pc;
 import org.variantsync.functjonal.Cast;
 import org.variantsync.functjonal.Result;
 import org.variantsync.vevos.simulation.feature.Variant;
-import org.variantsync.vevos.simulation.util.Logger;
+import org.tinylog.Logger;
 import org.variantsync.vevos.simulation.util.fide.bugfix.FixTrueFalse;
 import org.variantsync.vevos.simulation.util.io.CaseSensitivePath;
 import org.variantsync.vevos.simulation.variability.pc.groundtruth.GroundTruth;
@@ -31,7 +31,7 @@ public class SyntheticArtefactTreeNode<Child extends ArtefactTree<?>> extends Ar
      * Creates a new tree (node) with feature mapping True and the given subtrees.
      */
     public SyntheticArtefactTreeNode(final List<Child> subtrees) {
-        super(FixTrueFalse.True, subtrees, null);
+        super(FixTrueFalse.True, FixTrueFalse.True, subtrees, null);
     }
 
     /**
@@ -39,7 +39,7 @@ public class SyntheticArtefactTreeNode<Child extends ArtefactTree<?>> extends Ar
      * @param other Object to create a plain copy of (without copying children).
      */
     public SyntheticArtefactTreeNode(final ArtefactTree<Child> other) {
-        super(other.getFeatureMapping(), new ArrayList<>(), other.getFile());
+        super(other.getFeatureMapping(), other.getPresenceCondition(), new ArrayList<>(), other.getFile());
     }
 
     @Override
