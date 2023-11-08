@@ -108,6 +108,10 @@ public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
         return rootAnnotation;
     }
 
+    /**
+     * This method might no longer work properly with the new GT format and should be used with care.
+     */
+    @Deprecated
     public void simplify() {
         rootAnnotation.simplify();
     }

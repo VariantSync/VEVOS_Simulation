@@ -183,6 +183,10 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
         );
     }
 
+    /**
+     * This method might no longer work properly with the new GT format and should be used with care.
+     */
+    @Deprecated
     public void simplify() {
         LineBasedAnnotationSimplifier.simplify(this);
     }

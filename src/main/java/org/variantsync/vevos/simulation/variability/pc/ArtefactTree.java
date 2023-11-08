@@ -47,6 +47,10 @@ public abstract class ArtefactTree<Child extends ArtefactTree<?>> implements Art
         this.featureMapping = featureMapping;
     }
 
+    protected void setPresenceCondition(final Node presenceCondition) {
+        this.presenceCondition = presenceCondition;
+    }
+
     @Override
     public Node getFeatureMapping() {
         return featureMapping;
@@ -144,7 +148,12 @@ public abstract class ArtefactTree<Child extends ArtefactTree<?>> implements Art
         return subtrees.isEmpty();
     }
 
+
+    /**
+     * This method might no longer work properly with the new GT format and should be used with care.
+     */
     @Override
+    @Deprecated
     public void simplify() {
         for (final Child c : subtrees) {
             c.simplify();

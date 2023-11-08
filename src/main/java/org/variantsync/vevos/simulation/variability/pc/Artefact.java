@@ -33,8 +33,10 @@ public interface Artefact {
      */
     CaseSensitivePath getFile();
 
+    @Deprecated
     /**
      * Simplifies the artefact w.r.t. to presence conditions and redundant structure.
+     * This method might no longer work properly with the new GT format and should be used with care.
      */
     void simplify();
 
