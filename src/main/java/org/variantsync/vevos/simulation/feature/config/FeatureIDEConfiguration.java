@@ -98,6 +98,11 @@ public class FeatureIDEConfiguration implements IConfiguration {
         return formula.getValue(toAssignment());
     }
 
+    @Override
+    public List<IFeature> getFeatures() {
+        return this.featureIDEConfig.getSelectedFeatures();
+    }
+
     public Configuration getConfiguration() {
         return featureIDEConfig;
     }

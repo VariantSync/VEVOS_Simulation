@@ -1,8 +1,11 @@
 package org.variantsync.vevos.simulation.feature.config;
 
+import de.ovgu.featureide.fm.core.base.IFeature;
 import org.prop4j.Node;
 import org.tinylog.Logger;
+import org.variantsync.vevos.simulation.feature.SimpleFeature;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,5 +29,16 @@ public class SimpleConfiguration implements IConfiguration {
             assignment.put(f, false);}
         });
         return formula.getValue(assignment);
+    }
+
+    @Override
+    public List<IFeature> getFeatures() {
+        List<IFeature> features = new ArrayList<>();
+        for (Map.Entry<Object, Boolean> entry : this.assignment.entrySet()) {
+            if (entry.getValue() && !entry.getKey().equals("True")) {
+                features.add(new SimpleFeature((String) entry.getKey()));
+            }
+        }
+        return features;
     }
 }
