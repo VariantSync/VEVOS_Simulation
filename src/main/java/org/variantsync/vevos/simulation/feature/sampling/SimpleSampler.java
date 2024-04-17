@@ -61,7 +61,7 @@ public class SimpleSampler implements Sampler {
         final AtomicInteger variantNo = new AtomicInteger();
         List<Variant> variants = new ArrayList<>(this.sampleSize);
         for (int i = 0; i < this.sampleSize; i++) {
-            int numFeatures = random.nextInt(this.maxFeatures);
+            int numFeatures = random.nextInt(Integer.max(this.maxFeatures, features.size()));
             List<String> featureNames = features.subList(0, numFeatures).stream().map(IFeatureModelElement::getName).collect(Collectors.toList());
             variants.add(new Variant(this.variantNameGenerator.getNameAtIndex(variantNo.getAndIncrement()), new SimpleConfiguration(featureNames)));
             // Reshuffle for the next variant
