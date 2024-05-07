@@ -11,4 +11,4 @@ code.c;1;FEATURE_D;FEATURE_D;if;13;13
 code.c;1;FEATURE_D;FEATURE_D;artifact;14;15
 code.c;1;FEATURE_D;FEATURE_D;endif;16;16
 main.c;1;1;1;ROOT;1;6
-top_level.c;FEATURE_A;1;1;ROOT;1;14
+top_level.c;FEATURE_A;1;FEATURE_A;ROOT;1;14

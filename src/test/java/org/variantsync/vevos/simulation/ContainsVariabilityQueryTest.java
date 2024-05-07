@@ -44,7 +44,7 @@ public class ContainsVariabilityQueryTest {
 
     @Test
     public void variantContainsTopLevelVariability() {
-        Assert.assertTrue(variantFileContainsVariability("top_level.c", "FEATURE_E", "FEATURE_F"));
+        Assert.assertTrue(variantFileContainsVariability("top_level.c", "FEATURE_A", "FEATURE_F"));
     }
 
     @Test
