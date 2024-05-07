@@ -33,11 +33,10 @@ public class FeatureIDESampler implements Sampler {
         return new FeatureIDESampler(
                 size,
                 cnf -> {
-                    final AConfigurationGenerator randomSampler =  new RandomConfigurationGenerator(cnf, size);
+                    final AConfigurationGenerator randomSampler = new RandomConfigurationGenerator(cnf, size);
                     randomSampler.setTimeout(timeoutInMilliseconds);
                     return randomSampler;
-                }
-        );
+                });
     }
 
     public FeatureIDESampler(final int size, final Function<CNF, IConfigurationGenerator> generatorFactory) {
@@ -61,13 +60,13 @@ public class FeatureIDESampler implements Sampler {
         final CNF cnf = featureModelFormula.getCNF();
         final IConfigurationGenerator generator = generatorFactory.apply(cnf);
         // We could add a monitor here that writes to the log for example.
-        // The monitor gets notified about the progress of the generator and can for example be used to update a progress bar.
+        // The monitor gets notified about the progress of the generator and can for
+        // example be used to update a progress bar.
         // I guess we do not need it.
         final List<LiteralSet> result = LongRunningWrapper.runMethod(generator, new NullMonitor<>());
         final AtomicInteger variantNo = new AtomicInteger();
         return new Sample(result.stream().map(literalSet -> new Variant(
                 variantNameGenerator.getNameAtIndex(variantNo.getAndIncrement()),
-                new FeatureIDEConfiguration(literalSet, featureModelFormula)
-        )).collect(Collectors.toList()));
+                new FeatureIDEConfiguration(literalSet, featureModelFormula))).collect(Collectors.toList()));
     }
 }

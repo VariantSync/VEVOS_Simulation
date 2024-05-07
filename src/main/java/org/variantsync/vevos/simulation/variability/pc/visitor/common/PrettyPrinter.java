@@ -27,7 +27,8 @@ public class PrettyPrinter implements ArtefactVisitor {
     }
 
     @Override
-    public <T extends ArtefactTree<?>> void visitGenericArtefactTreeNode(final SyntheticArtefactTreeNodeVisitorFocus<T> focus) {
+    public <T extends ArtefactTree<?>> void visitGenericArtefactTreeNode(
+            final SyntheticArtefactTreeNodeVisitorFocus<T> focus) {
         builder.append(indent).append("[").append(System.lineSeparator());
         printSubtrees(focus);
         builder.append(indent).append("]").append(System.lineSeparator());

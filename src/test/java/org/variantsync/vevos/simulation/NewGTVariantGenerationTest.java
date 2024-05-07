@@ -1,20 +1,13 @@
 package org.variantsync.vevos.simulation;
 
-import de.ovgu.featureide.fm.core.analysis.cnf.formula.FeatureModelFormula;
-import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import org.junit.Assert;
 import org.junit.Test;
 import org.tinylog.Logger;
 import org.variantsync.functjonal.Result;
 import org.variantsync.vevos.simulation.feature.Variant;
-import org.variantsync.vevos.simulation.feature.config.FeatureIDEConfiguration;
-import org.variantsync.vevos.simulation.feature.config.IConfiguration;
 import org.variantsync.vevos.simulation.feature.config.SimpleConfiguration;
 import org.variantsync.vevos.simulation.io.Resources;
-import org.variantsync.vevos.simulation.io.featureide.FeatureModelIO;
 import org.variantsync.vevos.simulation.io.kernelhaven.KernelHavenSPLPCIO;
-import org.variantsync.vevos.simulation.io.kernelhaven.VariabilityModelLoader;
-import org.variantsync.vevos.simulation.util.fide.FeatureModelUtils;
 import org.variantsync.vevos.simulation.util.io.CaseSensitivePath;
 import org.variantsync.vevos.simulation.variability.pc.*;
 import org.variantsync.vevos.simulation.variability.pc.options.ArtefactFilter;
@@ -106,13 +99,12 @@ public class NewGTVariantGenerationTest {
                         groundTruth.variant(),
                         targetDir.resolve("ground_truth.variant.csv").path())))
                 .bimap((success) -> {
-                            Logger.debug("generated variant {}", variant.getName());
-                            return success;
-                        }
-                        ,
+                    Logger.debug("generated variant {}", variant.getName());
+                    return success;
+                },
                         (failure) -> {
-                    Logger.error(failure);
-                    throw new RuntimeException(failure);
+                            Logger.error(failure);
+                            throw new RuntimeException(failure);
                         });
     }
 
@@ -123,7 +115,8 @@ public class NewGTVariantGenerationTest {
         assertCorrectPCs(pathToExpected, pathToActual);
     }
 
-    private void assertCorrectCode(CaseSensitivePath pathToExpected, CaseSensitivePath pathToActual) throws IOException {
+    private void assertCorrectCode(CaseSensitivePath pathToExpected, CaseSensitivePath pathToActual)
+            throws IOException {
         List<String> expectedCode = Files.readAllLines(pathToExpected.resolve("code.c").path());
         List<String> actualCode = Files.readAllLines(pathToActual.resolve("code.c").path());
         Assert.assertTrue(compareLines(expectedCode, actualCode));
@@ -144,8 +137,8 @@ public class NewGTVariantGenerationTest {
         }
 
         for (int lineNumber = 1; lineNumber <= Math.min(listA.size(), listB.size()); lineNumber++) {
-            String lineA = listA.get(lineNumber-1);
-            String lineB = listB.get(lineNumber-1);
+            String lineA = listA.get(lineNumber - 1);
+            String lineB = listB.get(lineNumber - 1);
             if (!lineA.equals(lineB)) {
                 equal = false;
                 Logger.error("Line {} does not match: '{}' vs. '{}'", lineNumber, lineA, lineB);

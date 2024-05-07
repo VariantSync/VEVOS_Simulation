@@ -19,7 +19,6 @@ public class Debug {
                     System.out.println(StringUtils.genIndent(indent.get()) + artefact);
                     indent.incrementAndGet();
                 },
-                artefact -> indent.decrementAndGet()
-        );
+                artefact -> indent.decrementAndGet());
     }
 }

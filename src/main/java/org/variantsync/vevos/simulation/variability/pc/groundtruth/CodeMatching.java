@@ -7,7 +7,8 @@ import org.variantsync.vevos.simulation.io.data.CSV;
 import java.nio.file.Path;
 import java.util.*;
 
-public record CodeMatching(HashMap<Path, FileMatching> fileMatchingBefore, HashMap<Path, FileMatching> fileMatchingAfter) {
+public record CodeMatching(HashMap<Path, FileMatching> fileMatchingBefore,
+        HashMap<Path, FileMatching> fileMatchingAfter) {
 
     public Optional<Integer> beforeCommitMatch(Path pathToFile, int lineNumber) {
         return Optional.of(fileMatchingBefore.get(pathToFile)).map(m -> m.matching.get(lineNumber));
@@ -17,11 +18,13 @@ public record CodeMatching(HashMap<Path, FileMatching> fileMatchingBefore, HashM
         return Optional.of(fileMatchingAfter.get(pathToFile)).map(m -> m.matching.get(lineNumber));
     }
 
-    public static Lazy<Optional<CodeMatching>> lazyFromCSVs(Lazy<Optional<CSV>> matchingBefore, Lazy<Optional<CSV>> matchingAfter) {
+    public static Lazy<Optional<CodeMatching>> lazyFromCSVs(Lazy<Optional<CSV>> matchingBefore,
+            Lazy<Optional<CSV>> matchingAfter) {
         return Lazy.of(() -> fromCSVs(matchingBefore, matchingAfter));
     }
 
-    public static Optional<CodeMatching> fromCSVs(Lazy<Optional<CSV>> matchingBefore, Lazy<Optional<CSV>> matchingAfter) {
+    public static Optional<CodeMatching> fromCSVs(Lazy<Optional<CSV>> matchingBefore,
+            Lazy<Optional<CSV>> matchingAfter) {
         Optional<CSV> mBefore = matchingBefore.run();
         Optional<CSV> mAfter = matchingAfter.run();
         if (mBefore.isEmpty() || mAfter.isEmpty()) {
@@ -36,7 +39,7 @@ public record CodeMatching(HashMap<Path, FileMatching> fileMatchingBefore, HashM
         // Make sure that the matchings agree
         checkAgreement(fileMatchingBefore, fileMatchingAfter);
         return new CodeMatching(fileMatchingBefore, fileMatchingAfter);
-     }
+    }
 
     private static HashMap<Path, FileMatching> parseCSV(CSV csv) {
         // skip first entry as it is the csv header
@@ -73,8 +76,10 @@ public record CodeMatching(HashMap<Path, FileMatching> fileMatchingBefore, HashM
 
         @Override
         public boolean equals(Object obj) {
-            if (obj == this) return true;
-            if (obj == null || obj.getClass() != this.getClass()) return false;
+            if (obj == this)
+                return true;
+            if (obj == null || obj.getClass() != this.getClass())
+                return false;
             var that = (FileMatching) obj;
             return Objects.equals(this.filePath, that.filePath) &&
                     Objects.equals(this.matching, that.matching);
@@ -113,7 +118,7 @@ public record CodeMatching(HashMap<Path, FileMatching> fileMatchingBefore, HashM
     }
 
     private static boolean arraysDisagree(ArrayList<Integer> first, ArrayList<Integer> second) {
-        for (int i = 0; i < first.size(); i++)  {
+        for (int i = 0; i < first.size(); i++) {
             if (first.get(i) == -1) {
                 continue;
             }

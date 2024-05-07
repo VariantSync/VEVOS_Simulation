@@ -22,7 +22,7 @@ public class LinuxKernel {
 
         for (final String res : DISTRO_CONFIGS) {
             try (final InputStream is = Objects.requireNonNull(Sample.class.getClassLoader().getResourceAsStream(res));
-                 final Scanner scanner = new Scanner(is)) {
+                    final Scanner scanner = new Scanner(is)) {
                 final List<String> lines = new LinkedList<>();
                 while (scanner.hasNext()) {
                     lines.add(scanner.nextLine());

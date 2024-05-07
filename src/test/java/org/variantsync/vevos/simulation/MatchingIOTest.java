@@ -16,7 +16,8 @@ public class MatchingIOTest {
     private CodeMatching loadCorrectMatching() {
         VEVOS.Initialize();
         CSVIO io = new CSVIO();
-        CSV csvBefore = io.load(Path.of("src/test/resources/matching/correct/code-matching.before.spl.csv")).getSuccess();
+        CSV csvBefore = io.load(Path.of("src/test/resources/matching/correct/code-matching.before.spl.csv"))
+                .getSuccess();
         CSV csvAfter = io.load(Path.of("src/test/resources/matching/correct/code-matching.after.spl.csv")).getSuccess();
         return CodeMatching.fromCSVs(csvBefore, csvAfter);
     }
@@ -24,8 +25,10 @@ public class MatchingIOTest {
     private void loadIncorrectMatching() {
         VEVOS.Initialize();
         CSVIO io = new CSVIO();
-        CSV csvBefore = io.load(Path.of("src/test/resources/matching/incorrect/code-matching.before.spl.csv")).getSuccess();
-        CSV csvAfter = io.load(Path.of("src/test/resources/matching/incorrect/code-matching.after.spl.csv")).getSuccess();
+        CSV csvBefore = io.load(Path.of("src/test/resources/matching/incorrect/code-matching.before.spl.csv"))
+                .getSuccess();
+        CSV csvAfter = io.load(Path.of("src/test/resources/matching/incorrect/code-matching.after.spl.csv"))
+                .getSuccess();
         CodeMatching.fromCSVs(csvBefore, csvAfter);
     }
 

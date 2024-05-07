@@ -14,7 +14,8 @@ public class LongestNonOverlappingSequencesTest {
 
     @Test
     public void exampleExtraction() {
-        // For example, if the commits comprise three partially overlapping sequences ([A-B-C-D-E], [X-Y-Z], [A-B-F-G]),
+        // For example, if the commits comprise three partially overlapping sequences
+        // ([A-B-C-D-E], [X-Y-Z], [A-B-F-G]),
         // the function will return the sequences ([A-B-C-D-E], [X-Y-Z], [F-G]).
         final SPLCommit a = new SPLCommit("A");
         final SPLCommit b = new SPLCommit("B");
@@ -48,7 +49,7 @@ public class LongestNonOverlappingSequencesTest {
         z.setParents(y);
 
         List<SPLCommit> exampleCommits = Arrays.asList(a, b, c, d, e, f, g, x, y, z);
-        NonEmptyList<SPLCommit> expectedOne = new NonEmptyList<>(Arrays.asList(a,b,c,d,e));
+        NonEmptyList<SPLCommit> expectedOne = new NonEmptyList<>(Arrays.asList(a, b, c, d, e));
         NonEmptyList<SPLCommit> expectedTwo = new NonEmptyList<>(Arrays.asList(x, y, z));
         NonEmptyList<SPLCommit> expectedThree = new NonEmptyList<>(Arrays.asList(f, g));
 
@@ -62,7 +63,8 @@ public class LongestNonOverlappingSequencesTest {
     }
 
     @Test
-    // This test caused a StackoverflowError for the previous implementation of LongestNonOverlappingSequences at
+    // This test caused a StackoverflowError for the previous implementation of
+    // LongestNonOverlappingSequences at
     // confirms that the Error is no longer thrown.
     public void stackOverflowPrevented() {
         int size = 10_000;

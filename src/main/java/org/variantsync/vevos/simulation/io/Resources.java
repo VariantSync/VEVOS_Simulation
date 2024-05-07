@@ -85,7 +85,8 @@ public class Resources {
     }
 
     /**
-     * @return Returns a list of all resource loaders that are registered for loading the given type of resource T.
+     * @return Returns a list of all resource loaders that are registered for
+     *         loading the given type of resource T.
      */
     @SuppressWarnings("unchecked")
     private <T> List<ResourceLoader<T>> getLoaders(final Class<T> type) {
@@ -93,7 +94,8 @@ public class Resources {
     }
 
     /**
-     * @return Returns a list of all resource writers that are registered for writing the given type of resource T.
+     * @return Returns a list of all resource writers that are registered for
+     *         writing the given type of resource T.
      */
     @SuppressWarnings("unchecked")
     private <T> List<ResourceWriter<T>> getWriters(final Class<T> type) {
@@ -102,7 +104,8 @@ public class Resources {
 
     /**
      * Adds the given loader to this manager such that it will be queried for
-     * resource loading when a resource of the given type T is requested by the user via @load.
+     * resource loading when a resource of the given type T is requested by the user
+     * via @load.
      */
     public <T> void registerLoader(final Class<T> type, final ResourceLoader<T> loader) {
         getLoaders(type).add(loader);
@@ -110,7 +113,8 @@ public class Resources {
 
     /**
      * Adds the given writer to this manager such that it will be queried for
-     * resource writing when a resource of the given type T is given by the user via @write.
+     * resource writing when a resource of the given type T is given by the user
+     * via @write.
      */
     public <T> void registerWriter(final Class<T> type, final ResourceWriter<T> writer) {
         getWriters(type).add(writer);
@@ -120,7 +124,8 @@ public class Resources {
      * Loads the resource at path p as the given type T.
      *
      * @return The loaded resource.
-     * @throws ResourceIOException if no resource loader is registered for loading objects of type T
+     * @throws ResourceIOException if no resource loader is registered for loading
+     *                             objects of type T
      *                             or if all resource loaders failed in loading.
      */
     public <T> T load(final Class<T> type, final Path p) throws ResourceIOException {

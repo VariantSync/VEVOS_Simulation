@@ -48,21 +48,25 @@ public class FeatureModelUtils {
 
     public static IFeatureModel IntersectionModel(final IFeatureModel modelA, final IFeatureModel modelB) {
         // Collect all features in the intersection of modelA and modelB
-        // We have to rely on the equality of names, as the equality of objects does not seem to work as needed for this task
-        final Set<IFeature> featureIntersection = new HashSet<>(getFeaturesFiltered(modelA, f -> getFeatureNames(modelB).contains(f.getName())));
+        // We have to rely on the equality of names, as the equality of objects does not
+        // seem to work as needed for this task
+        final Set<IFeature> featureIntersection = new HashSet<>(
+                getFeaturesFiltered(modelA, f -> getFeatureNames(modelB).contains(f.getName())));
 
         // Collect all constraints that only describe features in the intersection
-        final Collection<IConstraint> constraintIntersection = getConstraintsFiltered(modelA, c -> featureIntersection.containsAll(c.getContainedFeatures()));
+        final Collection<IConstraint> constraintIntersection = getConstraintsFiltered(modelA,
+                c -> featureIntersection.containsAll(c.getContainedFeatures()));
 
-        constraintIntersection.addAll(getConstraintsFiltered(modelB, c -> featureIntersection.containsAll(c.getContainedFeatures())));
+        constraintIntersection
+                .addAll(getConstraintsFiltered(modelB, c -> featureIntersection.containsAll(c.getContainedFeatures())));
 
         final IFeatureModelFactory factory = FMFactoryManager.getInstance().getFactory(modelA);
         return createModel(factory, featureIntersection, constraintIntersection);
     }
 
     public static IFeatureModel createModel(IFeatureModelFactory factory,
-                                            Collection<IFeature> features,
-                                            Collection<IConstraint> constraints) {
+            Collection<IFeature> features,
+            Collection<IConstraint> constraints) {
         final IFeatureModel model = factory.create();
         final IFeature root = factory.createFeature(model, "__Root__");
         FeatureUtils.setRoot(model, root);
@@ -83,7 +87,8 @@ public class FeatureModelUtils {
     public static IFeatureModel UnionModel(final IFeatureModel modelA, final IFeatureModel modelB) {
         final Set<String> featureNames = new HashSet<>();
 
-        final ArrayList<IFeature> featureUnion = new ArrayList<>(modelA.getFeatures().size() + modelB.getFeatures().size());
+        final ArrayList<IFeature> featureUnion = new ArrayList<>(
+                modelA.getFeatures().size() + modelB.getFeatures().size());
         // Add all features of modelA
         modelA.getFeatures().forEach(f -> {
             featureUnion.add(f);
@@ -94,7 +99,8 @@ public class FeatureModelUtils {
         featureUnion.trimToSize();
 
         // Collect the constraints
-        ArrayList<IConstraint> constraintUnion = new ArrayList<>(modelA.getConstraints().size() + modelB.getConstraints().size());
+        ArrayList<IConstraint> constraintUnion = new ArrayList<>(
+                modelA.getConstraints().size() + modelB.getConstraints().size());
         constraintUnion.addAll(modelA.getConstraints());
         constraintUnion.addAll(modelB.getConstraints());
 
@@ -102,16 +108,20 @@ public class FeatureModelUtils {
         return createModel(factory, featureUnion, constraintUnion);
     }
 
-    public static Collection<String> getSymmetricFeatureDifference(final IFeatureModel modelA, final IFeatureModel modelB) {
+    public static Collection<String> getSymmetricFeatureDifference(final IFeatureModel modelA,
+            final IFeatureModel modelB) {
         final Set<String> featureNames = new HashSet<>();
 
-        getFeaturesFiltered(modelA, f -> !getFeatureNames(modelB).contains(f.getName())).stream().map(IFeatureModelElement::getName).forEach(featureNames::add);
-        getFeaturesFiltered(modelB, f -> !getFeatureNames(modelA).contains(f.getName())).stream().map(IFeatureModelElement::getName).forEach(featureNames::add);
+        getFeaturesFiltered(modelA, f -> !getFeatureNames(modelB).contains(f.getName())).stream()
+                .map(IFeatureModelElement::getName).forEach(featureNames::add);
+        getFeaturesFiltered(modelB, f -> !getFeatureNames(modelA).contains(f.getName())).stream()
+                .map(IFeatureModelElement::getName).forEach(featureNames::add);
 
         return featureNames;
     }
 
-    private static Collection<IFeature> getFeaturesFiltered(final IFeatureModel model, Function<IFeature, Boolean> filter) {
+    private static Collection<IFeature> getFeaturesFiltered(final IFeatureModel model,
+            Function<IFeature, Boolean> filter) {
         return model
                 .getFeatures()
                 .stream()
@@ -119,7 +129,8 @@ public class FeatureModelUtils {
                 .collect(Collectors.toList());
     }
 
-    private static Collection<IConstraint> getConstraintsFiltered(final IFeatureModel model, Function<IConstraint, Boolean> filter) {
+    private static Collection<IConstraint> getConstraintsFiltered(final IFeatureModel model,
+            Function<IConstraint, Boolean> filter) {
         return model
                 .getConstraints()
                 .stream()
@@ -134,10 +145,13 @@ public class FeatureModelUtils {
                 .collect(Collectors.toSet());
     }
 
-    public static IFeatureModel FromVariabilityModel(VariabilityModel vm) throws Resources.ResourceIOException, IOException {
-        // 1. Load DIMACS model which contains all constraints and the associated variables
+    public static IFeatureModel FromVariabilityModel(VariabilityModel vm)
+            throws Resources.ResourceIOException, IOException {
+        // 1. Load DIMACS model which contains all constraints and the associated
+        // variables
         Logger.debug("Converting VariabilityModel to FeatureModel.");
-        // The DIMACS file is missing the 'CONFIG_' prefix for every feature, while the VariabilityModel and the PCs are
+        // The DIMACS file is missing the 'CONFIG_' prefix for every feature, while the
+        // VariabilityModel and the PCs are
         // with prefix. We amend the DIMACS file by adding the prefix to each feature.
         amendDimacs(vm.getConstraintModel().toPath());
 
@@ -145,7 +159,8 @@ public class FeatureModelUtils {
         final IFeatureModel fm = Resources.Instance().load(IFeatureModel.class, vm.getConstraintModel().toPath());
         Logger.debug("Read FeatureModel from DIMACS");
 
-        // 2. Add all missing features that are only in the variability model, but not the constraint model. That is, features
+        // 2. Add all missing features that are only in the variability model, but not
+        // the constraint model. That is, features
         // not part of a constraint
         final Set<String> featureNames = new HashSet<>(vm.getVariableMap().keySet());
         // We only want to add features that are not part of the model yet
@@ -154,7 +169,8 @@ public class FeatureModelUtils {
         return FillFeatureModel(fm, featureNames);
     }
 
-    /// Create optional features from a collection of feature names and add them to the feature model
+    /// Create optional features from a collection of feature names and add them to
+    /// the feature model
     public static IFeatureModel FillFeatureModel(IFeatureModel fm, Collection<String> featureNames) {
         final IFeatureModelFactory factory = FMFactoryManager.getInstance().getFactory(fm);
         final IFeature root = FeatureUtils.getRoot(fm);
@@ -192,7 +208,7 @@ public class FeatureModelUtils {
     }
 
     public static boolean isValid(IFeatureModel fm) {
-//        final CNF cnf = new FeatureModelCNF(fm);
+        // final CNF cnf = new FeatureModelCNF(fm);
         final FeatureModelFormula featureModelFormula = new FeatureModelFormula(fm);
         final CNF cnf = featureModelFormula.getCNF();
         return isValid(cnf);

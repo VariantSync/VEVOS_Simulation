@@ -61,13 +61,14 @@ public class FeatureIDEConfiguration implements IConfiguration {
         for (final int falseVar : falseVariables) {
             featureIDEConfig.setManual(vars.getName(falseVar), Selection.UNSELECTED);
         }
-        
+
         // Selection should be complete as the given literalSet should be total.
         // So we do not have to analyze and complete configurations.
     }
 
     /**
-     * Create a minimal viable configuration such that all features in the given selection are active.
+     * Create a minimal viable configuration such that all features in the given
+     * selection are active.
      *
      * @param fm             Feature model to satisfy.
      * @param activeFeatures Features to select.
@@ -80,7 +81,8 @@ public class FeatureIDEConfiguration implements IConfiguration {
         }
 
         // Selection might be incomplete (e.g., parent feature not selected)
-        final ConfigurationAnalyzer analyzer = new ConfigurationAnalyzer(new ConfigurationPropagator(fm, featureIDEConfig));
+        final ConfigurationAnalyzer analyzer = new ConfigurationAnalyzer(
+                new ConfigurationPropagator(fm, featureIDEConfig));
         analyzer.completeMin();
     }
 

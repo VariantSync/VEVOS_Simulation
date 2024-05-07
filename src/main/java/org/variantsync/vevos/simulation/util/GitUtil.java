@@ -16,10 +16,13 @@ public class GitUtil {
      * Loads a Git from a remote repository
      *
      * @param remoteUri      URI of the remote git repository
-     * @param repositoryName Name of the repository. Sets the directory name in the default repositories directory where this repository is cloned to
+     * @param repositoryName Name of the repository. Sets the directory name in the
+     *                       default repositories directory where this repository is
+     *                       cloned to
      * @return A Git object of the repository
      */
-    public static Git fromRemote(final String remoteUri, final String repositoryName, final String repoParentDir) throws GitAPIException {
+    public static Git fromRemote(final String remoteUri, final String repositoryName, final String repoParentDir)
+            throws GitAPIException {
         try {
             return Git.cloneRepository()
                     .setURI(remoteUri)

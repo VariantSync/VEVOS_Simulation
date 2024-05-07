@@ -13,10 +13,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class VariabilityModelLoader implements ResourceLoader<IFeatureModel> {
-    
+
     @Override
     public boolean canLoad(Path p) {
-        return PathUtils.hasExtension(p,".json", ".txt");
+        return PathUtils.hasExtension(p, ".json", ".txt");
     }
 
     @Override
@@ -31,6 +31,5 @@ public class VariabilityModelLoader implements ResourceLoader<IFeatureModel> {
             }
         });
     }
-
 
 }

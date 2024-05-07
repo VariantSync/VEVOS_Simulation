@@ -50,7 +50,7 @@ public class Main {
             return;
         }
         /*
-        Directory to which dataset was downloaded to
+         * Directory to which dataset was downloaded to
          */
         final Path variabilityDatasetDir = Paths.get(properties.getProperty(VARIABILITY_DATASET));
 
@@ -72,10 +72,14 @@ public class Main {
         assert datasetLoader.canLoad(variabilityDatasetDir);
         variabilityDataset = datasetLoader.load(variabilityDatasetDir).getSuccess();
         final Set<EvolutionStep<SPLCommit>> evolutionSteps = variabilityDataset.getEvolutionSteps();
-        Logger.info("The dataset contains " + variabilityDataset.getSuccessCommits().size() + " commits for which the variability extraction succeeded.");
-        Logger.info("The dataset contains " + variabilityDataset.getErrorCommits().size() + " commits for which the variability extraction failed.");
-        Logger.info("The dataset contains " + variabilityDataset.getEmptyCommits().size() + " commits without ground truth, because there were no changes of interest.");
-        Logger.info("The dataset contains " + variabilityDataset.getPartialSuccessCommits().size() + " commits that for which the file presence conditions are missing.");
+        Logger.info("The dataset contains " + variabilityDataset.getSuccessCommits().size()
+                + " commits for which the variability extraction succeeded.");
+        Logger.info("The dataset contains " + variabilityDataset.getErrorCommits().size()
+                + " commits for which the variability extraction failed.");
+        Logger.info("The dataset contains " + variabilityDataset.getEmptyCommits().size()
+                + " commits without ground truth, because there were no changes of interest.");
+        Logger.info("The dataset contains " + variabilityDataset.getPartialSuccessCommits().size()
+                + " commits that for which the file presence conditions are missing.");
         Logger.info("The dataset contains " + evolutionSteps.size() + " usable pairs.");
         for (final EvolutionStep<SPLCommit> pair : evolutionSteps) {
             Logger.debug("<<CHILD> " + pair.child().id() + "> -- <<PARENT> " + pair.parent().id() + ">");
@@ -83,7 +87,8 @@ public class Main {
             Logger.debug("<<PARENT> " + pair.parent().id() + "> -- <<SPL_COMMIT> " + pair.parent().id() + ">");
             Logger.debug("");
         }
-        final VariabilityHistory history = variabilityDataset.getVariabilityHistory(new LongestNonOverlappingSequences());
+        final VariabilityHistory history = variabilityDataset
+                .getVariabilityHistory(new LongestNonOverlappingSequences());
         final NonEmptyList<NonEmptyList<SPLCommit>> sequencesInHistory = history.commitSequences();
         Logger.info("The dataset contains " + sequencesInHistory.size() + " sequences.");
         for (int i = 0; i < sequencesInHistory.size(); i++) {
@@ -96,16 +101,13 @@ public class Main {
             // Setup
             final AbstractSPLRepository splRepository = null;
             final SamplingStrategy samplingForBusybox = new SampleOnceAtBeginStrategy(
-                    FeatureIDESampler.CreateRandomSampler(5)
-            );
+                    FeatureIDESampler.CreateRandomSampler(5));
             final SamplingStrategy samplingForLinux = new SampleOnceAtBeginStrategy(
-                            Resources.Instance().load(ConstSampler.class, Path.of("linuxConfigs.txt"))
-            );
+                    Resources.Instance().load(ConstSampler.class, Path.of("linuxConfigs.txt")));
             final VariantsRepository variantsRepo = new VariantsRepository(
                     Path.of(properties.getProperty(VARIANTS_REPO)),
                     splRepository,
-                    history.toBlueprints(samplingForBusybox)
-                    );
+                    history.toBlueprints(samplingForBusybox));
 
             // Let's generate revisions for all variability commits here ...
             final Optional<VariantsRevision> firstRevisionToGenerate = variantsRepo.getStartRevision();
@@ -115,10 +117,13 @@ public class Main {
                 // This lazy holds the computation that will run everything.
                 final Lazy<Unit> genAll = Functjonal.match(
                         firstRevisionToGenerate,
-                        VariantsRevision::evolveAll, // If there is a first revision to generate, then generate all subsequent revision.
-                        () -> Lazy.pure(Unit.Instance())); // If there was nothing to generate, return an empty computation.
+                        VariantsRevision::evolveAll, // If there is a first revision to generate, then generate all
+                                                     // subsequent revision.
+                        () -> Lazy.pure(Unit.Instance())); // If there was nothing to generate, return an empty
+                                                           // computation.
                 // Now run the generation process.
-                // Only from this point on, we will see the program interact with the file system and git.
+                // Only from this point on, we will see the program interact with the file
+                // system and git.
                 genAll.run();
             }
 
@@ -126,17 +131,22 @@ public class Main {
             {
                 // First, let's build the necessary computations.
                 final Lazy<Optional<VariantsRevision>> revision0 = Lazy.pure(firstRevisionToGenerate);
-                final Lazy<Optional<VariantsRevision>> genRevision0 = MonadTransformer.bind(revision0, VariantsRevision::evolve);
-                final Lazy<Optional<VariantsRevision>> genRevision1 = MonadTransformer.bind(genRevision0, VariantsRevision::evolve);
-                final Lazy<Optional<VariantsRevision>> genRevision2 = MonadTransformer.bind(genRevision1, VariantsRevision::evolve);
+                final Lazy<Optional<VariantsRevision>> genRevision0 = MonadTransformer.bind(revision0,
+                        VariantsRevision::evolve);
+                final Lazy<Optional<VariantsRevision>> genRevision1 = MonadTransformer.bind(genRevision0,
+                        VariantsRevision::evolve);
+                final Lazy<Optional<VariantsRevision>> genRevision2 = MonadTransformer.bind(genRevision1,
+                        VariantsRevision::evolve);
 
-                // Second, run them! Only from this point on, we will see the program interact with the file system and git.
+                // Second, run them! Only from this point on, we will see the program interact
+                // with the file system and git.
                 genRevision0.run(); // This would generate revision0.
                 genRevision1.run(); // This would generate revision0 and then revision1.
                 // This would generate revision0 and then revision1 and then revision2.
                 // This returns a handle for revision3 which is not yet generated.
                 final Optional<VariantsRevision> revision3 = genRevision2.run();
-                // Because Lazy caches intermediate results, revision0 and revision1 have only been generated exactly once.
+                // Because Lazy caches intermediate results, revision0 and revision1 have only
+                // been generated exactly once.
             }
         }
     }

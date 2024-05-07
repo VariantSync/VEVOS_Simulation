@@ -22,13 +22,15 @@ public enum LineType {
         return this != ARTIFACT;
     }
 
-    public boolean notAMacro() {return this == ARTIFACT || this == ROOT;}
+    public boolean notAMacro() {
+        return this == ARTIFACT || this == ROOT;
+    }
 
     public static LineType fromName(String name) {
         LineType[] var1 = values();
         int var2 = var1.length;
 
-        for(int var3 = 0; var3 < var2; ++var3) {
+        for (int var3 = 0; var3 < var2; ++var3) {
             LineType candidate = var1[var3];
             if (candidate.toString().equalsIgnoreCase(name)) {
                 return candidate;

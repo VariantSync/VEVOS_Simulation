@@ -75,7 +75,7 @@ public abstract class Repository<C extends Commit> implements IRepository<C> {
             throw e;
         }
     }
-    
+
     public void dropStash() throws GitAPIException, IOException {
         try {
             git().stashDrop().setAll(true).call();
@@ -87,7 +87,6 @@ public abstract class Repository<C extends Commit> implements IRepository<C> {
     }
 
     public abstract C idToCommit(String id) throws IOException;
-
 
     private String getCurrentCommitId() throws IOException {
         final String commitId;

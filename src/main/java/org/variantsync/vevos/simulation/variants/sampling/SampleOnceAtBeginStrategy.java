@@ -41,7 +41,8 @@ public class SampleOnceAtBeginStrategy implements Sampler, SamplingStrategy {
                         final Node featureModelFormula = new FeatureModelFormula(fm).getPropositionalNode();
                         for (final Variant variant : previousSample.variants()) {
                             if (!variant.getConfiguration().satisfies(featureModelFormula)) {
-                                throw new IllegalSampleException("Sampled " + variant + " is not valid anymore for feature model " + model + "!");
+                                throw new IllegalSampleException("Sampled " + variant
+                                        + " is not valid anymore for feature model " + model + "!");
                             }
                         }
                     });
@@ -55,9 +56,8 @@ public class SampleOnceAtBeginStrategy implements Sampler, SamplingStrategy {
                             if (sampler instanceof ConstSampler c) {
                                 return c.sample();
                             }
-                            throw new IllegalStateException("The given blueprint has neither a predecessor (thus it is assumed it is the first blueprint) nor a feature model (that could be sampled). The given sampler also is not a ConstSampler, thus no sample could be determined! Either provide a previous valid blueprint, a feature model, or a ConstSampler!");
-                        }
-                )
-        );
+                            throw new IllegalStateException(
+                                    "The given blueprint has neither a predecessor (thus it is assumed it is the first blueprint) nor a feature model (that could be sampled). The given sampler also is not a ConstSampler, thus no sample could be determined! Either provide a previous valid blueprint, a feature model, or a ConstSampler!");
+                        }));
     }
 }

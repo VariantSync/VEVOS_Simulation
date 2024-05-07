@@ -46,22 +46,22 @@ public class TextIO {
     }
 
     /**
-     * Read the lines in the file under the given path, trim whitespace at the start and end of each line, and remove empty lines
+     * Read the lines in the file under the given path, trim whitespace at the start
+     * and end of each line, and remove empty lines
      *
      * @param p Path to the file that should be read
      * @return The lines that were read
      */
     public static Result<List<String>, IOException> readLinesTrimmed(final Path p) {
-        return readLines(p).map(lines ->
-                lines.stream()
-                        .map(String::trim)
-                        .filter(s -> !s.isEmpty())
-                        .collect(Collectors.toList()));
+        return readLines(p).map(lines -> lines.stream()
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toList()));
     }
 
     public static Result<List<String>, IOException> readLines(final Path p) {
         try (final BufferedReader br = new BufferedReader(new FileReader(p.toFile()));
-             final Stream<String> linesStream = br.lines()) {
+                final Stream<String> linesStream = br.lines()) {
             return Result.Success(linesStream.toList());
         } catch (final IOException e) {
             return Result.Failure(e);
@@ -74,7 +74,9 @@ public class TextIO {
      *
      * @param p    File to create and fill with text.
      * @param text Text to write to file.
-     * @throws IOException if an I/O error occurs writing to or creating the file, or the text cannot be encoded using the specified charset.
+     * @throws IOException if an I/O error occurs writing to or creating the file,
+     *                     or the text cannot be encoded using the specified
+     *                     charset.
      *                     Also throws if the given file already exists.
      */
     public static void write(final Path p, final String text) throws IOException {
@@ -87,7 +89,8 @@ public class TextIO {
      *
      * @param p    Existing file to append text to.
      * @param text Text to write to file.
-     * @throws IOException if an I/O error occurs while writing to the file, or the text cannot be encoded using the specified charset.
+     * @throws IOException if an I/O error occurs while writing to the file, or the
+     *                     text cannot be encoded using the specified charset.
      */
     public static void append(final Path p, final String text) throws IOException {
         Files.writeString(p, text, StandardCharsets.UTF_8, StandardOpenOption.APPEND);

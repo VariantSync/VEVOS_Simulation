@@ -1,7 +1,6 @@
 package org.variantsync.vevos.simulation.variability.pc;
 
 import org.prop4j.Node;
-import org.variantsync.vevos.simulation.util.fide.FormulaUtils;
 import org.variantsync.vevos.simulation.util.io.CaseSensitivePath;
 
 import java.util.ArrayList;
@@ -11,9 +10,13 @@ import java.util.Objects;
 
 /**
  * Represents feature traces as a tree structure.
- * That is, nodes in subtrees inherit feature mappings from their ancestors in their presence condition.
- * @param <Child> The type of children that can be added to this tree. Only affects direct children, meaning
- *               that it is not transitive and grandchildren could be of another type.
+ * That is, nodes in subtrees inherit feature mappings from their ancestors in
+ * their presence condition.
+ * 
+ * @param <Child> The type of children that can be added to this tree. Only
+ *                affects direct children, meaning
+ *                that it is not transitive and grandchildren could be of
+ *                another type.
  */
 public abstract class ArtefactTree<Child extends ArtefactTree<?>> implements Artefact {
     private Node featureMapping;
@@ -30,9 +33,11 @@ public abstract class ArtefactTree<Child extends ArtefactTree<?>> implements Art
     }
 
     /**
-     * Creates a new tree (node) with the given feature mapping and subtrees representing (content of) the given file.
+     * Creates a new tree (node) with the given feature mapping and subtrees
+     * representing (content of) the given file.
      */
-    public ArtefactTree(final Node featureMapping, final Node presenceCondition, final List<Child> subtrees, final CaseSensitivePath file) {
+    public ArtefactTree(final Node featureMapping, final Node presenceCondition, final List<Child> subtrees,
+            final CaseSensitivePath file) {
         Objects.requireNonNull(featureMapping);
         Objects.requireNonNull(subtrees);
 
@@ -74,7 +79,9 @@ public abstract class ArtefactTree<Child extends ArtefactTree<?>> implements Art
 
     /**
      * Sets the parent of this (sub-)tree.
-     * Does not perform relocations and is only used for internal use after other tree operations.
+     * Does not perform relocations and is only used for internal use after other
+     * tree operations.
+     * 
      * @param parent The new parent of this tree.
      */
     void setParent(final ArtefactTree<?> parent) {
@@ -127,6 +134,7 @@ public abstract class ArtefactTree<Child extends ArtefactTree<?>> implements Art
     /**
      * Adds the given subtree to this tree.
      * Behaviour might change based on subclasses (e.g., for LineBasedAnnotation).
+     * 
      * @param child The subtree to add.
      */
     public void addTrace(final Child child) {
@@ -148,9 +156,9 @@ public abstract class ArtefactTree<Child extends ArtefactTree<?>> implements Art
         return subtrees.isEmpty();
     }
 
-
     /**
-     * This method might no longer work properly with the new GT format and should be used with care.
+     * This method might no longer work properly with the new GT format and should
+     * be used with care.
      */
     @Override
     @Deprecated
@@ -162,8 +170,10 @@ public abstract class ArtefactTree<Child extends ArtefactTree<?>> implements Art
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         final ArtefactTree<?> that = (ArtefactTree<?>) o;
         // don't compare parents so we only compare subtrees
         return featureMapping.equals(that.featureMapping) && subtrees.equals(that.subtrees);
@@ -171,6 +181,6 @@ public abstract class ArtefactTree<Child extends ArtefactTree<?>> implements Art
 
     @Override
     public int hashCode() {
-        return Objects.hash(featureMapping, file /*, parent , subtrees*/);
+        return Objects.hash(featureMapping, file /* , parent , subtrees */);
     }
 }

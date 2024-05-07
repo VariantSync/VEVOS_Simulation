@@ -41,16 +41,16 @@ public class LinePCQuery implements ArtefactVisitor {
                             + foundFile.getRootAnnotation().getLineFrom()
                             + " to "
                             + foundFile.getRootAnnotation().getLineTo()
-                            + "."
-            ));
+                            + "."));
         }
 
         return Result.Failure(new FileNotFoundException("Could not find file " + relativePath.toString() + "!"));
     }
 
     @Override
-    public <C extends ArtefactTree<?>> void visitGenericArtefactTreeNode(final SyntheticArtefactTreeNodeVisitorFocus<C> focus) {
-//        Logger.info("visitGenericArtefactTreeNode(" + focus.getValue() + ")");
+    public <C extends ArtefactTree<?>> void visitGenericArtefactTreeNode(
+            final SyntheticArtefactTreeNodeVisitorFocus<C> focus) {
+        // Logger.info("visitGenericArtefactTreeNode(" + focus.getValue() + ")");
         for (int i = 0; foundFile == null && i < focus.getValue().getNumberOfSubtrees(); ++i) {
             focus.visitSubtree(i, this);
         }
@@ -58,7 +58,7 @@ public class LinePCQuery implements ArtefactVisitor {
 
     @Override
     public void visitSourceCodeFile(final SourceCodeFileVisitorFocus focus) {
-//        Logger.info("visitSourceCodeFile(" + focus.getValue() + ")");
+        // Logger.info("visitSourceCodeFile(" + focus.getValue() + ")");
         if (foundFile == null && focus.getValue().getFile().equals(relativePath)) {
             foundFile = focus.getValue();
             focus.skipRootAnnotationButVisitItsSubtrees(this);
@@ -67,7 +67,7 @@ public class LinePCQuery implements ArtefactVisitor {
 
     @Override
     public void visitLineBasedAnnotation(final LineBasedAnnotationVisitorFocus focus) {
-//        Logger.info("visitLineBasedAnnotation(" + focus.getValue() + ")");
+        // Logger.info("visitLineBasedAnnotation(" + focus.getValue() + ")");
         final LineBasedAnnotation val = focus.getValue();
         if (!lineFound && val.annotates(lineNumber)) {
             focus.visitAllSubtrees(this);

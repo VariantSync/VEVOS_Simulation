@@ -10,23 +10,24 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class FeatureModelUtilsTest {
-    
+
     static {
         VEVOS.Initialize();
     }
-    
+
     @Test
     public void simpleModelIntersection() {
         IFeatureModel modelA = FeatureModelUtils.FromOptionalFeatures("A", "B", "C", "D", "E");
         IFeatureModel modelB = FeatureModelUtils.FromOptionalFeatures("B", "C", "E", "F", "G");
-        
+
         IFeatureModel intersection = FeatureModelUtils.IntersectionModel(modelA, modelB);
-        
-        Set<String> featureIntersection = intersection.getFeatures().stream().map(IFeatureModelElement::getName).collect(Collectors.toSet());
+
+        Set<String> featureIntersection = intersection.getFeatures().stream().map(IFeatureModelElement::getName)
+                .collect(Collectors.toSet());
         assert featureIntersection.contains("B");
         assert featureIntersection.contains("C");
         assert featureIntersection.contains("E");
-        
+
         assert !featureIntersection.contains("A");
         assert !featureIntersection.contains("D");
         assert !featureIntersection.contains("F");
@@ -38,7 +39,8 @@ public class FeatureModelUtilsTest {
         IFeatureModel modelA = FeatureModelUtils.FromOptionalFeatures("A", "B", "C", "D", "E");
         IFeatureModel modelB = FeatureModelUtils.FromOptionalFeatures("B", "C", "E", "F", "G");
 
-        Collection<String> union = FeatureModelUtils.UnionModel(modelA, modelB).getFeatures().stream().map(IFeatureModelElement::getName).collect(Collectors.toSet());
+        Collection<String> union = FeatureModelUtils.UnionModel(modelA, modelB).getFeatures().stream()
+                .map(IFeatureModelElement::getName).collect(Collectors.toSet());
         assert union.contains("A");
         assert union.contains("B");
         assert union.contains("C");

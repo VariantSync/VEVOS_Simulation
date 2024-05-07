@@ -10,7 +10,6 @@ import org.variantsync.vevos.simulation.util.io.PathUtils;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,7 +28,9 @@ public class CSVIO implements ResourceLoader<CSV>, ResourceWriter<CSV> {
 
     /**
      * Create a CSVLoader with the given separator.
-     * @param separator A string that will be interpreted as separator between elements in a row in the csv file.
+     * 
+     * @param separator A string that will be interpreted as separator between
+     *                  elements in a row in the csv file.
      *                  The default value is ";".
      */
     public CSVIO(final String separator) {
@@ -54,8 +55,8 @@ public class CSVIO implements ResourceLoader<CSV>, ResourceWriter<CSV> {
     @Override
     public Result<CSV, Exception> load(final Path p) {
         try (final BufferedReader reader = new BufferedReader(new FileReader(p.toFile()))) {
-            final List<String[]> rows =
-                    reader.lines().map(line -> line.trim().split(separatorWithWhiteSpace)).collect(Collectors.toList());
+            final List<String[]> rows = reader.lines().map(line -> line.trim().split(separatorWithWhiteSpace))
+                    .collect(Collectors.toList());
             return Result.Success(new CSV(rows));
         } catch (final Exception e) {
             Logger.error(e);

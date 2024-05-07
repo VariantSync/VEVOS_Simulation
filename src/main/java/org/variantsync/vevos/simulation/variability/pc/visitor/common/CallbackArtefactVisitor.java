@@ -7,13 +7,15 @@ import org.variantsync.vevos.simulation.variability.pc.visitor.*;
 import java.util.function.Consumer;
 
 /**
- * Visitor template that handles each element in the same way, neglecting their types.
+ * Visitor template that handles each element in the same way, neglecting their
+ * types.
  * For each visited element, this visitor will
  * 1.) invoke onEnter
  * 2.) visit all subtrees
  * 3.) invoke onEnd
  */
-public record CallbackArtefactVisitor(Consumer<Artefact> onEnter, Consumer<Artefact> onLeave) implements ArtefactVisitor {
+public record CallbackArtefactVisitor(Consumer<Artefact> onEnter, Consumer<Artefact> onLeave)
+        implements ArtefactVisitor {
     private void callback(final ArtefactTreeVisitorFocus<? extends Artefact> focus) {
         onEnter.accept(focus.getValue());
         focus.visitAllSubtrees(this);
@@ -21,7 +23,8 @@ public record CallbackArtefactVisitor(Consumer<Artefact> onEnter, Consumer<Artef
     }
 
     @Override
-    public <T extends ArtefactTree<?>> void visitGenericArtefactTreeNode(final SyntheticArtefactTreeNodeVisitorFocus<T> focus) {
+    public <T extends ArtefactTree<?>> void visitGenericArtefactTreeNode(
+            final SyntheticArtefactTreeNodeVisitorFocus<T> focus) {
         callback(focus);
     }
 

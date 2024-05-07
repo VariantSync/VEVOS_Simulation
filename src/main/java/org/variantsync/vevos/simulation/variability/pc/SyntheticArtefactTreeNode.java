@@ -16,7 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A synthetic node in the artefact tree that does not need to have a physical counterpart (e.g., file or annotation).
+ * A synthetic node in the artefact tree that does not need to have a physical
+ * counterpart (e.g., file or annotation).
+ * 
  * @param <Child> The type of children this node can have.
  */
 public class SyntheticArtefactTreeNode<Child extends ArtefactTree<?>> extends ArtefactTree<Child> {
@@ -36,6 +38,7 @@ public class SyntheticArtefactTreeNode<Child extends ArtefactTree<?>> extends Ar
 
     /**
      * Plain copy constructor.
+     * 
      * @param other Object to create a plain copy of (without copying children).
      */
     public SyntheticArtefactTreeNode(final ArtefactTree<Child> other) {
@@ -48,7 +51,8 @@ public class SyntheticArtefactTreeNode<Child extends ArtefactTree<?>> extends Ar
     }
 
     @Override
-    public Result<GroundTruth, Exception> generateVariant(final Variant variant, final CaseSensitivePath sourceDir, final CaseSensitivePath targetDir, final VariantGenerationOptions strategy) {
+    public Result<GroundTruth, Exception> generateVariant(final Variant variant, final CaseSensitivePath sourceDir,
+            final CaseSensitivePath targetDir, final VariantGenerationOptions strategy) {
         final CaseSensitivePath f = getFile();
         final SyntheticArtefactTreeNode<Child> copy = plainCopy();
         final GroundTruth groundTruth = GroundTruth.withoutAnnotations(copy);
@@ -76,10 +80,9 @@ public class SyntheticArtefactTreeNode<Child extends ArtefactTree<?>> extends Ar
                     });
 
                     if (result.isFailure()) {
-                        if (
-                                strategy.exitOnError()
-                                && !(strategy.ignoreNonExistentSPLFiles() && result.getFailure() instanceof FileNotFoundException)
-                        ) {
+                        if (strategy.exitOnError()
+                                && !(strategy.ignoreNonExistentSPLFiles()
+                                        && result.getFailure() instanceof FileNotFoundException)) {
                             return result;
                         } else {
                             Logger.error(result.getFailure().getMessage());

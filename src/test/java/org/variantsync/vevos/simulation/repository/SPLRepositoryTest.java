@@ -16,9 +16,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-
 public class SPLRepositoryTest {
-    // TODO: use more suitable repo for test? CESM just used to test git functionality.
+    // TODO: use more suitable repo for test? CESM just used to test git
+    // functionality.
     private static final String exampleRepoURI = "https://github.com/ESCOMP/CESM";
     private static Path exampleRepoPath;
     private SPLRepository repo;
@@ -35,11 +35,8 @@ public class SPLRepositoryTest {
             if (!exampleRepoDir.exists()) {
                 testGit = GitUtil.fromRemote(exampleRepoURI, "example-repo", tempTestRepoDir.toString());
                 exampleRepoPath = exampleRepoDir.toPath();
-                testGit.checkout().
-                        setCreateBranch(true).
-                        setName("cesm2_tutorial").
-                        setStartPoint("origin/" + "cesm2_tutorial").
-                        call();
+                testGit.checkout().setCreateBranch(true).setName("cesm2_tutorial")
+                        .setStartPoint("origin/" + "cesm2_tutorial").call();
                 testGit.checkout().setName("master").call();
             } else {
                 exampleRepoPath = exampleRepoDir.toPath();
@@ -48,7 +45,7 @@ public class SPLRepositoryTest {
         } catch (IOException | GitAPIException e) {
             throw new RuntimeException(e);
         } finally {
-            if(testGit != null){
+            if (testGit != null) {
                 testGit.close();
             }
         }
@@ -79,7 +76,6 @@ public class SPLRepositoryTest {
         assert expectedBranch.equals(actualBranch);
     }
 
-
     @Test
     public void testCheckoutCommit() throws GitAPIException, IOException {
         SPLCommit expectedPrevious = repo.getCurrentCommit(); // current commit of master branch
@@ -93,7 +89,7 @@ public class SPLRepositoryTest {
     }
 
     @After
-    public void tearDown(){
+    public void tearDown() {
         repo.close();
     }
 }

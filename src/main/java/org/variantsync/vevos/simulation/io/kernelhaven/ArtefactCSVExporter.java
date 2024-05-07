@@ -47,6 +47,7 @@ public class ArtefactCSVExporter implements ArtefactVisitor {
 
     /**
      * Finalizes the export.
+     * 
      * @return CSV object that can be used for writing to disk.
      */
     public CSV export() {
@@ -54,7 +55,9 @@ public class ArtefactCSVExporter implements ArtefactVisitor {
     }
 
     /**
-     * Creates a CSV row for the given annotation but uses the given start and end lines.
+     * Creates a CSV row for the given annotation but uses the given start and end
+     * lines.
+     * 
      * @return The CSV row.
      */
     private String[] toRow(final LineBasedAnnotation annotation) {
@@ -70,7 +73,8 @@ public class ArtefactCSVExporter implements ArtefactVisitor {
     }
 
     @Override
-    public <T extends ArtefactTree<?>> void visitGenericArtefactTreeNode(final SyntheticArtefactTreeNodeVisitorFocus<T> focus) {
+    public <T extends ArtefactTree<?>> void visitGenericArtefactTreeNode(
+            final SyntheticArtefactTreeNodeVisitorFocus<T> focus) {
         focus.visitAllSubtrees(this);
     }
 
