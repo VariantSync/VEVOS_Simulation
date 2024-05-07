@@ -24,3 +24,4 @@ __pycache__
 /log.txt
 .classpath
 .project
+/src/test/resources/contains-variability/variants/variant/
