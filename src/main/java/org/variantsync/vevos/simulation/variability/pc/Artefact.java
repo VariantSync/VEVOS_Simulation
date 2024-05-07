@@ -8,6 +8,7 @@ import org.variantsync.vevos.simulation.variability.pc.groundtruth.GroundTruth;
 import org.variantsync.vevos.simulation.variability.pc.options.VariantGenerationOptions;
 import org.variantsync.vevos.simulation.variability.pc.visitor.ArtefactVisitor;
 import org.variantsync.vevos.simulation.variability.pc.visitor.ArtefactVisitorFocus;
+import org.variantsync.vevos.simulation.variability.pc.visitor.common.ContainsVariabilityQuery;
 import org.variantsync.vevos.simulation.variability.pc.visitor.common.FilePCQuery;
 import org.variantsync.vevos.simulation.variability.pc.visitor.common.LinePCQuery;
 import org.variantsync.vevos.simulation.variability.pc.visitor.common.PrettyPrinter;
@@ -88,6 +89,12 @@ public interface Artefact {
 
     default Result<Node, Exception> getPresenceConditionOf(final CaseSensitivePath relativePath) {
         final FilePCQuery query = new FilePCQuery(relativePath);
+        accept(query);
+        return query.getResult();
+    }
+
+    default Result<Boolean, Exception> fileContainsVariability(final CaseSensitivePath relativePath) {
+        final ContainsVariabilityQuery query = new ContainsVariabilityQuery(relativePath);
         accept(query);
         return query.getResult();
     }
