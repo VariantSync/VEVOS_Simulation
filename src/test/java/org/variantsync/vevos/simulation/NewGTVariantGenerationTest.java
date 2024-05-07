@@ -89,7 +89,7 @@ public class NewGTVariantGenerationTest {
     private void generateVariant(Artefact splPCs, Variant variant) {
         CaseSensitivePath targetDir = GENERATION_DIR.resolve(variant.getName());
         // Clean old files
-        removeFilesRecursively(targetDir.path().toFile());
+        FileUtils.removeFilesRecursively(targetDir.path().toFile());
         splPCs.generateVariant(variant, SPL_DIR,
                 targetDir,
                 VariantGenerationOptions.ExitOnErrorButAllowNonExistentFiles(false, ArtefactFilter.KeepAll()))
@@ -146,23 +146,5 @@ public class NewGTVariantGenerationTest {
         }
 
         return equal;
-    }
-
-    private static void removeFilesRecursively(File directory) {
-        if (directory.isDirectory()) {
-            File[] files = directory.listFiles();
-            if (files != null) {
-                for (File file : files) {
-                    removeFilesRecursively(file);
-                }
-            }
-        } else if (directory.isFile()) {
-            boolean deleted = directory.delete();
-            if (deleted) {
-                Logger.debug("Deleted file: {}", directory.getAbsolutePath());
-            } else {
-                Logger.debug("Failed to delete file: {}", directory.getAbsolutePath());
-            }
-        }
     }
 }
