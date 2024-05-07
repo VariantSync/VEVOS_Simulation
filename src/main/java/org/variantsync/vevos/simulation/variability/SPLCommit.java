@@ -265,6 +265,10 @@ public class SPLCommit extends Commit implements CachedValue {
         return filterCountsPath;
     }
 
+    public Lazy<Optional<CodeMatching>> getCodeMatching() {
+        return codeMatching;
+    }
+
     public record KernelHavenLogPath(Path path) implements TypedPath {
 
     }
