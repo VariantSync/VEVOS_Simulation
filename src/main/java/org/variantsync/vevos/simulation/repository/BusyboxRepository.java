@@ -14,11 +14,14 @@ import java.util.List;
 import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
 
 /***
- * A specialized SPLRepository that performs the necessary preprocessing of BusyBox source files, whenever a new
- * commit or branch is checked out. The preprocessing includes splitting of lines into multiple lines in order to deal
+ * A specialized SPLRepository that performs the necessary preprocessing of
+ * BusyBox source files, whenever a new
+ * commit or branch is checked out. The preprocessing includes splitting of
+ * lines into multiple lines in order to deal
  * with inline preprocessor macros used to model variability.
  * <br>
- * The preprocessing was copied from KernelHaven: net.ssehub.kernel_haven.busyboot.PrepareBusybox;
+ * The preprocessing was copied from KernelHaven:
+ * net.ssehub.kernel_haven.busyboot.PrepareBusybox;
  * Copyright 2018-2019 University of Hildesheim, Software Systems Engineering
  * Licensed under the Apache License, Version 2.0 (the "License")
  */
@@ -65,7 +68,7 @@ public class BusyboxRepository extends SPLRepository {
      * you may not use this file except in compliance with the License.
      * You may obtain a copy of the License at
      *
-     *     https://www.apache.org/licenses/LICENSE-2.0
+     * https://www.apache.org/licenses/LICENSE-2.0
      *
      * Unless required by applicable law or agreed to in writing, software
      * distributed under the License is distributed on an "AS IS" BASIS,
@@ -76,7 +79,8 @@ public class BusyboxRepository extends SPLRepository {
      */
 
     /**
-     * Starting point for modifying the c preprocessor source files based on Manuel Zerpies Busyfix.
+     * Starting point for modifying the c preprocessor source files based on Manuel
+     * Zerpies Busyfix.
      *
      * @param dir The directory to normalize all source files in.
      * @throws IOException If writing the replaced files fails.
@@ -391,6 +395,5 @@ public class BusyboxRepository extends SPLRepository {
         toRet += "\n#endif" + init;
         return toRet;
     }
-
 
 }

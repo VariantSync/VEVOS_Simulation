@@ -21,9 +21,12 @@ public record VariantLine(Integer lineNumber) implements VariantLineChunk {
                     + "]!";
 
             if (sourceLineNo > splFileLines.size()) {
-                // This was logged frequently and is caused by https://bugs.openjdk.java.net/browse/JDK-8199413
-                // Skipping the line really is the best solution, as the empty line is created by appending a line separator
-                // to the previous line. I added the additional if-statement, to only catch cases in which more than one line
+                // This was logged frequently and is caused by
+                // https://bugs.openjdk.java.net/browse/JDK-8199413
+                // Skipping the line really is the best solution, as the empty line is created
+                // by appending a line separator
+                // to the previous line. I added the additional if-statement, to only catch
+                // cases in which more than one line
                 // is out of bounds, which might indicate a problem.
                 Logger.debug(logMessage);
                 String lines = String.join("\n", splFileLines);

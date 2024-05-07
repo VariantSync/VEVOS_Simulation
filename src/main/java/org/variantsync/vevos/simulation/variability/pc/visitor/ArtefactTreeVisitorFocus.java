@@ -5,7 +5,9 @@ import org.variantsync.vevos.simulation.variability.pc.ArtefactTree;
 import java.util.Collection;
 
 /**
- * Abstract focus for subclasses of ArtefactTree. Offers methods for visiting subtrees.
+ * Abstract focus for subclasses of ArtefactTree. Offers methods for visiting
+ * subtrees.
+ * 
  * @param <A> A subtype of ArtefactTree this focus should be specialized to.
  */
 public abstract class ArtefactTreeVisitorFocus<A extends ArtefactTree<?>> extends ArtefactVisitorFocus<A> {
@@ -22,7 +24,8 @@ public abstract class ArtefactTreeVisitorFocus<A extends ArtefactTree<?>> extend
 
     /**
      * Visits the given subtree with the given visitor.
-     * The caller is responsible for ensuring that the given subtree is indeed a subtree of the value of this focus
+     * The caller is responsible for ensuring that the given subtree is indeed a
+     * subtree of the value of this focus
      * (@see ArtefactVisitorFocus::getValue).
      */
     public void visitSubtree(final ArtefactTree<?> subtree, final ArtefactVisitor visitor) {

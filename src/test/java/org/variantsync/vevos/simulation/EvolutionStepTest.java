@@ -14,9 +14,11 @@ import java.util.*;
 public class EvolutionStepTest {
     private static class TestCommit extends Commit implements CachedValue {
         private boolean forgot = false;
+
         public TestCommit(final String commitId) {
             super(commitId);
         }
+
         @Override
         public void forget() {
             forgot = true;
@@ -36,14 +38,14 @@ public class EvolutionStepTest {
         return new EvolutionStep<>(parent, child);
     }
 
-    private static EvolutionStep<TestCommit> step(final Map<Integer, TestCommit> commits, final int parent, final int child) {
+    private static EvolutionStep<TestCommit> step(final Map<Integer, TestCommit> commits, final int parent,
+            final int child) {
         return step(commits.get(parent), commits.get(child));
     }
 
     private Map<Integer, TestCommit> successCommits;
     // valid pairs of commits
-    private EvolutionStep<TestCommit>
-            s12,
+    private EvolutionStep<TestCommit> s12,
             s23,
             s34,
             s45,
@@ -99,21 +101,19 @@ public class EvolutionStepTest {
 
                 s1213,
                 s1011,
-                s1112
-        );
+                s1112);
 
         // we expect two ordered sublists (in reverse order)
         final List<List<EvolutionStep<TestCommit>>> expectedOutputSequences = List.of(
                 new ArrayList<>(List.of(s45, s34, s23, s12)),
-                new ArrayList<>(List.of(s1213, s1112, s1011))
-        );
+                new ArrayList<>(List.of(s1213, s1112, s1011)));
 
         final CleaningEvolutionStepsStream<TestCommit> steps = new CleaningEvolutionStepsStream<>(input);
         System.out.println("Sorted steps: " + steps);
 
         List<EvolutionStep<TestCommit>> currentExpectedOutput = null;
         for (final EvolutionStep<TestCommit> step : steps) {
-//            System.out.println("Processing " + step);
+            // System.out.println("Processing " + step);
 
             if (currentExpectedOutput == null) {
                 for (final List<EvolutionStep<TestCommit>> expectedChain : expectedOutputSequences) {
@@ -123,7 +123,8 @@ public class EvolutionStepTest {
                     }
                 }
                 if (currentExpectedOutput == null) {
-                    Assert.fail("Found step " + step + " is not the start of any expected output sequence " + expectedOutputSequences + "!");
+                    Assert.fail("Found step " + step + " is not the start of any expected output sequence "
+                            + expectedOutputSequences + "!");
                 }
             }
 

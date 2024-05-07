@@ -51,8 +51,10 @@ public record CaseSensitivePath(Path path) implements Comparable<CaseSensitivePa
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         final CaseSensitivePath that = (CaseSensitivePath) o;
         return path.equals(that.path) && path.toString().equals(that.path.toString());
     }

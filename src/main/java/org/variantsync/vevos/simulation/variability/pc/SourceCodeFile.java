@@ -23,17 +23,21 @@ import java.nio.file.Files;
 import java.util.Collections;
 
 /**
- * Represents a variable source code file (e.g., because part of a plugin or only conditionally included).
+ * Represents a variable source code file (e.g., because part of a plugin or
+ * only conditionally included).
  */
 public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
     private final LineBasedAnnotation rootAnnotation;
 
-    public SourceCodeFile(final Node featureMapping, final Node presenceCondition, final CaseSensitivePath relativePath) {
+    public SourceCodeFile(final Node featureMapping, final Node presenceCondition,
+            final CaseSensitivePath relativePath) {
         this(featureMapping, presenceCondition, relativePath,
-                new LineBasedAnnotation(FixTrueFalse.True, FixTrueFalse.True, LineType.ROOT, 1, 1, AnnotationStyle.External));
+                new LineBasedAnnotation(FixTrueFalse.True, FixTrueFalse.True, LineType.ROOT, 1, 1,
+                        AnnotationStyle.External));
     }
 
-    private SourceCodeFile(final Node featureMapping, final Node presenceCondition, final CaseSensitivePath relativePath, final LineBasedAnnotation root) {
+    private SourceCodeFile(final Node featureMapping, final Node presenceCondition,
+            final CaseSensitivePath relativePath, final LineBasedAnnotation root) {
         super(featureMapping, presenceCondition, Collections.singletonList(root), relativePath);
         rootAnnotation = root;
     }
@@ -60,48 +64,47 @@ public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
         ArtefactFilter<LineBasedAnnotation> annotationFilter = strategy.lineFilter();
 
         return
-                // Create the target file.
-                PathUtils.createEmptyAsResult(targetFile.path())
+        // Create the target file.
+        PathUtils.createEmptyAsResult(targetFile.path())
                 // Write to target file.
                 .bind(unit -> Traversable.sequence(
                         // Compute ground truth for our variant (i.e., make the variant feature-aware
                         rootAnnotation
                                 .deriveForVariant(variant, annotationFilter)
                                 .map(splAnnotationGroundTruth -> {
-                    final BlockMatching lineMatching = splAnnotationGroundTruth.matching();
-                    // Retrieve all lines of code from the SPL file that should be included in the variant file.
-                    final VariantAnnotation variantCode = rootAnnotation.getLinesToCopy(lineMatching::isPresentInVariant);
-                    return TextIO
-                            // read all lines in the input SPL file
-                            .readLines(sourceFile.path())
-                            .bind(splLines -> Result.Try(() ->
+                                    final BlockMatching lineMatching = splAnnotationGroundTruth.matching();
+                                    // Retrieve all lines of code from the SPL file that should be included in the
+                                    // variant file.
+                                    final VariantAnnotation variantCode = rootAnnotation
+                                            .getLinesToCopy(lineMatching::isPresentInVariant);
+                                    return TextIO
+                                            // read all lines in the input SPL file
+                                            .readLines(sourceFile.path())
+                                            .bind(splLines -> Result.Try(() ->
                                     // write all lines that should be included in the variant to the text file
                                     TextIO.append(
                                             targetFile.path(),
                                             String.join(
                                                     TextIO.LINEBREAK,
                                                     //
-                                                    variantCode.project(strategy, splLines)
-                                            )
-                                    )
-                            ))
-                            .map(unit2 -> splAnnotationGroundTruth);
-                })))
+                                                    variantCode.project(strategy, splLines)))))
+                                            .map(unit2 -> splAnnotationGroundTruth);
+                                })))
                 .bimap(
                         // In case of success, return ground truth.
                         Functjonal.match(
                                 splAnnotationGroundTruth -> GroundTruth.forSourceCodeFile(
-                                        new SourceCodeFile(getFeatureMapping(), getPresenceCondition(), getFile(), splAnnotationGroundTruth.variantArtefact()),
-                                        splAnnotationGroundTruth
-                                ),
-                                () -> GroundTruth.withoutAnnotations(new SourceCodeFile(getFeatureMapping(), getPresenceCondition(), getFile()))
-                        ),
-                        // In case of failure, log it (and implicitly transform IOException to Exception).
+                                        new SourceCodeFile(getFeatureMapping(), getPresenceCondition(), getFile(),
+                                                splAnnotationGroundTruth.variantArtefact()),
+                                        splAnnotationGroundTruth),
+                                () -> GroundTruth.withoutAnnotations(
+                                        new SourceCodeFile(getFeatureMapping(), getPresenceCondition(), getFile()))),
+                        // In case of failure, log it (and implicitly transform IOException to
+                        // Exception).
                         ioexception -> {
                             Logger.error("Could not create variant file " + targetFile + " because ", ioexception);
                             return ioexception;
-                        }
-                );
+                        });
     }
 
     public LineBasedAnnotation getRootAnnotation() {
@@ -109,7 +112,8 @@ public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
     }
 
     /**
-     * This method might no longer work properly with the new GT format and should be used with care.
+     * This method might no longer work properly with the new GT format and should
+     * be used with care.
      */
     @Deprecated
     public void simplify() {
@@ -132,9 +136,12 @@ public class SourceCodeFile extends ArtefactTree<LineBasedAnnotation> {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        if (!super.equals(o))
+            return false;
         final SourceCodeFile that = (SourceCodeFile) o;
         return getFile().equals(that.getFile());
     }

@@ -12,10 +12,12 @@ import java.util.Stack;
 
 /**
  * Stream for iterating pairs of commits.
- * This stream automatically cleans up after each iteration by invoking {@link CachedValue#forget()} after each
+ * This stream automatically cleans up after each iteration by invoking
+ * {@link CachedValue#forget()} after each
  * iteration step on each value that won't be visited anymore.
  * This stream allows iterating only once!
  * Afterwards it has to be rebuild.
+ * 
  * @param <C> Type of commits to iterate over and cleanup.
  */
 public class CleaningEvolutionStepsStream<C extends Commit & CachedValue> implements

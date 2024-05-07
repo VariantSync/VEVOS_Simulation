@@ -11,11 +11,11 @@ public class ProblemListUtils {
         final StringBuilder sb = new StringBuilder();
         problems.stream().map(Problem::toString).forEach(s -> sb.append(s).append(" "));
         return new Exception(
-                errorMsg.get() + System.lineSeparator() + "Reasons:" + System.lineSeparator() + sb
-        );
+                errorMsg.get() + System.lineSeparator() + "Reasons:" + System.lineSeparator() + sb);
     }
 
-    public static <T> Result<T, Exception> toResult(final ProblemList problems, final Supplier<T> success, final Supplier<String> errorMsg) {
+    public static <T> Result<T, Exception> toResult(final ProblemList problems, final Supplier<T> success,
+            final Supplier<String> errorMsg) {
         if (problems.isEmpty()) {
             return Result.Success(success.get());
         } else {

@@ -40,8 +40,7 @@ public class FeatureModelIO implements ResourceLoader<IFeatureModel>, ResourceWr
                 .bind(problemList -> ProblemListUtils.toResult(
                         problemList,
                         () -> featureModel,
-                        () -> "Could not load feature model " + p + ".")
-                );
+                        () -> "Could not load feature model " + p + "."));
     }
 
     @Override
@@ -49,7 +48,6 @@ public class FeatureModelIO implements ResourceLoader<IFeatureModel>, ResourceWr
         return ProblemListUtils.toResult(
                 SimpleFileHandler.save(p, model, format),
                 Unit::Instance,
-                () -> "Could not write feature model " + model.toString() + " to " + p
-        );
+                () -> "Could not write feature model " + model.toString() + " to " + p);
     }
 }

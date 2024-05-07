@@ -13,25 +13,29 @@ import java.util.function.Predicate;
  * See issue: https://github.com/FeatureIDE/FeatureIDE/issues/1111
  * See bug: https://github.com/FeatureIDE/FeatureIDE/issues/1333
  *
- * This class contains constants for representing atomic values true and false in formulas
- * as well as a conversion method for parsing certain feature names to true and false, respectively.
+ * This class contains constants for representing atomic values true and false
+ * in formulas
+ * as well as a conversion method for parsing certain feature names to true and
+ * false, respectively.
  */
 public class FixTrueFalse {
     /*
-    Constant literals representing the true and false value
+     * Constant literals representing the true and false value
      */
     public final static Literal True = new org.prop4j.True();
     public final static Literal False = new org.prop4j.False();
 
     /*
-    Constant literals representing the true and false values only for serialization.
-    True and False are represented by the numeric values 0 and 1.
+     * Constant literals representing the true and false values only for
+     * serialization.
+     * True and False are represented by the numeric values 0 and 1.
      */
     public final static Literal TrueAs1 = new Literal("1");
     public final static Literal FalseAs0 = new Literal("0");
 
-    /// Names of variables that we want to interpret as atomic values true or false, respectively.
-    public final static List<String> TrueNames  = Arrays.asList("true",  (String) TrueAs1.var);
+    /// Names of variables that we want to interpret as atomic values true or false,
+    /// respectively.
+    public final static List<String> TrueNames = Arrays.asList("true", (String) TrueAs1.var);
     public final static List<String> FalseNames = Arrays.asList("false", (String) FalseAs0.var);
 
     /**
@@ -51,21 +55,24 @@ public class FixTrueFalse {
     }
 
     /**
-     * @return True iff the given formula is a literal that neither {@link #isTrue} nor {@link #isFalse}.
+     * @return True iff the given formula is a literal that neither {@link #isTrue}
+     *         nor {@link #isFalse}.
      */
     public static boolean isVariable(final Node n) {
         return n instanceof Literal l && !isTrueLiteral(l) && !isFalseLiteral(l);
     }
 
     /**
-     * @return True iff the given name represents the atomic value true w.r.t. the constant TrueNames.
+     * @return True iff the given name represents the atomic value true w.r.t. the
+     *         constant TrueNames.
      */
     public static boolean isTrueLiteral(final Literal l) {
         return TrueNames.stream().anyMatch(t -> t.equalsIgnoreCase(l.var.toString()));
     }
 
     /**
-     * @return True iff the given name represents the atomic value false w.r.t. the constant FalseNames.
+     * @return True iff the given name represents the atomic value false w.r.t. the
+     *         constant FalseNames.
      */
     public static boolean isFalseLiteral(final Literal l) {
         return FalseNames.stream().anyMatch(f -> f.equalsIgnoreCase(l.var.toString()));
@@ -91,12 +98,18 @@ public class FixTrueFalse {
     }
 
     /**
-     * Replaces all literals in the given `formula` with the literals True and False that
-     * represent the respective atomic values w.r.t. FixTrueFalse::isTrueLiteral and FixTrueFalse::isFalseLiteral.
-     * This e.g. includes replacing literals representing variables with name "1" or "true" with the respective constants.
+     * Replaces all literals in the given `formula` with the literals True and False
+     * that
+     * represent the respective atomic values w.r.t. FixTrueFalse::isTrueLiteral and
+     * FixTrueFalse::isFalseLiteral.
+     * This e.g. includes replacing literals representing variables with name "1" or
+     * "true" with the respective constants.
      * Returns a formula in which the values True and False are eliminated.
-     * So you either get True, False, or a formula that does not contain any True or False value.
-     * For a non-pure inplace version of this method (which is likely more performant) see {@link FixTrueFalse#EliminateTrueAndFalseInplace(Node)}.
+     * So you either get True, False, or a formula that does not contain any True or
+     * False value.
+     * For a non-pure inplace version of this method (which is likely more
+     * performant) see {@link FixTrueFalse#EliminateTrueAndFalseInplace(Node)}.
+     * 
      * @param formula Formula to simplify. It remains unchanged.
      * @return Either True, False, or a formula without True and False.
      */
@@ -105,9 +118,12 @@ public class FixTrueFalse {
     }
 
     /**
-     * Same as {@link FixTrueFalse#EliminateTrueAndFalse(Node)} but mutates the given formula inplace.
-     * Thus, the given formula should  not be used after invoking this method as it might be corrupted.
+     * Same as {@link FixTrueFalse#EliminateTrueAndFalse(Node)} but mutates the
+     * given formula inplace.
+     * Thus, the given formula should not be used after invoking this method as it
+     * might be corrupted.
      * Instead, the returned node should be used.
+     * 
      * @return A formula with a consistent representation of true and false values.
      */
     public static Node EliminateTrueAndFalseInplace(final Node formula) {
@@ -155,18 +171,26 @@ public class FixTrueFalse {
                 final Node l = children[0];
                 final Node r = children[1];
 
-                if (isFalse(l)) return True;
-                if (isFalse(r)) return FormulaUtils.negate(l);
-                if (isTrue(l)) return r;
-                if (isTrue(r)) return True;
+                if (isFalse(l))
+                    return True;
+                if (isFalse(r))
+                    return FormulaUtils.negate(l);
+                if (isTrue(l))
+                    return r;
+                if (isTrue(r))
+                    return True;
             } else if (formula instanceof Equals) {
                 final Node l = children[0];
                 final Node r = children[1];
 
-                if (isFalse(l)) return FormulaUtils.negate(r);
-                if (isFalse(r)) return FormulaUtils.negate(l);
-                if (isTrue(l)) return r;
-                if (isTrue(r)) return l;
+                if (isFalse(l))
+                    return FormulaUtils.negate(r);
+                if (isFalse(r))
+                    return FormulaUtils.negate(l);
+                if (isTrue(l))
+                    return r;
+                if (isTrue(r))
+                    return l;
             }
         }
 

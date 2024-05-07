@@ -28,12 +28,12 @@ public class PathUtils {
     public static Result<Unit, IOException> createEmptyAsResult(final Path p) {
         return Result.FromFlag(
                 () -> PathUtils.createEmpty(p),
-                () -> new IOException("File already exists!")
-        );
+                () -> new IOException("File already exists!"));
     }
 
     /**
      * Creates a new empty file at the given path.
+     * 
      * @param p pointing to a non-existent file to create.
      * @return True if the file was created. False if the file already exists.
      * @throws IOException When file could not be created.
@@ -47,24 +47,30 @@ public class PathUtils {
      */
     public static boolean createEmpty(final File f) throws IOException {
         if (!f.getParentFile().exists() && !f.getParentFile().mkdirs()) {
-            throw new IOException("Creating directory " + f.getParentFile() + " failed. Thus, the file " + f.getAbsolutePath() + " could not be created!");
+            throw new IOException("Creating directory " + f.getParentFile() + " failed. Thus, the file "
+                    + f.getAbsolutePath() + " could not be created!");
         }
         return f.createNewFile();
     }
 
     /**
      * Maybe bug?
-     * I often have the problem with Java that it only requests the deletion of the file, but does not
-     * guarantee that it is deleted. In the VariabilityExtraction project this was a serious issue and in the end
-     * I had to call rm -f  ... as shell command.
+     * I often have the problem with Java that it only requests the deletion of the
+     * file, but does not
+     * guarantee that it is deleted. In the VariabilityExtraction project this was a
+     * serious issue and in the end
+     * I had to call rm -f ... as shell command.
+     * 
      * @param path Path to a directory that should be deleted.
-     * @return Unit iff deletion was successful, an exception explaining the failure otherwise.
+     * @return Unit iff deletion was successful, an exception explaining the failure
+     *         otherwise.
      */
     public static Result<Unit, CompositeException> deleteDirectory(final Path path) {
         // read java doc, Files.walk need close the resources.
         // try-with-resources to ensure that the stream's open directories are closed
         try (final Stream<Path> walk = Files.walk(path)) {
-            final Monoid<Result<Unit, CompositeException>> resultReducer = Result.MONOID(Unit.MONOID, CompositeException.MONOID);
+            final Monoid<Result<Unit, CompositeException>> resultReducer = Result.MONOID(Unit.MONOID,
+                    CompositeException.MONOID);
             return walk
                     .sorted(Comparator.reverseOrder())
                     .map(f -> Result.Try(() -> Files.delete(f)).mapFail(CompositeException::new))

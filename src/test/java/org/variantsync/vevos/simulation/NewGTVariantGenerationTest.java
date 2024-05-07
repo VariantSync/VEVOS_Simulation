@@ -106,13 +106,12 @@ public class NewGTVariantGenerationTest {
                         groundTruth.variant(),
                         targetDir.resolve("ground_truth.variant.csv").path())))
                 .bimap((success) -> {
-                            Logger.debug("generated variant {}", variant.getName());
-                            return success;
-                        }
-                        ,
+                    Logger.debug("generated variant {}", variant.getName());
+                    return success;
+                },
                         (failure) -> {
-                    Logger.error(failure);
-                    throw new RuntimeException(failure);
+                            Logger.error(failure);
+                            throw new RuntimeException(failure);
                         });
     }
 
@@ -123,7 +122,8 @@ public class NewGTVariantGenerationTest {
         assertCorrectPCs(pathToExpected, pathToActual);
     }
 
-    private void assertCorrectCode(CaseSensitivePath pathToExpected, CaseSensitivePath pathToActual) throws IOException {
+    private void assertCorrectCode(CaseSensitivePath pathToExpected, CaseSensitivePath pathToActual)
+            throws IOException {
         List<String> expectedCode = Files.readAllLines(pathToExpected.resolve("code.c").path());
         List<String> actualCode = Files.readAllLines(pathToActual.resolve("code.c").path());
         Assert.assertTrue(compareLines(expectedCode, actualCode));
@@ -144,8 +144,8 @@ public class NewGTVariantGenerationTest {
         }
 
         for (int lineNumber = 1; lineNumber <= Math.min(listA.size(), listB.size()); lineNumber++) {
-            String lineA = listA.get(lineNumber-1);
-            String lineB = listB.get(lineNumber-1);
+            String lineA = listA.get(lineNumber - 1);
+            String lineB = listB.get(lineNumber - 1);
             if (!lineA.equals(lineB)) {
                 equal = false;
                 Logger.error("Line {} does not match: '{}' vs. '{}'", lineNumber, lineA, lineB);

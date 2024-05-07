@@ -44,7 +44,8 @@ public class SPLCommit extends Commit implements CachedValue {
     private SPLCommit[] parents;
 
     /**
-     * Constructor for commits that should only contain information about the commit id. TODO:
+     * Constructor for commits that should only contain information about the commit
+     * id. TODO:
      * Document params.
      *
      * @param commitId The id of the commit
@@ -54,13 +55,13 @@ public class SPLCommit extends Commit implements CachedValue {
     }
 
     public SPLCommit(final String commitId, final Path dataDir,
-                    final KernelHavenLogPath kernelHavenLog, final FeatureModelPath featureModel,
-                    final PresenceConditionPath presenceConditionsBefore,
-                    final PresenceConditionPath presenceConditionsAfter,
-                    final PresenceConditionPath presenceConditionsFallback,
-                    final CodeMatchingPath codeMatchingBefore,
-                    final CodeMatchingPath codeMatchingAfter,
-                    final CommitMessagePath commitMessage, final FilterCountsPath filterCounts) {
+            final KernelHavenLogPath kernelHavenLog, final FeatureModelPath featureModel,
+            final PresenceConditionPath presenceConditionsBefore,
+            final PresenceConditionPath presenceConditionsAfter,
+            final PresenceConditionPath presenceConditionsFallback,
+            final CodeMatchingPath codeMatchingBefore,
+            final CodeMatchingPath codeMatchingAfter,
+            final CommitMessagePath commitMessage, final FilterCountsPath filterCounts) {
         super(commitId);
         this.dataDir = dataDir;
 
@@ -78,37 +79,37 @@ public class SPLCommit extends Commit implements CachedValue {
 
         // Lazy loading of log file
         this.kernelHavenLog = Functjonal.mapFragileLazily(kernelHavenLogPath,
-                        tryUnzip.andThen(Files::readString),
-                        () -> "Was not able to load KernelHaven log for commit " + commitId);
+                tryUnzip.andThen(Files::readString),
+                () -> "Was not able to load KernelHaven log for commit " + commitId);
         // Lazy loading of feature model
         this.featureModel = Functjonal.mapFragileLazily(featureModelPath, tryUnzip
-                        .andThen(path -> Resources.Instance().load(IFeatureModel.class, path)),
-                        () -> "Was not able to load feature model for id " + commitId);
+                .andThen(path -> Resources.Instance().load(IFeatureModel.class, path)),
+                () -> "Was not able to load feature model for id " + commitId);
         // Lazy loading of presence conditions
         this.presenceConditionsBefore = Functjonal.mapFragileLazily(presenceConditionsBeforePath,
-                        tryUnzip.andThen(path -> Resources.Instance().load(Artefact.class, path)),
-                        () -> "Was not able to load 'before' presence conditions for id "
-                                        + commitId);
+                tryUnzip.andThen(path -> Resources.Instance().load(Artefact.class, path)),
+                () -> "Was not able to load 'before' presence conditions for id "
+                        + commitId);
         this.presenceConditionsAfter = Functjonal.mapFragileLazily(presenceConditionsAfterPath,
-                        tryUnzip.andThen(path -> Resources.Instance().load(Artefact.class, path)),
-                        () -> "Was not able to load 'after' presence conditions for id "
-                                        + commitId);
+                tryUnzip.andThen(path -> Resources.Instance().load(Artefact.class, path)),
+                () -> "Was not able to load 'after' presence conditions for id "
+                        + commitId);
         this.presenceConditionsFallback = Functjonal.mapFragileLazily(
-                        presenceConditionsFallbackPath,
-                        tryUnzip.andThen(path -> Resources.Instance().load(Artefact.class, path)),
-                        () -> "Was not able to load fallback presence conditions for id "
-                                        + commitId);
+                presenceConditionsFallbackPath,
+                tryUnzip.andThen(path -> Resources.Instance().load(Artefact.class, path)),
+                () -> "Was not able to load fallback presence conditions for id "
+                        + commitId);
         this.codeMatching = tryToLoadMatching();
         // Lazy loading of commit message
         this.message = Functjonal.mapFragileLazily(commitMessagePath,
-                        tryUnzip.andThen(Files::readString),
-                        () -> "Was not able to load commit message for id " + commitId);
+                tryUnzip.andThen(Files::readString),
+                () -> "Was not able to load commit message for id " + commitId);
         // Lazy loading of filter counts
         this.filterCounts = Functjonal.mapFragileLazily(filterCountsPath, tryUnzip.andThen(path -> {
             final Map<EFilterOutcome, Integer> countsMap = new HashMap<>();
             Files.readAllLines(path).stream().map(l -> l.split(":"))
-                            .forEach(parts -> countsMap.put(EFilterOutcome.valueOf(parts[0]),
-                                            Integer.parseInt(parts[1].trim())));
+                    .forEach(parts -> countsMap.put(EFilterOutcome.valueOf(parts[0]),
+                            Integer.parseInt(parts[1].trim())));
             return countsMap;
         }), () -> "Was not able to load filter counts for id " + commitId);
     }
@@ -162,11 +163,14 @@ public class SPLCommit extends Commit implements CachedValue {
     }
 
     /**
-     * Return the parents of this commit. As the dataset only contains the data about non-error
-     * commits, not all <code>SPLCommit</code> objects are associated with their parents. Therefore,
+     * Return the parents of this commit. As the dataset only contains the data
+     * about non-error
+     * commits, not all <code>SPLCommit</code> objects are associated with their
+     * parents. Therefore,
      * an <code>Optional</code> is returned.
      *
-     * @return An <code>Optional</code> containing the <code>SPLCommit</code> objects of the parent
+     * @return An <code>Optional</code> containing the <code>SPLCommit</code>
+     *         objects of the parent
      *         commits, if there are any.
      */
     public Optional<SPLCommit[]> parents() {
@@ -199,21 +203,24 @@ public class SPLCommit extends Commit implements CachedValue {
     }
 
     /**
-     * @return A Lazy that loads the before change presence conditions associated with this commit.
+     * @return A Lazy that loads the before change presence conditions associated
+     *         with this commit.
      */
     public Lazy<Optional<Artefact>> presenceConditionsBefore() {
         return presenceConditionsBefore;
     }
 
     /**
-     * @return A Lazy that loads the after change presence conditions associated with this commit.
+     * @return A Lazy that loads the after change presence conditions associated
+     *         with this commit.
      */
     public Lazy<Optional<Artefact>> presenceConditionsAfter() {
         return presenceConditionsAfter;
     }
 
     /**
-     * @return A Lazy that loads the fallback presence conditions associated with this commit.
+     * @return A Lazy that loads the fallback presence conditions associated with
+     *         this commit.
      */
     public Lazy<Optional<Artefact>> presenceConditionsFallback() {
         return presenceConditionsFallback;
@@ -282,4 +289,3 @@ public class SPLCommit extends Commit implements CachedValue {
 
     }
 }
-

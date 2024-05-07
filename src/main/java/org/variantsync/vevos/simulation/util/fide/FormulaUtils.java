@@ -40,7 +40,8 @@ public class FormulaUtils {
     }
 
     /**
-     * This method inlines all recursive Ands into the top level And, passed as argument.
+     * This method inlines all recursive Ands into the top level And, passed as
+     * argument.
      */
     public static void flatten(final And and) {
         final List<And> redundantChildren = new ArrayList<>();
@@ -56,21 +57,28 @@ public class FormulaUtils {
 
             for (final Node child : and.getChildren()) {
                 if (child instanceof And) {
-                    redundantChildren.add((And)child);
+                    redundantChildren.add((And) child);
                 }
             }
         } while (!redundantChildren.isEmpty());
     }
 
     /**
-     * Replaces all nodes within the given formula's tree that match the given predicate.
-     * Matching nodes (i.e., nodes for which the predicate who returns true) will be replaced by the value returned
+     * Replaces all nodes within the given formula's tree that match the given
+     * predicate.
+     * Matching nodes (i.e., nodes for which the predicate who returns true) will be
+     * replaced by the value returned
      * by the replacement function, invoked on the matching node.
-     * @param root The root of the formula in which occurences of formulas should be replaced. The object remains unaltered.
-     * @param who A replacement is made whenever this predicate evaluates to true on a given node.
-     * @param replacement Whenever a node should be replaced, this function is invoked with that node as argument.
+     * 
+     * @param root        The root of the formula in which occurences of formulas
+     *                    should be replaced. The object remains unaltered.
+     * @param who         A replacement is made whenever this predicate evaluates to
+     *                    true on a given node.
+     * @param replacement Whenever a node should be replaced, this function is
+     *                    invoked with that node as argument.
      *                    The node will be replaced with the node returned.
-     * @return A new formula in which all nodes matching the given predicate are replaced.
+     * @return A new formula in which all nodes matching the given predicate are
+     *         replaced.
      */
     public static Node replaceAll(final Node root, final Predicate<Node> who, final Function<Node, Node> replacement) {
         if (root == null) {
@@ -81,10 +89,12 @@ public class FormulaUtils {
     }
 
     /**
-     * Inplace variant of the {@link #replaceAll(Node, Predicate, Function)} function.
+     * Inplace variant of the {@link #replaceAll(Node, Predicate, Function)}
+     * function.
      * This means the given formula (root parameter) will be altered.
      */
-    public static Node replaceAllInplace(final Node root, final Predicate<Node> who, final Function<Node, Node> replacement) {
+    public static Node replaceAllInplace(final Node root, final Predicate<Node> who,
+            final Function<Node, Node> replacement) {
         if (root == null) {
             return null;
         }
@@ -122,6 +132,7 @@ public class FormulaUtils {
      * Serializes the given formula to a string usable in C preprocessor conditions.
      * True and false will be converted to 1 and 0, respectively.
      * Variables will be wrapped in a defined expression.
+     * 
      * @see FixTrueFalse#TrueAs1
      * @see FixTrueFalse#FalseAs0
      */
@@ -130,8 +141,7 @@ public class FormulaUtils {
         formula = replaceAllInplace(formula, FixTrueFalse::isFalse, n -> FixTrueFalse.FalseAs0);
         formula = replaceAllInplace(formula, FixTrueFalse::isVariable,
                 // we know that n is a literal because FixTureFalse::isVariable returned true
-                n -> ifdef((Literal) n)
-        );
+                n -> ifdef((Literal) n));
         return toFormulaString(formula, NodeWriter.javaSymbols);
     }
 

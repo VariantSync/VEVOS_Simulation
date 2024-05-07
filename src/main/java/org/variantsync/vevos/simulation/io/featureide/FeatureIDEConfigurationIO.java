@@ -34,7 +34,8 @@ public class FeatureIDEConfigurationIO implements ResourceLoader<IConfiguration>
 
     @Override
     public Result<IConfiguration, ? extends Exception> load(final Path p) {
-        return Result.Try(() -> new FeatureIDEConfiguration(ConfigurationFactoryManager.getInstance().getFactory(p, format).create()));
+        return Result.Try(() -> new FeatureIDEConfiguration(
+                ConfigurationFactoryManager.getInstance().getFactory(p, format).create()));
     }
 
     @Override
@@ -46,7 +47,8 @@ public class FeatureIDEConfigurationIO implements ResourceLoader<IConfiguration>
                     Unit::Instance,
                     () -> "Could not write configuration " + configuration + " to file " + p + ".");
         } else {
-            return Result.Failure(new IllegalArgumentException("Given configuration " + configuration + " is not a FeatureIDEConfiguration but a " + configuration.getClass()));
+            return Result.Failure(new IllegalArgumentException("Given configuration " + configuration
+                    + " is not a FeatureIDEConfiguration but a " + configuration.getClass()));
         }
     }
 }

@@ -10,8 +10,7 @@ import java.util.List;
 
 public record VariantAnnotation(
         Node condition,
-        List<VariantLineChunk> lines
-) implements VariantLineChunk {
+        List<VariantLineChunk> lines) implements VariantLineChunk {
     @Override
     public List<String> project(final VariantGenerationOptions projectionOptions, final List<String> splFileLines) {
         final List<String> result = new ArrayList<>();

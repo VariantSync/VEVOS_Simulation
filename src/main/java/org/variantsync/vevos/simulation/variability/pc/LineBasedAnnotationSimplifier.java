@@ -17,26 +17,27 @@ public class LineBasedAnnotationSimplifier {
      * Inlines all subtrees with redundant annotation. Example:
      *
      * #if A
-     *   #if True
-     *   #endif
-     *   #if A || B
-     *   #endif
-     *   #if A
-     *     #if B
-     *     #endif
-     *   #endif
+     * #if True
+     * #endif
+     * #if A || B
+     * #endif
+     * #if A
+     * #if B
+     * #endif
+     * #endif
      * #endif
      *
      * is simplified to
      *
      * #if A
-     *   #if B
-     *   #endif
+     * #if B
+     * #endif
      * #endif
      *
      * while keeping referenced line numbers intact.
      *
-     * @return All non-redundant subtrees that should become the subtrees of root after simplification.
+     * @return All non-redundant subtrees that should become the subtrees of root
+     *         after simplification.
      */
     public static List<LineBasedAnnotation> flattenedSubtrees(final LineBasedAnnotation root) {
         final Queue<LineBasedAnnotation> subtreesToCheck = new LinkedList<>(root.getSubtrees());
@@ -73,12 +74,15 @@ public class LineBasedAnnotationSimplifier {
      * #endif
      *
      * while keeping referenced line numbers intact.
-     * Does not check for formula equivalence (e.g., True <=> A or not A) but equality (True == True).
+     * Does not check for formula equivalence (e.g., True <=> A or not A) but
+     * equality (True == True).
      *
-     * @return All non-redundant subtrees that should become the subtrees of root after simplification.
+     * @return All non-redundant subtrees that should become the subtrees of root
+     *         after simplification.
      */
     public static List<LineBasedAnnotation> mergedEqualNeighbours(final List<LineBasedAnnotation> mappings) {
-        if (mappings.isEmpty()) return mappings;
+        if (mappings.isEmpty())
+            return mappings;
 
         // Merge similar neighbouring children
         final List<LineBasedAnnotation> simplifiedSubtrees = new ArrayList<>(mappings.size());
@@ -88,7 +92,8 @@ public class LineBasedAnnotationSimplifier {
         for (int subtreeIndex = 1; subtreeIndex < mappings.size(); ++subtreeIndex) {
             final LineBasedAnnotation nextSubtree = mappings.get(subtreeIndex);
             // If two neighbouring nodes are equal ...
-            if (currentSubtree.getLineTo() + 1 == nextSubtree.getLineFrom() && currentSubtree.getFeatureMapping().equals(nextSubtree.getFeatureMapping())) {
+            if (currentSubtree.getLineTo() + 1 == nextSubtree.getLineFrom()
+                    && currentSubtree.getFeatureMapping().equals(nextSubtree.getFeatureMapping())) {
                 // ... merge them
                 currentSubtree.addTraces(nextSubtree.getSubtrees());
                 currentSubtree.setLineTo(nextSubtree.getLineTo());
@@ -103,7 +108,8 @@ public class LineBasedAnnotationSimplifier {
     }
 
     /**
-     * Simplifies the given annotations using all other simplification methods in this class.
+     * Simplifies the given annotations using all other simplification methods in
+     * this class.
      */
     public static void simplify(final LineBasedAnnotation root) {
         root.setFeatureMapping(root.getFeatureMapping().simplifyTree());

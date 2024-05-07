@@ -16,8 +16,9 @@ public class VariabilityDataset {
     private final List<SPLCommit> partialSuccessCommits;
     private final List<SPLCommit> emptyCommits;
 
-    public VariabilityDataset(@NotNull final List<SPLCommit> successCommits, @NotNull final List<SPLCommit> errorCommits,
-                              @NotNull final List<SPLCommit> emptyCommits, @NotNull final List<SPLCommit> partialSuccessCommits) {
+    public VariabilityDataset(@NotNull final List<SPLCommit> successCommits,
+            @NotNull final List<SPLCommit> errorCommits,
+            @NotNull final List<SPLCommit> emptyCommits, @NotNull final List<SPLCommit> partialSuccessCommits) {
         this.successCommits = successCommits;
         this.errorCommits = errorCommits;
         this.emptyCommits = emptyCommits;
@@ -27,7 +28,8 @@ public class VariabilityDataset {
         this.allCommits.addAll(errorCommits);
         this.allCommits.addAll(emptyCommits);
         this.allCommits.addAll(partialSuccessCommits);
-        if (allCommits.size() != successCommits.size() + errorCommits.size() + emptyCommits.size() + partialSuccessCommits.size()) {
+        if (allCommits.size() != successCommits.size() + errorCommits.size() + emptyCommits.size()
+                + partialSuccessCommits.size()) {
             final String errorMessage = "Some of the dataset's commits belong to more than one category (SUCCESS | ERROR | INCOMPLETE_PC)";
             Logger.error(errorMessage);
             throw new IllegalArgumentException(errorMessage);
@@ -42,46 +44,54 @@ public class VariabilityDataset {
     }
 
     /**
-     * @return A List of all commits for which variability data was extracted successfully.
+     * @return A List of all commits for which variability data was extracted
+     *         successfully.
      */
     public List<SPLCommit> getSuccessCommits() {
         return successCommits;
     }
 
     /**
-     * @return A List of all commits for which variability data could not be extracted.
+     * @return A List of all commits for which variability data could not be
+     *         extracted.
      */
     public List<SPLCommit> getErrorCommits() {
         return errorCommits;
     }
 
     /**
-     * @return A List of all commits for which there was no variability data for extraction. Thus, there is no ground truth.
+     * @return A List of all commits for which there was no variability data for
+     *         extraction. Thus, there is no ground truth.
      */
     public List<SPLCommit> getEmptyCommits() {
         return successCommits;
     }
 
     /**
-     * @return A List of all commits for which variability data was extracted partially.
+     * @return A List of all commits for which variability data was extracted
+     *         partially.
      */
     public List<SPLCommit> getPartialSuccessCommits() {
         return partialSuccessCommits;
     }
 
     /**
-     * Retrieve all sequences of usable commits in form of a VariabilityHistory instance.
+     * Retrieve all sequences of usable commits in form of a VariabilityHistory
+     * instance.
      *
      * <p>
-     * The retrieved VariabilityHistory is a list that contains commit sequences that can be used for our evolution study. Each
-     * sequence consists of at least two commits. A sequence is a list of commits, where a commit at index
+     * The retrieved VariabilityHistory is a list that contains commit sequences
+     * that can be used for our evolution study. Each
+     * sequence consists of at least two commits. A sequence is a list of commits,
+     * where a commit at index
      * i is the logical parent of the commit at index i+1.
      * </p>
      *
      * @return All sequences of commits that are usable in our evolution study.
      */
     public VariabilityHistory getVariabilityHistory(final SequenceExtractor sequenceExtractor) {
-        // Build a VariabilityHistory instance by applying the provided function to the set of success commits
+        // Build a VariabilityHistory instance by applying the provided function to the
+        // set of success commits
         final List<NonEmptyList<SPLCommit>> history = sequenceExtractor.extract(this.successCommits);
 
         if (history.isEmpty()) {
@@ -94,15 +104,16 @@ public class VariabilityDataset {
 
     /**
      * Collects all evolution steps into a set.
+     * 
      * @see #streamEvolutionSteps()
      */
     public Set<EvolutionStep<SPLCommit>> getEvolutionSteps() {
         return streamEvolutionSteps().collect(Collectors.toSet());
     }
 
-
     /**
      * Streams all valid pairs of success commits of this dataset.
+     * 
      * @see #streamEvolutionSteps(Collection)
      */
     public Stream<EvolutionStep<SPLCommit>> streamEvolutionSteps() {
@@ -110,9 +121,12 @@ public class VariabilityDataset {
     }
 
     /**
-     * Returns a sorted stream of {@link EvolutionStep<SPLCommit>}. Pairs of commits that
-     * have one commits in common will be returned sequentially (similar to playing domino).
+     * Returns a sorted stream of {@link EvolutionStep<SPLCommit>}. Pairs of commits
+     * that
+     * have one commits in common will be returned sequentially (similar to playing
+     * domino).
      * Visited SPLCommit's will be cleaned via {@link SPLCommit#forget()}.
+     * 
      * @see #streamEvolutionSteps(Collection)
      */
     public CleaningEvolutionStepsStream<SPLCommit> tidyStreamEvolutionSteps() {
@@ -120,17 +134,21 @@ public class VariabilityDataset {
     }
 
     /**
-     * Return the set of commit pairs (childCommit, parentCommit) for which the following holds:
+     * Return the set of commit pairs (childCommit, parentCommit) for which the
+     * following holds:
      * <ul>
-     *     <li>
-     *         childCommit processed its corresponding SPL commit successfully, i.e., feature model and code variability was extracted
-     *     </li>
-     *     <li>
-     *         The SPL commit, which was processed by childCommit, has exactly one parent commit in the SPL history (it is no merge commit)
-     *     </li>
-     *     <li>
-     *         The parent of the SPL commit was also processed successfully and is represented by parentCommit
-     *     </li>
+     * <li>
+     * childCommit processed its corresponding SPL commit successfully, i.e.,
+     * feature model and code variability was extracted
+     * </li>
+     * <li>
+     * The SPL commit, which was processed by childCommit, has exactly one parent
+     * commit in the SPL history (it is no merge commit)
+     * </li>
+     * <li>
+     * The parent of the SPL commit was also processed successfully and is
+     * represented by parentCommit
+     * </li>
      * </ul>
      *
      * @return Set of commit pairs that can be used in a variability evolution study
@@ -143,7 +161,8 @@ public class VariabilityDataset {
                         // We only consider commits that did not process a merge
                         final boolean notAMerge = parents.length == 1;
                         final SPLCommit p = parents[0];
-                        // We only consider commits that processed an SPL commit whose parent was also processed
+                        // We only consider commits that processed an SPL commit whose parent was also
+                        // processed
                         final boolean parentSuccess = successCommits.contains(p);
                         if (notAMerge && parentSuccess) {
                             return new EvolutionStep<>(p, c);

@@ -23,7 +23,8 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
- * A line-based annotation of source code, such as preprocessor annotations (#ifdef)
+ * A line-based annotation of source code, such as preprocessor annotations
+ * (#ifdef)
  */
 public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
     private final AnnotationStyle style;
@@ -32,19 +33,22 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
     private LineType lineType;
 
     /**
-     * Creates a new annotation starting at lineFrom and ending at lineTo including both
+     * Creates a new annotation starting at lineFrom and ending at lineTo including
+     * both
      * (i.e., [lineFrom, lineTo]).
      * Indexing is 1-based (i.e., the first line in a file is indexed by 1).
      * <p>
-     * The style determines whether the annotations is considered to be within the source code (i.e., c macros) or external.
+     * The style determines whether the annotations is considered to be within the
+     * source code (i.e., c macros) or external.
      * Example for a preprocessor block:
-     * 3 #if X     <-- lineFrom
-     * 4   foo();
-     * 5   bar();
-     * 6 #endif    <-- lineTo
+     * 3 #if X <-- lineFrom
+     * 4 foo();
+     * 5 bar();
+     * 6 #endif <-- lineTo
      * is reflected by LineBasedAnnotation(X, 3, 6, Internal);
      */
-    public LineBasedAnnotation(final Node featureMapping, final Node presenceCondition, final LineType lineType, final int lineFrom, final int lineTo, final AnnotationStyle style) {
+    public LineBasedAnnotation(final Node featureMapping, final Node presenceCondition, final LineType lineType,
+            final int lineFrom, final int lineTo, final AnnotationStyle style) {
         super(featureMapping, presenceCondition);
         this.lineType = lineType;
         this.lineFrom = lineFrom;
@@ -108,34 +112,41 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
         throw new UnsupportedOperationException();
     }
 
-    public Optional<AnnotationGroundTruth> deriveForVariant(final Variant variant, ArtefactFilter<LineBasedAnnotation> annotationFilter) {
+    public Optional<AnnotationGroundTruth> deriveForVariant(final Variant variant,
+            ArtefactFilter<LineBasedAnnotation> annotationFilter) {
         final BlockMatching matching = BlockMatching.MONOID.neutral();
-        return deriveForVariant(variant, annotationFilter, 0, matching).map(l -> new AnnotationGroundTruth(this, l, matching));
+        return deriveForVariant(variant, annotationFilter, 0, matching)
+                .map(l -> new AnnotationGroundTruth(this, l, matching));
     }
 
-    private Optional<LineBasedAnnotation> deriveForVariant(final Variant variant, ArtefactFilter<LineBasedAnnotation> annotationFilter, int offset, final BlockMatching matching) {
+    private Optional<LineBasedAnnotation> deriveForVariant(final Variant variant,
+            ArtefactFilter<LineBasedAnnotation> annotationFilter, int offset, final BlockMatching matching) {
         if (annotationFilter.shouldKeep(this) && variant.isImplementing(this.getPresenceCondition())) {
             final int firstCodeLine = getLineFrom() + offset;
 
             /// convert all subtrees to variants
             final List<LineBasedAnnotation> newSubtrees = new ArrayList<>(getNumberOfSubtrees());
             for (final LineBasedAnnotation splAnnotation : subtrees) {
-                final Optional<LineBasedAnnotation> mVariantAnnotation = splAnnotation.deriveForVariant(variant, annotationFilter, offset, matching);
+                final Optional<LineBasedAnnotation> mVariantAnnotation = splAnnotation.deriveForVariant(variant,
+                        annotationFilter, offset, matching);
                 // If the subtree is still present in the variant, it might have shrunk.
-                // That can happen when the subtree as nested annotations inside it that code removed.
+                // That can happen when the subtree as nested annotations inside it that code
+                // removed.
                 if (mVariantAnnotation.isPresent()) {
                     final LineBasedAnnotation variantAnnotation = mVariantAnnotation.get();
                     newSubtrees.add(variantAnnotation);
                     // Check how much the subtree shrunk.
                     offset -= splAnnotation.getLineCount() - variantAnnotation.getLineCount();
                 } else {
-                    // We removed the subtree entirely so its lines won't take any space in the variant.
+                    // We removed the subtree entirely so its lines won't take any space in the
+                    // variant.
                     offset -= splAnnotation.getLineCount();
                 }
             }
 
             final int lastCodeLine = getLineTo() + offset; // ignore #endif
-            final LineBasedAnnotation meAsVariant = new LineBasedAnnotation(getFeatureMapping(), getPresenceCondition(), getLineType(), firstCodeLine, lastCodeLine, AnnotationStyle.External);
+            final LineBasedAnnotation meAsVariant = new LineBasedAnnotation(getFeatureMapping(), getPresenceCondition(),
+                    getLineType(), firstCodeLine, lastCodeLine, AnnotationStyle.External);
             meAsVariant.setSubtrees(newSubtrees);
             matching.put(this, meAsVariant);
             return Optional.of(meAsVariant);
@@ -149,14 +160,17 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
     }
 
     /**
-     * Computes all lines that should be included in the given variant when evaluating the annotations in this artefact.
+     * Computes all lines that should be included in the given variant when
+     * evaluating the annotations in this artefact.
      *
-     * @param isIncluded A predicate to select subtrees. A subtree will be considered if isIncluded returns true for it.
-     * @return All line numbers that should be copied from the SPL file to the variant file. 1-based.
+     * @param isIncluded A predicate to select subtrees. A subtree will be
+     *                   considered if isIncluded returns true for it.
+     * @return All line numbers that should be copied from the SPL file to the
+     *         variant file. 1-based.
      */
     public VariantAnnotation getLinesToCopy(final Predicate<LineBasedAnnotation> isIncluded) {
         final List<VariantLineChunk> chunksToWrite = new ArrayList<>();
-//        final List<Integer> chunksToWrite = new ArrayList<>();
+        // final List<Integer> chunksToWrite = new ArrayList<>();
         final int firstCodeLine = getLineFrom(); // ignore #if
         final int lastCodeLine = getLineTo(); // ignore #endif
 
@@ -179,12 +193,12 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
 
         return new VariantAnnotation(
                 this.getFeatureMapping(),
-                chunksToWrite
-        );
+                chunksToWrite);
     }
 
     /**
-     * This method might no longer work properly with the new GT format and should be used with care.
+     * This method might no longer work properly with the new GT format and should
+     * be used with care.
      */
     @Deprecated
     public void simplify() {
@@ -193,7 +207,8 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
 
     /**
      * Merges the given FeatureAnnotation to this artefact in a sorted way.
-     * Containment within FeatureAnnotations will be solved recursively, creating a tree structure.
+     * Containment within FeatureAnnotations will be solved recursively, creating a
+     * tree structure.
      */
     @Override
     public void addTrace(final LineBasedAnnotation b) {
@@ -204,25 +219,25 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
             final LineBasedAnnotation a = subtrees.get(pos);
 
             /*
-            #if A
-            #endif
-
-            #if B
-            #endif
-
-            ==> Insert b after a.
+             * #if A
+             * #endif
+             * 
+             * #if B
+             * #endif
+             * 
+             * ==> Insert b after a.
              */
             if (a.getLineTo() <= b.getLineFrom()) {
                 left = pos + 1;
             }
             /*
-            #if B
-            #endif
-
-            #if A
-            #endif
-
-            ==> Insert b before a.
+             * #if B
+             * #endif
+             * 
+             * #if A
+             * #endif
+             * 
+             * ==> Insert b before a.
              */
             else if (b.getLineTo() < a.getLineFrom()) {
                 right = pos - 1;
@@ -232,26 +247,26 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
                 final boolean bStartsAfterCurrent = a.getLineFrom() <= b.getLineFrom();
                 final boolean bEndsBeforeCurrent = b.getLineTo() <= a.getLineTo();
                 /*
-                #if A
-                  #if B
-                  #endif
-                #endif
-
-                ==> b is surrounded by (at least) a.
-                ==> Insert b to the subtree of a.
+                 * #if A
+                 * #if B
+                 * #endif
+                 * #endif
+                 * 
+                 * ==> b is surrounded by (at least) a.
+                 * ==> Insert b to the subtree of a.
                  */
                 if (bStartsAfterCurrent && bEndsBeforeCurrent) {
                     a.addTrace(b);
                     return;
                 }
                 /*
-                #if B
-                  #if A
-                  #endif
-                #endif
-
-                ==> b is surrounds at (at least) a.
-                ==> Replace the subtree a with b and add a as subtree to b.
+                 * #if B
+                 * #if A
+                 * #endif
+                 * #endif
+                 * 
+                 * ==> b is surrounds at (at least) a.
+                 * ==> Replace the subtree a with b and add a as subtree to b.
                  */
                 else if (!bStartsAfterCurrent && !bEndsBeforeCurrent) {
                     // Swap A with B
@@ -261,15 +276,16 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
                     return;
                 }
                 /*
-                Illegal State: Blocks are overlapping but not nested into each other such as
-                #ifdef A
-                  #ifdef B
-                #endif // A
-                  #endif // B
-                or vice versa.
-                This is not possible to specify in practice.
-                Yet it could happen result from an ill-formed or buggy parsing process that we
-                should report by throwing an exception.
+                 * Illegal State: Blocks are overlapping but not nested into each other such as
+                 * #ifdef A
+                 * #ifdef B
+                 * #endif // A
+                 * #endif // B
+                 * or vice versa.
+                 * This is not possible to specify in practice.
+                 * Yet it could happen result from an ill-formed or buggy parsing process that
+                 * we
+                 * should report by throwing an exception.
                  */
                 else {
                     throw new IllegalFeatureTraceSpecification(
@@ -287,7 +303,7 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
         }
 
         /*
-        We found the location in the list at which to insert b.
+         * We found the location in the list at which to insert b.
          */
         subtrees.add(pos, b);
         b.setParent(this);
@@ -308,9 +324,12 @@ public class LineBasedAnnotation extends ArtefactTree<LineBasedAnnotation> {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        if (!super.equals(o))
+            return false;
         final LineBasedAnnotation that = (LineBasedAnnotation) o;
         return lineFrom == that.lineFrom && lineTo == that.lineTo;
     }

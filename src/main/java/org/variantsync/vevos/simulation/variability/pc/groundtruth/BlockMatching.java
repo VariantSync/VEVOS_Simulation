@@ -16,8 +16,7 @@ public class BlockMatching {
                 result.variantToSPL.putAll(a.variantToSPL);
                 result.variantToSPL.putAll(b.variantToSPL);
                 return result;
-            }
-    );
+            });
 
     private final Map<LineBasedAnnotation, LineBasedAnnotation> splToVariant;
     private final Map<LineBasedAnnotation, LineBasedAnnotation> variantToSPL;

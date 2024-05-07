@@ -9,7 +9,8 @@ import org.tinylog.Logger;
 public final class VEVOS {
     private static boolean initialized = false;
 
-    private VEVOS() {}
+    private VEVOS() {
+    }
 
     private static void InitFeatureIDE() {
         FMFactoryManager.getInstance().addExtension(DefaultFeatureModelFactory.getInstance());

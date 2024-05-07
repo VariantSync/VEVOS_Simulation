@@ -30,7 +30,8 @@ public class FilePCQuery implements ArtefactVisitor {
     }
 
     @Override
-    public <C extends ArtefactTree<?>> void visitGenericArtefactTreeNode(final SyntheticArtefactTreeNodeVisitorFocus<C> focus) {
+    public <C extends ArtefactTree<?>> void visitGenericArtefactTreeNode(
+            final SyntheticArtefactTreeNodeVisitorFocus<C> focus) {
         for (int i = 0; !fileFound && i < focus.getValue().getNumberOfSubtrees(); ++i) {
             focus.visitSubtree(i, this);
         }
