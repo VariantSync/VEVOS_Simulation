@@ -4,7 +4,6 @@ import org.tinylog.Logger;
 import org.variantsync.vevos.simulation.variability.pc.options.VariantGenerationOptions;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public record VariantLine(Integer lineNumber) implements VariantLineChunk {
     @Override

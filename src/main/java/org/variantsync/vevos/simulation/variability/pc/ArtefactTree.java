@@ -1,7 +1,6 @@
 package org.variantsync.vevos.simulation.variability.pc;
 
 import org.prop4j.Node;
-import org.variantsync.vevos.simulation.util.fide.FormulaUtils;
 import org.variantsync.vevos.simulation.util.io.CaseSensitivePath;
 
 import java.util.ArrayList;

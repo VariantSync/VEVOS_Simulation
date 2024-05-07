@@ -1,6 +1,5 @@
 package org.variantsync.vevos.simulation.variability.pc;
 
-import org.prop4j.Node;
 import org.variantsync.vevos.simulation.sat.SAT;
 
 import java.util.ArrayList;

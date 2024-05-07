@@ -1,20 +1,13 @@
 package org.variantsync.vevos.simulation;
 
-import de.ovgu.featureide.fm.core.analysis.cnf.formula.FeatureModelFormula;
-import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import org.junit.Assert;
 import org.junit.Test;
 import org.tinylog.Logger;
 import org.variantsync.functjonal.Result;
 import org.variantsync.vevos.simulation.feature.Variant;
-import org.variantsync.vevos.simulation.feature.config.FeatureIDEConfiguration;
-import org.variantsync.vevos.simulation.feature.config.IConfiguration;
 import org.variantsync.vevos.simulation.feature.config.SimpleConfiguration;
 import org.variantsync.vevos.simulation.io.Resources;
-import org.variantsync.vevos.simulation.io.featureide.FeatureModelIO;
 import org.variantsync.vevos.simulation.io.kernelhaven.KernelHavenSPLPCIO;
-import org.variantsync.vevos.simulation.io.kernelhaven.VariabilityModelLoader;
-import org.variantsync.vevos.simulation.util.fide.FeatureModelUtils;
 import org.variantsync.vevos.simulation.util.io.CaseSensitivePath;
 import org.variantsync.vevos.simulation.variability.pc.*;
 import org.variantsync.vevos.simulation.variability.pc.options.ArtefactFilter;

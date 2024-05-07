@@ -17,7 +17,6 @@ import org.variantsync.vevos.simulation.feature.config.FeatureIDEConfiguration;
 import org.variantsync.vevos.simulation.feature.config.IConfiguration;
 import org.variantsync.vevos.simulation.feature.sampling.FeatureIDESampler;
 import org.variantsync.vevos.simulation.feature.sampling.Sampler;
-import org.variantsync.vevos.simulation.io.ResourceLoader;
 import org.variantsync.vevos.simulation.io.Resources;
 import org.variantsync.vevos.simulation.io.TextIO;
 import org.variantsync.vevos.simulation.io.kernelhaven.KernelHavenSPLPCIO;
